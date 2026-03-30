@@ -40,7 +40,6 @@ class SystemMemory {
   static int bitenGorevSayisi = 0;   
   static List<Map<String, dynamic>> kiloGecmisi = [];
 
-  // --- YENİ: İDMAN (ZİNDAN) GEÇMİŞİ ---
   static int toplamIdmanDakikasi = 0; 
   static List<Map<String, dynamic>> idmanGecmisi = [];
 
@@ -94,7 +93,6 @@ class SystemMemory {
       String gecmisJson = prefs.getString('kiloGecmisi') ?? '[]';
       kiloGecmisi = List<Map<String, dynamic>>.from(jsonDecode(gecmisJson));
 
-      // YENİ: İdman Geçmişini Yükle
       toplamIdmanDakikasi = prefs.getInt('toplamIdmanDakikasi') ?? 0;
       String idmanJson = prefs.getString('idmanGecmisi') ?? '[]';
       idmanGecmisi = List<Map<String, dynamic>>.from(jsonDecode(idmanJson));
@@ -142,7 +140,6 @@ class SystemMemory {
     prefs.setInt('bitenGorevSayisi', bitenGorevSayisi);
     prefs.setString('kiloGecmisi', jsonEncode(kiloGecmisi));
 
-    // YENİ: İdman Geçmişini Kaydet
     prefs.setInt('toplamIdmanDakikasi', toplamIdmanDakikasi);
     prefs.setString('idmanGecmisi', jsonEncode(idmanGecmisi));
 
@@ -162,9 +159,6 @@ class SystemMemory {
     bossGuncelle();
   }
 
-  // =======================================================
-  // YENİ: ZİNDAN AKINI BİTİRİCİ (WORKOUT ENDER)
-  // =======================================================
   static String zindanAkiniBitir(int gecenSaniye) {
     int dakika = gecenSaniye ~/ 60;
     
@@ -178,13 +172,41 @@ class SystemMemory {
       'gorevSayisi': bitenGorevSayisiSimdi
     });
 
-    int kazanilanAltin = dakika * 2; // Zindanda geçirilen her 1 dakika = 2 Altın
+    int kazanilanAltin = dakika * 2; 
     altin.value += kazanilanAltin;
     
     kaydet();
     AudioSystem.playSuccess();
     
     return "[RAID COMPLETED]\nTime in Dungeon: $dakika Min\nQuests Completed: $bitenGorevSayisiSimdi\nTime Reward: +$kazanilanAltin Gold";
+  }
+
+  // =======================================================
+  // YENİ: PROTOKOL GÜNCELLEYİCİ (HEDEF VE ZORLUK DEĞİŞİMİ)
+  // =======================================================
+  static void protokolGuncelle(String yeniHedef, String yeniZorluk) {
+    aktifHedef = yeniHedef;
+    aktifZorluk = yeniZorluk;
+
+    double bmr = (cinsiyet == "Erkek") ? (10 * kilo) + (6.25 * boy) - (5 * yas) + 5 : (10 * kilo) + (6.25 * boy) - (5 * yas) - 161;
+    double gunlukIhtiyac = bmr * 1.375;
+    int kaloriFarki = 0;
+
+    if (aktifHedef == "Kilo Ver (Yağ Yak)") { 
+      if (aktifZorluk == "Normal") kaloriFarki = -500; 
+      else if (aktifZorluk == "Yüksek") kaloriFarki = -1000; 
+      else if (aktifZorluk == "Cehennem") kaloriFarki = -1500; 
+    } 
+    else if (aktifHedef == "Kilo Al (Kas İnşa Et)") { 
+      if (aktifZorluk == "Normal") kaloriFarki = 300; 
+      else if (aktifZorluk == "Yüksek") kaloriFarki = 500; 
+      else if (aktifZorluk == "Canavar") kaloriFarki = 1000; 
+    }
+
+    gunlukHedefKalori = (gunlukIhtiyac + kaloriFarki).round();
+    if (gunlukHedefKalori < 1200) gunlukHedefKalori = 1200; 
+    
+    kaydet();
   }
 
   static void bossGuncelle() {

@@ -18,44 +18,12 @@ class StatusWindow extends StatefulWidget {
 
 class _StatusWindowState extends State<StatusWindow> {
 
-  // Not: Buton kaldırıldı ancak ileride otomatik gece sıfırlaması (Cron Job) 
-  // eklenebileceği için algoritma (beyin) kodun içinde yedekte tutuluyor.
-  void _gunuBitirVeYargila() {
-    String rapor = SystemMemory.gunSonuHesaplasmasi();
-    AudioSystem.playSuccess();
-    
-    showDialog(
-      context: context, barrierDismissible: false,
-      builder: (BuildContext context) {
-        bool cezaVarMi = rapor.contains("[PENALTY]"); 
-        const Color sysBlue = Color(0xFF38BDF8);
-        const Color sysRed = Color(0xFFEF4444);
-        Color dialogColor = cezaVarMi ? sysRed : sysBlue;
-
-        return AlertDialog(
-          backgroundColor: const Color(0xFF030712).withOpacity(0.95),
-          shape: RoundedRectangleBorder(side: BorderSide(color: dialogColor, width: 1), borderRadius: BorderRadius.circular(4)),
-          title: Text(cezaVarMi ? '[ SYSTEM WARNING ]' : '[ DAILY QUEST COMPLETED ]', style: GoogleFonts.orbitron(color: dialogColor, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
-          content: Text(rapor, style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.2, height: 1.5)),
-          actions: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: dialogColor.withOpacity(0.1), side: BorderSide(color: dialogColor)),
-              onPressed: () { Navigator.pop(context); setState(() {}); },
-              child: Text('CONFIRM', style: TextStyle(color: dialogColor, fontWeight: FontWeight.bold, letterSpacing: 2)),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     const Color sysBlue = Color(0xFF38BDF8); 
     const Color sysDarkBg = Color(0xFF030712); 
     const Color sysRed = Color(0xFFEF4444); 
     const Color sysTextMuted = Color(0xFF94A3B8); 
-    const Color spotifyGreen = Color(0xFF1DB954); // YENİ: Spotify Yeşili (Sistem tonuna uyumlu)
 
     int bugunIndex = DateTime.now().weekday;
     List<Gorev> bugununProgrami = SystemMemory.haftalikPlan[bugunIndex]!;
@@ -66,19 +34,6 @@ class _StatusWindowState extends State<StatusWindow> {
         title: Text('S T A T U S', style: GoogleFonts.rajdhani(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 24, letterSpacing: 4.0)), 
         backgroundColor: Colors.transparent, elevation: 0, centerTitle: true,
         actions: [
-          // --- YENİ: SPOTIFY (MÜZİK) BUTONU ---
-          IconButton(
-            icon: const Icon(Icons.queue_music, color: spotifyGreen, size: 28),
-            tooltip: 'Audio Interface (Spotify)',
-            onPressed: () {
-              // İleride buraya url_launcher paketi ile direkt "spotify://" linki bağlanabilir.
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Text('SYSTEM: Audio Interface connecting...'),
-                backgroundColor: sysBlue, duration: Duration(seconds: 2),
-              ));
-            },
-          ),
-          // --- SAVAŞ SİMÜLASYONU BUTONU ---
           IconButton(
             icon: const Icon(Icons.sports_mma, color: sysRed, size: 28),
             tooltip: 'Combat Simulation',
@@ -95,7 +50,6 @@ class _StatusWindowState extends State<StatusWindow> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // --- 0. LEVEL VE EXP BARI ---
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
@@ -124,7 +78,6 @@ class _StatusWindowState extends State<StatusWindow> {
                 ),
                 const SizedBox(height: 20),
 
-                // --- 1. HP / MP KUTUSU ---
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
                   decoration: BoxDecoration(color: const Color(0xFF070B14).withOpacity(0.85), border: Border.all(color: sysBlue.withOpacity(0.4), width: 1), borderRadius: BorderRadius.circular(4)),
@@ -148,7 +101,6 @@ class _StatusWindowState extends State<StatusWindow> {
                 ),
                 const SizedBox(height: 20),
 
-                // --- 2. STATÜ GRID KUTUSU ---
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(color: const Color(0xFF070B14).withOpacity(0.85), border: Border.all(color: sysBlue.withOpacity(0.4), width: 1), borderRadius: BorderRadius.circular(4)),
@@ -170,7 +122,6 @@ class _StatusWindowState extends State<StatusWindow> {
                 ),
                 const SizedBox(height: 30),
 
-                // --- 3. GÜNLÜK GÖREV PANOSU ---
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -200,7 +151,6 @@ class _StatusWindowState extends State<StatusWindow> {
                 ),
                 const SizedBox(height: 20),
 
-                // --- 4. TEMEL İHTİYAÇLAR (Uyku) ---
                 Text('REQUIREMENTS', style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
                 const SizedBox(height: 10),
                 Container(
@@ -214,8 +164,7 @@ class _StatusWindowState extends State<StatusWindow> {
                     ]),
                   ),
                 ),
-                // ESKİ "GÜNÜ BİTİR" BUTONU BURADAN KALDIRILDI.
-                const SizedBox(height: 40), // Alt boşluk bırakıldı
+                const SizedBox(height: 40), 
               ],
             );
           }

@@ -19,6 +19,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
   static const Color sysDarkBg = Color(0xFF030712); 
   static const Color sysTextMuted = Color(0xFF94A3B8); 
 
+  // --- İNGİLİZCE ÇEVİRİ MOTORLARI (ARKA PLANI BOZMADAN EKRANA İNGİLİZCE YANSITIR) ---
+  String _hedefIngilizce(String tr) {
+    if (tr == 'Kilo Ver (Yağ Yak)') return 'Lose Weight';
+    if (tr == 'Kilo Al (Kas İnşa Et)') return 'Build Muscle';
+    return tr;
+  }
+
+  String _zorlukIngilizce(String tr) {
+    if (tr == 'Normal') return 'Normal';
+    if (tr == 'Yüksek') return 'Hard';
+    if (tr == 'Cehennem') return 'Hell';
+    if (tr == 'Canavar') return 'Monster';
+    return tr;
+  }
+
   Future<void> _fotoGuncelle() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(
@@ -40,6 +55,93 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ));
       }
     }
+  }
+
+  // --- YENİ: PROTOKOL GÜNCELLEME DİYALOGU ---
+  void _protokolGuncelleDialog() {
+    String geciciHedef = SystemMemory.aktifHedef;
+    String geciciZorluk = SystemMemory.aktifZorluk;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              backgroundColor: const Color(0xFF030712).withOpacity(0.95), 
+              shape: RoundedRectangleBorder(side: const BorderSide(color: sysBlue, width: 1), borderRadius: BorderRadius.circular(4)),
+              title: Text('OVERRIDE PROTOCOL', style: GoogleFonts.orbitron(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: 1)),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text("Change your Main Objective:", style: TextStyle(color: sysTextMuted, fontSize: 12)),
+                  const SizedBox(height: 10),
+                  DropdownButtonFormField<String>(
+                    value: geciciHedef == "Bilinmiyor" ? null : geciciHedef,
+                    dropdownColor: const Color(0xFF0F172A),
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    decoration: InputDecoration(
+                      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: sysBlue.withOpacity(0.5))),
+                      focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: sysBlue)),
+                    ),
+                    items: ['Kilo Ver (Yağ Yak)', 'Kilo Al (Kas İnşa Et)'].map((String value) {
+                      return DropdownMenuItem<String>(value: value, child: Text(_hedefIngilizce(value)));
+                    }).toList(),
+                    onChanged: (yeniDeger) {
+                      setDialogState(() {
+                        geciciHedef = yeniDeger!;
+                        // Hedef değişince zorluğu varsayılana çek ki hata olmasın
+                        geciciZorluk = "Normal"; 
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  const Text("Change Dungeon Difficulty:", style: TextStyle(color: sysTextMuted, fontSize: 12)),
+                  const SizedBox(height: 10),
+                  DropdownButtonFormField<String>(
+                    value: geciciZorluk == "Bilinmiyor" ? null : geciciZorluk,
+                    dropdownColor: const Color(0xFF0F172A),
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    decoration: InputDecoration(
+                      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: sysBlue.withOpacity(0.5))),
+                      focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: sysBlue)),
+                    ),
+                    items: (geciciHedef == 'Kilo Ver (Yağ Yak)' 
+                            ? ['Normal', 'Yüksek', 'Cehennem'] 
+                            : ['Normal', 'Yüksek', 'Canavar']).map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value, 
+                        child: Text(_zorlukIngilizce(value), style: TextStyle(color: value == 'Cehennem' || value == 'Canavar' ? const Color(0xFFEF4444) : Colors.white))
+                      );
+                    }).toList(),
+                    onChanged: (yeniDeger) {
+                      setDialogState(() { geciciZorluk = yeniDeger!; });
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL', style: TextStyle(color: sysTextMuted))),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: sysBlue.withOpacity(0.1), side: const BorderSide(color: sysBlue)), 
+                  onPressed: () {
+                    SystemMemory.protokolGuncelle(geciciHedef, geciciZorluk);
+                    setState(() {}); // Ekranı yenile (Kalori verisi güncellenecek)
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('SYSTEM: Protocol Overridden! Calories Recalculated.'),
+                      backgroundColor: sysBlue, duration: Duration(seconds: 2),
+                    ));
+                  }, 
+                  child: const Text('OVERRIDE', style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold))
+                )
+              ],
+            );
+          }
+        );
+      }
+    );
   }
 
   void _kiloGuncelleDialog() {
@@ -138,8 +240,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       
                       DateTime t = DateTime.parse(kayit['tarih']);
                       String tarihFormatli = "${t.day.toString().padLeft(2,'0')}.${t.month.toString().padLeft(2,'0')}.${t.year}";
-                      
-                      // YENİ: Geçmişte kalori verisi yoksa hata vermemesi için "?? 0" ile korunuyor.
                       int kalori = kayit['kalori'] ?? 0;
 
                       return Container(
@@ -254,16 +354,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Icon(Icons.memory, color: sysBlue, size: 18),
-                      const SizedBox(width: 10),
-                      Text("SYSTEM PROTOCOL", style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                      Row(
+                        children: [
+                          const Icon(Icons.memory, color: sysBlue, size: 18),
+                          const SizedBox(width: 10),
+                          Text("SYSTEM PROTOCOL", style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                        ],
+                      ),
+                      // YENİ: PROTOKOL DÜZENLEME BUTONU
+                      IconButton(
+                        icon: const Icon(Icons.settings_suggest, color: sysBlue, size: 20), 
+                        onPressed: _protokolGuncelleDialog, 
+                        tooltip: 'Override Protocol'
+                      )
                     ],
                   ), 
-                  const SizedBox(height: 20),
-                  _protokolSatiri("Main Objective", SystemMemory.aktifHedef, sysTextMuted),
                   const SizedBox(height: 10),
-                  _protokolSatiri("Dungeon Difficulty", SystemMemory.aktifZorluk, sysTextMuted, isDanger: SystemMemory.aktifZorluk == "Cehennem"),
+                  _protokolSatiri("Main Objective", _hedefIngilizce(SystemMemory.aktifHedef), sysTextMuted),
+                  const SizedBox(height: 10),
+                  _protokolSatiri("Dungeon Difficulty", _zorlukIngilizce(SystemMemory.aktifZorluk), sysTextMuted, isDanger: SystemMemory.aktifZorluk == "Cehennem" || SystemMemory.aktifZorluk == "Canavar"),
                   const SizedBox(height: 10),
                   const Divider(color: Colors.white12, thickness: 1),
                   const SizedBox(height: 10),

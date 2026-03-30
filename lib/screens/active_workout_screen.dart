@@ -19,7 +19,6 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
   static const Color sysRed = Color(0xFFEF4444); 
   static const Color sysBlue = Color(0xFF38BDF8); 
   static const Color sysDarkBg = Color(0xFF030712);
-  static const Color spotifyGreen = Color(0xFF1DB954);
 
   int gecenSaniye = 0;
   Timer? _kronometre;
@@ -28,7 +27,6 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
   @override
   void initState() {
     super.initState();
-    // Ekrana girer girmez kronometre başlar
     _kronometre = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         gecenSaniye++;
@@ -58,7 +56,6 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
   void _zindandanCik() {
     _kronometre?.cancel();
     
-    // Sistem Hafızasına işleyip raporu alıyoruz
     String rapor = SystemMemory.zindanAkiniBitir(gecenSaniye);
     
     showDialog(
@@ -73,8 +70,8 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: sysBlue.withOpacity(0.2), side: const BorderSide(color: sysBlue)), 
             onPressed: () {
-              Navigator.pop(context); // Dialogu kapat
-              Navigator.pop(context); // Zindan ekranından çık
+              Navigator.pop(context); 
+              Navigator.pop(context); 
             }, 
             child: const Text('CONFIRM', style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold))
           ) 
@@ -92,7 +89,6 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // ÜST BÖLÜM: KRONOMETRE VE ARAÇLAR
             Container(
               width: double.infinity,
               padding: const EdgeInsets.only(top: 20, bottom: 40),
@@ -104,23 +100,6 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  // Sol Üst: Spotify Butonu
-                  Positioned(
-                    top: 0,
-                    left: 20,
-                    child: IconButton(
-                      icon: const Icon(Icons.queue_music, color: spotifyGreen, size: 28),
-                      tooltip: 'Spotify',
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                          content: Text('SYSTEM: Audio Interface connecting...'),
-                          backgroundColor: sysBlue, duration: Duration(seconds: 2),
-                        ));
-                      },
-                    ),
-                  ),
-                  
-                  // Sağ Üst: Savaş Simülatörü Butonu
                   Positioned(
                     top: 0,
                     right: 20,
@@ -131,7 +110,6 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                     ),
                   ),
 
-                  // Orta: Kronometre
                   Column(
                     children: [
                       Text('ACTIVE RAID', style: GoogleFonts.orbitron(color: sysRed, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 4)),
@@ -148,7 +126,6 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
               ),
             ),
             
-            // ORTA BÖLÜM: BUGÜNÜN GÖREVLERİ
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.all(20),
@@ -182,7 +159,6 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
               ),
             ),
 
-            // ALT BÖLÜM: ÇIKIŞ BUTONU
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: SizedBox(
