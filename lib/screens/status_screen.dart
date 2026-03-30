@@ -1,3 +1,4 @@
+// lib/screens/status_screen.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -5,10 +6,6 @@ import '../controllers/system_memory.dart';
 import '../models/task_model.dart';
 import '../core/sistem_gecisi.dart'; 
 import '../core/audio_system.dart';  
-
-// KENDİ ÜRETTİĞİMİZ MODÜLLER
-import '../widgets/hologram_card.dart';
-import '../widgets/stat_bar.dart';
 
 import 'workout_planner_screen.dart'; 
 import 'boxing_timer_screen.dart'; 
@@ -21,6 +18,8 @@ class StatusWindow extends StatefulWidget {
 
 class _StatusWindowState extends State<StatusWindow> {
 
+  // Not: Buton kaldırıldı ancak ileride otomatik gece sıfırlaması (Cron Job) 
+  // eklenebileceği için algoritma (beyin) kodun içinde yedekte tutuluyor.
   void _gunuBitirVeYargila() {
     String rapor = SystemMemory.gunSonuHesaplasmasi();
     AudioSystem.playSuccess();
@@ -28,17 +27,21 @@ class _StatusWindowState extends State<StatusWindow> {
     showDialog(
       context: context, barrierDismissible: false,
       builder: (BuildContext context) {
-        bool cezaVarMi = rapor.contains("[CEZA]"); 
+        bool cezaVarMi = rapor.contains("[PENALTY]"); 
+        const Color sysBlue = Color(0xFF38BDF8);
+        const Color sysRed = Color(0xFFEF4444);
+        Color dialogColor = cezaVarMi ? sysRed : sysBlue;
+
         return AlertDialog(
-          backgroundColor: const Color(0xFF0A0E17),
-          shape: RoundedRectangleBorder(side: BorderSide(color: cezaVarMi ? Colors.redAccent : Colors.cyanAccent, width: 2), borderRadius: BorderRadius.circular(15)),
-          title: Text(cezaVarMi ? '[ SİSTEM UYARISI ]' : '[ GÜNLÜK GÖREV TAMAMLANDI ]', style: GoogleFonts.orbitron(color: cezaVarMi ? Colors.redAccent : Colors.cyanAccent, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+          backgroundColor: const Color(0xFF030712).withOpacity(0.95),
+          shape: RoundedRectangleBorder(side: BorderSide(color: dialogColor, width: 1), borderRadius: BorderRadius.circular(4)),
+          title: Text(cezaVarMi ? '[ SYSTEM WARNING ]' : '[ DAILY QUEST COMPLETED ]', style: GoogleFonts.orbitron(color: dialogColor, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
           content: Text(rapor, style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.2, height: 1.5)),
           actions: [
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: cezaVarMi ? Colors.red[900]!.withOpacity(0.3) : Colors.cyan[900]!.withOpacity(0.3), side: BorderSide(color: cezaVarMi ? Colors.redAccent : Colors.cyanAccent)),
+              style: ElevatedButton.styleFrom(backgroundColor: dialogColor.withOpacity(0.1), side: BorderSide(color: dialogColor)),
               onPressed: () { Navigator.pop(context); setState(() {}); },
-              child: Text('ONAYLA', style: TextStyle(color: cezaVarMi ? Colors.redAccent : Colors.cyanAccent, fontWeight: FontWeight.bold, letterSpacing: 2)),
+              child: Text('CONFIRM', style: TextStyle(color: dialogColor, fontWeight: FontWeight.bold, letterSpacing: 2)),
             ),
           ],
         );
@@ -48,21 +51,44 @@ class _StatusWindowState extends State<StatusWindow> {
 
   @override
   Widget build(BuildContext context) {
+    const Color sysBlue = Color(0xFF38BDF8); 
+    const Color sysDarkBg = Color(0xFF030712); 
+    const Color sysRed = Color(0xFFEF4444); 
+    const Color sysTextMuted = Color(0xFF94A3B8); 
+    const Color spotifyGreen = Color(0xFF1DB954); // YENİ: Spotify Yeşili (Sistem tonuna uyumlu)
+
     int bugunIndex = DateTime.now().weekday;
     List<Gorev> bugununProgrami = SystemMemory.haftalikPlan[bugunIndex]!;
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: sysDarkBg,
       appBar: AppBar(
-        title: Text('SİSTEM: DURUM', style: GoogleFonts.orbitron(color: Colors.cyanAccent, fontWeight: FontWeight.bold, letterSpacing: 1.5)), 
-        backgroundColor: const Color(0xFF0A0E17), elevation: 0,
+        title: Text('S T A T U S', style: GoogleFonts.rajdhani(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 24, letterSpacing: 4.0)), 
+        backgroundColor: Colors.transparent, elevation: 0, centerTitle: true,
         actions: [
-          IconButton(icon: const Icon(Icons.sports_mma, color: Colors.redAccent, size: 28), tooltip: 'Savaş Simülasyonu', onPressed: () => Navigator.push(context, SistemGecisi(sayfa: const BoxingTimerScreen()))),
+          // --- YENİ: SPOTIFY (MÜZİK) BUTONU ---
+          IconButton(
+            icon: const Icon(Icons.queue_music, color: spotifyGreen, size: 28),
+            tooltip: 'Audio Interface (Spotify)',
+            onPressed: () {
+              // İleride buraya url_launcher paketi ile direkt "spotify://" linki bağlanabilir.
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                content: Text('SYSTEM: Audio Interface connecting...'),
+                backgroundColor: sysBlue, duration: Duration(seconds: 2),
+              ));
+            },
+          ),
+          // --- SAVAŞ SİMÜLASYONU BUTONU ---
+          IconButton(
+            icon: const Icon(Icons.sports_mma, color: sysRed, size: 28),
+            tooltip: 'Combat Simulation',
+            onPressed: () => Navigator.push(context, SistemGecisi(sayfa: const BoxingTimerScreen())),
+          ),
           const SizedBox(width: 10),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(15.0),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child: AnimatedBuilder(
           animation: Listenable.merge([SystemMemory.hp, SystemMemory.mp, SystemMemory.fatigue, SystemMemory.level, SystemMemory.exp, SystemMemory.ap, SystemMemory.str, SystemMemory.agi, SystemMemory.vit, SystemMemory.intStat, SystemMemory.per]),
           builder: (context, child) {
@@ -71,54 +97,72 @@ class _StatusWindowState extends State<StatusWindow> {
               children: [
                 // --- 0. LEVEL VE EXP BARI ---
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text('LEVEL: ${SystemMemory.level.value}', style: GoogleFonts.orbitron(color: Colors.cyanAccent, fontSize: 28, fontWeight: FontWeight.bold)),
-                    const SizedBox(width: 15),
+                    Text('${SystemMemory.level.value}', style: GoogleFonts.orbitron(color: Colors.white, fontSize: 40, fontWeight: FontWeight.bold, height: 1)),
+                    const SizedBox(width: 10),
+                    const Padding(padding: EdgeInsets.only(bottom: 8), child: Text('LEVEL', style: TextStyle(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2))),
+                    const SizedBox(width: 20),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('EXP', style: GoogleFonts.rajdhani(color: Colors.amberAccent, fontWeight: FontWeight.bold)),
+                          Text('EXP', style: GoogleFonts.rajdhani(color: sysTextMuted, fontWeight: FontWeight.bold, letterSpacing: 1)),
                           Container(
-                            height: 8, width: double.infinity, decoration: BoxDecoration(border: Border.all(color: Colors.amberAccent, width: 1), borderRadius: BorderRadius.circular(5)),
-                            child: FractionallySizedBox(alignment: Alignment.centerLeft, widthFactor: (SystemMemory.exp.value / SystemMemory.maxExp.value).clamp(0.0, 1.0), child: Container(decoration: BoxDecoration(color: Colors.amberAccent, borderRadius: BorderRadius.circular(5), boxShadow: [BoxShadow(color: Colors.amberAccent.withOpacity(0.8), blurRadius: 10)]))),
+                            height: 6, width: double.infinity,
+                            decoration: BoxDecoration(border: Border.all(color: sysBlue.withOpacity(0.5), width: 1), borderRadius: BorderRadius.circular(2)),
+                            child: FractionallySizedBox(
+                              alignment: Alignment.centerLeft, widthFactor: (SystemMemory.exp.value / SystemMemory.maxExp.value).clamp(0.0, 1.0),
+                              child: Container(decoration: BoxDecoration(color: sysBlue, borderRadius: BorderRadius.circular(2), boxShadow: [BoxShadow(color: sysBlue.withOpacity(0.5), blurRadius: 5)])),
+                            ),
                           ),
-                          Align(alignment: Alignment.centerRight, child: Text('${SystemMemory.exp.value} / ${SystemMemory.maxExp.value}', style: const TextStyle(color: Colors.white54, fontSize: 10))),
+                          Align(alignment: Alignment.centerRight, child: Text('${SystemMemory.exp.value} / ${SystemMemory.maxExp.value}', style: const TextStyle(color: sysTextMuted, fontSize: 10))),
                         ],
                       ),
                     )
                   ],
                 ),
-                const SizedBox(height: 15),
+                const SizedBox(height: 20),
 
-                // --- 1. HP / MP KUTUSU (Yeni Hologram ve StatBar ile 5 satıra düştü!) ---
-                HologramCard(
-                  neonRenk: Colors.cyanAccent,
+                // --- 1. HP / MP KUTUSU ---
+                Container(
                   padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+                  decoration: BoxDecoration(color: const Color(0xFF070B14).withOpacity(0.85), border: Border.all(color: sysBlue.withOpacity(0.4), width: 1), borderRadius: BorderRadius.circular(4)),
                   child: Row(
                     children: [
-                      Expanded(child: StatBar(label: 'HP', icon: Icons.add_box, color: Colors.cyanAccent, current: SystemMemory.hp.value, max: SystemMemory.maxHp)),
+                      Column(children: [const Icon(Icons.add_box, color: Colors.white, size: 24), Text('HP', style: GoogleFonts.rajdhani(color: sysTextMuted, fontWeight: FontWeight.bold, fontSize: 14))]),
+                      const SizedBox(width: 10),
+                      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                        Container(height: 8, width: double.infinity, decoration: BoxDecoration(border: Border.all(color: sysBlue.withOpacity(0.5), width: 1), borderRadius: BorderRadius.circular(2)), child: FractionallySizedBox(alignment: Alignment.centerLeft, widthFactor: (SystemMemory.hp.value / SystemMemory.maxHp).clamp(0.0, 1.0), child: Container(decoration: BoxDecoration(color: sysBlue, borderRadius: BorderRadius.circular(2), boxShadow: [BoxShadow(color: sysBlue.withOpacity(0.5), blurRadius: 5)])))),
+                        const SizedBox(height: 5), Text('${SystemMemory.hp.value}/${SystemMemory.maxHp}', style: const TextStyle(color: Colors.white, fontSize: 12)),
+                      ])),
                       const SizedBox(width: 20),
-                      Expanded(child: StatBar(label: 'MP', icon: Icons.science, color: Colors.blueAccent, current: SystemMemory.mp.value, max: SystemMemory.maxMp)),
+                      Column(children: [const Icon(Icons.science, color: Colors.white, size: 24), Text('MP', style: GoogleFonts.rajdhani(color: sysTextMuted, fontWeight: FontWeight.bold, fontSize: 14))]),
+                      const SizedBox(width: 10),
+                      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                        Container(height: 8, width: double.infinity, decoration: BoxDecoration(border: Border.all(color: sysBlue.withOpacity(0.5), width: 1), borderRadius: BorderRadius.circular(2)), child: FractionallySizedBox(alignment: Alignment.centerLeft, widthFactor: (SystemMemory.mp.value / SystemMemory.maxMp).clamp(0.0, 1.0), child: Container(decoration: BoxDecoration(color: sysBlue, borderRadius: BorderRadius.circular(2), boxShadow: [BoxShadow(color: sysBlue.withOpacity(0.5), blurRadius: 5)])))),
+                        const SizedBox(height: 5), Text('${SystemMemory.mp.value}/${SystemMemory.maxMp}', style: const TextStyle(color: Colors.white, fontSize: 12)),
+                      ])),
                     ],
                   ),
                 ),
                 const SizedBox(height: 20),
 
                 // --- 2. STATÜ GRID KUTUSU ---
-                HologramCard(
-                  neonRenk: Colors.purpleAccent,
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(color: const Color(0xFF070B14).withOpacity(0.85), border: Border.all(color: sysBlue.withOpacity(0.4), width: 1), borderRadius: BorderRadius.circular(4)),
                   child: Column(
                     children: [
-                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [_StatRow(Icons.fitness_center, 'STR', SystemMemory.str.value), _StatRow(Icons.favorite, 'VIT', SystemMemory.vit.value)]),
+                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [_StatRow(Icons.fitness_center, 'STR', SystemMemory.str.value, sysBlue), _StatRow(Icons.favorite, 'VIT', SystemMemory.vit.value, sysBlue)]),
                       const SizedBox(height: 20),
-                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [_StatRow(Icons.directions_run, 'AGI', SystemMemory.agi.value), _StatRow(Icons.psychology, 'INT', SystemMemory.intStat.value)]),
+                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [_StatRow(Icons.directions_run, 'AGI', SystemMemory.agi.value, sysBlue), _StatRow(Icons.psychology, 'INT', SystemMemory.intStat.value, sysBlue)]),
                       const SizedBox(height: 20),
                       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                        _StatRow(Icons.visibility, 'PER', SystemMemory.per.value),
+                        _StatRow(Icons.visibility, 'PER', SystemMemory.per.value, sysBlue),
                         Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                          Text('Available Pts:', textAlign: TextAlign.right, style: TextStyle(color: SystemMemory.ap.value > 0 ? Colors.amberAccent : Colors.white54, fontSize: 12)), 
-                          Text('${SystemMemory.ap.value}', style: GoogleFonts.orbitron(color: SystemMemory.ap.value > 0 ? Colors.amberAccent : Colors.cyanAccent, fontSize: 24, fontWeight: FontWeight.bold))
+                          Text('Available Pts:', textAlign: TextAlign.right, style: TextStyle(color: sysTextMuted, fontSize: 10, letterSpacing: 1)), 
+                          Text('${SystemMemory.ap.value}', style: GoogleFonts.orbitron(color: SystemMemory.ap.value > 0 ? sysBlue : sysTextMuted, fontSize: 24, fontWeight: FontWeight.bold))
                         ])
                       ]),
                     ],
@@ -130,61 +174,48 @@ class _StatusWindowState extends State<StatusWindow> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('SİSTEM GÖREVLERİ', style: GoogleFonts.orbitron(color: Colors.amberAccent, fontSize: 18, fontWeight: FontWeight.bold)),
-                    IconButton(icon: const Icon(Icons.edit_calendar, color: Colors.cyanAccent), onPressed: () => Navigator.push(context, SistemGecisi(sayfa: const WorkoutPlannerScreen())).then((value) => setState((){})) )
+                    Text('QUESTS', style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                    IconButton(icon: const Icon(Icons.edit_square, color: sysBlue, size: 20), onPressed: () => Navigator.push(context, SistemGecisi(sayfa: const WorkoutPlannerScreen())).then((value) => setState((){})) )
                   ],
                 ),
                 const SizedBox(height: 10),
                 
-                if (bugununProgrami.isEmpty)
-                  HologramCard(neonRenk: Colors.greenAccent, child: const Center(child: Text("BUGÜN DİNLENME GÜNÜ. Sistem görev beklemiyor.", style: TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold, fontSize: 16), textAlign: TextAlign.center))),
-                
-                if (bugununProgrami.isNotEmpty)
-                  HologramCard(
-                    neonRenk: Colors.white12, padding: EdgeInsets.zero,
-                    child: Column(
-                      children: bugununProgrami.map((gorev) {
-                        bool fizikselMi = gorev.tip == "Fiziksel";
-                        return CheckboxListTile(
-                          secondary: Icon(fizikselMi ? Icons.fitness_center : Icons.psychology, color: fizikselMi ? Colors.cyanAccent : Colors.purpleAccent),
-                          title: Text(gorev.ad, style: TextStyle(color: gorev.yapildiMi ? Colors.white38 : Colors.white, decoration: gorev.yapildiMi ? TextDecoration.lineThrough : null)),
-                          value: gorev.yapildiMi, activeColor: fizikselMi ? Colors.cyanAccent : Colors.purpleAccent, checkColor: Colors.black,
-                          onChanged: (val) { setState((){ gorev.yapildiMi = val!; }); SystemMemory.kaydet(); },
-                        );
-                      }).toList(),
-                    ),
-                  ),
+                Container(
+                  decoration: BoxDecoration(border: Border.all(color: sysBlue.withOpacity(0.4), width: 1), borderRadius: BorderRadius.circular(4), color: const Color(0xFF070B14).withOpacity(0.85)),
+                  child: bugununProgrami.isEmpty
+                    ? const Padding(padding: EdgeInsets.all(20), child: Center(child: Text("No quests today.", style: TextStyle(color: sysTextMuted))))
+                    : Column(
+                        children: bugununProgrami.map<Widget>((gorev) { 
+                          return Container(
+                            decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.white12, width: 0.5))),
+                            child: CheckboxListTile(
+                              secondary: Icon(gorev.tip == "Fiziksel" ? Icons.fitness_center : Icons.psychology, color: sysTextMuted, size: 18),
+                              title: Text(gorev.ad, style: TextStyle(color: gorev.yapildiMi ? sysTextMuted : Colors.white, fontSize: 14, decoration: gorev.yapildiMi ? TextDecoration.lineThrough : null)),
+                              value: gorev.yapildiMi, activeColor: sysBlue, checkColor: sysDarkBg,
+                              onChanged: (val) { setState((){ gorev.yapildiMi = val!; }); SystemMemory.kaydet(); },
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                ),
                 const SizedBox(height: 20),
 
                 // --- 4. TEMEL İHTİYAÇLAR (Uyku) ---
-                Text('SABİT İHTİYAÇLAR', style: GoogleFonts.orbitron(color: Colors.cyanAccent, fontSize: 18, fontWeight: FontWeight.bold)),
+                Text('REQUIREMENTS', style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
                 const SizedBox(height: 10),
-                HologramCard(
-                  neonRenk: Colors.white12, padding: EdgeInsets.zero,
+                Container(
+                  decoration: BoxDecoration(border: Border.all(color: sysBlue.withOpacity(0.4), width: 1), borderRadius: BorderRadius.circular(4), color: const Color(0xFF070B14).withOpacity(0.85)),
                   child: ListTile(
-                    title: const Text('Uyunan Süre (Saat)', style: TextStyle(color: Colors.white)),
+                    title: const Text('Sleep Duration (Hrs)', style: TextStyle(color: sysTextMuted, fontSize: 14)),
                     trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                      IconButton(icon: const Icon(Icons.remove_circle_outline, color: Colors.cyanAccent), onPressed: () { if(SystemMemory.uyunanSaat>0) { setState(() => SystemMemory.uyunanSaat--); SystemMemory.kaydet(); } }),
+                      IconButton(icon: const Icon(Icons.remove, color: sysBlue), onPressed: () { if(SystemMemory.uyunanSaat>0) { setState(() => SystemMemory.uyunanSaat--); SystemMemory.kaydet(); } }),
                       Text('${SystemMemory.uyunanSaat}', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                      IconButton(icon: const Icon(Icons.add_circle_outline, color: Colors.cyanAccent), onPressed: () { setState(() => SystemMemory.uyunanSaat++); SystemMemory.kaydet(); }),
+                      IconButton(icon: const Icon(Icons.add, color: sysBlue), onPressed: () { setState(() => SystemMemory.uyunanSaat++); SystemMemory.kaydet(); }),
                     ]),
                   ),
                 ),
-                const SizedBox(height: 30),
-
-                // --- GÜNÜ BİTİR BUTONU ---
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _gunuBitirVeYargila,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red[900]!.withOpacity(0.8), padding: const EdgeInsets.symmetric(vertical: 18),
-                      side: const BorderSide(color: Colors.redAccent, width: 2), shadowColor: Colors.redAccent, elevation: 10,
-                    ),
-                    child: const Text('GÜNÜ BİTİR (YARGILAMA)', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2)),
-                  ),
-                ),
-                const SizedBox(height: 20),
+                // ESKİ "GÜNÜ BİTİR" BUTONU BURADAN KALDIRILDI.
+                const SizedBox(height: 40), // Alt boşluk bırakıldı
               ],
             );
           }
@@ -193,18 +224,25 @@ class _StatusWindowState extends State<StatusWindow> {
     );
   }
 
-  Widget _StatRow(IconData icon, String label, int value) {
+  Widget _StatRow(IconData icon, String label, int value, Color sysBlue) {
     bool canUpgrade = SystemMemory.ap.value > 0;
     return SizedBox(
-      width: 140,
+      width: 130,
       child: Row(
         children: [
-          Icon(icon, color: Colors.cyanAccent, size: 22), const SizedBox(width: 8),
-          Text('$label:', style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)), const Spacer(),
-          Text('$value', style: GoogleFonts.orbitron(color: Colors.white, fontSize: 22)),
+          Icon(icon, color: sysBlue, size: 16), const SizedBox(width: 8),
+          Text('$label:', style: GoogleFonts.rajdhani(color: const Color(0xFF94A3B8), fontSize: 16, fontWeight: FontWeight.bold)), const Spacer(),
+          Text('$value', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
           if (canUpgrade) ...[
             const SizedBox(width: 5),
-            GestureDetector(onTap: () { SystemMemory.statuYukselt(label); setState((){}); }, child: const Icon(Icons.add_box, color: Colors.amberAccent, size: 20))
+            GestureDetector(
+              onTap: () { SystemMemory.statuYukselt(label); setState((){}); }, 
+              child: Container(
+                padding: const EdgeInsets.all(2), 
+                decoration: BoxDecoration(color: sysBlue.withOpacity(0.2), borderRadius: BorderRadius.circular(2)), 
+                child: Icon(Icons.add, color: sysBlue, size: 14) 
+              )
+            )
           ]
         ],
       ),

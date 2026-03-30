@@ -13,38 +13,40 @@ class WorkoutPlannerScreen extends StatefulWidget {
 }
 
 class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
-  static const Color systemBlue = Color(0xFF389EFF); 
+  static const Color sysBlue = Color(0xFF38BDF8); 
   static const Color physicalGold = Color(0xFFB08D57); 
   static const Color mentalPurple = Color(0xFFA060E0); 
-  static const Color deepBlack = Colors.black; 
-  static const Color cardBg = Color(0xFF0D0D0D); 
-  static const Color systemRed = Color(0xFFD32F2F); 
+  static const Color sysDarkBg = Color(0xFF030712); 
+  static const Color cardBg = Color(0xFF0F172A); 
+  static const Color sysRed = Color(0xFFEF4444); 
+  static const Color sysTextMuted = Color(0xFF94A3B8);
 
   int seciliGun = 1; 
-  String secilenTip = 'Fiziksel'; 
+  String secilenTip = 'Fiziksel'; // Backend için hala 'Fiziksel' tutuyoruz, UI'da 'Physical' yazacak.
   
-  // FİZİKSEL KATEGORİLER
-  String secilenBolge = 'Göğüs';
+  // FİZİKSEL BÖLGELER (İNGİLİZCE)
+  String secilenBolge = 'Chest';
   final List<String> bolgeler = [
-    'Göğüs', 'Sırt', 'Omuz', 'Ön Kol (Biceps)', 'Arka Kol (Triceps)', 
-    'Ön Bacak (Quads)', 'Arka Bacak (Hamstrings)', 'Kalf', 'Karın', 'Kardiyo (Dayanıklılık)'
+    'Chest', 'Back', 'Shoulders', 'Biceps', 'Triceps', 
+    'Quads', 'Hamstrings', 'Calves', 'Core / Abs', 'Cardio'
   ];
 
-  // YENİ: ZİHİNSEL KATEGORİLER
-  String secilenZihinBolge = 'Kitap Okuma (Bilgi)';
+  // ZİHİNSEL BÖLGELER (İNGİLİZCE)
+  String secilenZihinBolge = 'Reading';
   final List<String> zihinBolgeler = [
-    'Kitap Okuma (Bilgi)', 'Meditasyon (Odak)', 'Dil Öğrenimi', 'Strateji / Satranç', 'Ders / Çalışma'
+    'Reading', 'Meditation', 'Language', 'Strategy', 'Studying'
   ];
 
   final TextEditingController hareketKontrolcusu = TextEditingController();
-  final Map<int, String> gunIsimleri = { 1: "Pazartesi", 2: "Salı", 3: "Çarşamba", 4: "Perşembe", 5: "Cuma", 6: "Cumartesi", 7: "Pazar" };
+  final Map<int, String> gunIsimleri = { 
+    1: "MONDAY", 2: "TUESDAY", 3: "WEDNESDAY", 4: "THURSDAY", 5: "FRIDAY", 6: "SATURDAY", 7: "SUNDAY" 
+  };
 
   void hareketEkle() {
     if (hareketKontrolcusu.text.isNotEmpty) {
-      // YENİ: Seçilen tipe göre doğru etiketi yapıştır.
       String finalAd = secilenTip == 'Fiziksel' 
-          ? "[$secilenBolge] ${hareketKontrolcusu.text}" 
-          : "[$secilenZihinBolge] ${hareketKontrolcusu.text}";
+          ? "[${secilenBolge.toUpperCase()}] ${hareketKontrolcusu.text}" 
+          : "[${secilenZihinBolge.toUpperCase()}] ${hareketKontrolcusu.text}";
 
       setState(() {
         SystemMemory.haftalikPlan[seciliGun]!.add(Gorev(finalAd, false, secilenTip));
@@ -59,31 +61,67 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
     SystemMemory.kaydet();
   }
 
+  // YENİ: GÖRSEL VÜCUT / ZİHİN SEÇİCİ (VISUAL SELECTOR)
+  Widget _buildVisualSelector(List<String> items, String currentSelection, Function(String) onSelect, Color themeColor) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      alignment: WrapAlignment.center,
+      children: items.map((item) {
+        bool isSelected = currentSelection == item;
+        return GestureDetector(
+          onTap: () => onSelect(item),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: isSelected ? themeColor.withOpacity(0.2) : Colors.transparent,
+              border: Border.all(color: isSelected ? themeColor : Colors.white12, width: 1),
+              borderRadius: BorderRadius.circular(4),
+              boxShadow: isSelected ? [BoxShadow(color: themeColor.withOpacity(0.2), blurRadius: 8)] : [],
+            ),
+            child: Text(
+              item.toUpperCase(),
+              style: GoogleFonts.orbitron(
+                color: isSelected ? themeColor : sysTextMuted,
+                fontSize: 10,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                letterSpacing: 1
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: deepBlack, 
+      backgroundColor: sysDarkBg, 
       appBar: AppBar(
-        title: Text('SİSTEM GÖREV PLANLAYICI', style: GoogleFonts.orbitron(color: systemBlue, fontWeight: FontWeight.bold)), 
-        backgroundColor: const Color(0xFF050A10), 
-        elevation: 0
+        title: Text('Q U E S T   P L A N N E R', style: GoogleFonts.rajdhani(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 24, letterSpacing: 4.0)), 
+        backgroundColor: Colors.transparent, 
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: sysBlue),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
             HologramCard(
-              neonRenk: systemBlue, 
+              neonRenk: sysBlue, 
               child: Column(
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 15), 
-                    decoration: BoxDecoration(color: const Color(0xFF101820), border: Border.all(color: systemBlue.withOpacity(0.3)), borderRadius: BorderRadius.circular(10)),
+                    decoration: BoxDecoration(color: cardBg, border: Border.all(color: sysBlue.withOpacity(0.3)), borderRadius: BorderRadius.circular(4)),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<int>(
                         value: seciliGun, dropdownColor: cardBg, isExpanded: true, 
-                        icon: const Icon(Icons.arrow_drop_down, color: systemBlue),
-                        style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                        icon: const Icon(Icons.arrow_drop_down, color: sysBlue),
+                        style: GoogleFonts.orbitron(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2),
                         items: gunIsimleri.entries.map((e) => DropdownMenuItem<int>(value: e.key, child: Text(e.value))).toList(),
                         onChanged: (yeni) => setState(() => seciliGun = yeni!),
                       ),
@@ -94,14 +132,18 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ChoiceChip(
-                        label: const Text('Fiziksel (STR/AGI)'), selected: secilenTip == 'Fiziksel',
-                        selectedColor: systemBlue.withOpacity(0.15), labelStyle: TextStyle(color: secilenTip == 'Fiziksel' ? systemBlue : Colors.white38, fontWeight: FontWeight.bold),
-                        backgroundColor: cardBg, onSelected: (val) => setState(() => secilenTip = 'Fiziksel'),
+                        label: const Text('PHYSICAL (STR/AGI)'), selected: secilenTip == 'Fiziksel',
+                        selectedColor: physicalGold.withOpacity(0.2), 
+                        labelStyle: GoogleFonts.orbitron(color: secilenTip == 'Fiziksel' ? physicalGold : sysTextMuted, fontSize: 10, fontWeight: FontWeight.bold),
+                        backgroundColor: cardBg, side: BorderSide(color: secilenTip == 'Fiziksel' ? physicalGold : Colors.white12),
+                        onSelected: (val) => setState(() => secilenTip = 'Fiziksel'),
                       ),
                       ChoiceChip(
-                        label: const Text('Zihinsel (INT/PER)'), selected: secilenTip == 'Zihinsel',
-                        selectedColor: mentalPurple.withOpacity(0.15), labelStyle: TextStyle(color: secilenTip == 'Zihinsel' ? mentalPurple : Colors.white38, fontWeight: FontWeight.bold),
-                        backgroundColor: cardBg, onSelected: (val) => setState(() => secilenTip = 'Zihinsel'),
+                        label: const Text('MENTAL (INT/PER)'), selected: secilenTip == 'Zihinsel',
+                        selectedColor: mentalPurple.withOpacity(0.2), 
+                        labelStyle: GoogleFonts.orbitron(color: secilenTip == 'Zihinsel' ? mentalPurple : sysTextMuted, fontSize: 10, fontWeight: FontWeight.bold),
+                        backgroundColor: cardBg, side: BorderSide(color: secilenTip == 'Zihinsel' ? mentalPurple : Colors.white12),
+                        onSelected: (val) => setState(() => secilenTip = 'Zihinsel'),
                       ),
                     ],
                   ),
@@ -114,58 +156,42 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
               neonRenk: secilenTip == 'Fiziksel' ? physicalGold : mentalPurple,
               child: Column(
                 children: [
-                  // FİZİKSEL MENÜ
-                  if (secilenTip == 'Fiziksel') ...[
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 15), 
-                      decoration: BoxDecoration(color: const Color(0xFF101820), border: Border.all(color: physicalGold.withOpacity(0.3)), borderRadius: BorderRadius.circular(10)),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          value: secilenBolge, dropdownColor: cardBg, isExpanded: true, 
-                          icon: const Icon(Icons.fitness_center, color: physicalGold), 
-                          style: const TextStyle(color: physicalGold, fontSize: 16, fontWeight: FontWeight.bold),
-                          items: bolgeler.map((b) => DropdownMenuItem<String>(value: b, child: Text(b))).toList(),
-                          onChanged: (yeni) => setState(() => secilenBolge = yeni!),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-                  ],
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(secilenTip == 'Fiziksel' ? Icons.accessibility_new : Icons.psychology, color: secilenTip == 'Fiziksel' ? physicalGold : mentalPurple, size: 20),
+                      const SizedBox(width: 10),
+                      Text("TARGET AREA", style: GoogleFonts.orbitron(color: secilenTip == 'Fiziksel' ? physicalGold : mentalPurple, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                    ],
+                  ),
+                  const SizedBox(height: 15),
+                  
+                  // GÖRSEL SEÇİCİ BURADA ÇAĞRILIYOR
+                  if (secilenTip == 'Fiziksel')
+                    _buildVisualSelector(bolgeler, secilenBolge, (val) => setState(() => secilenBolge = val), physicalGold)
+                  else
+                    _buildVisualSelector(zihinBolgeler, secilenZihinBolge, (val) => setState(() => secilenZihinBolge = val), mentalPurple),
 
-                  // YENİ: ZİHİNSEL MENÜ
-                  if (secilenTip == 'Zihinsel') ...[
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 15), 
-                      decoration: BoxDecoration(color: const Color(0xFF101820), border: Border.all(color: mentalPurple.withOpacity(0.3)), borderRadius: BorderRadius.circular(10)),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          value: secilenZihinBolge, dropdownColor: cardBg, isExpanded: true, 
-                          icon: const Icon(Icons.psychology, color: mentalPurple), 
-                          style: const TextStyle(color: mentalPurple, fontSize: 16, fontWeight: FontWeight.bold),
-                          items: zihinBolgeler.map((b) => DropdownMenuItem<String>(value: b, child: Text(b))).toList(),
-                          onChanged: (yeni) => setState(() => secilenZihinBolge = yeni!),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-                  ],
+                  const SizedBox(height: 20),
+                  const Divider(color: Colors.white12, thickness: 1),
+                  const SizedBox(height: 15),
 
                   Row(
                     children: [
                       Expanded(
                         child: TextField(
-                          controller: hareketKontrolcusu, style: const TextStyle(color: Colors.white), 
+                          controller: hareketKontrolcusu, style: const TextStyle(color: Colors.white, fontSize: 14), 
                           decoration: InputDecoration(
-                            hintText: secilenTip == 'Fiziksel' ? 'Hareket Adı (Örn: Bench Press)' : 'Örn: 20 Sayfa', 
-                            hintStyle: const TextStyle(color: Colors.white24), filled: true, fillColor: const Color(0xFF0A0F14), 
-                            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: secilenTip == 'Fiziksel' ? physicalGold.withOpacity(0.3) : mentalPurple.withOpacity(0.3))), 
-                            focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: secilenTip == 'Fiziksel' ? physicalGold : mentalPurple))
+                            hintText: 'Quest Name (e.g. 50 Push-ups)', 
+                            hintStyle: const TextStyle(color: sysTextMuted), filled: true, fillColor: const Color(0xFF070B14), 
+                            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: secilenTip == 'Fiziksel' ? physicalGold.withOpacity(0.3) : mentalPurple.withOpacity(0.3)), borderRadius: BorderRadius.circular(4)), 
+                            focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: secilenTip == 'Fiziksel' ? physicalGold : mentalPurple), borderRadius: BorderRadius.circular(4))
                           )
                         )
                       ),
                       const SizedBox(width: 10),
                       Container(
-                        decoration: BoxDecoration(color: secilenTip == 'Fiziksel' ? physicalGold.withOpacity(0.15) : mentalPurple.withOpacity(0.15), border: Border.all(color: secilenTip == 'Fiziksel' ? physicalGold : mentalPurple), borderRadius: BorderRadius.circular(5)), 
+                        decoration: BoxDecoration(color: secilenTip == 'Fiziksel' ? physicalGold.withOpacity(0.15) : mentalPurple.withOpacity(0.15), border: Border.all(color: secilenTip == 'Fiziksel' ? physicalGold : mentalPurple), borderRadius: BorderRadius.circular(4)), 
                         child: IconButton(icon: Icon(Icons.add, color: secilenTip == 'Fiziksel' ? physicalGold : mentalPurple), onPressed: hareketEkle)
                       ),
                     ],
@@ -183,11 +209,11 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
                   bool fizikselMi = gorev.tip == 'Fiziksel';
                   return Container(
                     margin: const EdgeInsets.only(bottom: 10),
-                    decoration: BoxDecoration(color: cardBg, border: Border.all(color: fizikselMi ? systemBlue.withOpacity(0.15) : mentalPurple.withOpacity(0.15)), borderRadius: BorderRadius.circular(8)),
+                    decoration: BoxDecoration(color: const Color(0xFF070B14).withOpacity(0.85), border: Border.all(color: fizikselMi ? physicalGold.withOpacity(0.3) : mentalPurple.withOpacity(0.3)), borderRadius: BorderRadius.circular(4)),
                     child: ListTile(
-                      leading: Icon(fizikselMi ? Icons.fitness_center : Icons.psychology, color: fizikselMi ? physicalGold : mentalPurple),
-                      title: Text(gorev.ad, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                      trailing: IconButton(icon: const Icon(Icons.delete, color: systemRed), onPressed: () => hareketSil(index)),
+                      leading: Icon(fizikselMi ? Icons.fitness_center : Icons.psychology, color: fizikselMi ? physicalGold : mentalPurple, size: 20),
+                      title: Text(gorev.ad, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                      trailing: IconButton(icon: const Icon(Icons.close, color: sysRed, size: 18), onPressed: () => hareketSil(index)),
                     ),
                   );
                 },

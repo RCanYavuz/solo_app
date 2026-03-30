@@ -1,9 +1,9 @@
-// lib/screens/boxing_timer_screen.dart - OTOMATİK RANK GÜNCELLEMESİ
+// lib/screens/boxing_timer_screen.dart
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/audio_system.dart'; 
-import '../controllers/system_memory.dart'; // Level bilgisini çekmek için
+import '../controllers/system_memory.dart'; 
 
 class EgitimFazi {
   final String isim;
@@ -20,21 +20,21 @@ class BoxingTimerScreen extends StatefulWidget {
 }
 
 class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
-  static const Color systemBlue = Color(0xFF389EFF); 
+  static const Color systemBlue = Color(0xFF38BDF8); 
   static const Color physicalGold = Color(0xFFB08D57); 
-  static const Color deepBlack = Colors.black; 
-  static const Color cardBg = Color(0xFF0D0D0D); 
-  static const Color systemRed = Color(0xFFD32F2F);
+  static const Color deepBlack = Color(0xFF030712); 
+  static const Color cardBg = Color(0xFF0F172A); 
+  static const Color systemRed = Color(0xFFEF4444);
+  static const Color systemRest = Color(0xFF94A3B8); 
 
-  String anaMod = 'Sistem Parkurları'; 
-  String sistemTuru = 'Koşu (Hız Odaklı)'; 
+  String anaMod = 'System Courses'; 
+  String sistemTuru = 'Running (Speed)'; 
   
-  // YENİ: OTOMATİK RANK HESAPLAYICI
   String get otomatikRank {
     int lvl = SystemMemory.level.value;
-    if (lvl < 5) return 'E-Rank (Çaylak)';
-    if (lvl < 15) return 'C-Rank (Orta)';
-    return 'A-Rank (Zor)';
+    if (lvl < 5) return 'E-Rank (Rookie)';
+    if (lvl < 15) return 'C-Rank (Elite)';
+    return 'A-Rank (Master)';
   }
 
   int raundSuresiSaniye = 180; 
@@ -55,68 +55,68 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
 
   void _parkuruOlustur() {
     parkur.clear();
-    String rank = otomatikRank; // Rank artık sistemden geliyor
+    String rank = otomatikRank; 
 
-    if (anaMod == 'Serbest Ayarlar') {
+    if (anaMod == 'Free Settings') {
       for (int i = 0; i < toplamRaund; i++) {
-        parkur.add(EgitimFazi("RAUND ${i+1}", raundSuresiSaniye, systemRed, "DÖVÜŞ/ÇALIŞ!"));
+        parkur.add(EgitimFazi("ROUND ${i+1}", raundSuresiSaniye, systemRed, "FIGHT/WORKOUT!"));
         if (i < toplamRaund - 1 && dinlenmeSuresiSaniye > 0) {
-          parkur.add(EgitimFazi("DİNLENME", dinlenmeSuresiSaniye, Colors.greenAccent, "ŞİFA VE NEFES"));
+          parkur.add(EgitimFazi("REST", dinlenmeSuresiSaniye, systemRest, "HEAL AND BREATHE")); 
         }
       }
     } else {
-      if (sistemTuru == 'İp Atlama') {
-        if (rank == 'E-Rank (Çaylak)') {
-          parkur.add(EgitimFazi("Isınma", 60, Colors.white54, "Yavaş tempo atla"));
-          parkur.add(EgitimFazi("Çalışma", 180, systemBlue, "Orta tempo atla"));
-          parkur.add(EgitimFazi("Dinlenme", 60, Colors.greenAccent, "İpi bırak, nefeslen"));
-          parkur.add(EgitimFazi("Kapanış", 180, systemBlue, "Orta tempo atla"));
-        } else if (rank == 'C-Rank (Orta)') {
+      if (sistemTuru == 'Jump Rope') {
+        if (rank == 'E-Rank (Rookie)') {
+          parkur.add(EgitimFazi("Warm-up", 60, systemRest, "Jump at a slow pace"));
+          parkur.add(EgitimFazi("Workout", 180, systemBlue, "Moderate pace"));
+          parkur.add(EgitimFazi("Rest", 60, systemRest, "Drop the rope, breathe"));
+          parkur.add(EgitimFazi("Cooldown", 180, systemBlue, "Moderate pace"));
+        } else if (rank == 'C-Rank (Elite)') {
           for(int i=0; i<3; i++) {
-            parkur.add(EgitimFazi("Hızlı Tempo", 180, systemRed, "Hızlan! Durmak yok."));
-            parkur.add(EgitimFazi("Aktif Dinlenme", 60, systemBlue, "İpi yavaş çevirerek dinlen."));
+            parkur.add(EgitimFazi("Fast Pace", 180, systemRed, "Speed up! No stopping."));
+            parkur.add(EgitimFazi("Active Rest", 60, systemBlue, "Jump slowly to rest."));
           }
         } else {
-          parkur.add(EgitimFazi("Cehennem", 900, physicalGold, "15 Dakika Kesintisiz Atlama!")); 
+          parkur.add(EgitimFazi("Hell", 900, physicalGold, "15 Minutes Non-stop!")); 
         }
       } 
-      else if (sistemTuru == 'Koşu (Hız Odaklı)') {
-        if (rank == 'E-Rank (Çaylak)') {
-          parkur.add(EgitimFazi("Yürüyüş", 120, Colors.greenAccent, "Hız 4-5. Tempolu yürü."));
-          parkur.add(EgitimFazi("Hafif Koşu", 180, systemBlue, "Hız 7-8. Vücudunu alıştır."));
-          parkur.add(EgitimFazi("Soğuma", 120, Colors.greenAccent, "Hız 4. Yürü ve nefeslen."));
-        } else if (rank == 'C-Rank (Orta)') {
-          parkur.add(EgitimFazi("Yürüyüş", 120, Colors.greenAccent, "Hız 5. Hazırlan."));
+      else if (sistemTuru == 'Running (Speed)') {
+        if (rank == 'E-Rank (Rookie)') {
+          parkur.add(EgitimFazi("Walk", 120, systemRest, "Speed 4-5. Brisk walk."));
+          parkur.add(EgitimFazi("Jog", 180, systemBlue, "Speed 7-8. Get used to it."));
+          parkur.add(EgitimFazi("Cooldown", 120, systemRest, "Speed 4. Walk and breathe."));
+        } else if (rank == 'C-Rank (Elite)') {
+          parkur.add(EgitimFazi("Walk", 120, systemRest, "Speed 5. Prepare."));
           for(int i=0; i<3; i++) {
-            parkur.add(EgitimFazi("Koşu", 120, systemBlue, "Hız 8-9. Stabil koşu."));
-            parkur.add(EgitimFazi("DEPAR", 60, systemRed, "HIZI 12+ YAP! GÖLGELERDEN KAÇ!"));
-            parkur.add(EgitimFazi("Yürüyüş", 60, Colors.greenAccent, "Hız 4. Nefeslanma."));
+            parkur.add(EgitimFazi("Run", 120, systemBlue, "Speed 8-9. Stable run."));
+            parkur.add(EgitimFazi("SPRINT", 60, systemRed, "SPEED 12+! RUN FROM SHADOWS!"));
+            parkur.add(EgitimFazi("Walk", 60, systemRest, "Speed 4. Breathe."));
           }
         } else {
-          parkur.add(EgitimFazi("Isınma", 120, Colors.greenAccent, "Hız 5."));
+          parkur.add(EgitimFazi("Warm-up", 120, systemRest, "Speed 5."));
           for(int i=0; i<5; i++) {
-            parkur.add(EgitimFazi("Ölüm Koşusu", 180, physicalGold, "Hız 10. Dayanıklılık Testi."));
-            parkur.add(EgitimFazi("DEPAR", 60, systemRed, "HIZI MAKSİMUMA ÇEK!"));
+            parkur.add(EgitimFazi("Death Run", 180, physicalGold, "Speed 10. Endurance Test."));
+            parkur.add(EgitimFazi("SPRINT", 60, systemRed, "MAX SPEED!"));
           }
-          parkur.add(EgitimFazi("Soğuma", 120, Colors.greenAccent, "Hız 3. Başardın."));
+          parkur.add(EgitimFazi("Cooldown", 120, systemRest, "Speed 3. You survived."));
         }
       }
-      else if (sistemTuru == 'Koşu (Eğim/Direnç)') {
-        if (rank == 'E-Rank (Çaylak)') {
-          parkur.add(EgitimFazi("Düz Yol", 120, Colors.greenAccent, "Hız 5, Eğim 0."));
-          parkur.add(EgitimFazi("Hafif Tepe", 180, systemBlue, "Hız 5, Eğimi %5 yap."));
-          parkur.add(EgitimFazi("Düz Yol", 120, Colors.greenAccent, "Eğimi sıfırla."));
-        } else if (rank == 'C-Rank (Orta)') {
-          parkur.add(EgitimFazi("Düz Yol", 120, Colors.greenAccent, "Hız 5, Eğim 0."));
-          parkur.add(EgitimFazi("Tepe", 120, systemBlue, "Hız 5, Eğimi %8 yap."));
-          parkur.add(EgitimFazi("Dağ Tırmanışı", 120, physicalGold, "Hız 4.5, Eğimi %12 yap!"));
-          parkur.add(EgitimFazi("İniş", 120, Colors.greenAccent, "Eğimi sıfırla."));
-          parkur.add(EgitimFazi("Son Zirve", 120, systemRed, "Hız 5, Eğimi %15 YAP!"));
+      else if (sistemTuru == 'Running (Incline)') {
+        if (rank == 'E-Rank (Rookie)') {
+          parkur.add(EgitimFazi("Flat Road", 120, systemRest, "Speed 5, Incline 0."));
+          parkur.add(EgitimFazi("Slight Hill", 180, systemBlue, "Speed 5, Incline 5%."));
+          parkur.add(EgitimFazi("Flat Road", 120, systemRest, "Reset incline."));
+        } else if (rank == 'C-Rank (Elite)') {
+          parkur.add(EgitimFazi("Flat Road", 120, systemRest, "Speed 5, Incline 0."));
+          parkur.add(EgitimFazi("Hill", 120, systemBlue, "Speed 5, Incline 8%."));
+          parkur.add(EgitimFazi("Mountain Climb", 120, physicalGold, "Speed 4.5, Incline 12%!"));
+          parkur.add(EgitimFazi("Descent", 120, systemRest, "Reset incline."));
+          parkur.add(EgitimFazi("Final Peak", 120, systemRed, "Speed 5, Incline 15%!"));
         } else {
-          parkur.add(EgitimFazi("Düz Yol", 60, Colors.greenAccent, "Kısa ısınma."));
+          parkur.add(EgitimFazi("Warm-up", 60, systemRest, "Short warm-up."));
           for(int i=0; i<4; i++) {
-            parkur.add(EgitimFazi("Dağ Eteği", 120, systemBlue, "Eğim %10, Hız 5."));
-            parkur.add(EgitimFazi("ZİNDAN ZİRVESİ", 120, systemRed, "EĞİM %15 (MAKSIMUM)."));
+            parkur.add(EgitimFazi("Mountain Base", 120, systemBlue, "Incline 10%, Speed 5."));
+            parkur.add(EgitimFazi("DUNGEON PEAK", 120, systemRed, "INCLINE 15% (MAX)."));
           }
         }
       }
@@ -155,11 +155,11 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
     showDialog(
       context: context, barrierDismissible: false,
       builder: (context) => AlertDialog(
-        backgroundColor: cardBg,
-        shape: RoundedRectangleBorder(side: const BorderSide(color: physicalGold), borderRadius: BorderRadius.circular(15)),
-        title: Text('[ ZİNDAN TEMİZLENDİ ]', style: GoogleFonts.orbitron(color: physicalGold, fontWeight: FontWeight.bold)),
-        content: Text("Rankın için belirlenen parkuru tamamladın.\nSistem seni izliyor.", style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-        actions: [ ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: physicalGold.withOpacity(0.2), side: const BorderSide(color: physicalGold)), onPressed: () { Navigator.pop(context); _sifirla(); }, child: const Text('ONAYLA', style: TextStyle(color: physicalGold, fontWeight: FontWeight.bold))) ],
+        backgroundColor: deepBlack,
+        shape: RoundedRectangleBorder(side: const BorderSide(color: physicalGold), borderRadius: BorderRadius.circular(4)),
+        title: Text('[ DUNGEON CLEARED ]', style: GoogleFonts.orbitron(color: physicalGold, fontWeight: FontWeight.bold)),
+        content: Text("You have completed the course for your rank.\nThe System is watching.", style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+        actions: [ ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: physicalGold.withOpacity(0.2), side: const BorderSide(color: physicalGold)), onPressed: () { Navigator.pop(context); _sifirla(); }, child: const Text('CONFIRM', style: TextStyle(color: physicalGold, fontWeight: FontWeight.bold))) ],
       ),
     );
   }
@@ -172,7 +172,7 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
   Widget _ayarButonu(String baslik, String degerMetni, VoidCallback azalt, VoidCallback artir) {
     return Column(
       children: [
-        Text(baslik, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+        Text(baslik, style: const TextStyle(color: systemRest, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1)),
         const SizedBox(height: 5),
         Row(
           mainAxisSize: MainAxisSize.min,
@@ -197,7 +197,7 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
 
     return Scaffold(
       backgroundColor: deepBlack,
-      appBar: AppBar(title: Text('SAVAŞ SİMÜLATÖRÜ', style: GoogleFonts.orbitron(color: systemRed, fontWeight: FontWeight.bold, fontSize: 18)), backgroundColor: const Color(0xFF050A10), elevation: 0, iconTheme: const IconThemeData(color: systemRed)),
+      appBar: AppBar(title: Text('C O M B A T   S I M', style: GoogleFonts.rajdhani(color: systemRed, fontWeight: FontWeight.bold, fontSize: 24, letterSpacing: 4.0)), backgroundColor: Colors.transparent, elevation: 0, centerTitle: true, iconTheme: const IconThemeData(color: systemRed)),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -205,44 +205,44 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
               if (!calisiyor)
                 Container(
                   margin: const EdgeInsets.all(15), padding: const EdgeInsets.all(15),
-                  decoration: BoxDecoration(color: cardBg, border: Border.all(color: systemRed.withOpacity(0.5)), borderRadius: BorderRadius.circular(15)),
+                  decoration: BoxDecoration(color: const Color(0xFF070B14).withOpacity(0.85), border: Border.all(color: systemRed.withOpacity(0.5)), borderRadius: BorderRadius.circular(4)),
                   child: Column(
                     children: [
-                      // RANK GÖSTERGESİ (Kullanıcı değiştiremez, sadece görür)
+                      // RANK GÖSTERGESİ
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Icon(Icons.shield, color: systemRed, size: 20),
                           const SizedBox(width: 10),
-                          Text("SİSTEM RANKI: ", style: GoogleFonts.orbitron(color: Colors.white54, fontSize: 14)),
+                          Text("SYSTEM RANK: ", style: GoogleFonts.orbitron(color: systemRest, fontSize: 14)),
                           Text(otomatikRank, style: GoogleFonts.orbitron(color: systemRed, fontSize: 16, fontWeight: FontWeight.bold)),
                         ],
                       ),
                       const SizedBox(height: 15),
                       SegmentedButton<String>(
-                        segments: const [ButtonSegment(value: 'Serbest Ayarlar', label: Text('SERBEST')), ButtonSegment(value: 'Sistem Parkurları', label: Text('PARKURLAR'))],
+                        segments: const [ButtonSegment(value: 'Free Settings', label: Text('FREE SETTINGS')), ButtonSegment(value: 'System Courses', label: Text('COURSES'))],
                         selected: {anaMod},
                         onSelectionChanged: (set) { setState(() { anaMod = set.first; _parkuruOlustur(); }); },
-                        style: SegmentedButton.styleFrom(backgroundColor: const Color(0xFF101820), selectedBackgroundColor: systemRed.withOpacity(0.2), selectedForegroundColor: systemRed, foregroundColor: Colors.white54),
+                        style: SegmentedButton.styleFrom(backgroundColor: const Color(0xFF0F172A), selectedBackgroundColor: systemRed.withOpacity(0.2), selectedForegroundColor: systemRed, foregroundColor: systemRest),
                       ),
                       const SizedBox(height: 15),
-                      if (anaMod == 'Sistem Parkurları') 
+                      if (anaMod == 'System Courses') 
                         DropdownButtonFormField<String>(
-                          value: sistemTuru, dropdownColor: cardBg, decoration: InputDecoration(labelText: 'Antrenman Türü', labelStyle: const TextStyle(color: physicalGold), filled: true, fillColor: const Color(0xFF101820), enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: physicalGold.withOpacity(0.5))), focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: physicalGold))),
+                          value: sistemTuru, dropdownColor: cardBg, decoration: InputDecoration(labelText: 'Workout Type', labelStyle: const TextStyle(color: physicalGold), filled: true, fillColor: const Color(0xFF0F172A), enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: physicalGold.withOpacity(0.5)), borderRadius: BorderRadius.circular(4)), focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: physicalGold), borderRadius: BorderRadius.circular(4))),
                           style: const TextStyle(color: physicalGold, fontWeight: FontWeight.bold),
-                          items: ['İp Atlama', 'Koşu (Hız Odaklı)', 'Koşu (Eğim/Direnç)'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                          items: ['Jump Rope', 'Running (Speed)', 'Running (Incline)'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
                           onChanged: (val) { setState(() { sistemTuru = val!; _parkuruOlustur(); }); },
                         ),
-                      if (anaMod == 'Serbest Ayarlar') 
+                      if (anaMod == 'Free Settings') 
                         FittedBox(
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              _ayarButonu('Çalışma', _sureFormatla(raundSuresiSaniye), () { if(raundSuresiSaniye > 15) setState(() { raundSuresiSaniye -= 30; _parkuruOlustur(); }); }, () { setState(() { raundSuresiSaniye += 30; _parkuruOlustur(); }); }),
+                              _ayarButonu('Work', _sureFormatla(raundSuresiSaniye), () { if(raundSuresiSaniye > 15) setState(() { raundSuresiSaniye -= 30; _parkuruOlustur(); }); }, () { setState(() { raundSuresiSaniye += 30; _parkuruOlustur(); }); }),
                               const SizedBox(width: 10),
-                              _ayarButonu('Dinlenme', _sureFormatla(dinlenmeSuresiSaniye), () { if(dinlenmeSuresiSaniye > 0) setState(() { dinlenmeSuresiSaniye -= 10; _parkuruOlustur(); }); }, () { setState(() { dinlenmeSuresiSaniye += 10; _parkuruOlustur(); }); }),
+                              _ayarButonu('Rest', _sureFormatla(dinlenmeSuresiSaniye), () { if(dinlenmeSuresiSaniye > 0) setState(() { dinlenmeSuresiSaniye -= 10; _parkuruOlustur(); }); }, () { setState(() { dinlenmeSuresiSaniye += 10; _parkuruOlustur(); }); }),
                               const SizedBox(width: 10),
-                              _ayarButonu('Raund', toplamRaund.toString().padLeft(2, '0'), () { if(toplamRaund > 1) setState(() { toplamRaund--; _parkuruOlustur(); }); }, () { setState(() { toplamRaund++; _parkuruOlustur(); }); }),
+                              _ayarButonu('Round', toplamRaund.toString().padLeft(2, '0'), () { if(toplamRaund > 1) setState(() { toplamRaund--; _parkuruOlustur(); }); }, () { setState(() { toplamRaund++; _parkuruOlustur(); }); }),
                             ],
                           ),
                         )
@@ -255,13 +255,13 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
                   children: [
                     if (aktifFaz != null) ...[
                       Text(aktifFaz.isim.toUpperCase(), style: GoogleFonts.rajdhani(color: fazRengi, fontSize: 28, fontWeight: FontWeight.bold, letterSpacing: 2)),
-                      Text("Adım: ${aktifFazIndex + 1} / ${parkur.length}", style: const TextStyle(color: Colors.white54, fontSize: 14)),
+                      Text("Step: ${aktifFazIndex + 1} / ${parkur.length}", style: const TextStyle(color: systemRest, fontSize: 14)),
                       const SizedBox(height: 20),
                     ],
                     Stack(
                       alignment: Alignment.center,
                       children: [
-                        SizedBox(width: 240, height: 240, child: CircularProgressIndicator(value: aktifFaz != null ? (kalanSaniye / aktifFaz.sureSaniye) : 0, strokeWidth: 12, backgroundColor: cardBg, valueColor: AlwaysStoppedAnimation<Color>(fazRengi))),
+                        SizedBox(width: 240, height: 240, child: CircularProgressIndicator(value: aktifFaz != null ? (kalanSaniye / aktifFaz.sureSaniye) : 0, strokeWidth: 8, backgroundColor: cardBg, valueColor: AlwaysStoppedAnimation<Color>(fazRengi))),
                         Text(_sureFormatla(kalanSaniye), style: GoogleFonts.orbitron(color: Colors.white, fontSize: 55, fontWeight: FontWeight.bold, shadows: [Shadow(color: fazRengi.withOpacity(0.6), blurRadius: 25)])),
                       ],
                     ),
@@ -269,11 +269,11 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
                     if (aktifFaz != null)
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15), margin: const EdgeInsets.symmetric(horizontal: 20),
-                        decoration: BoxDecoration(color: fazRengi.withOpacity(0.1), border: Border.all(color: fazRengi, width: 2), borderRadius: BorderRadius.circular(10)),
-                        child: Text(aktifFaz.talimat, textAlign: TextAlign.center, style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                        decoration: BoxDecoration(color: fazRengi.withOpacity(0.1), border: Border.all(color: fazRengi, width: 1), borderRadius: BorderRadius.circular(4)),
+                        child: Text(aktifFaz.talimat, textAlign: TextAlign.center, style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: 1)),
                       ),
                     const SizedBox(height: 15),
-                    if (siradakiFaz != null) Text('Sıradaki: ${siradakiFaz.isim}', style: const TextStyle(color: Colors.white38, fontSize: 14)),
+                    if (siradakiFaz != null) Text('Next: ${siradakiFaz.isim}', style: const TextStyle(color: systemRest, fontSize: 14)),
                   ],
                 ),
               ),
@@ -282,13 +282,13 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    IconButton(icon: const Icon(Icons.refresh, color: Colors.white, size: 30), onPressed: _sifirla),
+                    IconButton(icon: const Icon(Icons.refresh, color: systemRest, size: 30), onPressed: _sifirla),
                     const SizedBox(width: 40),
                     GestureDetector(
                       onTap: _baslatDuraklat,
                       child: Container(
                         width: 80, height: 80,
-                        decoration: BoxDecoration(color: calisiyor ? physicalGold.withOpacity(0.2) : systemRed.withOpacity(0.2), shape: BoxShape.circle, border: Border.all(color: calisiyor ? physicalGold : systemRed, width: 3)),
+                        decoration: BoxDecoration(color: calisiyor ? physicalGold.withOpacity(0.2) : systemRed.withOpacity(0.2), shape: BoxShape.circle, border: Border.all(color: calisiyor ? physicalGold : systemRed, width: 2)),
                         child: Icon(calisiyor ? Icons.pause : Icons.play_arrow, color: calisiyor ? physicalGold : systemRed, size: 40),
                       ),
                     ),

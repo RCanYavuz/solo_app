@@ -9,7 +9,8 @@ class HologramCard extends StatelessWidget {
   const HologramCard({
     super.key, 
     required this.child, 
-    this.neonRenk = Colors.cyanAccent,
+    // YENİ: Varsayılan renk artık orijinal sistemin Buz Mavisi (Icy Blue)
+    this.neonRenk = const Color(0xFF38BDF8),
     this.padding
   });
 
@@ -18,15 +19,18 @@ class HologramCard extends StatelessWidget {
     return Container(
       padding: padding ?? const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        // YENİ: "Karanlık Ton" (Derin Koyu Gri). Neonları parlatır.
-        color: const Color(0xFF0D0D0D), 
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: neonRenk.withOpacity(0.25)), // Sınır çizgisi biraz daha belirgin
+        // YENİ: Animedeki gibi koyu lacivert/siyah şeffaf cam arka plan
+        color: const Color(0xFF070B14).withOpacity(0.85), 
+        // YENİ: Animedeki paneller gibi daha keskin (az yuvarlatılmış) köşeler
+        borderRadius: BorderRadius.circular(4), 
+        // YENİ: İncecik ve zarif bir çerçeve çizgisi
+        border: Border.all(color: neonRenk.withOpacity(0.4), width: 1.0), 
         boxShadow: [
-          // YENİ: Parlama efektini biraz daha kısık yapıyoruz ki derinlik hissi artsın.
+          // YENİ: Parlama çok daha hafif ve dipten geliyor, göz yormuyor
           BoxShadow(
-            color: neonRenk.withOpacity(0.04), 
-            blurRadius: 15
+            color: neonRenk.withOpacity(0.08), 
+            blurRadius: 10,
+            spreadRadius: 1
           ) 
         ]
       ),
