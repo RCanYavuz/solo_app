@@ -29,6 +29,9 @@ class SystemMemory {
   static ValueNotifier<int> intStat = ValueNotifier(10);
   static ValueNotifier<int> per = ValueNotifier(10);
 
+  // YENİ: OYUNCU İSMİ
+  static String oyuncuIsmi = "PLAYER";
+
   static Uint8List? profilFotoByte; 
   static DateTime? dogumTarihi;     
   static String cinsiyet = "Erkek";
@@ -83,6 +86,9 @@ class SystemMemory {
       vit.value = prefs.getInt('vit') ?? 10; intStat.value = prefs.getInt('intStat') ?? 10;
       per.value = prefs.getInt('per') ?? 10;
 
+      // YENİ: İSMİ OKU
+      oyuncuIsmi = prefs.getString('oyuncuIsmi') ?? "PLAYER";
+
       cinsiyet = prefs.getString('cinsiyet') ?? "Erkek";
       boy = prefs.getDouble('boy') ?? 175; kilo = prefs.getDouble('kilo') ?? 70;
       
@@ -133,6 +139,9 @@ class SystemMemory {
     
     prefs.setInt('str', str.value); prefs.setInt('agi', agi.value); prefs.setInt('vit', vit.value); prefs.setInt('intStat', intStat.value); prefs.setInt('per', per.value);
     
+    // YENİ: İSMİ KAYDET
+    prefs.setString('oyuncuIsmi', oyuncuIsmi);
+
     prefs.setString('cinsiyet', cinsiyet); prefs.setDouble('boy', boy); prefs.setDouble('kilo', kilo);
     
     prefs.setDouble('baslangicKilosu', baslangicKilosu);
@@ -181,9 +190,6 @@ class SystemMemory {
     return "[RAID COMPLETED]\nTime in Dungeon: $dakika Min\nQuests Completed: $bitenGorevSayisiSimdi\nTime Reward: +$kazanilanAltin Gold";
   }
 
-  // =======================================================
-  // YENİ: PROTOKOL GÜNCELLEYİCİ (HEDEF VE ZORLUK DEĞİŞİMİ)
-  // =======================================================
   static void protokolGuncelle(String yeniHedef, String yeniZorluk) {
     aktifHedef = yeniHedef;
     aktifZorluk = yeniZorluk;

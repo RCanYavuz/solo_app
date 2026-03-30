@@ -24,8 +24,10 @@ class _SetupScreenState extends State<SetupScreen> {
 
   final TextEditingController boyCtrl = TextEditingController();
   final TextEditingController kiloCtrl = TextEditingController();
+  
+  // YENİ: İsim girişi için kontrolcü
+  final TextEditingController isimCtrl = TextEditingController(); 
 
-  // --- ORİJİNAL SİSTEM RENKLERİ ---
   static const Color sysBlue = Color(0xFF38BDF8); 
   static const Color sysDarkBg = Color(0xFF030712); 
   static const Color sysRed = Color(0xFFEF4444); 
@@ -67,8 +69,15 @@ class _SetupScreenState extends State<SetupScreen> {
   }
 
   void _analiziBaslat() {
-    // YENİ: FOTOĞRAF ZORUNLULUĞU KALDIRILDI! Sadece temel bilgiler (Boy/Kilo/Tarih) şart.
     if (secilenTarih != null && boyCtrl.text.isNotEmpty && kiloCtrl.text.isNotEmpty) {
+      
+      // YENİ: İsim girişi boşsa "PLAYER" olarak kaydet, doluysa girilen ismi kaydet
+      if (isimCtrl.text.trim().isNotEmpty) {
+        SystemMemory.oyuncuIsmi = isimCtrl.text.trim().toUpperCase();
+      } else {
+        SystemMemory.oyuncuIsmi = "PLAYER";
+      }
+
       double boy = double.parse(boyCtrl.text);
       double kilo = double.parse(kiloCtrl.text);
 
@@ -86,22 +95,21 @@ class _SetupScreenState extends State<SetupScreen> {
     else if (secilenHedef == 'Kilo Al (Kas İnşa Et)') zorlukSeviyeleri = ['Normal', 'Yüksek', 'Canavar'];
 
     return Scaffold(
-      backgroundColor: sysDarkBg, // Zifiri Karanlık
+      backgroundColor: sysDarkBg, 
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(30),
           child: Container(
             padding: const EdgeInsets.all(25),
             decoration: BoxDecoration(
-              color: const Color(0xFF070B14).withOpacity(0.85), // Cam Tasarımı
-              borderRadius: BorderRadius.circular(4), // Keskin köşeler
+              color: const Color(0xFF070B14).withOpacity(0.85), 
+              borderRadius: BorderRadius.circular(4), 
               border: Border.all(color: sysBlue.withOpacity(0.4), width: 1.0), 
               boxShadow: [BoxShadow(color: sysBlue.withOpacity(0.08), blurRadius: 10, spreadRadius: 1)]
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // --- AVATAR SEÇİM ALANI ---
                 GestureDetector(
                   onTap: _fotoSec,
                   child: Stack(
@@ -115,7 +123,7 @@ class _SetupScreenState extends State<SetupScreen> {
                           image: secilenFotoByte != null ? DecorationImage(image: MemoryImage(secilenFotoByte!), fit: BoxFit.cover) : null,
                           color: const Color(0xFF0F172A),
                         ),
-                        child: secilenFotoByte == null ? Icon(Icons.person, color: sysTextMuted.withOpacity(0.5), size: 40) : null, // Kırmızı uyarı ikonu kaldırıldı, sade insan ikonu eklendi.
+                        child: secilenFotoByte == null ? Icon(Icons.person, color: sysTextMuted.withOpacity(0.5), size: 40) : null, 
                       ),
                       Container(padding: const EdgeInsets.all(6), decoration: const BoxDecoration(color: sysBlue, shape: BoxShape.circle), child: const Icon(Icons.camera_alt, color: Colors.black, size: 16))
                     ],
@@ -125,7 +133,14 @@ class _SetupScreenState extends State<SetupScreen> {
                 Text('SYSTEM INIT', style: GoogleFonts.orbitron(color: sysBlue, fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 4)),
                 const SizedBox(height: 20),
 
-                // 1. SATIR: CİNSİYET VE DOĞUM TARİHİ
+                // YENİ: İSİM GİRİŞ ALANI
+                TextField(
+                  controller: isimCtrl, 
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold), 
+                  decoration: _inputStili('Hunter Name (Optional)')
+                ),
+                const SizedBox(height: 15),
+
                 Row(
                   children: [
                     Expanded(child: DropdownButtonFormField<String>(value: secilenCinsiyet, dropdownColor: const Color(0xFF0F172A), decoration: _inputStili('Gender'), style: const TextStyle(color: Colors.white), items: ['Erkek', 'Kadın'].map((String c) => DropdownMenuItem(value: c, child: Text(c))).toList(), onChanged: (val) => setState(() => secilenCinsiyet = val!))),
@@ -135,7 +150,7 @@ class _SetupScreenState extends State<SetupScreen> {
                         onTap: _tarihSec,
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 10),
-                          decoration: BoxDecoration(color: const Color(0xFF0F172A), border: Border.all(color: sysBlue.withOpacity(0.3)), borderRadius: BorderRadius.circular(4)), // Keskin
+                          decoration: BoxDecoration(color: const Color(0xFF0F172A), border: Border.all(color: sysBlue.withOpacity(0.3)), borderRadius: BorderRadius.circular(4)), 
                           child: Text(
                             secilenTarih == null ? 'Birth Date' : '${secilenTarih!.day.toString().padLeft(2,'0')}.${secilenTarih!.month.toString().padLeft(2,'0')}.${secilenTarih!.year}',
                             style: TextStyle(color: secilenTarih == null ? sysTextMuted : Colors.white, fontSize: 16),
@@ -148,7 +163,6 @@ class _SetupScreenState extends State<SetupScreen> {
                 ),
                 const SizedBox(height: 15),
 
-                // 2. SATIR: BOY VE KİLO
                 Row(
                   children: [
                     Expanded(child: TextField(controller: boyCtrl, keyboardType: TextInputType.number, style: const TextStyle(color: Colors.white), decoration: _inputStili('Height (cm)'))),
@@ -158,7 +172,6 @@ class _SetupScreenState extends State<SetupScreen> {
                 ),
                 const SizedBox(height: 30),
 
-                // 3. HEDEFLER
                 DropdownButtonFormField<String>(
                   value: secilenHedef, dropdownColor: const Color(0xFF0F172A), decoration: _inputStili('System Objective'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                   items: ['Kilo Ver (Yağ Yak)', 'Kilo Koru (Dengede Kal)', 'Kilo Al (Kas İnşa Et)'].map((String c) => DropdownMenuItem(value: c, child: Text(c))).toList(),

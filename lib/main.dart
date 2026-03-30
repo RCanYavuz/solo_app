@@ -1,11 +1,11 @@
+// lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'controllers/system_memory.dart'; // Beyin
 import 'screens/setup_screen.dart'; // Tarama Ekranı
-import 'screens/ana_ekran.dart'; // Ana Ekran (Eğer kayıtlıysa direkt buraya)
+import 'screens/instruction_screen.dart'; // YENİ: Kılavuz Ekranı (İlk Açılacak Ekran)
 
-// YENİ: main fonksiyonunu "async" yaptık ki hafızanın okunmasını beklesin
 void main() async {
   // Flutter motorunun tam yüklendiğinden emin ol
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,8 +31,9 @@ class PlayerSystem extends StatelessWidget {
         ),
       ),
       // YENİ: Mantıksal Yönlendirme
-      // Eğer hafızada kayıt bulunduysa "AnaEkran" açılır, yoksa "SetupScreen" açılır
-      home: SystemMemory.kayitBulundu ? const AnaEkran() : const SetupScreen(), 
+      // Eğer hafızada kayıt bulunduysa HER AÇILIŞTA Kılavuz (Instruction) açılır.
+      // Yoksa Tarama Ekranı (SetupScreen) açılır.
+      home: SystemMemory.kayitBulundu ? const InstructionScreen() : const SetupScreen(), 
     );
   }
 }

@@ -19,7 +19,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   static const Color sysDarkBg = Color(0xFF030712); 
   static const Color sysTextMuted = Color(0xFF94A3B8); 
 
-  // --- İNGİLİZCE ÇEVİRİ MOTORLARI (ARKA PLANI BOZMADAN EKRANA İNGİLİZCE YANSITIR) ---
   String _hedefIngilizce(String tr) {
     if (tr == 'Kilo Ver (Yağ Yak)') return 'Lose Weight';
     if (tr == 'Kilo Al (Kas İnşa Et)') return 'Build Muscle';
@@ -57,7 +56,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  // --- YENİ: PROTOKOL GÜNCELLEME DİYALOGU ---
+  // --- YENİ: İSİM GÜNCELLEME DİYALOGU ---
+  void _isimGuncelleDialog() {
+    TextEditingController isimCtrl = TextEditingController(text: SystemMemory.oyuncuIsmi);
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF030712).withOpacity(0.95),
+          shape: RoundedRectangleBorder(side: const BorderSide(color: sysBlue, width: 1), borderRadius: BorderRadius.circular(4)),
+          title: Text('RENAME HUNTER', style: GoogleFonts.orbitron(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 16)),
+          content: TextField(
+            controller: isimCtrl,
+            style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+            decoration: InputDecoration(
+              enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: sysBlue.withOpacity(0.5))),
+              focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: sysBlue)),
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL', style: TextStyle(color: sysTextMuted))),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: sysBlue.withOpacity(0.1), side: const BorderSide(color: sysBlue)),
+              onPressed: () {
+                setState(() {
+                  SystemMemory.oyuncuIsmi = isimCtrl.text.isNotEmpty ? isimCtrl.text.trim().toUpperCase() : "PLAYER";
+                });
+                SystemMemory.kaydet();
+                Navigator.pop(context);
+              },
+              child: const Text('CONFIRM', style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold)),
+            )
+          ],
+        );
+      }
+    );
+  }
+
   void _protokolGuncelleDialog() {
     String geciciHedef = SystemMemory.aktifHedef;
     String geciciZorluk = SystemMemory.aktifZorluk;
@@ -91,7 +127,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     onChanged: (yeniDeger) {
                       setDialogState(() {
                         geciciHedef = yeniDeger!;
-                        // Hedef değişince zorluğu varsayılana çek ki hata olmasın
                         geciciZorluk = "Normal"; 
                       });
                     },
@@ -127,7 +162,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: ElevatedButton.styleFrom(backgroundColor: sysBlue.withOpacity(0.1), side: const BorderSide(color: sysBlue)), 
                   onPressed: () {
                     SystemMemory.protokolGuncelle(geciciHedef, geciciZorluk);
-                    setState(() {}); // Ekranı yenile (Kalori verisi güncellenecek)
+                    setState(() {}); 
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                       content: Text('SYSTEM: Protocol Overridden! Calories Recalculated.'),
@@ -310,7 +345,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 15),
-            Text('PLAYER', style: GoogleFonts.orbitron(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 4)),
+
+            // YENİ: İSİM ALANI VE DÜZENLEME BUTONU
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(SystemMemory.oyuncuIsmi, style: GoogleFonts.orbitron(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 4)),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.edit, color: sysTextMuted, size: 16),
+                  tooltip: 'Rename Hunter',
+                  onPressed: _isimGuncelleDialog,
+                )
+              ],
+            ),
+            
             Text(_unvanBelirle(SystemMemory.level.value), style: const TextStyle(color: sysTextMuted, fontSize: 14, letterSpacing: 1, fontWeight: FontWeight.bold)),
             const SizedBox(height: 30),
 
@@ -363,7 +412,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Text("SYSTEM PROTOCOL", style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
                         ],
                       ),
-                      // YENİ: PROTOKOL DÜZENLEME BUTONU
                       IconButton(
                         icon: const Icon(Icons.settings_suggest, color: sysBlue, size: 20), 
                         onPressed: _protokolGuncelleDialog, 

@@ -1,15 +1,14 @@
 // lib/screens/welcome_screen.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../controllers/system_memory.dart'; // Taşıdığımız yeni adres
-import 'ana_ekran.dart';
+
+import 'instruction_screen.dart'; // YENİ: Kurallar ekranı yolu
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // SİSTEM UYARISI: Global siyah tema kullanılıyor.
     return Scaffold(
       backgroundColor: Colors.black, // Simsiyah fonda açılır, karmaşayı çözer.
       body: Center(
@@ -18,7 +17,6 @@ class WelcomeScreen extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(25),
             decoration: BoxDecoration(
-              // YENİ: Derin Koyu Gri (HologramCard ile aynı tonda)
               color: const Color(0xFF0D0D0D), 
               borderRadius: BorderRadius.circular(15),
               border: Border.all(color: Colors.cyanAccent, width: 2),
@@ -60,7 +58,8 @@ class WelcomeScreen extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AnaEkran()));
+                      // YENİ: Sisteme ilk girişte doğrudan Kılavuz'a yönlendirilir
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const InstructionScreen()));
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.cyanAccent.withOpacity(0.15),
