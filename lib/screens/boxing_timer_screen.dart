@@ -30,6 +30,9 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
   String anaMod = 'System Courses'; 
   String sistemTuru = 'Running (Speed)'; 
   
+  // YENİ: Kullanıcının seçeceği dinamik sistem süresi (Varsayılan 30 Dk)
+  int sistemSuresiDakika = 30;
+
   String get otomatikRank {
     int lvl = SystemMemory.level.value;
     if (lvl < 5) return 'E-Rank (Rookie)';
@@ -37,6 +40,7 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
     return 'A-Rank (Master)';
   }
 
+  // Free Settings değişkenleri
   int raundSuresiSaniye = 180; 
   int dinlenmeSuresiSaniye = 60; 
   int toplamRaund = 3;
@@ -53,6 +57,7 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
     _parkuruOlustur(); 
   }
 
+  // YENİ: DİNAMİK PARKUR ÜRETİCİSİ
   void _parkuruOlustur() {
     parkur.clear();
     String rank = otomatikRank; 
@@ -65,62 +70,90 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
         }
       }
     } else {
+      // Dinamik Süre Hesaplamaları
+      int toplamSaniye = sistemSuresiDakika * 60;
+      int isinmaSaniye = (toplamSaniye * 0.1).toInt();
+      if (isinmaSaniye > 300) isinmaSaniye = 300; // Maksimum 5 dk ısınma
+      int sogumaSaniye = isinmaSaniye; // Isınma kadar soğuma
+      
+      int aktifSaniye = toplamSaniye - isinmaSaniye - sogumaSaniye;
+
       if (sistemTuru == 'Jump Rope') {
+        parkur.add(EgitimFazi("Warm-up", isinmaSaniye, systemRest, "Slow steady jump."));
+        
         if (rank == 'E-Rank (Rookie)') {
-          parkur.add(EgitimFazi("Warm-up", 60, systemRest, "Jump at a slow pace"));
-          parkur.add(EgitimFazi("Workout", 180, systemBlue, "Moderate pace"));
-          parkur.add(EgitimFazi("Rest", 60, systemRest, "Drop the rope, breathe"));
-          parkur.add(EgitimFazi("Cooldown", 180, systemBlue, "Moderate pace"));
+          parkur.add(EgitimFazi("Steady Jump", aktifSaniye, systemBlue, "Moderate pace. Keep going."));
         } else if (rank == 'C-Rank (Elite)') {
-          for(int i=0; i<3; i++) {
-            parkur.add(EgitimFazi("Fast Pace", 180, systemRed, "Speed up! No stopping."));
-            parkur.add(EgitimFazi("Active Rest", 60, systemBlue, "Jump slowly to rest."));
+          int turSayisi = aktifSaniye ~/ 240; // 3 dk hızlı, 1 dk dinlenme
+          int kalanZaman = aktifSaniye % 240;
+          for(int i=0; i<turSayisi; i++) {
+            parkur.add(EgitimFazi("Fast Pace", 180, systemRed, "Speed up!"));
+            parkur.add(EgitimFazi("Active Rest", 60, systemBlue, "Slow jump."));
           }
-        } else {
-          parkur.add(EgitimFazi("Hell", 900, physicalGold, "15 Minutes Non-stop!")); 
+          if (kalanZaman > 0) parkur.add(EgitimFazi("Fast Pace", kalanZaman, systemRed, "Keep pushing!"));
+        } else { // Master
+          int turSayisi = aktifSaniye ~/ 360; // 5 dk Cehennem, 1 dk nefes
+          int kalanZaman = aktifSaniye % 360;
+          for(int i=0; i<turSayisi; i++) {
+            parkur.add(EgitimFazi("Hell Pace", 300, physicalGold, "Max Speed!"));
+            parkur.add(EgitimFazi("Breathe", 60, systemRest, "Don't drop the rope."));
+          }
+          if (kalanZaman > 0) parkur.add(EgitimFazi("Hell Pace", kalanZaman, physicalGold, "Survive!"));
         }
+        parkur.add(EgitimFazi("Cooldown", sogumaSaniye, systemRest, "Breathe and relax."));
       } 
       else if (sistemTuru == 'Running (Speed)') {
+        parkur.add(EgitimFazi("Walk (Warm-up)", isinmaSaniye, systemRest, "Speed 4-5."));
+        
         if (rank == 'E-Rank (Rookie)') {
-          parkur.add(EgitimFazi("Walk", 120, systemRest, "Speed 4-5. Brisk walk."));
-          parkur.add(EgitimFazi("Jog", 180, systemBlue, "Speed 7-8. Get used to it."));
-          parkur.add(EgitimFazi("Cooldown", 120, systemRest, "Speed 4. Walk and breathe."));
+          parkur.add(EgitimFazi("Jog", aktifSaniye, systemBlue, "Speed 6-7. Keep breath steady."));
         } else if (rank == 'C-Rank (Elite)') {
-          parkur.add(EgitimFazi("Walk", 120, systemRest, "Speed 5. Prepare."));
-          for(int i=0; i<3; i++) {
-            parkur.add(EgitimFazi("Run", 120, systemBlue, "Speed 8-9. Stable run."));
-            parkur.add(EgitimFazi("SPRINT", 60, systemRed, "SPEED 12+! RUN FROM SHADOWS!"));
-            parkur.add(EgitimFazi("Walk", 60, systemRest, "Speed 4. Breathe."));
+          int turSayisi = aktifSaniye ~/ 240; // 2 dk Run, 1 dk Sprint, 1 dk Walk
+          int kalanZaman = aktifSaniye % 240;
+          for(int i=0; i<turSayisi; i++) {
+            parkur.add(EgitimFazi("Run", 120, systemBlue, "Speed 8-9."));
+            parkur.add(EgitimFazi("SPRINT", 60, systemRed, "Speed 12+. RUN!"));
+            parkur.add(EgitimFazi("Walk", 60, systemRest, "Speed 4-5. Recover."));
           }
-        } else {
-          parkur.add(EgitimFazi("Warm-up", 120, systemRest, "Speed 5."));
-          for(int i=0; i<5; i++) {
-            parkur.add(EgitimFazi("Death Run", 180, physicalGold, "Speed 10. Endurance Test."));
-            parkur.add(EgitimFazi("SPRINT", 60, systemRed, "MAX SPEED!"));
+          if (kalanZaman > 0) parkur.add(EgitimFazi("Run", kalanZaman, systemBlue, "Push to the end!"));
+        } else { // Master
+          int turSayisi = aktifSaniye ~/ 240; // 3 dk Death Run, 1 dk Max Sprint
+          int kalanZaman = aktifSaniye % 240;
+          for(int i=0; i<turSayisi; i++) {
+            parkur.add(EgitimFazi("Death Run", 180, physicalGold, "Speed 10+. Endurance."));
+            parkur.add(EgitimFazi("MAX SPRINT", 60, systemRed, "ALL OUT! RUN FROM SHADOWS!"));
           }
-          parkur.add(EgitimFazi("Cooldown", 120, systemRest, "Speed 3. You survived."));
+          if (kalanZaman > 0) parkur.add(EgitimFazi("Death Run", kalanZaman, physicalGold, "Don't look back!"));
         }
+        parkur.add(EgitimFazi("Walk (Cooldown)", sogumaSaniye, systemRest, "Speed 3-4. Recover."));
       }
       else if (sistemTuru == 'Running (Incline)') {
+        parkur.add(EgitimFazi("Flat Walk", isinmaSaniye, systemRest, "Speed 5, Incline 0."));
+        
         if (rank == 'E-Rank (Rookie)') {
-          parkur.add(EgitimFazi("Flat Road", 120, systemRest, "Speed 5, Incline 0."));
-          parkur.add(EgitimFazi("Slight Hill", 180, systemBlue, "Speed 5, Incline 5%."));
-          parkur.add(EgitimFazi("Flat Road", 120, systemRest, "Reset incline."));
+          parkur.add(EgitimFazi("Hill Walk", aktifSaniye, systemBlue, "Speed 5, Incline 5%."));
         } else if (rank == 'C-Rank (Elite)') {
-          parkur.add(EgitimFazi("Flat Road", 120, systemRest, "Speed 5, Incline 0."));
-          parkur.add(EgitimFazi("Hill", 120, systemBlue, "Speed 5, Incline 8%."));
-          parkur.add(EgitimFazi("Mountain Climb", 120, physicalGold, "Speed 4.5, Incline 12%!"));
-          parkur.add(EgitimFazi("Descent", 120, systemRest, "Reset incline."));
-          parkur.add(EgitimFazi("Final Peak", 120, systemRed, "Speed 5, Incline 15%!"));
-        } else {
-          parkur.add(EgitimFazi("Warm-up", 60, systemRest, "Short warm-up."));
-          for(int i=0; i<4; i++) {
-            parkur.add(EgitimFazi("Mountain Base", 120, systemBlue, "Incline 10%, Speed 5."));
-            parkur.add(EgitimFazi("DUNGEON PEAK", 120, systemRed, "INCLINE 15% (MAX)."));
+          int turSayisi = aktifSaniye ~/ 300; // 2 dk Hill, 2 dk Mountain, 1 dk Flat
+          int kalanZaman = aktifSaniye % 300;
+          for(int i=0; i<turSayisi; i++) {
+            parkur.add(EgitimFazi("Hill", 120, systemBlue, "Speed 5, Incline 8%."));
+            parkur.add(EgitimFazi("Mountain", 120, physicalGold, "Speed 4.5, Incline 12%."));
+            parkur.add(EgitimFazi("Flat Road", 60, systemRest, "Speed 5, Incline 0."));
           }
+          if (kalanZaman > 0) parkur.add(EgitimFazi("Mountain", kalanZaman, physicalGold, "Keep climbing!"));
+        } else { // Master
+          int turSayisi = aktifSaniye ~/ 300; // 3 dk Base, 2 dk Peak
+          int kalanZaman = aktifSaniye % 300;
+          for(int i=0; i<turSayisi; i++) {
+            parkur.add(EgitimFazi("Mountain Base", 180, systemBlue, "Speed 5, Incline 12%."));
+            parkur.add(EgitimFazi("DUNGEON PEAK", 120, systemRed, "Speed 4, Incline 15% (MAX)."));
+          }
+          if (kalanZaman > 0) parkur.add(EgitimFazi("DUNGEON PEAK", kalanZaman, systemRed, "Reach the summit!"));
         }
+        parkur.add(EgitimFazi("Flat Walk", sogumaSaniye, systemRest, "Incline 0. Cooldown."));
       }
     }
+    
     aktifFazIndex = 0;
     if (parkur.isNotEmpty) kalanSaniye = parkur[0].sureSaniye;
   }
@@ -208,7 +241,6 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
                   decoration: BoxDecoration(color: const Color(0xFF070B14).withOpacity(0.85), border: Border.all(color: systemRed.withOpacity(0.5)), borderRadius: BorderRadius.circular(4)),
                   child: Column(
                     children: [
-                      // RANK GÖSTERGESİ
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -226,13 +258,26 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
                         style: SegmentedButton.styleFrom(backgroundColor: const Color(0xFF0F172A), selectedBackgroundColor: systemRed.withOpacity(0.2), selectedForegroundColor: systemRed, foregroundColor: systemRest),
                       ),
                       const SizedBox(height: 15),
-                      if (anaMod == 'System Courses') 
+                      
+                      if (anaMod == 'System Courses') ...[
                         DropdownButtonFormField<String>(
-                          value: sistemTuru, dropdownColor: cardBg, decoration: InputDecoration(labelText: 'Workout Type', labelStyle: const TextStyle(color: physicalGold), filled: true, fillColor: const Color(0xFF0F172A), enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: physicalGold.withOpacity(0.5)), borderRadius: BorderRadius.circular(4)), focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: physicalGold), borderRadius: BorderRadius.circular(4))),
+                          value: sistemTuru, dropdownColor: cardBg, 
+                          decoration: InputDecoration(labelText: 'Workout Type', labelStyle: const TextStyle(color: physicalGold), filled: true, fillColor: const Color(0xFF0F172A), enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: physicalGold.withOpacity(0.5)), borderRadius: BorderRadius.circular(4)), focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: physicalGold), borderRadius: BorderRadius.circular(4))),
                           style: const TextStyle(color: physicalGold, fontWeight: FontWeight.bold),
                           items: ['Jump Rope', 'Running (Speed)', 'Running (Incline)'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
                           onChanged: (val) { setState(() { sistemTuru = val!; _parkuruOlustur(); }); },
                         ),
+                        const SizedBox(height: 15),
+                        // YENİ: SÜRE SEÇİCİ DROPDOWN
+                        DropdownButtonFormField<int>(
+                          value: sistemSuresiDakika, dropdownColor: cardBg, 
+                          decoration: InputDecoration(labelText: 'Total Duration', labelStyle: const TextStyle(color: systemBlue), filled: true, fillColor: const Color(0xFF0F172A), enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: systemBlue.withOpacity(0.5)), borderRadius: BorderRadius.circular(4)), focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: systemBlue), borderRadius: BorderRadius.circular(4))),
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          items: [15, 20, 30, 45, 60, 90, 120].map((e) => DropdownMenuItem(value: e, child: Text('$e Minutes'))).toList(),
+                          onChanged: (val) { setState(() { sistemSuresiDakika = val!; _parkuruOlustur(); }); },
+                        ),
+                      ],
+
                       if (anaMod == 'Free Settings') 
                         FittedBox(
                           child: Row(

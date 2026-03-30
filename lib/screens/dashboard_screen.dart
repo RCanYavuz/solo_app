@@ -25,6 +25,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return "Shadow Monarch (S-Rank)";
   }
 
+  // --- YENİ: DİNAMİK BAŞARIM HESAPLAMA MOTORU ---
+  // Mevcut değere bakarak sıradaki hedefi ve Roma rakamı seviyesini belirler.
+  Map<String, dynamic> _kademeHesapla(int mevcut, List<int> hedefler) {
+    for (int i = 0; i < hedefler.length; i++) {
+      if (mevcut < hedefler[i]) {
+        return {'hedef': hedefler[i], 'kademe': i};
+      }
+    }
+    // Tüm hedefler aşıldıysa son hedefte kal ve %100 parlasın
+    return {'hedef': hedefler.last, 'kademe': hedefler.length - 1}; 
+  }
+
+  // Başarımların yanına eklenecek havalı Roma rakamları (I, II, III...)
+  String _romaRakam(int index) {
+    const roman = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+    if (index >= 0 && index < roman.length) return roman[index];
+    return "MAX";
+  }
+
   @override
   Widget build(BuildContext context) {
     const Color sysBlue = Color(0xFF38BDF8); 
@@ -35,7 +54,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     int bugun = DateTime.now().weekday;
     List<Gorev> bugununGorevleri = SystemMemory.haftalikPlan[bugun]!;
     
-    // YENİ: Bugünün Zindan Kayıtlarını (İdman Geçmişi) Filtrele
     DateTime simdi = DateTime.now();
     List<Map<String, dynamic>> bugununIdmanlari = SystemMemory.idmanGecmisi.where((idman) {
       DateTime idmanTarihi = DateTime.parse(idman['tarih']);
@@ -50,6 +68,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
     bool kaloriAsildi = SystemMemory.bugunAlinanKalori > SystemMemory.gunlukHedefKalori;
 
     SystemMemory.bossGuncelle();
+
+    // --- BAŞARIM KADEMELERİNİ (HEDEFLERİ) BELİRLE ---
+    var bStreak = _kademeHesapla(SystemMemory.streakGunSayisi, [7, 14, 30, 60, 100, 365]);
+    var bGorev = _kademeHesapla(SystemMemory.bitenGorevSayisi, [50, 100, 250, 500, 1000, 5000]);
+    var bLevel = _kademeHesapla(SystemMemory.level.value, [10, 20, 30, 50, 80, 100]);
+    var bStr = _kademeHesapla(SystemMemory.str.value, [30, 50, 100, 150, 200, 300]);
+    var bAgi = _kademeHesapla(SystemMemory.agi.value, [30, 50, 100, 150, 200, 300]);
+    var bInt = _kademeHesapla(SystemMemory.intStat.value, [30, 50, 100, 150, 200, 300]);
+    var bAltin = _kademeHesapla(SystemMemory.altin.value, [2000, 5000, 10000, 50000, 100000, 500000]);
+    
+    int kiloFarki = (SystemMemory.baslangicKilosu - SystemMemory.kilo).abs().toInt();
+    var bKilo = _kademeHesapla(kiloFarki, [5, 10, 15, 20, 30, 50]);
 
     return Scaffold(
       backgroundColor: sysDarkBg, 
@@ -163,7 +193,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             const SizedBox(height: 20),
 
-            // --- 3. BAŞARIMLAR VİTRİNİ ---
+            // --- 3. BAŞARIMLAR VİTRİNİ (DİNAMİK KADEMELİ) ---
             Text('ACHIEVEMENTS', style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
             const SizedBox(height: 10),
             SizedBox(
@@ -172,18 +202,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
                 children: [
-                  _basarimKarti("Iron Will", "7 Day Streak", SystemMemory.streakGunSayisi, 7, Icons.shield, sysBlue, sysTextMuted),
-                  _basarimKarti("Unbreakable", "100 Quests Done", SystemMemory.bitenGorevSayisi, 100, Icons.hardware, sysBlue, sysTextMuted),
-                  _basarimKarti("Awakening", "Level 10", SystemMemory.level.value, 10, Icons.flash_on, sysBlue, sysTextMuted),
-                  _basarimKarti("Warrior", "Reach 50 STR", SystemMemory.str.value, 50, Icons.fitness_center, sysBlue, sysTextMuted),
-                  _basarimKarti("Shadow Step", "Reach 50 AGI", SystemMemory.agi.value, 50, Icons.directions_run, sysBlue, sysTextMuted),
-                  _basarimKarti("Sage", "Reach 50 INT", SystemMemory.intStat.value, 50, Icons.psychology, sysBlue, sysTextMuted),
-                  _basarimKarti("Merchant", "2000 Gold", SystemMemory.altin.value, 2000, Icons.monetization_on, sysBlue, sysTextMuted),
+                  _basarimKarti("Iron Will ${_romaRakam(bStreak['kademe'])}", "${bStreak['hedef']} Day Streak", SystemMemory.streakGunSayisi, bStreak['hedef'], Icons.shield, sysBlue, sysTextMuted),
+                  _basarimKarti("Unbreakable ${_romaRakam(bGorev['kademe'])}", "${bGorev['hedef']} Quests Done", SystemMemory.bitenGorevSayisi, bGorev['hedef'], Icons.hardware, sysBlue, sysTextMuted),
+                  _basarimKarti("Awakening ${_romaRakam(bLevel['kademe'])}", "Level ${bLevel['hedef']}", SystemMemory.level.value, bLevel['hedef'], Icons.flash_on, sysBlue, sysTextMuted),
+                  _basarimKarti("Warrior ${_romaRakam(bStr['kademe'])}", "Reach ${bStr['hedef']} STR", SystemMemory.str.value, bStr['hedef'], Icons.fitness_center, sysBlue, sysTextMuted),
+                  _basarimKarti("Shadow Step ${_romaRakam(bAgi['kademe'])}", "Reach ${bAgi['hedef']} AGI", SystemMemory.agi.value, bAgi['hedef'], Icons.directions_run, sysBlue, sysTextMuted),
+                  _basarimKarti("Sage ${_romaRakam(bInt['kademe'])}", "Reach ${bInt['hedef']} INT", SystemMemory.intStat.value, bInt['hedef'], Icons.psychology, sysBlue, sysTextMuted),
+                  _basarimKarti("Merchant ${_romaRakam(bAltin['kademe'])}", "${bAltin['hedef']} Gold", SystemMemory.altin.value, bAltin['hedef'], Icons.monetization_on, sysBlue, sysTextMuted),
                   _basarimKarti(
-                    SystemMemory.aktifHedef == 'Kilo Al (Kas İnşa Et)' ? "Titan" : "Fat Burner", 
-                    "5 KG Change", 
-                    (SystemMemory.baslangicKilosu - SystemMemory.kilo).abs().toInt(), 
-                    5, 
+                    "${SystemMemory.aktifHedef == 'Kilo Al (Kas İnşa Et)' ? 'Titan' : 'Fat Burner'} ${_romaRakam(bKilo['kademe'])}", 
+                    "${bKilo['hedef']} KG Change", 
+                    kiloFarki, 
+                    bKilo['hedef'], 
                     Icons.monitor_weight, sysBlue, sysTextMuted
                   ),
                 ],
@@ -288,7 +318,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             const SizedBox(height: 20),
 
-            // --- YENİ: 6. BUGÜNÜN ZİNDAN (İDMAN) KAYITLARI ---
+            // --- 6. BUGÜNÜN ZİNDAN (İDMAN) KAYITLARI ---
             Text('TODAY\'S DUNGEON LOGS', style: GoogleFonts.orbitron(color: sysRed, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
             const SizedBox(height: 10),
             HologramCard(
@@ -354,7 +384,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     Color aktifRenk = tamamlandiMi ? sysBlue : sysTextMuted.withOpacity(0.3);
 
     return Container(
-      width: 110,
+      width: 130, // İsimler "I, II, III" ile uzayacağı için genişlik 110'dan 130'a çıkarıldı.
       margin: const EdgeInsets.only(right: 15),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
