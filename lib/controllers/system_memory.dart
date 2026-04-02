@@ -29,8 +29,10 @@ class SystemMemory {
   static ValueNotifier<int> intStat = ValueNotifier(10);
   static ValueNotifier<int> per = ValueNotifier(10);
 
-  // YENİ: OYUNCU İSMİ
   static String oyuncuIsmi = "PLAYER";
+
+  static String sonGirisTarihi = "";
+  static String geceRaporu = ""; 
 
   static Uint8List? profilFotoByte; 
   static DateTime? dogumTarihi;     
@@ -45,6 +47,9 @@ class SystemMemory {
 
   static int toplamIdmanDakikasi = 0; 
   static List<Map<String, dynamic>> idmanGecmisi = [];
+
+  // YENİ: YEMEKLERİN YOK OLMAMASI İÇİN ARŞİV (YEMEK GEÇMİŞİ)
+  static List<Map<String, dynamic>> yemekGecmisi = [];
 
   static int gunlukHedefKalori = 0; 
   static String vucutSinifi = "Bilinmiyor";
@@ -86,8 +91,8 @@ class SystemMemory {
       vit.value = prefs.getInt('vit') ?? 10; intStat.value = prefs.getInt('intStat') ?? 10;
       per.value = prefs.getInt('per') ?? 10;
 
-      // YENİ: İSMİ OKU
       oyuncuIsmi = prefs.getString('oyuncuIsmi') ?? "PLAYER";
+      sonGirisTarihi = prefs.getString('sonGirisTarihi') ?? "";
 
       cinsiyet = prefs.getString('cinsiyet') ?? "Erkek";
       boy = prefs.getDouble('boy') ?? 175; kilo = prefs.getDouble('kilo') ?? 70;
@@ -102,6 +107,10 @@ class SystemMemory {
       toplamIdmanDakikasi = prefs.getInt('toplamIdmanDakikasi') ?? 0;
       String idmanJson = prefs.getString('idmanGecmisi') ?? '[]';
       idmanGecmisi = List<Map<String, dynamic>>.from(jsonDecode(idmanJson));
+
+      // YENİ: YEMEK GEÇMİŞİNİ OKU
+      String yGecmisJson = prefs.getString('yemekGecmisi') ?? '[]';
+      yemekGecmisi = List<Map<String, dynamic>>.from(jsonDecode(yGecmisJson));
 
       gunlukHedefKalori = prefs.getInt('gunlukHedefKalori') ?? 0;
       vucutSinifi = prefs.getString('vucutSinifi') ?? "Unknown";
@@ -139,8 +148,8 @@ class SystemMemory {
     
     prefs.setInt('str', str.value); prefs.setInt('agi', agi.value); prefs.setInt('vit', vit.value); prefs.setInt('intStat', intStat.value); prefs.setInt('per', per.value);
     
-    // YENİ: İSMİ KAYDET
     prefs.setString('oyuncuIsmi', oyuncuIsmi);
+    prefs.setString('sonGirisTarihi', sonGirisTarihi);
 
     prefs.setString('cinsiyet', cinsiyet); prefs.setDouble('boy', boy); prefs.setDouble('kilo', kilo);
     
@@ -151,6 +160,9 @@ class SystemMemory {
 
     prefs.setInt('toplamIdmanDakikasi', toplamIdmanDakikasi);
     prefs.setString('idmanGecmisi', jsonEncode(idmanGecmisi));
+
+    // YENİ: YEMEK GEÇMİŞİNİ KAYDET
+    prefs.setString('yemekGecmisi', jsonEncode(yemekGecmisi));
 
     prefs.setInt('gunlukHedefKalori', gunlukHedefKalori); prefs.setString('vucutSinifi', vucutSinifi);
     prefs.setString('aktifHedef', aktifHedef); prefs.setString('aktifZorluk', aktifZorluk);
@@ -166,6 +178,44 @@ class SystemMemory {
     prefs.setString('haftalikPlan', jsonEncode(planKayit));
 
     bossGuncelle();
+  }
+
+  // =======================================================
+  // GÜNCELLENMİŞ: ZAMAN ALGISI VE GÜNCELLEME DÜZELTMESİ
+  // =======================================================
+  static void yeniGunKontrolu() {
+    DateTime bugun = DateTime.now();
+    String bugunStr = "${bugun.year}-${bugun.month.toString().padLeft(2,'0')}-${bugun.day.toString().padLeft(2,'0')}";
+
+    // HATANIN ÇÖZÜLDÜĞÜ YER: Eğer kayıt güncellenmiş ve tarih "boş" görünüyorsa...
+    if (sonGirisTarihi.isEmpty) {
+      if (bugunAlinanKalori > 0 || bugununYemekleri.isNotEmpty) {
+        // İçeride dünden kalan bir yemek/kalori varsa tarihi "DÜN" olarak kandırıyoruz.
+        // Böylece aşağıdaki sıfırlama motoru anında tetiklenecek ve ekranı temizleyecek!
+        DateTime dun = bugun.subtract(const Duration(days: 1));
+        sonGirisTarihi = "${dun.year}-${dun.month.toString().padLeft(2,'0')}-${dun.day.toString().padLeft(2,'0')}";
+      } else {
+        // Zaten temizse bugün olarak işaretle
+        sonGirisTarihi = bugunStr;
+        kaydet();
+        return;
+      }
+    }
+
+    // TARİH DEĞİŞMİŞSE (YENİ GÜNE GİRİLMİŞSE) HESAPLA VE SIFIRLA
+    if (sonGirisTarihi != bugunStr) {
+      DateTime sonGiris = DateTime.parse(sonGirisTarihi);
+      
+      geceRaporu = _gunSonuHesaplasmasi(sonGiris.weekday);
+
+      int gunFarki = bugun.difference(sonGiris).inDays;
+      if (gunFarki > 1) {
+        streakGunSayisi = 0; 
+      }
+
+      sonGirisTarihi = bugunStr;
+      kaydet();
+    }
   }
 
   static String zindanAkiniBitir(int gecenSaniye) {
@@ -215,8 +265,8 @@ class SystemMemory {
     kaydet();
   }
 
-  static void bossGuncelle() {
-    int bugun = DateTime.now().weekday;
+  static void bossGuncelle({int? gunIndex}) {
+    int bugun = gunIndex ?? DateTime.now().weekday;
     if (bugun == 7) { 
       if (bossMaxHP == 0 || bossMaxHP < level.value * 100) {
         bossMaxHP = level.value * 100;
@@ -254,6 +304,11 @@ class SystemMemory {
     if (baslangicKilosu == 0) {
       baslangicKilosu = kilo;
       kiloGecmisi.add({ 'tarih': DateTime.now().toIso8601String(), 'kilo': kilo, 'kalori': bugunAlinanKalori });
+    }
+
+    if (sonGirisTarihi.isEmpty) {
+      DateTime bugun = DateTime.now();
+      sonGirisTarihi = "${bugun.year}-${bugun.month.toString().padLeft(2,'0')}-${bugun.day.toString().padLeft(2,'0')}";
     }
 
     double boyMetre = boy / 100; double bmi = kilo / (boyMetre * boyMetre);
@@ -329,7 +384,7 @@ class SystemMemory {
     return levelUpMesaji;
   }
 
-  static String gunSonuHesaplasmasi() {
+  static String _gunSonuHesaplasmasi(int degerlendirilenGun) {
     String rapor = ""; int hpFarki = 0; int mpFarki = 0; int kazanilanExp = 0;
     int kazanilanSTR = 0; int kazanilanAGI = 0; int kazanilanVIT = 0; int kazanilanINT = 0; int kazanilanPER = 0;
     int kazanilanAltin = 0; 
@@ -340,13 +395,12 @@ class SystemMemory {
     if (uyunanSaat < 7) { mpFarki -= 4; rapor += "[PENALTY] Insufficient Sleep: -4 MP\n"; } 
     else { mpFarki += 2; kazanilanExp += 10; kazanilanVIT += 1; kazanilanAltin += 10; rapor += "[REWARD] Solid Rest: +2 MP, +10 EXP, +1 VIT, +10 G\n"; }
 
-    int bugun = DateTime.now().weekday;
-    List<Gorev> bugununProgrami = haftalikPlan[bugun]!;
+    List<Gorev> oGununProgrami = haftalikPlan[degerlendirilenGun]!;
     
     int topFiziksel = 0; int bitenFiziksel = 0; int topZihinsel = 0; int bitenZihinsel = 0;
     int strGorevleri = 0; int agiGorevleri = 0; int intGorevleri = 0; int perGorevleri = 0;
 
-    for (var g in bugununProgrami) { 
+    for (var g in oGununProgrami) { 
       if (g.tip == "Fiziksel") { 
         topFiziksel++; 
         if (g.yapildiMi) { 
@@ -378,17 +432,14 @@ class SystemMemory {
       }
     }
 
-    if (bugun == 7) {
-      bossGuncelle(); 
+    if (degerlendirilenGun == 7) {
+      bossGuncelle(gunIndex: 7); 
       if (bossHP.value <= 0 && bossMaxHP > 0) {
-        kazanilanAltin += 1000;
-        ap.value += 2;
-        kazanilanExp += 500;
+        kazanilanAltin += 1000; ap.value += 2; kazanilanExp += 500;
         rapor += "\n[BOSS DEFEATED] $bossIsim was annihilated!\nREWARD: +1000 G | +2 AP | +500 EXP\n";
         AudioSystem.playSuccess();
       } else if (bossMaxHP > 0) {
-        int cezaHp = (hp.value / 2).round();
-        hpFarki -= cezaHp; 
+        int cezaHp = (hp.value / 2).round(); hpFarki -= cezaHp; 
         rapor += "\n[DUNGEON DEFEAT] $bossIsim heavily wounded you!\nPENALTY: -$cezaHp HP\n";
       }
     }
@@ -406,13 +457,10 @@ class SystemMemory {
       if (kazanilanAGI > 0) statMesaji += "+$kazanilanAGI AGI ";
 
       if (kacan == 0 && bitenFiziksel > 0) { 
-        kazanilanVIT += 1; kazanilanAltin += 50; 
-        statMesaji += "+1 VIT ";
+        kazanilanVIT += 1; kazanilanAltin += 50; statMesaji += "+1 VIT ";
         rapor += "[REWARD] Flawless Workout: +${bitenFiziksel*15} HP, $statMesaji, +${(bitenFiziksel*50)+50} G\n"; 
       } 
-      else if (bitenFiziksel > 0) { 
-        rapor += "[INFO] Partial Workout: +${bitenFiziksel*15} HP, -${kacan*15} HP, $statMesaji, +${bitenFiziksel*50} G\n"; 
-      } 
+      else if (bitenFiziksel > 0) { rapor += "[INFO] Partial Workout: +${bitenFiziksel*15} HP, -${kacan*15} HP, $statMesaji, +${bitenFiziksel*50} G\n"; } 
       else { rapor += "[PENALTY] Workout Neglected: -${kacan*15} HP\n"; }
     }
 
@@ -432,9 +480,7 @@ class SystemMemory {
         kazanilanAltin += 30;
         rapor += "[REWARD] Flawless Mental Training: +${bitenZihinsel*5} MP, $statMesaji, +${(bitenZihinsel*30)+30} G\n"; 
       } 
-      else if (bitenZihinsel > 0) { 
-        rapor += "[INFO] Partial Mental Training: +${bitenZihinsel*5} MP, -${kacan*5} MP, $statMesaji, +${bitenZihinsel*30} G\n"; 
-      } 
+      else if (bitenZihinsel > 0) { rapor += "[INFO] Partial Mental Training: +${bitenZihinsel*5} MP, -${kacan*5} MP, $statMesaji, +${bitenZihinsel*30} G\n"; } 
       else { rapor += "[PENALTY] Mind Neglected: -${kacan*5} MP\n"; }
     }
 
@@ -447,10 +493,28 @@ class SystemMemory {
 
     String levelRaporu = expKazan(kazanilanExp);
 
-    bugunAlinanKalori = 0; bugununYemekleri.clear(); uyunanSaat = 0;
-    for (var g in bugununProgrami) { g.yapildiMi = false; }
+    // ==========================================
+    // YENİ GÜN İÇİN YEMEKLERİ ARŞİVLE VE SIFIRLA
+    // ==========================================
+    if (bugununYemekleri.isNotEmpty || bugunAlinanKalori > 0) {
+      yemekGecmisi.add({
+        'tarih': sonGirisTarihi, // Dünün tarihiyle arşive at
+        'toplamKalori': bugunAlinanKalori,
+        'yemekler': bugununYemekleri.map((e) => e.toJson()).toList()
+      });
+    }
 
-    kaydet(); 
+    // Yemekleri tamamen temizle! (Kopyalanmasını %100 engeller)
+    bugunAlinanKalori = 0; 
+    bugununYemekleri.clear(); 
+    uyunanSaat = 0;
+    
+    for (int i = 1; i <= 7; i++) {
+      for (var g in haftalikPlan[i]!) {
+        g.yapildiMi = false;
+      }
+    }
+
     return "$rapor\n[QUEST LOG]\nNET HP: ${hpFarki > 0 ? '+' : ''}$hpFarki | GOLD EARNED: $kazanilanAltin 🪙 | EXP EARNED: $kazanilanExp$levelRaporu";
   }
 

@@ -1,4 +1,6 @@
+// lib/core/sistem_gecisi.dart
 import 'package:flutter/material.dart';
+import 'audio_system.dart'; // YENİ: Ses sistemini içe aktardık
 
 // SİSTEME ÖZEL HOLOGRAM GEÇİŞ MOTORU
 class SistemGecisi extends PageRouteBuilder {
@@ -11,12 +13,10 @@ class SistemGecisi extends PageRouteBuilder {
           reverseTransitionDuration: const Duration(milliseconds: 400),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             
-            // 1. Ekran yavaşça aydınlanır (Fade)
             var fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
               CurvedAnimation(parent: animation, curve: Curves.easeOut)
             );
 
-            // 2. Ekran geriden gelip öne doğru oturur (Scale)
             var scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
               CurvedAnimation(parent: animation, curve: Curves.easeOutBack)
             );
@@ -29,5 +29,8 @@ class SistemGecisi extends PageRouteBuilder {
               ),
             );
           },
-        );
+        ) {
+          // YENİ: Bu geçiş motoru her çağırıldığında (yeni sayfa açıldığında) sesi otomatik çalar!
+          AudioSystem.playTransition();
+        }
 }

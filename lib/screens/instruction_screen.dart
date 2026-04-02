@@ -1,10 +1,24 @@
+// lib/screens/instruction_screen.dart
 import 'package:flutter/material.dart';
-import '../controllers/system_memory.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'ana_ekran.dart'; // Okuma bitince doğrudan Ana Karargaha geçeceğiz
+import '../core/audio_system.dart'; // YENİ: Ses sistemi
+import 'ana_ekran.dart'; 
 
-class InstructionScreen extends StatelessWidget {
+class InstructionScreen extends StatefulWidget {
   const InstructionScreen({super.key});
+
+  @override
+  State<InstructionScreen> createState() => _InstructionScreenState();
+}
+
+class _InstructionScreenState extends State<InstructionScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    // YENİ: Ekran açıldığı an SİSTEM UYANIŞ SESİ çalar!
+    AudioSystem.playStartup();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +51,7 @@ class InstructionScreen extends StatelessWidget {
                   children: [
                     _kuralKarti(
                       ikon: Icons.gavel, renk: Colors.redAccent, baslik: "1. GÜNLÜK HESAPLAŞMA",
-                      metin: "Her günün sonunda 'SİSTEM' sekmesine gidip Günü Bitir butonuna basmalısın. Yaptığın görevlere göre ödüllendirilecek (EXP/Stat), yapmadıkların için cezalandırılacaksın (HP Düşüşü)."
+                      metin: "Her günün sonunda Sistem gece yarısı otomatik hesaplaşma yapar. Yaptığın görevlere göre ödüllendirilecek (EXP/Stat), yapmadıkların için cezalandırılacaksın (HP Düşüşü)."
                     ),
                     _kuralKarti(
                       ikon: Icons.trending_up, renk: Colors.amberAccent, baslik: "2. SEVİYE VE YETENEKLER",
@@ -49,7 +63,7 @@ class InstructionScreen extends StatelessWidget {
                     ),
                     _kuralKarti(
                       ikon: Icons.calendar_month, renk: Colors.purpleAccent, baslik: "4. SONSUZ DÖNGÜ",
-                      metin: "Görev Planlayıcıya eklediğin her görev (Örn: Pazartesi Şınav) sen silene kadar her Pazartesi tekrarlanır. Gelecek programını 'GÜNLÜK' sekmesinden takip edebilirsin."
+                      metin: "Görev Planlayıcıya eklediğin her görev sen silene kadar her hafta o gün tekrarlanır. Geçmiş verilerini 'QUEST LOG' ve 'ENVANTER' içindeki arşivden takip edebilirsin."
                     ),
                     _kuralKarti(
                       ikon: Icons.warning_amber_rounded, renk: Colors.orangeAccent, baslik: "5. ÖLÜM TEHLİKESİ",
@@ -66,7 +80,8 @@ class InstructionScreen extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    // Kılavuzu okuduysa artık ANA EKRAN'a (Karargah) gidebilir!
+                    // Butona basıldığında da bir geçiş sesi çaldıralım
+                    AudioSystem.playTransition(); 
                     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AnaEkran()));
                   },
                   icon: const Icon(Icons.login, color: Colors.cyanAccent),

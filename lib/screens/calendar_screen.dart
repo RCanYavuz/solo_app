@@ -203,11 +203,27 @@ class _CalendarScreenState extends State<CalendarScreen> {
     DateTime simdi = DateTime.now();
     bool isToday = seciliTarih.year == simdi.year && seciliTarih.month == simdi.month && seciliTarih.day == simdi.day;
 
-    // YENİ: Seçili güne ait Zindan Kayıtlarını (İdman Geçmişi) Filtrele
     List<Map<String, dynamic>> seciliGunIdmanlari = SystemMemory.idmanGecmisi.where((idman) {
       DateTime idmanTarihi = DateTime.parse(idman['tarih']);
       return idmanTarihi.year == seciliTarih.year && idmanTarihi.month == seciliTarih.month && idmanTarihi.day == seciliTarih.day;
     }).toList();
+
+    // =========================================================
+    // YENİ: GEÇMİŞ GÜNÜN KALORİSİNİ ARŞİVDEN (YEMEK GEÇMİŞİ) BUL
+    // =========================================================
+    int gecmisKalori = 0;
+    bool gecmisKayitBulundu = false;
+
+    if (!isToday) {
+      String seciliTarihStr = "${seciliTarih.year}-${seciliTarih.month.toString().padLeft(2,'0')}-${seciliTarih.day.toString().padLeft(2,'0')}";
+      for (var kayit in SystemMemory.yemekGecmisi) {
+        if (kayit['tarih'] == seciliTarihStr) {
+          gecmisKalori = kayit['toplamKalori'] ?? 0;
+          gecmisKayitBulundu = true;
+          break;
+        }
+      }
+    }
 
     return Scaffold(
       backgroundColor: sysDarkBg,
@@ -222,7 +238,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
             child: Container(
               width: double.infinity,
               decoration: const BoxDecoration(color: Color(0xFF030712), border: Border(top: BorderSide(color: Colors.white12))),
-              // YENİ: Hem Görevleri hem de Zindan Loglarını güvenle kaydırmak için ListView kullanıldı
               child: ListView(
                 padding: const EdgeInsets.all(20),
                 children: [
@@ -233,13 +248,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text('SYSTEM QUEST PROTOCOL', style: TextStyle(color: sysTextMuted, fontSize: 10, letterSpacing: 2)),
+                      // YENİ: ARTIK GEÇMİŞ GÜNE BASINCA O GÜNÜN KALORİSİNİ GÖSTERECEK!
                       if (SystemMemory.gunlukHedefKalori > 0)
                         Text(
                           isToday 
                             ? 'ENERGY: ${SystemMemory.bugunAlinanKalori} / ${SystemMemory.gunlukHedefKalori} KCAL'
-                            : 'TARGET: ${SystemMemory.gunlukHedefKalori} KCAL', 
+                            : (gecmisKayitBulundu 
+                                ? 'LOGGED ENERGY: $gecmisKalori / ${SystemMemory.gunlukHedefKalori} KCAL'
+                                : 'TARGET: ${SystemMemory.gunlukHedefKalori} KCAL'), 
                           style: TextStyle(
-                            color: (isToday && SystemMemory.bugunAlinanKalori > SystemMemory.gunlukHedefKalori) ? sysRed : sysBlue, 
+                            color: isToday 
+                              ? (SystemMemory.bugunAlinanKalori > SystemMemory.gunlukHedefKalori ? sysRed : sysBlue)
+                              : (gecmisKayitBulundu && gecmisKalori > SystemMemory.gunlukHedefKalori ? sysRed : sysBlue), 
                             fontSize: 10, 
                             fontWeight: FontWeight.bold, 
                             letterSpacing: 1
@@ -270,7 +290,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
                   const SizedBox(height: 20),
                   
-                  // --- YENİ: ZİNDAN KAYITLARI BÖLÜMÜ ---
                   Text('DUNGEON LOGS', style: GoogleFonts.orbitron(color: sysRed, fontSize: 10, letterSpacing: 2)),
                   const SizedBox(height: 10),
                   if (seciliGunIdmanlari.isEmpty)

@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../controllers/system_memory.dart';
 import '../models/task_model.dart';
 import '../core/sistem_gecisi.dart'; 
+import '../core/audio_system.dart'; // Ses sistemi eklendi
 import 'boxing_timer_screen.dart'; 
 
 class ActiveWorkoutScreen extends StatefulWidget {
@@ -19,6 +20,8 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
   static const Color sysRed = Color(0xFFEF4444); 
   static const Color sysBlue = Color(0xFF38BDF8); 
   static const Color sysDarkBg = Color(0xFF030712);
+  static const Color physicalGold = Color(0xFFB08D57); 
+  static const Color mentalPurple = Color(0xFFA060E0); 
 
   int gecenSaniye = 0;
   Timer? _kronometre;
@@ -80,6 +83,89 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
     );
   }
 
+  // ==========================================================
+  // YENİ: ANLIK ZİNDAN ŞABLONU UYGULAYICI (SADECE BUGÜN İÇİN)
+  // ==========================================================
+  void _sablonUygula(String sablonAdi) {
+    setState(() {
+      SystemMemory.haftalikPlan[bugunIndex]!.clear(); // Bugünün görevlerini temizle
+      
+      if (sablonAdi == 'Saitama (S-Rank)') {
+        SystemMemory.haftalikPlan[bugunIndex]!.addAll([
+          Gorev("[CHEST] 100 Push-ups", false, "Fiziksel"),
+          Gorev("[CORE / ABS] 100 Sit-ups", false, "Fiziksel"),
+          Gorev("[QUADS] 100 Squats", false, "Fiziksel"),
+          Gorev("[CARDIO] 10 KM Run", false, "Fiziksel"),
+        ]);
+      } 
+      else if (sablonAdi == 'Full Body (B-Rank)') {
+        SystemMemory.haftalikPlan[bugunIndex]!.addAll([
+          Gorev("[CHEST] Bench / Push-ups", false, "Fiziksel"),
+          Gorev("[BACK] Pull-ups / Rows", false, "Fiziksel"),
+          Gorev("[QUADS] Squats", false, "Fiziksel"),
+          Gorev("[CORE / ABS] Plank (3 Min)", false, "Fiziksel"),
+        ]);
+      }
+      else if (sablonAdi == 'Monarch Mind') {
+        SystemMemory.haftalikPlan[bugunIndex]!.addAll([
+          Gorev("[MEDITATION] 30 Mins Focus", false, "Zihinsel"),
+          Gorev("[READING] 20 Pages Book", false, "Zihinsel"),
+          Gorev("[STRATEGY] Planning / Journal", false, "Zihinsel"),
+        ]);
+      }
+    });
+    
+    SystemMemory.kaydet();
+    AudioSystem.playSuccess();
+    Navigator.pop(context);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('SYSTEM: $sablonAdi loaded into current session!'), backgroundColor: Colors.green, duration: const Duration(seconds: 1)));
+  }
+
+  void _sablonSecimDialog() {
+    AudioSystem.playTransition();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF030712).withOpacity(0.95),
+          shape: RoundedRectangleBorder(side: const BorderSide(color: sysBlue, width: 1), borderRadius: BorderRadius.circular(4)),
+          title: Text('INSTANT TEMPLATES', style: GoogleFonts.orbitron(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 16)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text("WARNING: Loading a template will REPLACE today's active quests.", style: TextStyle(color: sysRed, fontSize: 12, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 20),
+              _sablonButonu('Saitama (S-Rank)', '100 Push-ups, Squats, Sit-ups, 10km Run', physicalGold),
+              const SizedBox(height: 10),
+              _sablonButonu('Full Body (B-Rank)', 'Chest, Back, Legs, Core', physicalGold),
+              const SizedBox(height: 10),
+              _sablonButonu('Monarch Mind', 'Meditation, Reading, Strategy', mentalPurple),
+            ],
+          ),
+          actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL', style: TextStyle(color: Color(0xFF94A3B8))))],
+        );
+      }
+    );
+  }
+
+  Widget _sablonButonu(String ad, String aciklama, Color renk) {
+    return InkWell(
+      onTap: () => _sablonUygula(ad),
+      child: Container(
+        width: double.infinity, padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(color: renk.withOpacity(0.1), border: Border.all(color: renk.withOpacity(0.5)), borderRadius: BorderRadius.circular(4)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(ad, style: GoogleFonts.orbitron(color: renk, fontSize: 14, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 4),
+            Text(aciklama, style: const TextStyle(color: Colors.white70, fontSize: 10)),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Gorev> bugununProgrami = SystemMemory.haftalikPlan[bugunIndex]!;
@@ -130,10 +216,30 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(20),
                 children: [
-                  Text('ACTIVE QUESTS', style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                  // YENİ: ŞABLON BUTONU BURAYA EKLENDİ
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('ACTIVE QUESTS', style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                      ElevatedButton.icon(
+                        onPressed: _sablonSecimDialog, 
+                        icon: const Icon(Icons.auto_awesome, color: physicalGold, size: 16),
+                        label: const Text('TEMPLATES', style: TextStyle(color: physicalGold, fontWeight: FontWeight.bold, fontSize: 12)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: physicalGold.withOpacity(0.1),
+                          side: const BorderSide(color: physicalGold, width: 1),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
+                        ),
+                      )
+                    ],
+                  ),
                   const SizedBox(height: 15),
+                  
                   if (bugununProgrami.isEmpty)
-                    const Center(child: Text("No quests assigned for today.", style: TextStyle(color: Color(0xFF94A3B8)))),
+                    const Center(child: Padding(
+                      padding: EdgeInsets.only(top: 20.0),
+                      child: Text("No quests assigned. Load a template or return to planner.", style: TextStyle(color: Color(0xFF94A3B8))),
+                    )),
                   
                   ...bugununProgrami.map((gorev) {
                     return Container(
@@ -149,8 +255,9 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                         value: gorev.yapildiMi,
                         activeColor: sysBlue, checkColor: sysDarkBg,
                         onChanged: (val) { 
-                          setState(() { gorev.yapildiMi = val!; }); 
+                          setState(() { gorev.yapildiMi = val ?? false; }); 
                           SystemMemory.kaydet(); 
+                          if(val == true) AudioSystem.playTransition(); // Tiklendiğinde küçük ses
                         },
                       ),
                     );
