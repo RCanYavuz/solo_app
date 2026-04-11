@@ -11,8 +11,16 @@ import '../models/food_model.dart';
 class SystemMemory {
   static bool kayitBulundu = false; 
 
-  // --- YENİ: GÖLGE MODU (SİSTEM UYKUSU) ---
   static bool golgeModuAktif = false;
+
+  // ==========================================
+  // ÖZELLEŞTİRİLEBİLİR KIRMIZI GEÇİT (RED GATE)
+  // ==========================================
+  static bool redGateAktif = false;
+  static int redGateKalanGun = 0;
+  static int redGateToplamGun = 0; 
+  static int normalGunlukHedefKalori = 0;
+  static Map<int, List<Gorev>> normalHaftalikPlan = {};
 
   static ValueNotifier<int> hp = ValueNotifier(100);
   static ValueNotifier<int> mp = ValueNotifier(10);
@@ -50,8 +58,8 @@ class SystemMemory {
 
   static int toplamIdmanDakikasi = 0; 
   static List<Map<String, dynamic>> idmanGecmisi = [];
-
-  // YENİ: YEMEKLERİN YOK OLMAMASI İÇİN ARŞİV (YEMEK GEÇMİŞİ)
+  
+  // YEMEKLERİN YOK OLMAMASI İÇİN ARŞİV
   static List<Map<String, dynamic>> yemekGecmisi = [];
 
   static int gunlukHedefKalori = 0; 
@@ -85,6 +93,10 @@ class SystemMemory {
       kayitBulundu = true;
       
       golgeModuAktif = prefs.getBool('golgeModuAktif') ?? false;
+      redGateAktif = prefs.getBool('redGateAktif') ?? false;
+      redGateKalanGun = prefs.getInt('redGateKalanGun') ?? 0;
+      redGateToplamGun = prefs.getInt('redGateToplamGun') ?? 0;
+      normalGunlukHedefKalori = prefs.getInt('normalGunlukHedefKalori') ?? 0;
       
       hp.value = prefs.getInt('hp') ?? 100; mp.value = prefs.getInt('mp') ?? 10;
       maxHp = prefs.getInt('maxHp') ?? 100; maxMp = prefs.getInt('maxMp') ?? 10;
@@ -113,7 +125,6 @@ class SystemMemory {
       String idmanJson = prefs.getString('idmanGecmisi') ?? '[]';
       idmanGecmisi = List<Map<String, dynamic>>.from(jsonDecode(idmanJson));
 
-      // YENİ: YEMEK GEÇMİŞİNİ OKU
       String yGecmisJson = prefs.getString('yemekGecmisi') ?? '[]';
       yemekGecmisi = List<Map<String, dynamic>>.from(jsonDecode(yGecmisJson));
 
@@ -139,6 +150,10 @@ class SystemMemory {
       Map<String, dynamic> pMap = jsonDecode(planJson);
       pMap.forEach((key, value) { haftalikPlan[int.parse(key)] = (value as List).map((e) => Gorev.fromJson(e)).toList(); });
       
+      String normalPlanJson = prefs.getString('normalHaftalikPlan') ?? '{}';
+      Map<String, dynamic> npMap = jsonDecode(normalPlanJson);
+      npMap.forEach((key, value) { normalHaftalikPlan[int.parse(key)] = (value as List).map((e) => Gorev.fromJson(e)).toList(); });
+
       bossGuncelle();
     }
   }
@@ -147,6 +162,10 @@ class SystemMemory {
     final prefs = await SharedPreferences.getInstance();
     
     prefs.setBool('golgeModuAktif', golgeModuAktif);
+    prefs.setBool('redGateAktif', redGateAktif);
+    prefs.setInt('redGateKalanGun', redGateKalanGun);
+    prefs.setInt('redGateToplamGun', redGateToplamGun);
+    prefs.setInt('normalGunlukHedefKalori', normalGunlukHedefKalori);
     
     prefs.setInt('hp', hp.value); prefs.setInt('mp', mp.value);
     prefs.setInt('maxHp', maxHp); prefs.setInt('maxMp', maxMp);
@@ -167,8 +186,6 @@ class SystemMemory {
 
     prefs.setInt('toplamIdmanDakikasi', toplamIdmanDakikasi);
     prefs.setString('idmanGecmisi', jsonEncode(idmanGecmisi));
-
-    // YENİ: YEMEK GEÇMİŞİNİ KAYDET
     prefs.setString('yemekGecmisi', jsonEncode(yemekGecmisi));
 
     prefs.setInt('gunlukHedefKalori', gunlukHedefKalori); prefs.setString('vucutSinifi', vucutSinifi);
@@ -184,44 +201,118 @@ class SystemMemory {
     haftalikPlan.forEach((key, value) { planKayit[key.toString()] = value.map((e) => e.toJson()).toList(); });
     prefs.setString('haftalikPlan', jsonEncode(planKayit));
 
+    Map<String, dynamic> nPlanKayit = {};
+    normalHaftalikPlan.forEach((key, value) { nPlanKayit[key.toString()] = value.map((e) => e.toJson()).toList(); });
+    prefs.setString('normalHaftalikPlan', jsonEncode(nPlanKayit));
+
     bossGuncelle();
   }
 
-  // =======================================================
-  // GÜNCELLENMİŞ: ZAMAN ALGISI VE GÜNCELLEME DÜZELTMESİ
-  // =======================================================
+  // ========================================================
+  // OTOMATİK GÖREV YÜKLEMELİ KIRMIZI GEÇİT (RED GATE)
+  // ========================================================
+  static void kirmiziGecideGir(int secilenGun, int hedefKalori, String secilenPlan) {
+    if (!redGateAktif) {
+      // 1. Normal Planı Yedekle
+      normalGunlukHedefKalori = gunlukHedefKalori;
+      normalHaftalikPlan.clear();
+      haftalikPlan.forEach((key, value) {
+        normalHaftalikPlan[key] = value.map((e) => Gorev(e.ad, false, e.tip)).toList();
+      });
+
+      // 2. Kırmızı Geçit Planını Hazırla (Otomatik Doldurma)
+      haftalikPlan.clear();
+      for(int i = 1; i <= 7; i++) {
+        haftalikPlan[i] = [];
+      }
+
+      if (secilenPlan == "Full Body + Cardio") {
+        for(int i = 1; i <= 7; i++) {
+          haftalikPlan[i]!.addAll([
+            Gorev("[PHY] Upper Body (Chest/Back/Arms)", false, "Fiziksel"),
+            Gorev("[PHY] Lower Body (Quads/Hams/Calves)", false, "Fiziksel"),
+            Gorev("[PHY] Core & Abs", false, "Fiziksel"),
+            Gorev("[PHY] Intense Cardio", false, "Fiziksel"),
+          ]);
+        }
+      } 
+      else if (secilenPlan == "Push / Pull / Legs") {
+        // İtme (1. ve 4. Gün)
+        haftalikPlan[1]!.addAll([Gorev("[PHY] Push (Chest/Shoulders/Triceps)", false, "Fiziksel"), Gorev("[PHY] Core", false, "Fiziksel")]);
+        haftalikPlan[4]!.addAll([Gorev("[PHY] Push (Chest/Shoulders/Triceps)", false, "Fiziksel"), Gorev("[PHY] Core", false, "Fiziksel")]);
+        // Çekme (2. ve 5. Gün)
+        haftalikPlan[2]!.addAll([Gorev("[PHY] Pull (Back/Biceps/Rear Delts)", false, "Fiziksel"), Gorev("[PHY] Light Cardio", false, "Fiziksel")]);
+        haftalikPlan[5]!.addAll([Gorev("[PHY] Pull (Back/Biceps/Rear Delts)", false, "Fiziksel"), Gorev("[PHY] Light Cardio", false, "Fiziksel")]);
+        // Bacak (3. ve 6. Gün)
+        haftalikPlan[3]!.addAll([Gorev("[PHY] Legs (Quads/Hamstrings/Calves)", false, "Fiziksel")]);
+        haftalikPlan[6]!.addAll([Gorev("[PHY] Legs (Quads/Hamstrings/Calves)", false, "Fiziksel")]);
+        // Dinlenme/Kardiyo (7. Gün)
+        haftalikPlan[7]!.addAll([Gorev("[PHY] Active Recovery & Stretch", false, "Fiziksel"), Gorev("[PHY] Heavy Cardio", false, "Fiziksel")]);
+      } 
+      else if (secilenPlan == "Saitama Hell") {
+        for(int i = 1; i <= 7; i++) {
+          haftalikPlan[i]!.addAll([
+            Gorev("[PHY] 100 Push-ups", false, "Fiziksel"),
+            Gorev("[PHY] 100 Sit-ups", false, "Fiziksel"),
+            Gorev("[PHY] 100 Squats", false, "Fiziksel"),
+            Gorev("[PHY] 10km Run", false, "Fiziksel"),
+          ]);
+        }
+      }
+
+      // 3. Sistemi Cehennem Moduna Geçir
+      redGateAktif = true;
+      redGateKalanGun = secilenGun;
+      redGateToplamGun = secilenGun;
+      gunlukHedefKalori = hedefKalori;
+      golgeModuAktif = false; 
+      
+      kaydet();
+    }
+  }
+
+  static void kirmiziGecittenCik() {
+    redGateAktif = false;
+    redGateKalanGun = 0;
+    
+    // Orijinal ayarları geri yükle
+    if (normalGunlukHedefKalori > 0) {
+      gunlukHedefKalori = normalGunlukHedefKalori;
+    }
+    
+    if (normalHaftalikPlan.isNotEmpty) {
+      haftalikPlan.clear();
+      normalHaftalikPlan.forEach((key, value) {
+        haftalikPlan[key] = value.map((e) => Gorev(e.ad, false, e.tip)).toList();
+      });
+    }
+    kaydet();
+  }
+
   static void yeniGunKontrolu() {
     DateTime bugun = DateTime.now();
     String bugunStr = "${bugun.year}-${bugun.month.toString().padLeft(2,'0')}-${bugun.day.toString().padLeft(2,'0')}";
 
-    // HATANIN ÇÖZÜLDÜĞÜ YER: Eğer kayıt güncellenmiş ve tarih "boş" görünüyorsa...
     if (sonGirisTarihi.isEmpty) {
       if (bugunAlinanKalori > 0 || bugununYemekleri.isNotEmpty) {
-        // İçeride dünden kalan bir yemek/kalori varsa tarihi "DÜN" olarak kandırıyoruz.
-        // Böylece aşağıdaki sıfırlama motoru anında tetiklenecek ve ekranı temizleyecek!
         DateTime dun = bugun.subtract(const Duration(days: 1));
         sonGirisTarihi = "${dun.year}-${dun.month.toString().padLeft(2,'0')}-${dun.day.toString().padLeft(2,'0')}";
       } else {
-        // Zaten temizse bugün olarak işaretle
-        sonGirisTarihi = bugunStr;
-        kaydet();
-        return;
+        sonGirisTarihi = bugunStr; kaydet(); return;
       }
     }
 
-    // TARİH DEĞİŞMİŞSE (YENİ GÜNE GİRİLMİŞSE) HESAPLA VE SIFIRLA
     if (sonGirisTarihi != bugunStr) {
       DateTime sonGiris = DateTime.parse(sonGirisTarihi);
       
       geceRaporu = _gunSonuHesaplasmasi(sonGiris.weekday);
 
       int gunFarki = bugun.difference(sonGiris).inDays;
-      if (gunFarki > 1 && !golgeModuAktif) {
+      if (gunFarki > 1 && !golgeModuAktif && !redGateAktif) {
         streakGunSayisi = 0; 
       }
 
-      sonGirisTarihi = bugunStr;
-      kaydet();
+      sonGirisTarihi = bugunStr; kaydet();
     }
   }
 
@@ -238,7 +329,7 @@ class SystemMemory {
       'gorevSayisi': bitenGorevSayisiSimdi
     });
 
-    int kazanilanAltin = dakika * 2; 
+    int kazanilanAltin = dakika * (redGateAktif ? 10 : 2); 
     altin.value += kazanilanAltin;
     
     kaydet();
@@ -248,27 +339,20 @@ class SystemMemory {
   }
 
   static void protokolGuncelle(String yeniHedef, String yeniZorluk) {
-    aktifHedef = yeniHedef;
-    aktifZorluk = yeniZorluk;
+    aktifHedef = yeniHedef; aktifZorluk = yeniZorluk;
 
     double bmr = (cinsiyet == "Erkek") ? (10 * kilo) + (6.25 * boy) - (5 * yas) + 5 : (10 * kilo) + (6.25 * boy) - (5 * yas) - 161;
-    double gunlukIhtiyac = bmr * 1.375;
-    int kaloriFarki = 0;
+    double gunlukIhtiyac = bmr * 1.375; int kaloriFarki = 0;
 
     if (aktifHedef == "Kilo Ver (Yağ Yak)") { 
-      if (aktifZorluk == "Normal") kaloriFarki = -500; 
-      else if (aktifZorluk == "Yüksek") kaloriFarki = -1000; 
-      else if (aktifZorluk == "Cehennem") kaloriFarki = -1500; 
+      if (aktifZorluk == "Normal") kaloriFarki = -500; else if (aktifZorluk == "Yüksek") kaloriFarki = -1000; else if (aktifZorluk == "Cehennem") kaloriFarki = -1500; 
     } 
     else if (aktifHedef == "Kilo Al (Kas İnşa Et)") { 
-      if (aktifZorluk == "Normal") kaloriFarki = 300; 
-      else if (aktifZorluk == "Yüksek") kaloriFarki = 500; 
-      else if (aktifZorluk == "Canavar") kaloriFarki = 1000; 
+      if (aktifZorluk == "Normal") kaloriFarki = 300; else if (aktifZorluk == "Yüksek") kaloriFarki = 500; else if (aktifZorluk == "Canavar") kaloriFarki = 1000; 
     }
 
     gunlukHedefKalori = (gunlukIhtiyac + kaloriFarki).round();
     if (gunlukHedefKalori < 1200) gunlukHedefKalori = 1200; 
-    
     kaydet();
   }
 
@@ -283,25 +367,12 @@ class SystemMemory {
 
       int hasar = 0;
       for (var g in haftalikPlan[7]!) {
-        if (g.yapildiMi) {
-          if (g.tip == bossTuru) {
-            hasar += (level.value * 25); 
-          } else {
-            hasar += (level.value * 5); 
-          }
-        }
+        if (g.yapildiMi) { hasar += (g.tip == bossTuru) ? (level.value * 25) : (level.value * 5); }
       }
-
-      if (bugunAlinanKalori > 0 && bugunAlinanKalori <= gunlukHedefKalori) {
-        hasar += (level.value * 30); 
-      }
+      if (bugunAlinanKalori > 0 && bugunAlinanKalori <= gunlukHedefKalori) { hasar += (level.value * 30); }
       
-      int kalan = bossMaxHP - hasar;
-      bossHP.value = kalan < 0 ? 0 : kalan;
-    } else {
-      bossMaxHP = 0;
-      bossHP.value = 0;
-    }
+      int kalan = bossMaxHP - hasar; bossHP.value = kalan < 0 ? 0 : kalan;
+    } else { bossMaxHP = 0; bossHP.value = 0; }
   }
 
   static void oyuncuyuAnalizEt(String secilenCinsiyet, DateTime girilenDogumTarihi, double girilenBoy, double girilenKilo, String hedef, String zorluk, Uint8List? foto) {
@@ -309,35 +380,29 @@ class SystemMemory {
     aktifHedef = hedef; aktifZorluk = zorluk; if (foto != null) profilFotoByte = foto;
 
     if (baslangicKilosu == 0) {
-      baslangicKilosu = kilo;
-      kiloGecmisi.add({ 'tarih': DateTime.now().toIso8601String(), 'kilo': kilo, 'kalori': bugunAlinanKalori });
+      baslangicKilosu = kilo; kiloGecmisi.add({ 'tarih': DateTime.now().toIso8601String(), 'kilo': kilo, 'kalori': bugunAlinanKalori });
     }
 
     if (sonGirisTarihi.isEmpty) {
-      DateTime bugun = DateTime.now();
-      sonGirisTarihi = "${bugun.year}-${bugun.month.toString().padLeft(2,'0')}-${bugun.day.toString().padLeft(2,'0')}";
+      DateTime bugun = DateTime.now(); sonGirisTarihi = "${bugun.year}-${bugun.month.toString().padLeft(2,'0')}-${bugun.day.toString().padLeft(2,'0')}";
     }
 
     double boyMetre = boy / 100; double bmi = kilo / (boyMetre * boyMetre);
     if (bmi < 18.5) vucutSinifi = "Underweight"; else if (bmi < 24.9) vucutSinifi = "Normal"; else if (bmi < 29.9) vucutSinifi = "Overweight"; else vucutSinifi = "Obese";
 
     double bmr = (cinsiyet == "Erkek") ? (10 * kilo) + (6.25 * boy) - (5 * yas) + 5 : (10 * kilo) + (6.25 * boy) - (5 * yas) - 161;
-    double gunlukIhtiyac = bmr * 1.375;
-    int kaloriFarki = 0;
+    double gunlukIhtiyac = bmr * 1.375; int kaloriFarki = 0;
 
     if (hedef == "Kilo Ver (Yağ Yak)") { if (zorluk == "Normal") kaloriFarki = -500; else if (zorluk == "Yüksek") kaloriFarki = -1000; else if (zorluk == "Cehennem") kaloriFarki = -1500; } 
     else if (hedef == "Kilo Al (Kas İnşa Et)") { if (zorluk == "Normal") kaloriFarki = 300; else if (zorluk == "Yüksek") kaloriFarki = 500; else if (zorluk == "Canavar") kaloriFarki = 1000; }
 
     gunlukHedefKalori = (gunlukIhtiyac + kaloriFarki).round();
     if (gunlukHedefKalori < 1200) gunlukHedefKalori = 1200; 
-    
     kaydet();
   }
 
   static String tartiGuncelle(double yeniKilo) {
-    double eskiKilo = kilo;
-    double fark = eskiKilo - yeniKilo; 
-    
+    double eskiKilo = kilo; double fark = eskiKilo - yeniKilo; 
     oyuncuyuAnalizEt(cinsiyet, dogumTarihi!, boy, yeniKilo, aktifHedef, aktifZorluk, profilFotoByte);
     kiloGecmisi.add({ 'tarih': DateTime.now().toIso8601String(), 'kilo': yeniKilo, 'kalori': bugunAlinanKalori });
     
@@ -346,13 +411,9 @@ class SystemMemory {
     String rapor = "";
     if (aktifHedef == 'Kilo Ver (Yağ Yak)') {
       if (fark > 0) { 
-        int kazanilanAltin = (fark * 500).toInt();
-        int kazanilanAP = fark.toInt();
-        if (kazanilanAP < 1) kazanilanAP = 1; 
-        altin.value += kazanilanAltin;
-        ap.value += kazanilanAP;
-        rapor = "[ACHIEVEMENT UNLOCKED] $fark kg mass shed!\nREWARD: +$kazanilanAltin Gold | +$kazanilanAP AP";
-        AudioSystem.playSuccess();
+        int kazanilanAltin = (fark * 500).toInt(); int kazanilanAP = fark.toInt(); if (kazanilanAP < 1) kazanilanAP = 1; 
+        altin.value += kazanilanAltin; ap.value += kazanilanAP;
+        rapor = "[ACHIEVEMENT UNLOCKED] $fark kg mass shed!\nREWARD: +$kazanilanAltin Gold | +$kazanilanAP AP"; AudioSystem.playSuccess();
       } else { 
         if(!golgeModuAktif) { hp.value -= 20; if(hp.value < 0) hp.value = 0; rapor = "[SYSTEM WARNING] ${fark.abs()} kg mass regained. Discipline violated!\nPENALTY: -20 HP"; }
         else { rapor = "[STEALTH MODE] Mass regained, but penalty bypassed."; }
@@ -360,23 +421,15 @@ class SystemMemory {
     } 
     else if (aktifHedef == 'Kilo Al (Kas İnşa Et)') {
       if (fark < 0) { 
-        double alinan = fark.abs();
-        int kazanilanAltin = (alinan * 500).toInt();
-        int kazanilanAP = alinan.toInt();
-        if (kazanilanAP < 1) kazanilanAP = 1;
-        altin.value += kazanilanAltin;
-        ap.value += kazanilanAP;
-        rapor = "[ACHIEVEMENT UNLOCKED] $alinan kg muscle built!\nREWARD: +$kazanilanAltin Gold | +$kazanilanAP AP";
-        AudioSystem.playSuccess();
+        double alinan = fark.abs(); int kazanilanAltin = (alinan * 500).toInt(); int kazanilanAP = alinan.toInt(); if (kazanilanAP < 1) kazanilanAP = 1;
+        altin.value += kazanilanAltin; ap.value += kazanilanAP;
+        rapor = "[ACHIEVEMENT UNLOCKED] $alinan kg muscle built!\nREWARD: +$kazanilanAltin Gold | +$kazanilanAP AP"; AudioSystem.playSuccess();
       } else { 
         if(!golgeModuAktif) { hp.value -= 20; if(hp.value < 0) hp.value = 0; rapor = "[SYSTEM WARNING] $fark kg mass lost. Insufficient nutrition!\nPENALTY: -20 HP"; }
         else { rapor = "[STEALTH MODE] Mass lost, but penalty bypassed."; }
       }
-    } else {
-      rapor = "[SYSTEM] Weight updated. Maintain the balance.";
-    }
-    kaydet();
-    return rapor;
+    } else { rapor = "[SYSTEM] Weight updated. Maintain the balance."; }
+    kaydet(); return rapor;
   }
 
   static String expKazan(int miktar) {
@@ -387,8 +440,7 @@ class SystemMemory {
       levelUpMesaji += "\n🌟 LEVEL UP! You reached Level ${level.value}! (+3 AP)\n[INFO] Status Recovery applied.";
       AudioSystem.playLevelUp();
     }
-    kaydet(); 
-    return levelUpMesaji;
+    kaydet(); return levelUpMesaji;
   }
 
   static String _gunSonuHesaplasmasi(int degerlendirilenGun) {
@@ -396,18 +448,23 @@ class SystemMemory {
     int kazanilanSTR = 0; int kazanilanAGI = 0; int kazanilanVIT = 0; int kazanilanINT = 0; int kazanilanPER = 0;
     int kazanilanAltin = 0; 
 
-    if (golgeModuAktif) {
+    if (redGateAktif) {
+      redGateKalanGun--;
+      rapor += "[ 🩸 RED GATE ACTIVE: NO ESCAPE. $redGateKalanGun DAYS REMAINING ]\n\n";
+    } else if (golgeModuAktif) {
       rapor += "[ 🌙 STEALTH MODE ACTIVE: All Penalties Disabled ]\n\n";
     }
 
     if (bugunAlinanKalori > gunlukHedefKalori) { 
-      if (!golgeModuAktif) { hpFarki -= 20; rapor += "[PENALTY] Calorie Limit Exceeded: -20 HP\n"; }
+      if (redGateAktif) { hpFarki -= 60; rapor += "[FATAL PENALTY] Calorie Limit Exceeded in Hell: -60 HP\n"; }
+      else if (!golgeModuAktif) { hpFarki -= 20; rapor += "[PENALTY] Calorie Limit Exceeded: -20 HP\n"; }
       else { rapor += "[STEALTH] Calorie Excess Ignored.\n"; }
     } 
     else { hpFarki += 10; kazanilanExp += 20; kazanilanVIT += 1; kazanilanAltin += 20; rapor += "[REWARD] Ideal Diet: +10 HP, +20 EXP, +1 VIT, +20 G\n"; }
 
     if (uyunanSaat < 7) { 
-      if (!golgeModuAktif) { mpFarki -= 4; rapor += "[PENALTY] Insufficient Sleep: -4 MP\n"; }
+      if (redGateAktif) { mpFarki -= 15; rapor += "[FATAL PENALTY] Insufficient Rest in Hell: -15 MP\n"; }
+      else if (!golgeModuAktif) { mpFarki -= 4; rapor += "[PENALTY] Insufficient Sleep: -4 MP\n"; }
       else { rapor += "[STEALTH] Sleep Deficit Ignored.\n"; }
     } 
     else { mpFarki += 2; kazanilanExp += 10; kazanilanVIT += 1; kazanilanAltin += 10; rapor += "[REWARD] Solid Rest: +2 MP, +10 EXP, +1 VIT, +10 G\n"; }
@@ -422,7 +479,7 @@ class SystemMemory {
         topFiziksel++; 
         if (g.yapildiMi) { 
           bitenFiziksel++; 
-          if (g.ad.contains("Kardiyo") || g.ad.contains("Bacak") || g.ad.contains("Kalf")) agiGorevleri++;
+          if (g.ad.contains("Kardiyo") || g.ad.contains("Bacak") || g.ad.contains("Kalf") || g.ad.contains("Legs") || g.ad.contains("Cardio") || g.ad.contains("Run")) agiGorevleri++;
           else strGorevleri++;
         } 
       } else { 
@@ -444,7 +501,7 @@ class SystemMemory {
         streakGunSayisi++;
         rapor += "[STREAK] Flawless Day Streak: $streakGunSayisi Days!\n";
       } else {
-        if (!golgeModuAktif) {
+        if (!golgeModuAktif || redGateAktif) {
           streakGunSayisi = 0;
           rapor += "[STREAK BROKEN] Discipline lost, Streak reset.\n";
         } else {
@@ -460,7 +517,9 @@ class SystemMemory {
         rapor += "\n[BOSS DEFEATED] $bossIsim was annihilated!\nREWARD: +1000 G | +2 AP | +500 EXP\n";
         AudioSystem.playSuccess();
       } else if (bossMaxHP > 0) {
-        if (!golgeModuAktif) {
+        if (redGateAktif) {
+           rapor += "\n[RED GATE] The Weekly Boss dares not enter this Hell.\n";
+        } else if (!golgeModuAktif) {
           int cezaHp = (hp.value / 2).round(); hpFarki -= cezaHp; 
           rapor += "\n[DUNGEON DEFEAT] $bossIsim heavily wounded you!\nPENALTY: -$cezaHp HP\n";
         } else {
@@ -471,11 +530,12 @@ class SystemMemory {
 
     if (topFiziksel > 0) {
       int kacan = topFiziksel - bitenFiziksel; 
-      hpFarki += (bitenFiziksel * 15); kazanilanExp += (bitenFiziksel * 25); 
+      hpFarki += (bitenFiziksel * 15); 
+      kazanilanExp += (bitenFiziksel * (redGateAktif ? 75 : 25)); 
+      kazanilanAltin += (bitenFiziksel * (redGateAktif ? 150 : 50)); 
       
-      if (!golgeModuAktif) hpFarki -= (kacan * 15);
-      
-      kazanilanAltin += (bitenFiziksel * 50); 
+      if (redGateAktif) hpFarki -= (kacan * 45);
+      else if (!golgeModuAktif) hpFarki -= (kacan * 15); 
       
       if (strGorevleri > 0) kazanilanSTR += 1;
       if (agiGorevleri > 0) kazanilanAGI += 1;
@@ -486,19 +546,20 @@ class SystemMemory {
 
       if (kacan == 0 && bitenFiziksel > 0) { 
         kazanilanVIT += 1; kazanilanAltin += 50; statMesaji += "+1 VIT ";
-        rapor += "[REWARD] Flawless Workout: +${bitenFiziksel*15} HP, $statMesaji, +${(bitenFiziksel*50)+50} G\n"; 
+        rapor += "[REWARD] Flawless Workout: +${bitenFiziksel*15} HP, $statMesaji\n"; 
       } 
-      else if (bitenFiziksel > 0) { rapor += "[INFO] Partial Workout: +${bitenFiziksel*15} HP, ${golgeModuAktif ? '0' : '-${kacan*15}'} HP, $statMesaji, +${bitenFiziksel*50} G\n"; } 
-      else { rapor += golgeModuAktif ? "[STEALTH] Workout Ignored safely.\n" : "[PENALTY] Workout Neglected: -${kacan*15} HP\n"; }
+      else if (bitenFiziksel > 0) { rapor += "[INFO] Partial Workout: +${bitenFiziksel*15} HP, ${golgeModuAktif ? '0' : '-${kacan*15}'} HP, $statMesaji\n"; } 
+      else { rapor += redGateAktif ? "[FATAL PENALTY] Workout Neglected: -${kacan*45} HP\n" : (golgeModuAktif ? "[STEALTH] Workout Ignored safely.\n" : "[PENALTY] Workout Neglected: -${kacan*15} HP\n"); }
     }
 
     if (topZihinsel > 0) {
       int kacan = topZihinsel - bitenZihinsel; 
-      mpFarki += (bitenZihinsel * 5); kazanilanExp += (bitenZihinsel * 20); 
+      mpFarki += (bitenZihinsel * 5); 
+      kazanilanExp += (bitenZihinsel * (redGateAktif ? 60 : 20)); 
+      kazanilanAltin += (bitenZihinsel * (redGateAktif ? 90 : 30)); 
       
-      if (!golgeModuAktif) mpFarki -= (kacan * 5);
-      
-      kazanilanAltin += (bitenZihinsel * 30); 
+      if (redGateAktif) mpFarki -= (kacan * 15);
+      else if (!golgeModuAktif) mpFarki -= (kacan * 5);
       
       if (intGorevleri > 0) kazanilanINT += 1;
       if (perGorevleri > 0) kazanilanPER += 1;
@@ -509,13 +570,24 @@ class SystemMemory {
 
       if (kacan == 0 && bitenZihinsel > 0) { 
         kazanilanAltin += 30;
-        rapor += "[REWARD] Flawless Mental Training: +${bitenZihinsel*5} MP, $statMesaji, +${(bitenZihinsel*30)+30} G\n"; 
+        rapor += "[REWARD] Flawless Mental Training: +${bitenZihinsel*5} MP, $statMesaji\n"; 
       } 
-      else if (bitenZihinsel > 0) { rapor += "[INFO] Partial Mental Training: +${bitenZihinsel*5} MP, ${golgeModuAktif ? '0' : '-${kacan*5}'} MP, $statMesaji, +${bitenZihinsel*30} G\n"; } 
-      else { rapor += golgeModuAktif ? "[STEALTH] Mind Training Ignored safely.\n" : "[PENALTY] Mind Neglected: -${kacan*5} MP\n"; }
+      else if (bitenZihinsel > 0) { rapor += "[INFO] Partial Mental Training: +${bitenZihinsel*5} MP, ${golgeModuAktif ? '0' : '-${kacan*5}'} MP, $statMesaji\n"; } 
+      else { rapor += redGateAktif ? "[FATAL PENALTY] Mind Neglected: -${kacan*15} MP\n" : (golgeModuAktif ? "[STEALTH] Mind Training Ignored safely.\n" : "[PENALTY] Mind Neglected: -${kacan*5} MP\n"); }
     }
 
-    hp.value += hpFarki; if (hp.value > maxHp) hp.value = maxHp; if (hp.value < 0) hp.value = 0;         
+    hp.value += hpFarki; 
+    
+    if (hp.value <= 0 && redGateAktif) {
+      rapor += "\n[ 💀 DEATH IN RED GATE 💀 ]\nYou failed to survive the hell. Your life force was drained.\nPENALTY: -1 LEVEL, 0 EXP.\n";
+      level.value = level.value > 1 ? level.value - 1 : 1; 
+      exp.value = 0; 
+      hp.value = maxHp; 
+      kirmiziGecittenCik();
+    }
+    else if (hp.value < 0) { hp.value = 0; }
+    else if (hp.value > maxHp) { hp.value = maxHp; }
+    
     mp.value += mpFarki; if (mp.value > maxMp) mp.value = maxMp; if (mp.value < 0) mp.value = 0;
     altin.value += kazanilanAltin; 
 
@@ -524,18 +596,30 @@ class SystemMemory {
 
     String levelRaporu = expKazan(kazanilanExp);
 
-    // ==========================================
-    // YENİ GÜN İÇİN YEMEKLERİ ARŞİVLE VE SIFIRLA
-    // ==========================================
+    if (redGateAktif && redGateKalanGun <= 0 && hp.value > 0) {
+      int odulAP = redGateToplamGun * 1;
+      int odulAltin = redGateToplamGun * 1500;
+      int odulEXP = redGateToplamGun * 300;
+
+      rapor += "\n[ 👑 RED GATE CLEARED 👑 ]\nYou survived $redGateToplamGun Days of absolute Hell.\nULTIMATE REWARD: +$odulAP AP, +$odulAltin G, +$odulEXP EXP, FULL RECOVERY!\n";
+      ap.value += odulAP; 
+      altin.value += odulAltin; 
+      hp.value = maxHp; 
+      mp.value = maxMp; 
+      
+      kirmiziGecittenCik();
+      levelRaporu += expKazan(odulEXP);
+      AudioSystem.playLevelUp();
+    }
+
     if (bugununYemekleri.isNotEmpty || bugunAlinanKalori > 0) {
       yemekGecmisi.add({
-        'tarih': sonGirisTarihi, // Dünün tarihiyle arşive at
+        'tarih': sonGirisTarihi,
         'toplamKalori': bugunAlinanKalori,
         'yemekler': bugununYemekleri.map((e) => e.toJson()).toList()
       });
     }
 
-    // Yemekleri tamamen temizle! (Kopyalanmasını %100 engeller)
     bugunAlinanKalori = 0; 
     bugununYemekleri.clear(); 
     uyunanSaat = 0;
@@ -561,7 +645,9 @@ class SystemMemory {
   }
 
   static void acilSifa() { hp.value = maxHp; kaydet(); }
+  
   static void tamMana() { mp.value = maxMp; kaydet(); }
+  
   static void statuleriSifirla() {
     int geriVerilecekAP = (str.value - 10) + (agi.value - 10) + (vit.value - 10) + (intStat.value - 10) + (per.value - 10);
     ap.value += geriVerilecekAP;
