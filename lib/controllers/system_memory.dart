@@ -11,6 +11,9 @@ import '../models/food_model.dart';
 class SystemMemory {
   static bool kayitBulundu = false; 
 
+  // --- YENİ: GÖLGE MODU (SİSTEM UYKUSU) ---
+  static bool golgeModuAktif = false;
+
   static ValueNotifier<int> hp = ValueNotifier(100);
   static ValueNotifier<int> mp = ValueNotifier(10);
   static ValueNotifier<int> fatigue = ValueNotifier(0); 
@@ -81,6 +84,8 @@ class SystemMemory {
     if (prefs.containsKey('level')) {
       kayitBulundu = true;
       
+      golgeModuAktif = prefs.getBool('golgeModuAktif') ?? false;
+      
       hp.value = prefs.getInt('hp') ?? 100; mp.value = prefs.getInt('mp') ?? 10;
       maxHp = prefs.getInt('maxHp') ?? 100; maxMp = prefs.getInt('maxMp') ?? 10;
       level.value = prefs.getInt('level') ?? 1; exp.value = prefs.getInt('exp') ?? 0;
@@ -140,6 +145,8 @@ class SystemMemory {
 
   static Future<void> kaydet() async {
     final prefs = await SharedPreferences.getInstance();
+    
+    prefs.setBool('golgeModuAktif', golgeModuAktif);
     
     prefs.setInt('hp', hp.value); prefs.setInt('mp', mp.value);
     prefs.setInt('maxHp', maxHp); prefs.setInt('maxMp', maxMp);
@@ -209,7 +216,7 @@ class SystemMemory {
       geceRaporu = _gunSonuHesaplasmasi(sonGiris.weekday);
 
       int gunFarki = bugun.difference(sonGiris).inDays;
-      if (gunFarki > 1) {
+      if (gunFarki > 1 && !golgeModuAktif) {
         streakGunSayisi = 0; 
       }
 
@@ -347,8 +354,8 @@ class SystemMemory {
         rapor = "[ACHIEVEMENT UNLOCKED] $fark kg mass shed!\nREWARD: +$kazanilanAltin Gold | +$kazanilanAP AP";
         AudioSystem.playSuccess();
       } else { 
-        hp.value -= 20; if(hp.value < 0) hp.value = 0;
-        rapor = "[SYSTEM WARNING] ${fark.abs()} kg mass regained. Discipline violated!\nPENALTY: -20 HP";
+        if(!golgeModuAktif) { hp.value -= 20; if(hp.value < 0) hp.value = 0; rapor = "[SYSTEM WARNING] ${fark.abs()} kg mass regained. Discipline violated!\nPENALTY: -20 HP"; }
+        else { rapor = "[STEALTH MODE] Mass regained, but penalty bypassed."; }
       }
     } 
     else if (aktifHedef == 'Kilo Al (Kas İnşa Et)') {
@@ -362,8 +369,8 @@ class SystemMemory {
         rapor = "[ACHIEVEMENT UNLOCKED] $alinan kg muscle built!\nREWARD: +$kazanilanAltin Gold | +$kazanilanAP AP";
         AudioSystem.playSuccess();
       } else { 
-        hp.value -= 20; if(hp.value < 0) hp.value = 0;
-        rapor = "[SYSTEM WARNING] $fark kg mass lost. Insufficient nutrition!\nPENALTY: -20 HP";
+        if(!golgeModuAktif) { hp.value -= 20; if(hp.value < 0) hp.value = 0; rapor = "[SYSTEM WARNING] $fark kg mass lost. Insufficient nutrition!\nPENALTY: -20 HP"; }
+        else { rapor = "[STEALTH MODE] Mass lost, but penalty bypassed."; }
       }
     } else {
       rapor = "[SYSTEM] Weight updated. Maintain the balance.";
@@ -389,10 +396,20 @@ class SystemMemory {
     int kazanilanSTR = 0; int kazanilanAGI = 0; int kazanilanVIT = 0; int kazanilanINT = 0; int kazanilanPER = 0;
     int kazanilanAltin = 0; 
 
-    if (bugunAlinanKalori > gunlukHedefKalori) { hpFarki -= 20; rapor += "[PENALTY] Calorie Limit Exceeded: -20 HP\n"; } 
+    if (golgeModuAktif) {
+      rapor += "[ 🌙 STEALTH MODE ACTIVE: All Penalties Disabled ]\n\n";
+    }
+
+    if (bugunAlinanKalori > gunlukHedefKalori) { 
+      if (!golgeModuAktif) { hpFarki -= 20; rapor += "[PENALTY] Calorie Limit Exceeded: -20 HP\n"; }
+      else { rapor += "[STEALTH] Calorie Excess Ignored.\n"; }
+    } 
     else { hpFarki += 10; kazanilanExp += 20; kazanilanVIT += 1; kazanilanAltin += 20; rapor += "[REWARD] Ideal Diet: +10 HP, +20 EXP, +1 VIT, +20 G\n"; }
 
-    if (uyunanSaat < 7) { mpFarki -= 4; rapor += "[PENALTY] Insufficient Sleep: -4 MP\n"; } 
+    if (uyunanSaat < 7) { 
+      if (!golgeModuAktif) { mpFarki -= 4; rapor += "[PENALTY] Insufficient Sleep: -4 MP\n"; }
+      else { rapor += "[STEALTH] Sleep Deficit Ignored.\n"; }
+    } 
     else { mpFarki += 2; kazanilanExp += 10; kazanilanVIT += 1; kazanilanAltin += 10; rapor += "[REWARD] Solid Rest: +2 MP, +10 EXP, +1 VIT, +10 G\n"; }
 
     List<Gorev> oGununProgrami = haftalikPlan[degerlendirilenGun]!;
@@ -427,8 +444,12 @@ class SystemMemory {
         streakGunSayisi++;
         rapor += "[STREAK] Flawless Day Streak: $streakGunSayisi Days!\n";
       } else {
-        streakGunSayisi = 0;
-        rapor += "[STREAK BROKEN] Discipline lost, Streak reset.\n";
+        if (!golgeModuAktif) {
+          streakGunSayisi = 0;
+          rapor += "[STREAK BROKEN] Discipline lost, Streak reset.\n";
+        } else {
+          rapor += "[STEALTH] Streak Frozen. No penalty applied.\n";
+        }
       }
     }
 
@@ -439,14 +460,21 @@ class SystemMemory {
         rapor += "\n[BOSS DEFEATED] $bossIsim was annihilated!\nREWARD: +1000 G | +2 AP | +500 EXP\n";
         AudioSystem.playSuccess();
       } else if (bossMaxHP > 0) {
-        int cezaHp = (hp.value / 2).round(); hpFarki -= cezaHp; 
-        rapor += "\n[DUNGEON DEFEAT] $bossIsim heavily wounded you!\nPENALTY: -$cezaHp HP\n";
+        if (!golgeModuAktif) {
+          int cezaHp = (hp.value / 2).round(); hpFarki -= cezaHp; 
+          rapor += "\n[DUNGEON DEFEAT] $bossIsim heavily wounded you!\nPENALTY: -$cezaHp HP\n";
+        } else {
+          rapor += "\n[STEALTH] Weekly Boss ignored your dormant presence.\n";
+        }
       }
     }
 
     if (topFiziksel > 0) {
       int kacan = topFiziksel - bitenFiziksel; 
-      hpFarki += (bitenFiziksel * 15); kazanilanExp += (bitenFiziksel * 25); hpFarki -= (kacan * 15); 
+      hpFarki += (bitenFiziksel * 15); kazanilanExp += (bitenFiziksel * 25); 
+      
+      if (!golgeModuAktif) hpFarki -= (kacan * 15);
+      
       kazanilanAltin += (bitenFiziksel * 50); 
       
       if (strGorevleri > 0) kazanilanSTR += 1;
@@ -460,13 +488,16 @@ class SystemMemory {
         kazanilanVIT += 1; kazanilanAltin += 50; statMesaji += "+1 VIT ";
         rapor += "[REWARD] Flawless Workout: +${bitenFiziksel*15} HP, $statMesaji, +${(bitenFiziksel*50)+50} G\n"; 
       } 
-      else if (bitenFiziksel > 0) { rapor += "[INFO] Partial Workout: +${bitenFiziksel*15} HP, -${kacan*15} HP, $statMesaji, +${bitenFiziksel*50} G\n"; } 
-      else { rapor += "[PENALTY] Workout Neglected: -${kacan*15} HP\n"; }
+      else if (bitenFiziksel > 0) { rapor += "[INFO] Partial Workout: +${bitenFiziksel*15} HP, ${golgeModuAktif ? '0' : '-${kacan*15}'} HP, $statMesaji, +${bitenFiziksel*50} G\n"; } 
+      else { rapor += golgeModuAktif ? "[STEALTH] Workout Ignored safely.\n" : "[PENALTY] Workout Neglected: -${kacan*15} HP\n"; }
     }
 
     if (topZihinsel > 0) {
       int kacan = topZihinsel - bitenZihinsel; 
-      mpFarki += (bitenZihinsel * 5); kazanilanExp += (bitenZihinsel * 20); mpFarki -= (kacan * 5); 
+      mpFarki += (bitenZihinsel * 5); kazanilanExp += (bitenZihinsel * 20); 
+      
+      if (!golgeModuAktif) mpFarki -= (kacan * 5);
+      
       kazanilanAltin += (bitenZihinsel * 30); 
       
       if (intGorevleri > 0) kazanilanINT += 1;
@@ -480,8 +511,8 @@ class SystemMemory {
         kazanilanAltin += 30;
         rapor += "[REWARD] Flawless Mental Training: +${bitenZihinsel*5} MP, $statMesaji, +${(bitenZihinsel*30)+30} G\n"; 
       } 
-      else if (bitenZihinsel > 0) { rapor += "[INFO] Partial Mental Training: +${bitenZihinsel*5} MP, -${kacan*5} MP, $statMesaji, +${bitenZihinsel*30} G\n"; } 
-      else { rapor += "[PENALTY] Mind Neglected: -${kacan*5} MP\n"; }
+      else if (bitenZihinsel > 0) { rapor += "[INFO] Partial Mental Training: +${bitenZihinsel*5} MP, ${golgeModuAktif ? '0' : '-${kacan*5}'} MP, $statMesaji, +${bitenZihinsel*30} G\n"; } 
+      else { rapor += golgeModuAktif ? "[STEALTH] Mind Training Ignored safely.\n" : "[PENALTY] Mind Neglected: -${kacan*5} MP\n"; }
     }
 
     hp.value += hpFarki; if (hp.value > maxHp) hp.value = maxHp; if (hp.value < 0) hp.value = 0;         

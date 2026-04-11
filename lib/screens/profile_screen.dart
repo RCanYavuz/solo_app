@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../controllers/system_memory.dart';
 import '../widgets/hologram_card.dart';
+import '../core/audio_system.dart'; // Ses sistemi eklendi
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -18,6 +19,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   static const Color sysBlue = Color(0xFF38BDF8); 
   static const Color sysDarkBg = Color(0xFF030712); 
   static const Color sysTextMuted = Color(0xFF94A3B8); 
+  static const Color mentalPurple = Color(0xFFA060E0); // YENİ: Gölge Modu Rengi
 
   String _hedefIngilizce(String tr) {
     if (tr == 'Kilo Ver (Yağ Yak)') return 'Lose Weight';
@@ -56,7 +58,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  // --- YENİ: İSİM GÜNCELLEME DİYALOGU ---
   void _isimGuncelleDialog() {
     TextEditingController isimCtrl = TextEditingController(text: SystemMemory.oyuncuIsmi);
     showDialog(
@@ -346,7 +347,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 15),
 
-            // YENİ: İSİM ALANI VE DÜZENLEME BUTONU
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -398,7 +398,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 20),
 
+            // ========================================================
+            // YENİ GÜNCELLENEN KART (STEALTH MODE BURAYA EKLENDİ)
+            // ========================================================
             HologramCard(
+              neonRenk: SystemMemory.golgeModuAktif ? mentalPurple : sysBlue,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -407,13 +411,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.memory, color: sysBlue, size: 18),
+                          Icon(Icons.memory, color: SystemMemory.golgeModuAktif ? mentalPurple : sysBlue, size: 18),
                           const SizedBox(width: 10),
-                          Text("SYSTEM PROTOCOL", style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                          Text("SYSTEM PROTOCOL", style: GoogleFonts.orbitron(color: SystemMemory.golgeModuAktif ? mentalPurple : sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
                         ],
                       ),
                       IconButton(
-                        icon: const Icon(Icons.settings_suggest, color: sysBlue, size: 20), 
+                        icon: Icon(Icons.settings_suggest, color: SystemMemory.golgeModuAktif ? mentalPurple : sysBlue, size: 20), 
                         onPressed: _protokolGuncelleDialog, 
                         tooltip: 'Override Protocol'
                       )
@@ -431,6 +435,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       const Text("Daily Calorie Limit:", style: TextStyle(color: sysTextMuted, fontSize: 14)),
                       Text("${SystemMemory.gunlukHedefKalori} Kcal", style: GoogleFonts.orbitron(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold))
+                    ],
+                  ),
+                  
+                  // GÖLGE MODU ŞALTERİ
+                  const SizedBox(height: 10),
+                  const Divider(color: Colors.white12, thickness: 1),
+                  const SizedBox(height: 5),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Stealth Mode (Real World Focus)", style: GoogleFonts.orbitron(color: mentalPurple, fontSize: 12, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 2),
+                          const Text("System Dormant. Penalties suspended.", style: TextStyle(color: sysTextMuted, fontSize: 10)),
+                        ],
+                      ),
+                      Switch(
+                        value: SystemMemory.golgeModuAktif,
+                        activeColor: mentalPurple,
+                        inactiveThumbColor: sysTextMuted,
+                        inactiveTrackColor: sysDarkBg,
+                        onChanged: (val) {
+                          setState(() { SystemMemory.golgeModuAktif = val; });
+                          SystemMemory.kaydet();
+                          if (val) AudioSystem.playTransition(); 
+                        },
+                      ),
                     ],
                   )
                 ]
