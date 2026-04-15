@@ -4,7 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'controllers/system_memory.dart'; // Beyin
 import 'screens/setup_screen.dart'; // Tarama Ekranı
-import 'screens/instruction_screen.dart'; // YENİ: Kılavuz Ekranı (İlk Açılacak Ekran)
+import 'screens/instruction_screen.dart'; // Kılavuz Ekranı
+import 'core/audio_system.dart'; // YENİ: Ses Sistemi Eklendi
 
 void main() async {
   // Flutter motorunun tam yüklendiğinden emin ol
@@ -12,6 +13,9 @@ void main() async {
   
   // SİSTEM HAFIZASINI OKU VE YÜKLE
   await SystemMemory.baslat();
+
+  // YENİ: SES SİSTEMİNİ BAŞLAT (Arka plan müziklerinin kesilmesini önler)
+  await AudioSystem.init();
 
   runApp(const PlayerSystem());
 }
@@ -30,7 +34,7 @@ class PlayerSystem extends StatelessWidget {
           bodyColor: Colors.white, displayColor: Colors.cyanAccent,
         ),
       ),
-      // YENİ: Mantıksal Yönlendirme
+      // Mantıksal Yönlendirme
       // Eğer hafızada kayıt bulunduysa HER AÇILIŞTA Kılavuz (Instruction) açılır.
       // Yoksa Tarama Ekranı (SetupScreen) açılır.
       home: SystemMemory.kayitBulundu ? const InstructionScreen() : const SetupScreen(), 

@@ -5,6 +5,19 @@ class AudioSystem {
   static final AudioPlayer _player = AudioPlayer();
   static final AudioPlayer _transitionPlayer = AudioPlayer(); 
 
+  // ===================================================
+  // YENİ VERSİYON: ARKA PLAN MÜZİĞİNİ KESMEME AYARI
+  // ===================================================
+  static Future<void> init() async {
+    // Yeni audioplayers paketinde doğrudan Config kullanılır.
+    // mixWithOthers: iOS'ta diğer müziklerle karıştırır, Android'de "AudioFocus" (odak) almaz.
+    final audioContext = AudioContextConfig(
+      focus: AudioContextConfigFocus.mixWithOthers,
+    ).build();
+    
+    await AudioPlayer.global.setAudioContext(audioContext);
+  }
+
   static Future<void> playSuccess() async {
     await _player.stop();
     await _player.play(AssetSource('audio/success.mp3'));
@@ -25,7 +38,6 @@ class AudioSystem {
   // ===================================================
   static Future<void> playTransition() async {
     // Sesi anında durdurur ve süreyi (00:00) konumuna zorla geri sarar.
-    // Böylece alt menüde art arda 10 kere bile bassan her seferinde net çalar!
     await _transitionPlayer.stop();
     await _transitionPlayer.play(AssetSource('audio/transition.mp3'));
   }
