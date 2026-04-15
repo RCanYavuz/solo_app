@@ -58,8 +58,6 @@ class SystemMemory {
 
   static int toplamIdmanDakikasi = 0; 
   static List<Map<String, dynamic>> idmanGecmisi = [];
-  
-  // YEMEKLERİN YOK OLMAMASI İÇİN ARŞİV
   static List<Map<String, dynamic>> yemekGecmisi = [];
 
   static int gunlukHedefKalori = 0; 
@@ -208,19 +206,14 @@ class SystemMemory {
     bossGuncelle();
   }
 
-  // ========================================================
-  // OTOMATİK GÖREV YÜKLEMELİ KIRMIZI GEÇİT (RED GATE)
-  // ========================================================
   static void kirmiziGecideGir(int secilenGun, int hedefKalori, String secilenPlan) {
     if (!redGateAktif) {
-      // 1. Normal Planı Yedekle
       normalGunlukHedefKalori = gunlukHedefKalori;
       normalHaftalikPlan.clear();
       haftalikPlan.forEach((key, value) {
         normalHaftalikPlan[key] = value.map((e) => Gorev(e.ad, false, e.tip)).toList();
       });
 
-      // 2. Kırmızı Geçit Planını Hazırla (Otomatik Doldurma)
       haftalikPlan.clear();
       for(int i = 1; i <= 7; i++) {
         haftalikPlan[i] = [];
@@ -237,16 +230,12 @@ class SystemMemory {
         }
       } 
       else if (secilenPlan == "Push / Pull / Legs") {
-        // İtme (1. ve 4. Gün)
         haftalikPlan[1]!.addAll([Gorev("[PHY] Push (Chest/Shoulders/Triceps)", false, "Fiziksel"), Gorev("[PHY] Core", false, "Fiziksel")]);
         haftalikPlan[4]!.addAll([Gorev("[PHY] Push (Chest/Shoulders/Triceps)", false, "Fiziksel"), Gorev("[PHY] Core", false, "Fiziksel")]);
-        // Çekme (2. ve 5. Gün)
         haftalikPlan[2]!.addAll([Gorev("[PHY] Pull (Back/Biceps/Rear Delts)", false, "Fiziksel"), Gorev("[PHY] Light Cardio", false, "Fiziksel")]);
         haftalikPlan[5]!.addAll([Gorev("[PHY] Pull (Back/Biceps/Rear Delts)", false, "Fiziksel"), Gorev("[PHY] Light Cardio", false, "Fiziksel")]);
-        // Bacak (3. ve 6. Gün)
         haftalikPlan[3]!.addAll([Gorev("[PHY] Legs (Quads/Hamstrings/Calves)", false, "Fiziksel")]);
         haftalikPlan[6]!.addAll([Gorev("[PHY] Legs (Quads/Hamstrings/Calves)", false, "Fiziksel")]);
-        // Dinlenme/Kardiyo (7. Gün)
         haftalikPlan[7]!.addAll([Gorev("[PHY] Active Recovery & Stretch", false, "Fiziksel"), Gorev("[PHY] Heavy Cardio", false, "Fiziksel")]);
       } 
       else if (secilenPlan == "Saitama Hell") {
@@ -260,7 +249,6 @@ class SystemMemory {
         }
       }
 
-      // 3. Sistemi Cehennem Moduna Geçir
       redGateAktif = true;
       redGateKalanGun = secilenGun;
       redGateToplamGun = secilenGun;
@@ -275,7 +263,6 @@ class SystemMemory {
     redGateAktif = false;
     redGateKalanGun = 0;
     
-    // Orijinal ayarları geri yükle
     if (normalGunlukHedefKalori > 0) {
       gunlukHedefKalori = normalGunlukHedefKalori;
     }
@@ -338,6 +325,9 @@ class SystemMemory {
     return "[RAID COMPLETED]\nTime in Dungeon: $dakika Min\nQuests Completed: $bitenGorevSayisiSimdi\nTime Reward: +$kazanilanAltin Gold";
   }
 
+  // ========================================================
+  // YENİ DÜZELTME: KALORİ YEDEKLEME KORUMASI (PROTOKOL)
+  // ========================================================
   static void protokolGuncelle(String yeniHedef, String yeniZorluk) {
     aktifHedef = yeniHedef; aktifZorluk = yeniZorluk;
 
@@ -351,8 +341,16 @@ class SystemMemory {
       if (aktifZorluk == "Normal") kaloriFarki = 300; else if (aktifZorluk == "Yüksek") kaloriFarki = 500; else if (aktifZorluk == "Canavar") kaloriFarki = 1000; 
     }
 
-    gunlukHedefKalori = (gunlukIhtiyac + kaloriFarki).round();
-    if (gunlukHedefKalori < 1200) gunlukHedefKalori = 1200; 
+    int hesaplanan = (gunlukIhtiyac + kaloriFarki).round();
+    if (hesaplanan < 1200) hesaplanan = 1200; 
+    
+    // EĞER RED GATE AKTİFSE, CEHENNEM KALORİSİNİ BOZMA, SADECE YEDEĞİ GÜNCELLE!
+    if (redGateAktif) {
+      normalGunlukHedefKalori = hesaplanan; 
+    } else {
+      gunlukHedefKalori = hesaplanan;
+    }
+    
     kaydet();
   }
 
@@ -375,6 +373,9 @@ class SystemMemory {
     } else { bossMaxHP = 0; bossHP.value = 0; }
   }
 
+  // ========================================================
+  // YENİ DÜZELTME: KALORİ YEDEKLEME KORUMASI (TARTI)
+  // ========================================================
   static void oyuncuyuAnalizEt(String secilenCinsiyet, DateTime girilenDogumTarihi, double girilenBoy, double girilenKilo, String hedef, String zorluk, Uint8List? foto) {
     cinsiyet = secilenCinsiyet; dogumTarihi = girilenDogumTarihi; boy = girilenBoy; kilo = girilenKilo;
     aktifHedef = hedef; aktifZorluk = zorluk; if (foto != null) profilFotoByte = foto;
@@ -396,8 +397,16 @@ class SystemMemory {
     if (hedef == "Kilo Ver (Yağ Yak)") { if (zorluk == "Normal") kaloriFarki = -500; else if (zorluk == "Yüksek") kaloriFarki = -1000; else if (zorluk == "Cehennem") kaloriFarki = -1500; } 
     else if (hedef == "Kilo Al (Kas İnşa Et)") { if (zorluk == "Normal") kaloriFarki = 300; else if (zorluk == "Yüksek") kaloriFarki = 500; else if (zorluk == "Canavar") kaloriFarki = 1000; }
 
-    gunlukHedefKalori = (gunlukIhtiyac + kaloriFarki).round();
-    if (gunlukHedefKalori < 1200) gunlukHedefKalori = 1200; 
+    int hesaplanan = (gunlukIhtiyac + kaloriFarki).round();
+    if (hesaplanan < 1200) hesaplanan = 1200; 
+    
+    // EĞER RED GATE AKTİFSE, CEHENNEM KALORİSİNİ BOZMA, SADECE YEDEĞİ GÜNCELLE!
+    if (redGateAktif) {
+      normalGunlukHedefKalori = hesaplanan; 
+    } else {
+      gunlukHedefKalori = hesaplanan;
+    }
+
     kaydet();
   }
 
