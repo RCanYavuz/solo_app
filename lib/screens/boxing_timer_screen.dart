@@ -19,7 +19,8 @@ class BoxingTimerScreen extends StatefulWidget {
   State<BoxingTimerScreen> createState() => _BoxingTimerScreenState();
 }
 
-class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
+// 1. YENİ: "with WidgetsBindingObserver" EKLENDİ (Sistemi Dinlemek İçin)
+class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindingObserver {
   static const Color systemBlue = Color(0xFF38BDF8); 
   static const Color physicalGold = Color(0xFFB08D57); 
   static const Color deepBlack = Color(0xFF030712); 
@@ -30,7 +31,6 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
   String anaMod = 'System Courses'; 
   String sistemTuru = 'Running (Speed)'; 
   
-  // YENİ: Kullanıcının seçeceği dinamik sistem süresi (Varsayılan 30 Dk)
   int sistemSuresiDakika = 30;
 
   String get otomatikRank {
@@ -40,7 +40,6 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
     return 'A-Rank (Master)';
   }
 
-  // Free Settings değişkenleri
   int raundSuresiSaniye = 180; 
   int dinlenmeSuresiSaniye = 60; 
   int toplamRaund = 3;
@@ -51,13 +50,77 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
   bool calisiyor = false;
   Timer? _timer;
 
+  // 2. YENİ: Arka plana düşüş zamanını kaydedeceğimiz değişken
+  DateTime? _arkaPlanaGidisZamani;
+
   @override
   void initState() {
     super.initState();
+    // 3. YENİ: Gözlemciyi başlat
+    WidgetsBinding.instance.addObserver(this);
     _parkuruOlustur(); 
   }
 
-  // YENİ: DİNAMİK PARKUR ÜRETİCİSİ
+  @override
+  void dispose() {
+    // 4. YENİ: Gözlemciyi yok et
+    WidgetsBinding.instance.removeObserver(this);
+    _timer?.cancel(); 
+    super.dispose(); 
+  }
+
+  // 5. YENİ: ZAMAN FARKI HESAPLAYICI VE FAST-FORWARD MOTORU
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      // Ekran kilitlendi veya arka plana alındı
+      if (calisiyor) {
+        _arkaPlanaGidisZamani = DateTime.now();
+      }
+    } else if (state == AppLifecycleState.resumed) {
+      // Uygulamaya geri dönüldü
+      if (_arkaPlanaGidisZamani != null && calisiyor) {
+        int farkSaniye = DateTime.now().difference(_arkaPlanaGidisZamani!).inSeconds;
+        _zamanFarkiniUygula(farkSaniye);
+        _arkaPlanaGidisZamani = null;
+      }
+    }
+  }
+
+  // 6. YENİ: KAYIP SANİYELERİ TÜKETEREK RAUNT ATLATMA FONKSİYONU
+  void _zamanFarkiniUygula(int gecenKayiplar) {
+    setState(() {
+      while (gecenKayiplar > 0 && calisiyor) {
+        if (gecenKayiplar >= kalanSaniye) {
+          gecenKayiplar -= kalanSaniye;
+          kalanSaniye = 0;
+          _sonrakiFazaGec(calisiyorIkenAtla: true);
+        } else {
+          kalanSaniye -= gecenKayiplar;
+          gecenKayiplar = 0;
+        }
+      }
+    });
+  }
+
+  // YARDIMCI METOT: Faza Geçiş Mantığını Ayırmak İçin (Tekrarı önler)
+  void _sonrakiFazaGec({bool calisiyorIkenAtla = false}) {
+    aktifFazIndex++;
+    if (aktifFazIndex < parkur.length) {
+      kalanSaniye = parkur[aktifFazIndex].sureSaniye;
+      if (!calisiyorIkenAtla) {
+        AudioSystem.playBell();
+      }
+    } else {
+      _timer?.cancel();
+      calisiyor = false;
+      if (!calisiyorIkenAtla) {
+        AudioSystem.playSuccess();
+        _antrenmanBittiDialog();
+      }
+    }
+  }
+
   void _parkuruOlustur() {
     parkur.clear();
     String rank = otomatikRank; 
@@ -70,11 +133,10 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
         }
       }
     } else {
-      // Dinamik Süre Hesaplamaları
       int toplamSaniye = sistemSuresiDakika * 60;
       int isinmaSaniye = (toplamSaniye * 0.1).toInt();
-      if (isinmaSaniye > 300) isinmaSaniye = 300; // Maksimum 5 dk ısınma
-      int sogumaSaniye = isinmaSaniye; // Isınma kadar soğuma
+      if (isinmaSaniye > 300) isinmaSaniye = 300; 
+      int sogumaSaniye = isinmaSaniye; 
       
       int aktifSaniye = toplamSaniye - isinmaSaniye - sogumaSaniye;
 
@@ -84,15 +146,15 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
         if (rank == 'E-Rank (Rookie)') {
           parkur.add(EgitimFazi("Steady Jump", aktifSaniye, systemBlue, "Moderate pace. Keep going."));
         } else if (rank == 'C-Rank (Elite)') {
-          int turSayisi = aktifSaniye ~/ 240; // 3 dk hızlı, 1 dk dinlenme
+          int turSayisi = aktifSaniye ~/ 240; 
           int kalanZaman = aktifSaniye % 240;
           for(int i=0; i<turSayisi; i++) {
             parkur.add(EgitimFazi("Fast Pace", 180, systemRed, "Speed up!"));
             parkur.add(EgitimFazi("Active Rest", 60, systemBlue, "Slow jump."));
           }
           if (kalanZaman > 0) parkur.add(EgitimFazi("Fast Pace", kalanZaman, systemRed, "Keep pushing!"));
-        } else { // Master
-          int turSayisi = aktifSaniye ~/ 360; // 5 dk Cehennem, 1 dk nefes
+        } else { 
+          int turSayisi = aktifSaniye ~/ 360; 
           int kalanZaman = aktifSaniye % 360;
           for(int i=0; i<turSayisi; i++) {
             parkur.add(EgitimFazi("Hell Pace", 300, physicalGold, "Max Speed!"));
@@ -108,7 +170,7 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
         if (rank == 'E-Rank (Rookie)') {
           parkur.add(EgitimFazi("Jog", aktifSaniye, systemBlue, "Speed 6-7. Keep breath steady."));
         } else if (rank == 'C-Rank (Elite)') {
-          int turSayisi = aktifSaniye ~/ 240; // 2 dk Run, 1 dk Sprint, 1 dk Walk
+          int turSayisi = aktifSaniye ~/ 240; 
           int kalanZaman = aktifSaniye % 240;
           for(int i=0; i<turSayisi; i++) {
             parkur.add(EgitimFazi("Run", 120, systemBlue, "Speed 8-9."));
@@ -116,8 +178,8 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
             parkur.add(EgitimFazi("Walk", 60, systemRest, "Speed 4-5. Recover."));
           }
           if (kalanZaman > 0) parkur.add(EgitimFazi("Run", kalanZaman, systemBlue, "Push to the end!"));
-        } else { // Master
-          int turSayisi = aktifSaniye ~/ 240; // 3 dk Death Run, 1 dk Max Sprint
+        } else { 
+          int turSayisi = aktifSaniye ~/ 240; 
           int kalanZaman = aktifSaniye % 240;
           for(int i=0; i<turSayisi; i++) {
             parkur.add(EgitimFazi("Death Run", 180, physicalGold, "Speed 10+. Endurance."));
@@ -133,7 +195,7 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
         if (rank == 'E-Rank (Rookie)') {
           parkur.add(EgitimFazi("Hill Walk", aktifSaniye, systemBlue, "Speed 5, Incline 5%."));
         } else if (rank == 'C-Rank (Elite)') {
-          int turSayisi = aktifSaniye ~/ 300; // 2 dk Hill, 2 dk Mountain, 1 dk Flat
+          int turSayisi = aktifSaniye ~/ 300; 
           int kalanZaman = aktifSaniye % 300;
           for(int i=0; i<turSayisi; i++) {
             parkur.add(EgitimFazi("Hill", 120, systemBlue, "Speed 5, Incline 8%."));
@@ -141,8 +203,8 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
             parkur.add(EgitimFazi("Flat Road", 60, systemRest, "Speed 5, Incline 0."));
           }
           if (kalanZaman > 0) parkur.add(EgitimFazi("Mountain", kalanZaman, physicalGold, "Keep climbing!"));
-        } else { // Master
-          int turSayisi = aktifSaniye ~/ 300; // 3 dk Base, 2 dk Peak
+        } else { 
+          int turSayisi = aktifSaniye ~/ 300; 
           int kalanZaman = aktifSaniye % 300;
           for(int i=0; i<turSayisi; i++) {
             parkur.add(EgitimFazi("Mountain Base", 180, systemBlue, "Speed 5, Incline 12%."));
@@ -166,17 +228,11 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
       if (parkur.isEmpty) return;
       setState(() => calisiyor = true);
       _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-        if (kalanSaniye > 0) { setState(() => kalanSaniye--); } else {
-          AudioSystem.playBell(); 
-          aktifFazIndex++;
-          if (aktifFazIndex < parkur.length) {
-            setState(() { kalanSaniye = parkur[aktifFazIndex].sureSaniye; });
-          } else {
-            _timer?.cancel();
-            setState(() { calisiyor = false; });
-            AudioSystem.playSuccess(); 
-            _antrenmanBittiDialog();
-          }
+        if (kalanSaniye > 0) { 
+          setState(() => kalanSaniye--); 
+        } else {
+          AudioSystem.playBell();
+          _sonrakiFazaGec();
         }
       });
     }
@@ -220,11 +276,8 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
   }
 
   @override
-  void dispose() { _timer?.cancel(); super.dispose(); }
-
-  @override
   Widget build(BuildContext context) {
-    EgitimFazi? aktifFaz = parkur.isNotEmpty ? parkur[aktifFazIndex] : null;
+    EgitimFazi? aktifFaz = parkur.isNotEmpty && aktifFazIndex < parkur.length ? parkur[aktifFazIndex] : null;
     EgitimFazi? siradakiFaz = (parkur.isNotEmpty && aktifFazIndex + 1 < parkur.length) ? parkur[aktifFazIndex + 1] : null;
     Color fazRengi = aktifFaz?.renk ?? systemBlue;
 
@@ -268,7 +321,6 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> {
                           onChanged: (val) { setState(() { sistemTuru = val!; _parkuruOlustur(); }); },
                         ),
                         const SizedBox(height: 15),
-                        // YENİ: SÜRE SEÇİCİ DROPDOWN
                         DropdownButtonFormField<int>(
                           value: sistemSuresiDakika, dropdownColor: cardBg, 
                           decoration: InputDecoration(labelText: 'Total Duration', labelStyle: const TextStyle(color: systemBlue), filled: true, fillColor: const Color(0xFF0F172A), enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: systemBlue.withOpacity(0.5)), borderRadius: BorderRadius.circular(4)), focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: systemBlue), borderRadius: BorderRadius.circular(4))),

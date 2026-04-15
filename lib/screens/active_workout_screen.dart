@@ -6,7 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../controllers/system_memory.dart';
 import '../models/task_model.dart';
 import '../core/sistem_gecisi.dart'; 
-import '../core/audio_system.dart'; // Ses sistemi eklendi
+import '../core/audio_system.dart'; 
 import 'boxing_timer_screen.dart'; 
 
 class ActiveWorkoutScreen extends StatefulWidget {
@@ -16,7 +16,8 @@ class ActiveWorkoutScreen extends StatefulWidget {
   State<ActiveWorkoutScreen> createState() => _ActiveWorkoutScreenState();
 }
 
-class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
+// 1. YENİ: "with WidgetsBindingObserver" EKLENDİ (Sistemi Dinlemek İçin)
+class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsBindingObserver {
   static const Color sysRed = Color(0xFFEF4444); 
   static const Color sysBlue = Color(0xFF38BDF8); 
   static const Color sysDarkBg = Color(0xFF030712);
@@ -27,9 +28,15 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
   Timer? _kronometre;
   int bugunIndex = DateTime.now().weekday;
 
+  // 2. YENİ: Arka plana düşüş zamanını kaydedeceğimiz değişken
+  DateTime? _arkaPlanaGidisZamani;
+
   @override
   void initState() {
     super.initState();
+    // 3. YENİ: Gözlemciyi başlat
+    WidgetsBinding.instance.addObserver(this);
+    
     _kronometre = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         gecenSaniye++;
@@ -39,8 +46,28 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
 
   @override
   void dispose() {
+    // 4. YENİ: Gözlemciyi yok et
+    WidgetsBinding.instance.removeObserver(this);
     _kronometre?.cancel();
     super.dispose();
+  }
+
+  // 5. YENİ: ZAMAN FARKI HESAPLAYICI (Ekran kilitlendiğinde veya alta alındığında çalışır)
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      // Uygulama arka plana atıldı veya ekran kilitlendi
+      _arkaPlanaGidisZamani = DateTime.now();
+    } else if (state == AppLifecycleState.resumed) {
+      // Uygulamaya geri dönüldü
+      if (_arkaPlanaGidisZamani != null) {
+        final fark = DateTime.now().difference(_arkaPlanaGidisZamani!).inSeconds;
+        setState(() {
+          gecenSaniye += fark; // Aradan geçen kayıp saniyeleri sayaca ekle
+        });
+        _arkaPlanaGidisZamani = null;
+      }
+    }
   }
 
   String _sureFormatla(int toplamSaniye) {
@@ -83,12 +110,9 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
     );
   }
 
-  // ==========================================================
-  // YENİ: ANLIK ZİNDAN ŞABLONU UYGULAYICI (SADECE BUGÜN İÇİN)
-  // ==========================================================
   void _sablonUygula(String sablonAdi) {
     setState(() {
-      SystemMemory.haftalikPlan[bugunIndex]!.clear(); // Bugünün görevlerini temizle
+      SystemMemory.haftalikPlan[bugunIndex]!.clear(); 
       
       if (sablonAdi == 'Saitama (S-Rank)') {
         SystemMemory.haftalikPlan[bugunIndex]!.addAll([
@@ -216,7 +240,6 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(20),
                 children: [
-                  // YENİ: ŞABLON BUTONU BURAYA EKLENDİ
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -257,7 +280,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                         onChanged: (val) { 
                           setState(() { gorev.yapildiMi = val ?? false; }); 
                           SystemMemory.kaydet(); 
-                          if(val == true) AudioSystem.playTransition(); // Tiklendiğinde küçük ses
+                          if(val == true) AudioSystem.playTransition(); 
                         },
                       ),
                     );
