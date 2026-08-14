@@ -1,43 +1,28 @@
-// lib/main.dart
+// Dosya: lib/main.dart
+
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'core/diyet_motoru.dart';
 
-import 'controllers/system_memory.dart'; // Beyin
-import 'screens/setup_screen.dart'; // Tarama Ekranı
-import 'screens/instruction_screen.dart'; // Kılavuz Ekranı
-import 'core/audio_system.dart'; // YENİ: Ses Sistemi Eklendi
-
-void main() async {
-  // Flutter motorunun tam yüklendiğinden emin ol
-  WidgetsFlutterBinding.ensureInitialized();
+void main() {
+  // SİSTEM TESTİ: Diyet motorumuzu çalıştırıp konsola yazdırıyoruz
+  print("TEST SONUCU: ${DiyetMotoru.makroHesapla(80.0, "yag_yakma")}");
   
-  // SİSTEM HAFIZASINI OKU VE YÜKLE
-  await SystemMemory.baslat();
-
-  // YENİ: SES SİSTEMİNİ BAŞLAT (Arka plan müziklerinin kesilmesini önler)
-  await AudioSystem.init();
-
-  runApp(const PlayerSystem());
+  runApp(const SoloApp());
 }
 
-class PlayerSystem extends StatelessWidget {
-  const PlayerSystem({super.key});
+class SoloApp extends StatelessWidget {
+  const SoloApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF0A0E17),
-        textTheme: GoogleFonts.rajdhaniTextTheme(Theme.of(context).textTheme).apply(
-          bodyColor: Colors.white, displayColor: Colors.cyanAccent,
+      title: 'Kişisel Takip',
+      theme: ThemeData.dark(),
+      home: const Scaffold(
+        body: Center(
+          child: Text('Sistem Test Ediliyor... Lütfen Konsola Bakınız.'),
         ),
       ),
-      // Mantıksal Yönlendirme
-      // Eğer hafızada kayıt bulunduysa HER AÇILIŞTA Kılavuz (Instruction) açılır.
-      // Yoksa Tarama Ekranı (SetupScreen) açılır.
-      home: SystemMemory.kayitBulundu ? const InstructionScreen() : const SetupScreen(), 
     );
   }
 }
