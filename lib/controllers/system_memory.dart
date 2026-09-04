@@ -41,6 +41,7 @@ class SystemMemory {
   static ValueNotifier<int> per = ValueNotifier(10);
 
   static String oyuncuIsmi = "PLAYER";
+  static String geminiApiKey = "";
 
   static String sonGirisTarihi = "";
   static String geceRaporu = ""; 
@@ -107,6 +108,7 @@ class SystemMemory {
       per.value = prefs.getInt('per') ?? 10;
 
       oyuncuIsmi = prefs.getString('oyuncuIsmi') ?? "PLAYER";
+      geminiApiKey = prefs.getString('gemini_api_key') ?? "";
       sonGirisTarihi = prefs.getString('sonGirisTarihi') ?? "";
 
       cinsiyet = prefs.getString('cinsiyet') ?? "Erkek";
@@ -188,6 +190,7 @@ class SystemMemory {
 
     prefs.setInt('gunlukHedefKalori', gunlukHedefKalori); prefs.setString('vucutSinifi', vucutSinifi);
     prefs.setString('aktifHedef', aktifHedef); prefs.setString('aktifZorluk', aktifZorluk);
+    prefs.setString('gemini_api_key', geminiApiKey);
     
     if (dogumTarihi != null) prefs.setString('dogumTarihi', dogumTarihi!.toIso8601String());
     if (profilFotoByte != null) prefs.setString('profilFoto', base64Encode(profilFotoByte!));

@@ -18,6 +18,7 @@ dependencies:
   audioplayers: ^6.6.0
   url_launcher: ^6.2.5
   google_generative_ai: ^0.4.7
+  http: ^1.2.0
 
 dependency_overrides:
   objective_c: ^9.6.0
