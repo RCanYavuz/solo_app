@@ -1,12 +1,10 @@
 // Dosya: lib/main.dart
 
 import 'package:flutter/material.dart';
-import 'core/diyet_motoru.dart';
+import 'core/theme/app_colors.dart';
+import 'screens/setup_screen.dart';
 
 void main() {
-  // SİSTEM TESTİ: Diyet motorumuzu çalıştırıp konsola yazdırıyoruz
-  print("TEST SONUCU: ${DiyetMotoru.makroHesapla(80.0, "yag_yakma")}");
-  
   runApp(const SoloApp());
 }
 
@@ -16,13 +14,18 @@ class SoloApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Kişisel Takip',
-      theme: ThemeData.dark(),
-      home: const Scaffold(
-        body: Center(
-          child: Text('Sistem Test Ediliyor... Lütfen Konsola Bakınız.'),
+      title: 'Solo App',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: AppColors.background,
+        colorScheme: const ColorScheme.dark(
+          primary: AppColors.systemBlue,
+          secondary: AppColors.questGold,
+          error: AppColors.errorRed,
+          surface: AppColors.background,
         ),
       ),
+      home: const SetupScreen(),
     );
   }
 }

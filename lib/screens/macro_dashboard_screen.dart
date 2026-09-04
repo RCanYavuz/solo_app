@@ -235,8 +235,8 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: _sysBlue.withOpacity(0.1),
-                          border: Border.all(color: _sysBlue.withOpacity(0.4)),
+                          color: _sysBlue.withValues(alpha: 0.1),
+                          border: Border.all(color: _sysBlue.withValues(alpha: 0.4)),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -250,9 +250,9 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
                   SliderTheme(
                     data: SliderTheme.of(context).copyWith(
                       activeTrackColor: _sysBlue,
-                      inactiveTrackColor: _sysBlue.withOpacity(0.15),
+                      inactiveTrackColor: _sysBlue.withValues(alpha: 0.15),
                       thumbColor: _sysBlue,
-                      overlayColor: _sysBlue.withOpacity(0.1),
+                      overlayColor: _sysBlue.withValues(alpha: 0.1),
                       trackHeight: 4,
                       thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
                     ),
@@ -285,7 +285,7 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
                       icon: const Icon(Icons.bolt, color: _sysBlue, size: 22),
                       label: Text('ANALYZE MACROS', style: GoogleFonts.orbitron(color: _sysBlue, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 2)),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _sysBlue.withOpacity(0.08),
+                        backgroundColor: _sysBlue.withValues(alpha: 0.08),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         side: const BorderSide(color: _sysBlue, width: 1.5),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
@@ -322,7 +322,7 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
                                 color: Colors.white,
                                 fontSize: 48,
                                 fontWeight: FontWeight.bold,
-                                shadows: [Shadow(color: _sysBlue.withOpacity(0.6), blurRadius: 20)],
+                                shadows: [Shadow(color: _sysBlue.withValues(alpha: 0.6), blurRadius: 20)],
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -401,7 +401,7 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      border: Border.all(color: _sysGold.withOpacity(0.4)),
+                      border: Border.all(color: _sysGold.withValues(alpha: 0.4)),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
@@ -422,7 +422,7 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
 
               // Uyarı Notu
               HologramCard(
-                neonRenk: _sysText.withOpacity(0.3),
+                neonRenk: _sysText.withValues(alpha: 0.3),
                 padding: const EdgeInsets.all(15),
                 child: Row(
                   children: [
@@ -458,10 +458,10 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
         duration: const Duration(milliseconds: 300),
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
         decoration: BoxDecoration(
-          color: secili ? renk.withOpacity(0.12) : const Color(0xFF0F172A),
-          border: Border.all(color: secili ? renk : _sysText.withOpacity(0.2), width: secili ? 1.5 : 1),
+          color: secili ? renk.withValues(alpha: 0.12) : const Color(0xFF0F172A),
+          border: Border.all(color: secili ? renk : _sysText.withValues(alpha: 0.2), width: secili ? 1.5 : 1),
           borderRadius: BorderRadius.circular(4),
-          boxShadow: secili ? [BoxShadow(color: renk.withOpacity(0.15), blurRadius: 12)] : [],
+          boxShadow: secili ? [BoxShadow(color: renk.withValues(alpha: 0.15), blurRadius: 12)] : [],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -472,7 +472,7 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(baslik, style: GoogleFonts.rajdhani(color: secili ? Colors.white : _sysText, fontSize: 14, fontWeight: FontWeight.bold)),
-                Text(altBaslik, style: TextStyle(color: secili ? renk : _sysText.withOpacity(0.5), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                Text(altBaslik, style: TextStyle(color: secili ? renk : _sysText.withValues(alpha: 0.5), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
               ],
             ),
           ],
@@ -558,7 +558,7 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
                 decoration: BoxDecoration(
                   color: renk,
                   borderRadius: BorderRadius.circular(3),
-                  boxShadow: [BoxShadow(color: renk.withOpacity(0.5), blurRadius: 6)],
+                  boxShadow: [BoxShadow(color: renk.withValues(alpha: 0.5), blurRadius: 6)],
                 ),
               ),
             ),
@@ -585,9 +585,9 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: ogun.renk.withOpacity(0.1),
+              color: ogun.renk.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: ogun.renk.withOpacity(0.3)),
+              border: Border.all(color: ogun.renk.withValues(alpha: 0.3)),
             ),
             child: Icon(ogun.ikon, color: ogun.renk, size: 22),
           ),
@@ -625,10 +625,10 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: vurguRenk.withOpacity(0.08),
+              color: vurguRenk.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(4),
             ),
-            child: Icon(yemek.ikon, color: vurguRenk.withOpacity(0.7), size: 18),
+            child: Icon(yemek.ikon, color: vurguRenk.withValues(alpha: 0.7), size: 18),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -637,14 +637,14 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
               children: [
                 Text(yemek.ad, style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 2),
-                Text(yemek.makroBilgisi, style: TextStyle(color: _sysText.withOpacity(0.7), fontSize: 11, letterSpacing: 0.5)),
+                Text(yemek.makroBilgisi, style: TextStyle(color: _sysText.withValues(alpha: 0.7), fontSize: 11, letterSpacing: 0.5)),
               ],
             ),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
-              color: vurguRenk.withOpacity(0.08),
+              color: vurguRenk.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(
@@ -674,7 +674,7 @@ class _MakroCemberPainter extends CustomPainter {
 
     // Arka plan halkası
     final arkaPlan = Paint()
-      ..color = renk.withOpacity(0.1)
+      ..color = renk.withValues(alpha: 0.1)
       ..strokeWidth = 6
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
@@ -697,7 +697,7 @@ class _MakroCemberPainter extends CustomPainter {
 
     // Parlama efekti
     final parlama = Paint()
-      ..color = renk.withOpacity(0.3)
+      ..color = renk.withValues(alpha: 0.3)
       ..strokeWidth = 10
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round

@@ -149,7 +149,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                           selected: kategori == "Fiziksel",
                           selectedColor: _sysBlue,
                           backgroundColor: const Color(0xFF0F172A),
-                          side: BorderSide(color: kategori == "Fiziksel" ? _sysBlue : _sysText.withOpacity(0.3)),
+                          side: BorderSide(color: kategori == "Fiziksel" ? _sysBlue : _sysText.withValues(alpha: 0.3)),
                           onSelected: (_) => setDialogState(() => kategori = "Fiziksel"),
                         ),
                         const SizedBox(width: 8),
@@ -158,7 +158,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                           selected: kategori == "Zihinsel",
                           selectedColor: _sysPurple,
                           backgroundColor: const Color(0xFF0F172A),
-                          side: BorderSide(color: kategori == "Zihinsel" ? _sysPurple : _sysText.withOpacity(0.3)),
+                          side: BorderSide(color: kategori == "Zihinsel" ? _sysPurple : _sysText.withValues(alpha: 0.3)),
                           onSelected: (_) => setDialogState(() => kategori = "Zihinsel"),
                         ),
                       ],
@@ -190,7 +190,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: _sysBlue.withOpacity(0.15),
+                    backgroundColor: _sysBlue.withValues(alpha: 0.15),
                     side: const BorderSide(color: _sysBlue),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
                   ),
@@ -247,7 +247,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: _sysGold.withOpacity(0.15),
+                backgroundColor: _sysGold.withValues(alpha: 0.15),
                 side: const BorderSide(color: _sysGold),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
               ),
@@ -290,7 +290,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                 Navigator.pop(ctx);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: _sysRed.withOpacity(0.15),
+                backgroundColor: _sysRed.withValues(alpha: 0.15),
                 side: const BorderSide(color: _sysRed),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
               ),
@@ -398,8 +398,8 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
               margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               decoration: BoxDecoration(
-                color: _sysRed.withOpacity(0.08),
-                border: Border.all(color: _sysRed.withOpacity(0.4)),
+                color: _sysRed.withValues(alpha: 0.08),
+                border: Border.all(color: _sysRed.withValues(alpha: 0.4)),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Row(
@@ -417,7 +417,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        border: Border.all(color: _sysRed.withOpacity(0.5)),
+                        border: Border.all(color: _sysRed.withValues(alpha: 0.5)),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text('RESET', style: TextStyle(color: _sysRed, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
@@ -440,9 +440,9 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: sablon.renk.withOpacity(0.1),
+                    color: sablon.renk.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: sablon.renk.withOpacity(0.3)),
+                    border: Border.all(color: sablon.renk.withValues(alpha: 0.3)),
                   ),
                   child: Text('${sablon.egzersizler.length}', style: GoogleFonts.orbitron(color: sablon.renk, fontSize: 11, fontWeight: FontWeight.bold)),
                 ),
@@ -459,7 +459,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.fitness_center, color: _sysText.withOpacity(0.3), size: 50),
+                        Icon(Icons.fitness_center, color: _sysText.withValues(alpha: 0.3), size: 50),
                         const SizedBox(height: 10),
                         Text('No exercises in this template.', style: TextStyle(color: _sysText)),
                         if (_duzenlemeModu) ...[
@@ -485,7 +485,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
       floatingActionButton: _duzenlemeModu
           ? FloatingActionButton(
               onPressed: _egzersizEkleDialog,
-              backgroundColor: _sysBlue.withOpacity(0.15),
+              backgroundColor: _sysBlue.withValues(alpha: 0.15),
               shape: RoundedRectangleBorder(
                 side: const BorderSide(color: _sysBlue, width: 1.5),
                 borderRadius: BorderRadius.circular(4),
@@ -516,20 +516,20 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
         width: 140,
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: secili ? s.renk.withOpacity(0.1) : const Color(0xFF070B14).withOpacity(0.85),
+          color: secili ? s.renk.withValues(alpha: 0.1) : const Color(0xFF070B14).withValues(alpha: 0.85),
           border: Border.all(
-            color: secili ? s.renk : _sysText.withOpacity(0.15),
+            color: secili ? s.renk : _sysText.withValues(alpha: 0.15),
             width: secili ? 1.5 : 1,
           ),
           borderRadius: BorderRadius.circular(4),
           boxShadow: secili
-              ? [BoxShadow(color: s.renk.withOpacity(0.15), blurRadius: 15, spreadRadius: 1)]
+              ? [BoxShadow(color: s.renk.withValues(alpha: 0.15), blurRadius: 15, spreadRadius: 1)]
               : [],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(s.ikon, color: secili ? s.renk : _sysText.withOpacity(0.5), size: 32),
+            Icon(s.ikon, color: secili ? s.renk : _sysText.withValues(alpha: 0.5), size: 32),
             const SizedBox(height: 10),
             Text(
               s.ad,
@@ -543,7 +543,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 6),
-            _zorlukBadge(s.zorluk, secili ? s.renk : _sysText.withOpacity(0.4)),
+            _zorlukBadge(s.zorluk, secili ? s.renk : _sysText.withValues(alpha: 0.4)),
           ],
         ),
       ),
@@ -555,8 +555,8 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: renk.withOpacity(0.1),
-        border: Border.all(color: renk.withOpacity(0.5)),
+        color: renk.withValues(alpha: 0.1),
+        border: Border.all(color: renk.withValues(alpha: 0.5)),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
@@ -578,8 +578,8 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
         padding: const EdgeInsets.only(right: 20),
         margin: const EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
-          color: _sysRed.withOpacity(0.15),
-          border: Border.all(color: _sysRed.withOpacity(0.3)),
+          color: _sysRed.withValues(alpha: 0.15),
+          border: Border.all(color: _sysRed.withValues(alpha: 0.3)),
           borderRadius: BorderRadius.circular(4),
         ),
         child: const Icon(Icons.delete_forever, color: _sysRed, size: 28),
@@ -592,8 +592,8 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
         decoration: BoxDecoration(
-          color: const Color(0xFF070B14).withOpacity(0.85),
-          border: Border.all(color: vurguRenk.withOpacity(0.15)),
+          color: const Color(0xFF070B14).withValues(alpha: 0.85),
+          border: Border.all(color: vurguRenk.withValues(alpha: 0.15)),
           borderRadius: BorderRadius.circular(4),
         ),
         child: Row(
@@ -604,7 +604,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
               height: 28,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: vurguRenk.withOpacity(0.08),
+                color: vurguRenk.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
@@ -626,7 +626,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                   const SizedBox(height: 2),
                   Text(
                     fiziksel ? '[PHY]' : '[MNT]',
-                    style: TextStyle(color: fiziksel ? _sysBlue.withOpacity(0.5) : _sysPurple.withOpacity(0.5), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
+                    style: TextStyle(color: fiziksel ? _sysBlue.withValues(alpha: 0.5) : _sysPurple.withValues(alpha: 0.5), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
                   ),
                 ],
               ),
@@ -638,8 +638,8 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: _duzenlemeModu ? _sysGold.withOpacity(0.1) : vurguRenk.withOpacity(0.06),
-                  border: Border.all(color: _duzenlemeModu ? _sysGold.withOpacity(0.5) : vurguRenk.withOpacity(0.2)),
+                  color: _duzenlemeModu ? _sysGold.withValues(alpha: 0.1) : vurguRenk.withValues(alpha: 0.06),
+                  border: Border.all(color: _duzenlemeModu ? _sysGold.withValues(alpha: 0.5) : vurguRenk.withValues(alpha: 0.2)),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Row(
@@ -671,9 +671,9 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: _sysRed.withOpacity(0.1),
+                  color: _sysRed.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: _sysRed.withOpacity(0.3)),
+                  border: Border.all(color: _sysRed.withValues(alpha: 0.3)),
                 ),
                 child: const Icon(Icons.play_circle_fill, color: _sysRed, size: 20),
               ),
@@ -688,7 +688,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: _sysRed.withOpacity(0.08),
+                    color: _sysRed.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: const Icon(Icons.close, color: _sysRed, size: 16),
@@ -713,7 +713,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
         filled: true,
         fillColor: const Color(0xFF0F172A),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: _sysBlue.withOpacity(0.3)),
+          borderSide: BorderSide(color: _sysBlue.withValues(alpha: 0.3)),
           borderRadius: BorderRadius.circular(4),
         ),
         focusedBorder: OutlineInputBorder(

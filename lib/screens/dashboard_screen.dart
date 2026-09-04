@@ -103,7 +103,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     width: 70, height: 70,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: sysBlue.withOpacity(0.5), width: 1),
+                      border: Border.all(color: sysBlue.withValues(alpha: 0.5), width: 1),
                       image: SystemMemory.profilFotoByte != null ? DecorationImage(image: MemoryImage(SystemMemory.profilFotoByte!), fit: BoxFit.cover) : null,
                       color: const Color(0xFF0F172A)
                     ),
@@ -245,7 +245,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ],
                         ),
                         const SizedBox(height: 15),
-                        Icon(SystemMemory.bossTuru == 'Fiziksel' ? Icons.pets : Icons.ac_unit, color: bossRenk.withOpacity(0.5), size: 60),
+                        Icon(SystemMemory.bossTuru == 'Fiziksel' ? Icons.pets : Icons.ac_unit, color: bossRenk.withValues(alpha: 0.5), size: 60),
                         const SizedBox(height: 10),
                         Text(SystemMemory.bossIsim.toUpperCase(), style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 2)),
                         Text('Weakness: ${SystemMemory.bossTuru == "Fiziksel" ? "Physical" : "Mental"} Quests', style: const TextStyle(color: sysTextMuted, fontSize: 12)),
@@ -254,16 +254,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         Stack(
                           alignment: Alignment.center,
                           children: [
-                            Container(height: 20, width: double.infinity, decoration: BoxDecoration(color: const Color(0xFF0F172A), borderRadius: BorderRadius.circular(4), border: Border.all(color: bossRenk.withOpacity(0.5)))),
+                            Container(height: 20, width: double.infinity, decoration: BoxDecoration(color: const Color(0xFF0F172A), borderRadius: BorderRadius.circular(4), border: Border.all(color: bossRenk.withValues(alpha: 0.5)))),
                             FractionallySizedBox(
                               alignment: Alignment.centerLeft,
                               widthFactor: (guncelHP / SystemMemory.bossMaxHP).clamp(0.0, 1.0),
                               child: Container(
                                 height: 20, 
                                 decoration: BoxDecoration(
-                                  color: bossRenk.withOpacity(0.8), 
+                                  color: bossRenk.withValues(alpha: 0.8), 
                                   borderRadius: BorderRadius.circular(4), 
-                                  boxShadow: bossOldu ? [] : [BoxShadow(color: bossRenk.withOpacity(0.5), blurRadius: 10)]
+                                  boxShadow: bossOldu ? [] : [BoxShadow(color: bossRenk.withValues(alpha: 0.5), blurRadius: 10)]
                                 )
                               ),
                             ),
@@ -277,11 +277,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               )
             else
               HologramCard(
-                neonRenk: sysTextMuted.withOpacity(0.3),
+                neonRenk: sysTextMuted.withValues(alpha: 0.3),
                 child: Center(
                   child: Column(
                     children: [
-                      Icon(Icons.door_sliding, color: sysTextMuted.withOpacity(0.5), size: 40),
+                      Icon(Icons.door_sliding, color: sysTextMuted.withValues(alpha: 0.5), size: 40),
                       const SizedBox(height: 10),
                       Text('GATE IS DORMANT', style: GoogleFonts.orbitron(color: sysTextMuted, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2)),
                       const SizedBox(height: 5),
@@ -310,7 +310,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       child: ListTile(
                         leading: Icon(g.yapildiMi ? Icons.check_box : Icons.check_box_outline_blank, color: g.yapildiMi ? sysBlue : sysTextMuted, size: 20),
                         title: Text(g.ad, style: TextStyle(color: g.yapildiMi ? sysTextMuted : Colors.white, fontSize: 14, decoration: g.yapildiMi ? TextDecoration.lineThrough : null)),
-                        trailing: Text(g.tip == 'Fiziksel' ? '[PHY]' : '[MNT]', style: TextStyle(color: sysBlue.withOpacity(0.5), fontSize: 10)),
+                        trailing: Text(g.tip == 'Fiziksel' ? '[PHY]' : '[MNT]', style: TextStyle(color: sysBlue.withValues(alpha: 0.5), fontSize: 10)),
                       ),
                     );
                   },
@@ -354,9 +354,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 icon: const Icon(Icons.flash_on, color: sysRed, size: 24),
                 label: const Text('ENTER DUNGEON (START WORKOUT)', style: TextStyle(color: sysRed, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: sysRed.withOpacity(0.1), padding: const EdgeInsets.symmetric(vertical: 20),
+                  backgroundColor: sysRed.withValues(alpha: 0.1), padding: const EdgeInsets.symmetric(vertical: 20),
                   side: const BorderSide(color: sysRed, width: 2), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                  shadowColor: sysRed.withOpacity(0.5), elevation: 10
+                  shadowColor: sysRed.withValues(alpha: 0.5), elevation: 10
                 ),
               ),
             ),
@@ -381,17 +381,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _basarimKarti(String baslik, String aciklama, int mevcut, int hedef, IconData ikon, Color sysBlue, Color sysTextMuted) {
     double progress = (mevcut / hedef).clamp(0.0, 1.0);
     bool tamamlandiMi = progress >= 1.0;
-    Color aktifRenk = tamamlandiMi ? sysBlue : sysTextMuted.withOpacity(0.3);
+    Color aktifRenk = tamamlandiMi ? sysBlue : sysTextMuted.withValues(alpha: 0.3);
 
     return Container(
       width: 130, // İsimler "I, II, III" ile uzayacağı için genişlik 110'dan 130'a çıkarıldı.
       margin: const EdgeInsets.only(right: 15),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: const Color(0xFF070B14).withOpacity(0.85),
+        color: const Color(0xFF070B14).withValues(alpha: 0.85),
         borderRadius: BorderRadius.circular(4),
         border: Border.all(color: aktifRenk, width: 1),
-        boxShadow: tamamlandiMi ? [BoxShadow(color: sysBlue.withOpacity(0.2), blurRadius: 10)] : [],
+        boxShadow: tamamlandiMi ? [BoxShadow(color: sysBlue.withValues(alpha: 0.2), blurRadius: 10)] : [],
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -399,7 +399,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Icon(ikon, color: aktifRenk, size: 30),
           const SizedBox(height: 8),
           Text(baslik, style: GoogleFonts.rajdhani(color: tamamlandiMi ? Colors.white : sysTextMuted, fontSize: 14, fontWeight: FontWeight.bold), textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis),
-          Text(aciklama, style: TextStyle(color: sysTextMuted.withOpacity(0.8), fontSize: 10), textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis),
+          Text(aciklama, style: TextStyle(color: sysTextMuted.withValues(alpha: 0.8), fontSize: 10), textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 8),
           Stack(
             children: [

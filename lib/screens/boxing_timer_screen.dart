@@ -248,7 +248,7 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
         shape: RoundedRectangleBorder(side: const BorderSide(color: physicalGold), borderRadius: BorderRadius.circular(4)),
         title: Text('[ DUNGEON CLEARED ]', style: GoogleFonts.orbitron(color: physicalGold, fontWeight: FontWeight.bold)),
         content: Text("You have completed the course for your rank.\nThe System is watching.", style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-        actions: [ ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: physicalGold.withOpacity(0.2), side: const BorderSide(color: physicalGold)), onPressed: () { Navigator.pop(context); _sifirla(); }, child: const Text('CONFIRM', style: TextStyle(color: physicalGold, fontWeight: FontWeight.bold))) ],
+        actions: [ ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: physicalGold.withValues(alpha: 0.2), side: const BorderSide(color: physicalGold)), onPressed: () { Navigator.pop(context); _sifirla(); }, child: const Text('CONFIRM', style: TextStyle(color: physicalGold, fontWeight: FontWeight.bold))) ],
       ),
     );
   }
@@ -291,7 +291,7 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
               if (!calisiyor)
                 Container(
                   margin: const EdgeInsets.all(15), padding: const EdgeInsets.all(15),
-                  decoration: BoxDecoration(color: const Color(0xFF070B14).withOpacity(0.85), border: Border.all(color: systemRed.withOpacity(0.5)), borderRadius: BorderRadius.circular(4)),
+                  decoration: BoxDecoration(color: const Color(0xFF070B14).withValues(alpha: 0.85), border: Border.all(color: systemRed.withValues(alpha: 0.5)), borderRadius: BorderRadius.circular(4)),
                   child: Column(
                     children: [
                       Row(
@@ -308,22 +308,22 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
                         segments: const [ButtonSegment(value: 'Free Settings', label: Text('FREE SETTINGS')), ButtonSegment(value: 'System Courses', label: Text('COURSES'))],
                         selected: {anaMod},
                         onSelectionChanged: (set) { setState(() { anaMod = set.first; _parkuruOlustur(); }); },
-                        style: SegmentedButton.styleFrom(backgroundColor: const Color(0xFF0F172A), selectedBackgroundColor: systemRed.withOpacity(0.2), selectedForegroundColor: systemRed, foregroundColor: systemRest),
+                        style: SegmentedButton.styleFrom(backgroundColor: const Color(0xFF0F172A), selectedBackgroundColor: systemRed.withValues(alpha: 0.2), selectedForegroundColor: systemRed, foregroundColor: systemRest),
                       ),
                       const SizedBox(height: 15),
                       
                       if (anaMod == 'System Courses') ...[
                         DropdownButtonFormField<String>(
-                          value: sistemTuru, dropdownColor: cardBg, 
-                          decoration: InputDecoration(labelText: 'Workout Type', labelStyle: const TextStyle(color: physicalGold), filled: true, fillColor: const Color(0xFF0F172A), enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: physicalGold.withOpacity(0.5)), borderRadius: BorderRadius.circular(4)), focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: physicalGold), borderRadius: BorderRadius.circular(4))),
+                          initialValue: sistemTuru, dropdownColor: cardBg, 
+                          decoration: InputDecoration(labelText: 'Workout Type', labelStyle: const TextStyle(color: physicalGold), filled: true, fillColor: const Color(0xFF0F172A), enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: physicalGold.withValues(alpha: 0.5)), borderRadius: BorderRadius.circular(4)), focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: physicalGold), borderRadius: BorderRadius.circular(4))),
                           style: const TextStyle(color: physicalGold, fontWeight: FontWeight.bold),
                           items: ['Jump Rope', 'Running (Speed)', 'Running (Incline)'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
                           onChanged: (val) { setState(() { sistemTuru = val!; _parkuruOlustur(); }); },
                         ),
                         const SizedBox(height: 15),
                         DropdownButtonFormField<int>(
-                          value: sistemSuresiDakika, dropdownColor: cardBg, 
-                          decoration: InputDecoration(labelText: 'Total Duration', labelStyle: const TextStyle(color: systemBlue), filled: true, fillColor: const Color(0xFF0F172A), enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: systemBlue.withOpacity(0.5)), borderRadius: BorderRadius.circular(4)), focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: systemBlue), borderRadius: BorderRadius.circular(4))),
+                          initialValue: sistemSuresiDakika, dropdownColor: cardBg, 
+                          decoration: InputDecoration(labelText: 'Total Duration', labelStyle: const TextStyle(color: systemBlue), filled: true, fillColor: const Color(0xFF0F172A), enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: systemBlue.withValues(alpha: 0.5)), borderRadius: BorderRadius.circular(4)), focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: systemBlue), borderRadius: BorderRadius.circular(4))),
                           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                           items: [15, 20, 30, 45, 60, 90, 120].map((e) => DropdownMenuItem(value: e, child: Text('$e Minutes'))).toList(),
                           onChanged: (val) { setState(() { sistemSuresiDakika = val!; _parkuruOlustur(); }); },
@@ -359,14 +359,14 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
                       alignment: Alignment.center,
                       children: [
                         SizedBox(width: 240, height: 240, child: CircularProgressIndicator(value: aktifFaz != null ? (kalanSaniye / aktifFaz.sureSaniye) : 0, strokeWidth: 8, backgroundColor: cardBg, valueColor: AlwaysStoppedAnimation<Color>(fazRengi))),
-                        Text(_sureFormatla(kalanSaniye), style: GoogleFonts.orbitron(color: Colors.white, fontSize: 55, fontWeight: FontWeight.bold, shadows: [Shadow(color: fazRengi.withOpacity(0.6), blurRadius: 25)])),
+                        Text(_sureFormatla(kalanSaniye), style: GoogleFonts.orbitron(color: Colors.white, fontSize: 55, fontWeight: FontWeight.bold, shadows: [Shadow(color: fazRengi.withValues(alpha: 0.6), blurRadius: 25)])),
                       ],
                     ),
                     const SizedBox(height: 30),
                     if (aktifFaz != null)
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15), margin: const EdgeInsets.symmetric(horizontal: 20),
-                        decoration: BoxDecoration(color: fazRengi.withOpacity(0.1), border: Border.all(color: fazRengi, width: 1), borderRadius: BorderRadius.circular(4)),
+                        decoration: BoxDecoration(color: fazRengi.withValues(alpha: 0.1), border: Border.all(color: fazRengi, width: 1), borderRadius: BorderRadius.circular(4)),
                         child: Text(aktifFaz.talimat, textAlign: TextAlign.center, style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: 1)),
                       ),
                     const SizedBox(height: 15),
@@ -385,7 +385,7 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
                       onTap: _baslatDuraklat,
                       child: Container(
                         width: 80, height: 80,
-                        decoration: BoxDecoration(color: calisiyor ? physicalGold.withOpacity(0.2) : systemRed.withOpacity(0.2), shape: BoxShape.circle, border: Border.all(color: calisiyor ? physicalGold : systemRed, width: 2)),
+                        decoration: BoxDecoration(color: calisiyor ? physicalGold.withValues(alpha: 0.2) : systemRed.withValues(alpha: 0.2), shape: BoxShape.circle, border: Border.all(color: calisiyor ? physicalGold : systemRed, width: 2)),
                         child: Icon(calisiyor ? Icons.pause : Icons.play_arrow, color: calisiyor ? physicalGold : systemRed, size: 40),
                       ),
                     ),

@@ -85,7 +85,9 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
         }
       } 
       else if (sablonAdi == 'Full Body (B-Rank)') {
-        for (int i = 1; i <= 7; i++) SystemMemory.haftalikPlan[i]!.clear();
+        for (int i = 1; i <= 7; i++) {
+          SystemMemory.haftalikPlan[i]!.clear();
+        }
         List<int> gunler = [1, 3, 5]; // Pzt, Çarş, Cuma
         for (int g in gunler) {
           SystemMemory.haftalikPlan[g]!.addAll([
@@ -120,7 +122,7 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF030712).withOpacity(0.95),
+          backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95),
           shape: RoundedRectangleBorder(side: const BorderSide(color: sysBlue, width: 1), borderRadius: BorderRadius.circular(4)),
           title: Text('SYSTEM TEMPLATES', style: GoogleFonts.orbitron(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 16)),
           content: Column(
@@ -146,7 +148,7 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
       onTap: () => _sablonUygula(ad),
       child: Container(
         width: double.infinity, padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: renk.withOpacity(0.1), border: Border.all(color: renk.withOpacity(0.5)), borderRadius: BorderRadius.circular(4)),
+        decoration: BoxDecoration(color: renk.withValues(alpha: 0.1), border: Border.all(color: renk.withValues(alpha: 0.5)), borderRadius: BorderRadius.circular(4)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -169,10 +171,10 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200), padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: isSelected ? themeColor.withOpacity(0.2) : Colors.transparent,
+              color: isSelected ? themeColor.withValues(alpha: 0.2) : Colors.transparent,
               border: Border.all(color: isSelected ? themeColor : Colors.white12, width: 1),
               borderRadius: BorderRadius.circular(4),
-              boxShadow: isSelected ? [BoxShadow(color: themeColor.withOpacity(0.2), blurRadius: 8)] : [],
+              boxShadow: isSelected ? [BoxShadow(color: themeColor.withValues(alpha: 0.2), blurRadius: 8)] : [],
             ),
             child: Text(item.toUpperCase(), style: GoogleFonts.orbitron(color: isSelected ? themeColor : sysTextMuted, fontSize: 10, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal, letterSpacing: 1)),
           ),
@@ -235,13 +237,13 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ChoiceChip(
-                        label: const Text('PHYSICAL (STR/AGI)'), selected: secilenTip == 'Fiziksel', selectedColor: physicalGold.withOpacity(0.2), 
+                        label: const Text('PHYSICAL (STR/AGI)'), selected: secilenTip == 'Fiziksel', selectedColor: physicalGold.withValues(alpha: 0.2), 
                         labelStyle: GoogleFonts.orbitron(color: secilenTip == 'Fiziksel' ? physicalGold : sysTextMuted, fontSize: 10, fontWeight: FontWeight.bold),
                         backgroundColor: cardBg, side: BorderSide(color: secilenTip == 'Fiziksel' ? physicalGold : Colors.white12),
                         onSelected: (val) => setState(() => secilenTip = 'Fiziksel'),
                       ),
                       ChoiceChip(
-                        label: const Text('MENTAL (INT/PER)'), selected: secilenTip == 'Zihinsel', selectedColor: mentalPurple.withOpacity(0.2), 
+                        label: const Text('MENTAL (INT/PER)'), selected: secilenTip == 'Zihinsel', selectedColor: mentalPurple.withValues(alpha: 0.2), 
                         labelStyle: GoogleFonts.orbitron(color: secilenTip == 'Zihinsel' ? mentalPurple : sysTextMuted, fontSize: 10, fontWeight: FontWeight.bold),
                         backgroundColor: cardBg, side: BorderSide(color: secilenTip == 'Zihinsel' ? mentalPurple : Colors.white12),
                         onSelected: (val) => setState(() => secilenTip = 'Zihinsel'),
@@ -283,14 +285,14 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
                           controller: hareketKontrolcusu, style: const TextStyle(color: Colors.white, fontSize: 14), 
                           decoration: InputDecoration(
                             hintText: 'Quest Name (e.g. 50 Push-ups)', hintStyle: const TextStyle(color: sysTextMuted), filled: true, fillColor: const Color(0xFF070B14), 
-                            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: secilenTip == 'Fiziksel' ? physicalGold.withOpacity(0.3) : mentalPurple.withOpacity(0.3)), borderRadius: BorderRadius.circular(4)), 
+                            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: secilenTip == 'Fiziksel' ? physicalGold.withValues(alpha: 0.3) : mentalPurple.withValues(alpha: 0.3)), borderRadius: BorderRadius.circular(4)), 
                             focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: secilenTip == 'Fiziksel' ? physicalGold : mentalPurple), borderRadius: BorderRadius.circular(4))
                           )
                         )
                       ),
                       const SizedBox(width: 10),
                       Container(
-                        decoration: BoxDecoration(color: secilenTip == 'Fiziksel' ? physicalGold.withOpacity(0.15) : mentalPurple.withOpacity(0.15), border: Border.all(color: secilenTip == 'Fiziksel' ? physicalGold : mentalPurple), borderRadius: BorderRadius.circular(4)), 
+                        decoration: BoxDecoration(color: secilenTip == 'Fiziksel' ? physicalGold.withValues(alpha: 0.15) : mentalPurple.withValues(alpha: 0.15), border: Border.all(color: secilenTip == 'Fiziksel' ? physicalGold : mentalPurple), borderRadius: BorderRadius.circular(4)), 
                         child: IconButton(icon: Icon(Icons.add, color: secilenTip == 'Fiziksel' ? physicalGold : mentalPurple), onPressed: hareketEkle)
                       ),
                     ],
@@ -325,7 +327,7 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
                         bool fizikselMi = gorev.tip == 'Fiziksel';
                         return Container(
                           margin: const EdgeInsets.only(bottom: 10),
-                          decoration: BoxDecoration(color: const Color(0xFF070B14).withOpacity(0.85), border: Border.all(color: fizikselMi ? physicalGold.withOpacity(0.3) : mentalPurple.withOpacity(0.3)), borderRadius: BorderRadius.circular(4)),
+                          decoration: BoxDecoration(color: const Color(0xFF070B14).withValues(alpha: 0.85), border: Border.all(color: fizikselMi ? physicalGold.withValues(alpha: 0.3) : mentalPurple.withValues(alpha: 0.3)), borderRadius: BorderRadius.circular(4)),
                           child: ListTile(
                             leading: Icon(fizikselMi ? Icons.fitness_center : Icons.psychology, color: fizikselMi ? physicalGold : mentalPurple, size: 20),
                             title: Text(gorev.ad, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),

@@ -27,7 +27,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF030712).withOpacity(0.95),
+          backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95),
           shape: RoundedRectangleBorder(side: const BorderSide(color: sysBlue, width: 1), borderRadius: BorderRadius.circular(4)),
           title: Text('ADD INVENTORY ITEM', style: GoogleFonts.orbitron(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: 1)),
           content: Column(
@@ -38,7 +38,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
                 style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                 decoration: InputDecoration(
                   labelText: 'Item Name (Food)', labelStyle: const TextStyle(color: sysTextMuted),
-                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: sysBlue.withOpacity(0.5))),
+                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: sysBlue.withValues(alpha: 0.5))),
                   focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: sysBlue)),
                 ),
               ),
@@ -50,7 +50,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
                 decoration: InputDecoration(
                   labelText: 'Energy (Kcal)', labelStyle: const TextStyle(color: sysTextMuted),
                   suffixText: 'Kcal', suffixStyle: const TextStyle(color: sysBlue),
-                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: sysBlue.withOpacity(0.5))),
+                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: sysBlue.withValues(alpha: 0.5))),
                   focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: sysBlue)),
                 ),
               ),
@@ -59,7 +59,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
           actions: [
             TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL', style: TextStyle(color: sysTextMuted))),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: sysBlue.withOpacity(0.1), side: const BorderSide(color: sysBlue)),
+              style: ElevatedButton.styleFrom(backgroundColor: sysBlue.withValues(alpha: 0.1), side: const BorderSide(color: sysBlue)),
               onPressed: () {
                 if (_yemekAdiCtrl.text.isNotEmpty && _kaloriCtrl.text.isNotEmpty) {
                   int kalori = int.parse(_kaloriCtrl.text);
@@ -108,7 +108,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
           builder: (context, scrollController) {
             return Container(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(border: Border(top: BorderSide(color: sysBlue.withOpacity(0.5), width: 2))),
+              decoration: BoxDecoration(border: Border(top: BorderSide(color: sysBlue.withValues(alpha: 0.5), width: 2))),
               child: Column(
                 children: [
                   Text('DIET ARCHIVE', style: GoogleFonts.orbitron(color: sysBlue, fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 2)),
@@ -221,7 +221,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
                       ),
                       Column(
                         children: [
-                          Text('${SystemMemory.bugunAlinanKalori}', style: GoogleFonts.orbitron(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold, shadows: [Shadow(color: barRengi.withOpacity(0.5), blurRadius: 10)])),
+                          Text('${SystemMemory.bugunAlinanKalori}', style: GoogleFonts.orbitron(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold, shadows: [Shadow(color: barRengi.withValues(alpha: 0.5), blurRadius: 10)])),
                           const Text('Kcal', style: TextStyle(color: sysTextMuted, fontSize: 14)),
                         ],
                       ),
@@ -257,7 +257,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
             const SizedBox(height: 10),
             
             Container(
-              decoration: BoxDecoration(border: Border.all(color: sysBlue.withOpacity(0.4), width: 1), borderRadius: BorderRadius.circular(4), color: const Color(0xFF070B14).withOpacity(0.85)),
+              decoration: BoxDecoration(border: Border.all(color: sysBlue.withValues(alpha: 0.4), width: 1), borderRadius: BorderRadius.circular(4), color: const Color(0xFF070B14).withValues(alpha: 0.85)),
               child: SystemMemory.bugununYemekleri.isEmpty
                 ? const Padding(padding: EdgeInsets.all(30), child: Center(child: Text("Inventory is empty. Fuel up, Hunter.", style: TextStyle(color: sysTextMuted))))
                 : ListView.builder(

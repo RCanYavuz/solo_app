@@ -335,10 +335,14 @@ class SystemMemory {
     double gunlukIhtiyac = bmr * 1.375; int kaloriFarki = 0;
 
     if (aktifHedef == "Kilo Ver (Yağ Yak)") { 
-      if (aktifZorluk == "Normal") kaloriFarki = -500; else if (aktifZorluk == "Yüksek") kaloriFarki = -1000; else if (aktifZorluk == "Cehennem") kaloriFarki = -1500; 
+      if (aktifZorluk == "Normal") {
+        kaloriFarki = -500;
+      } else if (aktifZorluk == "Yüksek") kaloriFarki = -1000; else if (aktifZorluk == "Cehennem") kaloriFarki = -1500; 
     } 
     else if (aktifHedef == "Kilo Al (Kas İnşa Et)") { 
-      if (aktifZorluk == "Normal") kaloriFarki = 300; else if (aktifZorluk == "Yüksek") kaloriFarki = 500; else if (aktifZorluk == "Canavar") kaloriFarki = 1000; 
+      if (aktifZorluk == "Normal") {
+        kaloriFarki = 300;
+      } else if (aktifZorluk == "Yüksek") kaloriFarki = 500; else if (aktifZorluk == "Canavar") kaloriFarki = 1000; 
     }
 
     int hesaplanan = (gunlukIhtiyac + kaloriFarki).round();
@@ -389,13 +393,19 @@ class SystemMemory {
     }
 
     double boyMetre = boy / 100; double bmi = kilo / (boyMetre * boyMetre);
-    if (bmi < 18.5) vucutSinifi = "Underweight"; else if (bmi < 24.9) vucutSinifi = "Normal"; else if (bmi < 29.9) vucutSinifi = "Overweight"; else vucutSinifi = "Obese";
+    if (bmi < 18.5) {
+      vucutSinifi = "Underweight";
+    } else if (bmi < 24.9) vucutSinifi = "Normal"; else if (bmi < 29.9) vucutSinifi = "Overweight"; else vucutSinifi = "Obese";
 
     double bmr = (cinsiyet == "Erkek") ? (10 * kilo) + (6.25 * boy) - (5 * yas) + 5 : (10 * kilo) + (6.25 * boy) - (5 * yas) - 161;
     double gunlukIhtiyac = bmr * 1.375; int kaloriFarki = 0;
 
-    if (hedef == "Kilo Ver (Yağ Yak)") { if (zorluk == "Normal") kaloriFarki = -500; else if (zorluk == "Yüksek") kaloriFarki = -1000; else if (zorluk == "Cehennem") kaloriFarki = -1500; } 
-    else if (hedef == "Kilo Al (Kas İnşa Et)") { if (zorluk == "Normal") kaloriFarki = 300; else if (zorluk == "Yüksek") kaloriFarki = 500; else if (zorluk == "Canavar") kaloriFarki = 1000; }
+    if (hedef == "Kilo Ver (Yağ Yak)") { if (zorluk == "Normal") {
+      kaloriFarki = -500;
+    } else if (zorluk == "Yüksek") kaloriFarki = -1000; else if (zorluk == "Cehennem") kaloriFarki = -1500; } 
+    else if (hedef == "Kilo Al (Kas İnşa Et)") { if (zorluk == "Normal") {
+      kaloriFarki = 300;
+    } else if (zorluk == "Yüksek") kaloriFarki = 500; else if (zorluk == "Canavar") kaloriFarki = 1000; }
 
     int hesaplanan = (gunlukIhtiyac + kaloriFarki).round();
     if (hesaplanan < 1200) hesaplanan = 1200; 
@@ -488,15 +498,21 @@ class SystemMemory {
         topFiziksel++; 
         if (g.yapildiMi) { 
           bitenFiziksel++; 
-          if (g.ad.contains("Kardiyo") || g.ad.contains("Bacak") || g.ad.contains("Kalf") || g.ad.contains("Legs") || g.ad.contains("Cardio") || g.ad.contains("Run")) agiGorevleri++;
-          else strGorevleri++;
+          if (g.ad.contains("Kardiyo") || g.ad.contains("Bacak") || g.ad.contains("Kalf") || g.ad.contains("Legs") || g.ad.contains("Cardio") || g.ad.contains("Run")) {
+            agiGorevleri++;
+          } else {
+            strGorevleri++;
+          }
         } 
       } else { 
         topZihinsel++; 
         if (g.yapildiMi) { 
           bitenZihinsel++; 
-          if (g.ad.contains("Meditasyon") || g.ad.contains("Strateji")) perGorevleri++;
-          else intGorevleri++; 
+          if (g.ad.contains("Meditasyon") || g.ad.contains("Strateji")) {
+            perGorevleri++;
+          } else {
+            intGorevleri++;
+          } 
         } 
       } 
     }
@@ -543,8 +559,9 @@ class SystemMemory {
       kazanilanExp += (bitenFiziksel * (redGateAktif ? 75 : 25)); 
       kazanilanAltin += (bitenFiziksel * (redGateAktif ? 150 : 50)); 
       
-      if (redGateAktif) hpFarki -= (kacan * 45);
-      else if (!golgeModuAktif) hpFarki -= (kacan * 15); 
+      if (redGateAktif) {
+        hpFarki -= (kacan * 45);
+      } else if (!golgeModuAktif) hpFarki -= (kacan * 15); 
       
       if (strGorevleri > 0) kazanilanSTR += 1;
       if (agiGorevleri > 0) kazanilanAGI += 1;
@@ -567,8 +584,9 @@ class SystemMemory {
       kazanilanExp += (bitenZihinsel * (redGateAktif ? 60 : 20)); 
       kazanilanAltin += (bitenZihinsel * (redGateAktif ? 90 : 30)); 
       
-      if (redGateAktif) mpFarki -= (kacan * 15);
-      else if (!golgeModuAktif) mpFarki -= (kacan * 5);
+      if (redGateAktif) {
+        mpFarki -= (kacan * 15);
+      } else if (!golgeModuAktif) mpFarki -= (kacan * 5);
       
       if (intGorevleri > 0) kazanilanINT += 1;
       if (perGorevleri > 0) kazanilanPER += 1;
@@ -645,7 +663,9 @@ class SystemMemory {
   static void statuYukselt(String statAdi) {
     if (ap.value > 0) {
       ap.value--;
-      if (statAdi == 'STR') str.value++; else if (statAdi == 'AGI') agi.value++;
+      if (statAdi == 'STR') {
+        str.value++;
+      } else if (statAdi == 'AGI') agi.value++;
       else if (statAdi == 'VIT') { vit.value++; maxHp += 10; hp.value += 10; } 
       else if (statAdi == 'INT') { intStat.value++; maxMp += 2; mp.value += 2; } 
       else if (statAdi == 'PER') per.value++;

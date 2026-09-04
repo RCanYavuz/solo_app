@@ -92,13 +92,13 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
       context: context, 
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF030712).withOpacity(0.95),
+        backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95),
         shape: RoundedRectangleBorder(side: const BorderSide(color: sysBlue, width: 1), borderRadius: BorderRadius.circular(4)),
         title: Text('[ DUNGEON CLEARED ]', style: GoogleFonts.orbitron(color: sysBlue, fontWeight: FontWeight.bold)),
         content: Text(rapor, style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
         actions: [ 
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: sysBlue.withOpacity(0.2), side: const BorderSide(color: sysBlue)), 
+            style: ElevatedButton.styleFrom(backgroundColor: sysBlue.withValues(alpha: 0.2), side: const BorderSide(color: sysBlue)), 
             onPressed: () {
               Navigator.pop(context); 
               Navigator.pop(context); 
@@ -151,7 +151,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF030712).withOpacity(0.95),
+          backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95),
           shape: RoundedRectangleBorder(side: const BorderSide(color: sysBlue, width: 1), borderRadius: BorderRadius.circular(4)),
           title: Text('INSTANT TEMPLATES', style: GoogleFonts.orbitron(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 16)),
           content: Column(
@@ -177,7 +177,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
       onTap: () => _sablonUygula(ad),
       child: Container(
         width: double.infinity, padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: renk.withOpacity(0.1), border: Border.all(color: renk.withOpacity(0.5)), borderRadius: BorderRadius.circular(4)),
+        decoration: BoxDecoration(color: renk.withValues(alpha: 0.1), border: Border.all(color: renk.withValues(alpha: 0.5)), borderRadius: BorderRadius.circular(4)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -205,7 +205,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
               decoration: BoxDecoration(
                 color: const Color(0xFF070B14),
                 border: const Border(bottom: BorderSide(color: sysRed, width: 2)),
-                boxShadow: [BoxShadow(color: sysRed.withOpacity(0.1), blurRadius: 20, spreadRadius: 5)]
+                boxShadow: [BoxShadow(color: sysRed.withValues(alpha: 0.1), blurRadius: 20, spreadRadius: 5)]
               ),
               child: Stack(
                 alignment: Alignment.center,
@@ -226,7 +226,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                       const SizedBox(height: 10),
                       Text(
                         _sureFormatla(gecenSaniye),
-                        style: GoogleFonts.orbitron(color: Colors.white, fontSize: 60, fontWeight: FontWeight.bold, shadows: [Shadow(color: sysRed.withOpacity(0.8), blurRadius: 20)]),
+                        style: GoogleFonts.orbitron(color: Colors.white, fontSize: 60, fontWeight: FontWeight.bold, shadows: [Shadow(color: sysRed.withValues(alpha: 0.8), blurRadius: 20)]),
                       ),
                       const SizedBox(height: 5),
                       const Text('Dungeon Timer Running...', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
@@ -249,7 +249,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                         icon: const Icon(Icons.auto_awesome, color: physicalGold, size: 16),
                         label: const Text('TEMPLATES', style: TextStyle(color: physicalGold, fontWeight: FontWeight.bold, fontSize: 12)),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: physicalGold.withOpacity(0.1),
+                          backgroundColor: physicalGold.withValues(alpha: 0.1),
                           side: const BorderSide(color: physicalGold, width: 1),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
                         ),
@@ -268,8 +268,8 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                     return Container(
                       margin: const EdgeInsets.only(bottom: 10),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF070B14).withOpacity(0.85),
-                        border: Border.all(color: sysBlue.withOpacity(0.3)),
+                        color: const Color(0xFF070B14).withValues(alpha: 0.85),
+                        border: Border.all(color: sysBlue.withValues(alpha: 0.3)),
                         borderRadius: BorderRadius.circular(4)
                       ),
                       child: CheckboxListTile(
@@ -298,7 +298,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                   icon: const Icon(Icons.exit_to_app, color: sysRed),
                   label: const Text('EXIT DUNGEON', style: TextStyle(color: sysRed, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: sysRed.withOpacity(0.1), padding: const EdgeInsets.symmetric(vertical: 20),
+                    backgroundColor: sysRed.withValues(alpha: 0.1), padding: const EdgeInsets.symmetric(vertical: 20),
                     side: const BorderSide(color: sysRed, width: 2), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
                   ),
                 ),

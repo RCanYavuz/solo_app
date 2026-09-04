@@ -22,7 +22,7 @@ class WelcomeScreen extends StatelessWidget {
               border: Border.all(color: Colors.cyanAccent, width: 2),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.cyanAccent.withOpacity(0.15), 
+                  color: Colors.cyanAccent.withValues(alpha: 0.15), 
                   blurRadius: 20, 
                   spreadRadius: 2
                 )
@@ -62,7 +62,7 @@ class WelcomeScreen extends StatelessWidget {
                       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const InstructionScreen()));
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.cyanAccent.withOpacity(0.15),
+                      backgroundColor: Colors.cyanAccent.withValues(alpha: 0.15),
                       padding: const EdgeInsets.symmetric(vertical: 18),
                       side: const BorderSide(color: Colors.cyanAccent, width: 1.5),
                     ),

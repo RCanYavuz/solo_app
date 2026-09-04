@@ -73,13 +73,13 @@ class _AnaEkranState extends State<AnaEkran> with WidgetsBindingObserver {
       barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF030712).withOpacity(0.95),
+          backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95),
           shape: RoundedRectangleBorder(side: BorderSide(color: dialogColor, width: 1), borderRadius: BorderRadius.circular(4)),
           title: Text(cezaVarMi ? '[ SYSTEM WARNING ]' : '[ DAILY QUEST COMPLETED ]', style: GoogleFonts.orbitron(color: dialogColor, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
           content: Text(rapor, style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.2, height: 1.5)),
           actions: [
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: dialogColor.withOpacity(0.1), side: BorderSide(color: dialogColor)),
+              style: ElevatedButton.styleFrom(backgroundColor: dialogColor.withValues(alpha: 0.1), side: BorderSide(color: dialogColor)),
               onPressed: () { 
                 Navigator.pop(context); 
                 setState(() {}); 
@@ -130,7 +130,7 @@ class _AnaEkranState extends State<AnaEkran> with WidgetsBindingObserver {
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           border: const Border(top: BorderSide(color: Color(0xFF38BDF8), width: 0.5)),
-          boxShadow: [BoxShadow(color: const Color(0xFF38BDF8).withOpacity(0.1), blurRadius: 10)],
+          boxShadow: [BoxShadow(color: const Color(0xFF38BDF8).withValues(alpha: 0.1), blurRadius: 10)],
         ),
         child: BottomNavigationBar(
           backgroundColor: const Color(0xFF030712),

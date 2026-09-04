@@ -38,7 +38,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Widget _buildTopToggle() {
     return Container(
       margin: const EdgeInsets.all(15), padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(color: const Color(0xFF0F172A), borderRadius: BorderRadius.circular(4), border: Border.all(color: sysBlue.withOpacity(0.3))),
+      decoration: BoxDecoration(color: const Color(0xFF0F172A), borderRadius: BorderRadius.circular(4), border: Border.all(color: sysBlue.withValues(alpha: 0.3))),
       child: Row(
         children: [_buildToggleBtn('Strip', 0), _buildToggleBtn('Month', 1), _buildToggleBtn('Year', 2)],
       ),
@@ -52,7 +52,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         onTap: () => setState(() => seciliMod = modIndex),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200), padding: const EdgeInsets.symmetric(vertical: 8),
-          decoration: BoxDecoration(color: aktif ? sysBlue.withOpacity(0.15) : Colors.transparent, borderRadius: BorderRadius.circular(2), border: Border.all(color: aktif ? sysBlue : Colors.transparent, width: 1)),
+          decoration: BoxDecoration(color: aktif ? sysBlue.withValues(alpha: 0.15) : Colors.transparent, borderRadius: BorderRadius.circular(2), border: Border.all(color: aktif ? sysBlue : Colors.transparent, width: 1)),
           child: Center(child: Text(text, style: TextStyle(color: aktif ? sysBlue : sysTextMuted, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1))),
         ),
       ),
@@ -81,7 +81,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200), width: 65, margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
               decoration: BoxDecoration(
-                color: seciliMi ? sysBlue.withOpacity(0.1) : const Color(0xFF070B14), 
+                color: seciliMi ? sysBlue.withValues(alpha: 0.1) : const Color(0xFF070B14), 
                 borderRadius: BorderRadius.circular(4), 
                 border: Border.all(color: seciliMi ? sysBlue : (bugunMu ? Colors.white54 : Colors.transparent), width: 1)
               ),
@@ -142,7 +142,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 child: Container(
                   margin: const EdgeInsets.all(2),
                   decoration: BoxDecoration(
-                    color: seciliMi ? sysBlue.withOpacity(0.1) : const Color(0xFF070B14), 
+                    color: seciliMi ? sysBlue.withValues(alpha: 0.1) : const Color(0xFF070B14), 
                     borderRadius: BorderRadius.circular(4), 
                     border: Border.all(color: seciliMi ? sysBlue : (bugunMu ? Colors.white54 : Colors.white12), width: 1)
                   ),
@@ -186,7 +186,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               bool seciliAyMi = seciliTarih.year == gosterilenYil && seciliTarih.month == ayNo;
               return GestureDetector(
                 onTap: () { setState(() { gosterilenAy = DateTime(gosterilenYil, ayNo); seciliMod = 1; }); },
-                child: Container(decoration: BoxDecoration(color: seciliAyMi ? sysBlue.withOpacity(0.1) : const Color(0xFF070B14), borderRadius: BorderRadius.circular(4), border: Border.all(color: seciliAyMi ? sysBlue : Colors.white12)), child: Center(child: Text(aylar[ayNo].toUpperCase(), style: GoogleFonts.rajdhani(color: seciliAyMi ? sysBlue : sysTextMuted, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1)))),
+                child: Container(decoration: BoxDecoration(color: seciliAyMi ? sysBlue.withValues(alpha: 0.1) : const Color(0xFF070B14), borderRadius: BorderRadius.circular(4), border: Border.all(color: seciliAyMi ? sysBlue : Colors.white12)), child: Center(child: Text(aylar[ayNo].toUpperCase(), style: GoogleFonts.rajdhani(color: seciliAyMi ? sysBlue : sysTextMuted, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1)))),
               );
             },
           )
@@ -300,7 +300,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       String saat = "${t.hour.toString().padLeft(2,'0')}:${t.minute.toString().padLeft(2,'0')}";
                       return Container(
                         margin: const EdgeInsets.only(bottom: 10),
-                        decoration: BoxDecoration(color: const Color(0xFF070B14), border: Border.all(color: sysRed.withOpacity(0.3)), borderRadius: BorderRadius.circular(4)),
+                        decoration: BoxDecoration(color: const Color(0xFF070B14), border: Border.all(color: sysRed.withValues(alpha: 0.3)), borderRadius: BorderRadius.circular(4)),
                         child: ListTile(
                           leading: const Icon(Icons.whatshot, color: sysRed, size: 20),
                           title: Text('Raid at $saat', style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),

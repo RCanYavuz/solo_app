@@ -85,7 +85,7 @@ class _InstructionScreenState extends State<InstructionScreen> {
                   icon: const Icon(Icons.login, color: Colors.cyanAccent),
                   label: const Text('I UNDERSTAND AND ACCEPT THE RULES', style: TextStyle(color: Colors.cyanAccent, fontWeight: FontWeight.bold, letterSpacing: 1)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.cyanAccent.withOpacity(0.1), padding: const EdgeInsets.symmetric(vertical: 20),
+                    backgroundColor: Colors.cyanAccent.withValues(alpha: 0.1), padding: const EdgeInsets.symmetric(vertical: 20),
                     side: const BorderSide(color: Colors.cyanAccent, width: 2), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))
                   ),
                 ),
@@ -101,7 +101,7 @@ class _InstructionScreenState extends State<InstructionScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(color: const Color(0xFF111827), borderRadius: BorderRadius.circular(10), border: Border.all(color: renk.withOpacity(0.3))),
+      decoration: BoxDecoration(color: const Color(0xFF111827), borderRadius: BorderRadius.circular(10), border: Border.all(color: renk.withValues(alpha: 0.3))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

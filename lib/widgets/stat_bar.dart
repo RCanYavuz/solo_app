@@ -40,7 +40,7 @@ class StatBar extends StatelessWidget {
                 child: FractionallySizedBox(
                   alignment: Alignment.centerLeft, 
                   widthFactor: ratio, 
-                  child: Container(decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(10), boxShadow: [BoxShadow(color: color.withOpacity(0.8), blurRadius: 10)]))
+                  child: Container(decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(10), boxShadow: [BoxShadow(color: color.withValues(alpha: 0.8), blurRadius: 10)]))
                 )
               ),
               const SizedBox(height: 5), 

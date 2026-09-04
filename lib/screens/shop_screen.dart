@@ -70,7 +70,7 @@ class _ShopScreenState extends State<ShopScreen> {
         children: [
           Container(
             width: double.infinity, padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(color: const Color(0xFF070B14), border: Border(bottom: BorderSide(color: physicalGold.withOpacity(0.5), width: 1))),
+            decoration: BoxDecoration(color: const Color(0xFF070B14), border: Border(bottom: BorderSide(color: physicalGold.withValues(alpha: 0.5), width: 1))),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -112,7 +112,7 @@ class _ShopScreenState extends State<ShopScreen> {
                       ElevatedButton(
                         onPressed: () => _satinAl(esya),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: physicalGold.withOpacity(0.15), side: const BorderSide(color: physicalGold),
+                          backgroundColor: physicalGold.withValues(alpha: 0.15), side: const BorderSide(color: physicalGold),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)), padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10)
                         ),
                         child: Text('${esya["fiyat"]} G', style: const TextStyle(color: physicalGold, fontWeight: FontWeight.bold, fontSize: 14)),

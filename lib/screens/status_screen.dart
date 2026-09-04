@@ -2,13 +2,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../controllers/system_memory.dart'; 
+import '../controllers/system_memory.dart';
 import '../models/task_model.dart';
-import '../core/sistem_gecisi.dart'; 
-import '../core/audio_system.dart';  
+import '../core/sistem_gecisi.dart';
 
-import 'workout_planner_screen.dart'; 
-import 'boxing_timer_screen.dart'; 
+import 'workout_planner_screen.dart';
+import 'boxing_timer_screen.dart';
 
 class StatusWindow extends StatefulWidget {
   const StatusWindow({super.key});
@@ -17,13 +16,12 @@ class StatusWindow extends StatefulWidget {
 }
 
 class _StatusWindowState extends State<StatusWindow> {
-
   @override
   Widget build(BuildContext context) {
-    const Color sysBlue = Color(0xFF38BDF8); 
-    const Color sysDarkBg = Color(0xFF030712); 
-    const Color sysRed = Color(0xFFEF4444); 
-    const Color sysTextMuted = Color(0xFF94A3B8); 
+    const Color sysBlue = Color(0xFF38BDF8);
+    const Color sysDarkBg = Color(0xFF030712);
+    const Color sysRed = Color(0xFFEF4444);
+    const Color sysTextMuted = Color(0xFF94A3B8);
 
     int bugunIndex = DateTime.now().weekday;
     List<Gorev> bugununProgrami = SystemMemory.haftalikPlan[bugunIndex]!;
@@ -31,13 +29,26 @@ class _StatusWindowState extends State<StatusWindow> {
     return Scaffold(
       backgroundColor: sysDarkBg,
       appBar: AppBar(
-        title: Text('S T A T U S', style: GoogleFonts.rajdhani(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 24, letterSpacing: 4.0)), 
-        backgroundColor: Colors.transparent, elevation: 0, centerTitle: true,
+        title: Text(
+          'S T A T U S',
+          style: GoogleFonts.rajdhani(
+            color: sysBlue,
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+            letterSpacing: 4.0,
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.sports_mma, color: sysRed, size: 28),
             tooltip: 'Combat Simulation',
-            onPressed: () => Navigator.push(context, SistemGecisi(sayfa: const BoxingTimerScreen())),
+            onPressed: () => Navigator.push(
+              context,
+              SistemGecisi(sayfa: const BoxingTimerScreen()),
+            ),
           ),
           const SizedBox(width: 10),
         ],
@@ -45,7 +56,19 @@ class _StatusWindowState extends State<StatusWindow> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child: AnimatedBuilder(
-          animation: Listenable.merge([SystemMemory.hp, SystemMemory.mp, SystemMemory.fatigue, SystemMemory.level, SystemMemory.exp, SystemMemory.ap, SystemMemory.str, SystemMemory.agi, SystemMemory.vit, SystemMemory.intStat, SystemMemory.per]),
+          animation: Listenable.merge([
+            SystemMemory.hp,
+            SystemMemory.mp,
+            SystemMemory.fatigue,
+            SystemMemory.level,
+            SystemMemory.exp,
+            SystemMemory.ap,
+            SystemMemory.str,
+            SystemMemory.agi,
+            SystemMemory.vit,
+            SystemMemory.intStat,
+            SystemMemory.per,
+          ]),
           builder: (context, child) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,49 +76,228 @@ class _StatusWindowState extends State<StatusWindow> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text('${SystemMemory.level.value}', style: GoogleFonts.orbitron(color: Colors.white, fontSize: 40, fontWeight: FontWeight.bold, height: 1)),
+                    Text(
+                      '${SystemMemory.level.value}',
+                      style: GoogleFonts.orbitron(
+                        color: Colors.white,
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                        height: 1,
+                      ),
+                    ),
                     const SizedBox(width: 10),
-                    const Padding(padding: EdgeInsets.only(bottom: 8), child: Text('LEVEL', style: TextStyle(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2))),
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 8),
+                      child: Text(
+                        'LEVEL',
+                        style: TextStyle(
+                          color: sysBlue,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                    ),
                     const SizedBox(width: 20),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('EXP', style: GoogleFonts.rajdhani(color: sysTextMuted, fontWeight: FontWeight.bold, letterSpacing: 1)),
-                          Container(
-                            height: 6, width: double.infinity,
-                            decoration: BoxDecoration(border: Border.all(color: sysBlue.withOpacity(0.5), width: 1), borderRadius: BorderRadius.circular(2)),
-                            child: FractionallySizedBox(
-                              alignment: Alignment.centerLeft, widthFactor: (SystemMemory.exp.value / SystemMemory.maxExp.value).clamp(0.0, 1.0),
-                              child: Container(decoration: BoxDecoration(color: sysBlue, borderRadius: BorderRadius.circular(2), boxShadow: [BoxShadow(color: sysBlue.withOpacity(0.5), blurRadius: 5)])),
+                          Text(
+                            'EXP',
+                            style: GoogleFonts.rajdhani(
+                              color: sysTextMuted,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1,
                             ),
                           ),
-                          Align(alignment: Alignment.centerRight, child: Text('${SystemMemory.exp.value} / ${SystemMemory.maxExp.value}', style: const TextStyle(color: sysTextMuted, fontSize: 10))),
+                          Container(
+                            height: 6,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: sysBlue.withValues(alpha: 0.5),
+                                width: 1,
+                              ),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                            child: FractionallySizedBox(
+                              alignment: Alignment.centerLeft,
+                              widthFactor:
+                                  (SystemMemory.exp.value /
+                                          SystemMemory.maxExp.value)
+                                      .clamp(0.0, 1.0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: sysBlue,
+                                  borderRadius: BorderRadius.circular(2),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: sysBlue.withValues(alpha: 0.5),
+                                      blurRadius: 5,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              '${SystemMemory.exp.value} / ${SystemMemory.maxExp.value}',
+                              style: const TextStyle(
+                                color: sysTextMuted,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
-                    )
+                    ),
                   ],
                 ),
                 const SizedBox(height: 20),
 
                 Container(
-                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-                  decoration: BoxDecoration(color: const Color(0xFF070B14).withOpacity(0.85), border: Border.all(color: sysBlue.withOpacity(0.4), width: 1), borderRadius: BorderRadius.circular(4)),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 20,
+                    horizontal: 15,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF070B14).withValues(alpha: 0.85),
+                    border: Border.all(
+                      color: sysBlue.withValues(alpha: 0.4),
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                   child: Row(
                     children: [
-                      Column(children: [const Icon(Icons.add_box, color: Colors.white, size: 24), Text('HP', style: GoogleFonts.rajdhani(color: sysTextMuted, fontWeight: FontWeight.bold, fontSize: 14))]),
+                      Column(
+                        children: [
+                          const Icon(
+                            Icons.add_box,
+                            color: Colors.white,
+                            size: 24,
+                          ),
+                          Text(
+                            'HP',
+                            style: GoogleFonts.rajdhani(
+                              color: sysTextMuted,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
                       const SizedBox(width: 10),
-                      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                        Container(height: 8, width: double.infinity, decoration: BoxDecoration(border: Border.all(color: sysBlue.withOpacity(0.5), width: 1), borderRadius: BorderRadius.circular(2)), child: FractionallySizedBox(alignment: Alignment.centerLeft, widthFactor: (SystemMemory.hp.value / SystemMemory.maxHp).clamp(0.0, 1.0), child: Container(decoration: BoxDecoration(color: sysBlue, borderRadius: BorderRadius.circular(2), boxShadow: [BoxShadow(color: sysBlue.withOpacity(0.5), blurRadius: 5)])))),
-                        const SizedBox(height: 5), Text('${SystemMemory.hp.value}/${SystemMemory.maxHp}', style: const TextStyle(color: Colors.white, fontSize: 12)),
-                      ])),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Container(
+                              height: 8,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: sysBlue.withValues(alpha: 0.5),
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                              child: FractionallySizedBox(
+                                alignment: Alignment.centerLeft,
+                                widthFactor:
+                                    (SystemMemory.hp.value / SystemMemory.maxHp)
+                                        .clamp(0.0, 1.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: sysBlue,
+                                    borderRadius: BorderRadius.circular(2),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: sysBlue.withValues(alpha: 0.5),
+                                        blurRadius: 5,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            Text(
+                              '${SystemMemory.hp.value}/${SystemMemory.maxHp}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                       const SizedBox(width: 20),
-                      Column(children: [const Icon(Icons.science, color: Colors.white, size: 24), Text('MP', style: GoogleFonts.rajdhani(color: sysTextMuted, fontWeight: FontWeight.bold, fontSize: 14))]),
+                      Column(
+                        children: [
+                          const Icon(
+                            Icons.science,
+                            color: Colors.white,
+                            size: 24,
+                          ),
+                          Text(
+                            'MP',
+                            style: GoogleFonts.rajdhani(
+                              color: sysTextMuted,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
                       const SizedBox(width: 10),
-                      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                        Container(height: 8, width: double.infinity, decoration: BoxDecoration(border: Border.all(color: sysBlue.withOpacity(0.5), width: 1), borderRadius: BorderRadius.circular(2)), child: FractionallySizedBox(alignment: Alignment.centerLeft, widthFactor: (SystemMemory.mp.value / SystemMemory.maxMp).clamp(0.0, 1.0), child: Container(decoration: BoxDecoration(color: sysBlue, borderRadius: BorderRadius.circular(2), boxShadow: [BoxShadow(color: sysBlue.withOpacity(0.5), blurRadius: 5)])))),
-                        const SizedBox(height: 5), Text('${SystemMemory.mp.value}/${SystemMemory.maxMp}', style: const TextStyle(color: Colors.white, fontSize: 12)),
-                      ])),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Container(
+                              height: 8,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: sysBlue.withValues(alpha: 0.5),
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                              child: FractionallySizedBox(
+                                alignment: Alignment.centerLeft,
+                                widthFactor:
+                                    (SystemMemory.mp.value / SystemMemory.maxMp)
+                                        .clamp(0.0, 1.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: sysBlue,
+                                    borderRadius: BorderRadius.circular(2),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: sysBlue.withValues(alpha: 0.5),
+                                        blurRadius: 5,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            Text(
+                              '${SystemMemory.mp.value}/${SystemMemory.maxMp}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -103,20 +305,87 @@ class _StatusWindowState extends State<StatusWindow> {
 
                 Container(
                   padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(color: const Color(0xFF070B14).withOpacity(0.85), border: Border.all(color: sysBlue.withOpacity(0.4), width: 1), borderRadius: BorderRadius.circular(4)),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF070B14).withValues(alpha: 0.85),
+                    border: Border.all(
+                      color: sysBlue.withValues(alpha: 0.4),
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                   child: Column(
                     children: [
-                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [_StatRow(Icons.fitness_center, 'STR', SystemMemory.str.value, sysBlue), _StatRow(Icons.favorite, 'VIT', SystemMemory.vit.value, sysBlue)]),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _StatRow(
+                            Icons.fitness_center,
+                            'STR',
+                            SystemMemory.str.value,
+                            sysBlue,
+                          ),
+                          _StatRow(
+                            Icons.favorite,
+                            'VIT',
+                            SystemMemory.vit.value,
+                            sysBlue,
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 20),
-                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [_StatRow(Icons.directions_run, 'AGI', SystemMemory.agi.value, sysBlue), _StatRow(Icons.psychology, 'INT', SystemMemory.intStat.value, sysBlue)]),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _StatRow(
+                            Icons.directions_run,
+                            'AGI',
+                            SystemMemory.agi.value,
+                            sysBlue,
+                          ),
+                          _StatRow(
+                            Icons.psychology,
+                            'INT',
+                            SystemMemory.intStat.value,
+                            sysBlue,
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 20),
-                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                        _StatRow(Icons.visibility, 'PER', SystemMemory.per.value, sysBlue),
-                        Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                          Text('Available Pts:', textAlign: TextAlign.right, style: TextStyle(color: sysTextMuted, fontSize: 10, letterSpacing: 1)), 
-                          Text('${SystemMemory.ap.value}', style: GoogleFonts.orbitron(color: SystemMemory.ap.value > 0 ? sysBlue : sysTextMuted, fontSize: 24, fontWeight: FontWeight.bold))
-                        ])
-                      ]),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _StatRow(
+                            Icons.visibility,
+                            'PER',
+                            SystemMemory.per.value,
+                            sysBlue,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                'Available Pts:',
+                                textAlign: TextAlign.right,
+                                style: TextStyle(
+                                  color: sysTextMuted,
+                                  fontSize: 10,
+                                  letterSpacing: 1,
+                                ),
+                              ),
+                              Text(
+                                '${SystemMemory.ap.value}',
+                                style: GoogleFonts.orbitron(
+                                  color: SystemMemory.ap.value > 0
+                                      ? sysBlue
+                                      : sysTextMuted,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -125,49 +394,155 @@ class _StatusWindowState extends State<StatusWindow> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('QUESTS', style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
-                    IconButton(icon: const Icon(Icons.edit_square, color: sysBlue, size: 20), onPressed: () => Navigator.push(context, SistemGecisi(sayfa: const WorkoutPlannerScreen())).then((value) => setState((){})) )
+                    Text(
+                      'QUESTS',
+                      style: GoogleFonts.orbitron(
+                        color: sysBlue,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.edit_square,
+                        color: sysBlue,
+                        size: 20,
+                      ),
+                      onPressed: () => Navigator.push(
+                        context,
+                        SistemGecisi(sayfa: const WorkoutPlannerScreen()),
+                      ).then((value) => setState(() {})),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 10),
-                
+
                 Container(
-                  decoration: BoxDecoration(border: Border.all(color: sysBlue.withOpacity(0.4), width: 1), borderRadius: BorderRadius.circular(4), color: const Color(0xFF070B14).withOpacity(0.85)),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: sysBlue.withValues(alpha: 0.4),
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.circular(4),
+                    color: const Color(0xFF070B14).withValues(alpha: 0.85),
+                  ),
                   child: bugununProgrami.isEmpty
-                    ? const Padding(padding: EdgeInsets.all(20), child: Center(child: Text("No quests today.", style: TextStyle(color: sysTextMuted))))
-                    : Column(
-                        children: bugununProgrami.map<Widget>((gorev) { 
-                          return Container(
-                            decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.white12, width: 0.5))),
-                            child: CheckboxListTile(
-                              secondary: Icon(gorev.tip == "Fiziksel" ? Icons.fitness_center : Icons.psychology, color: sysTextMuted, size: 18),
-                              title: Text(gorev.ad, style: TextStyle(color: gorev.yapildiMi ? sysTextMuted : Colors.white, fontSize: 14, decoration: gorev.yapildiMi ? TextDecoration.lineThrough : null)),
-                              value: gorev.yapildiMi, activeColor: sysBlue, checkColor: sysDarkBg,
-                              onChanged: (val) { setState((){ gorev.yapildiMi = val!; }); SystemMemory.kaydet(); },
+                      ? const Padding(
+                          padding: EdgeInsets.all(20),
+                          child: Center(
+                            child: Text(
+                              "No quests today.",
+                              style: TextStyle(color: sysTextMuted),
                             ),
-                          );
-                        }).toList(),
-                      ),
+                          ),
+                        )
+                      : Column(
+                          children: bugununProgrami.map<Widget>((gorev) {
+                            return Container(
+                              decoration: const BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: Colors.white12,
+                                    width: 0.5,
+                                  ),
+                                ),
+                              ),
+                              child: CheckboxListTile(
+                                secondary: Icon(
+                                  gorev.tip == "Fiziksel"
+                                      ? Icons.fitness_center
+                                      : Icons.psychology,
+                                  color: sysTextMuted,
+                                  size: 18,
+                                ),
+                                title: Text(
+                                  gorev.ad,
+                                  style: TextStyle(
+                                    color: gorev.yapildiMi
+                                        ? sysTextMuted
+                                        : Colors.white,
+                                    fontSize: 14,
+                                    decoration: gorev.yapildiMi
+                                        ? TextDecoration.lineThrough
+                                        : null,
+                                  ),
+                                ),
+                                value: gorev.yapildiMi,
+                                activeColor: sysBlue,
+                                checkColor: sysDarkBg,
+                                onChanged: (val) {
+                                  setState(() {
+                                    gorev.yapildiMi = val!;
+                                  });
+                                  SystemMemory.kaydet();
+                                },
+                              ),
+                            );
+                          }).toList(),
+                        ),
                 ),
                 const SizedBox(height: 20),
 
-                Text('REQUIREMENTS', style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
-                const SizedBox(height: 10),
-                Container(
-                  decoration: BoxDecoration(border: Border.all(color: sysBlue.withOpacity(0.4), width: 1), borderRadius: BorderRadius.circular(4), color: const Color(0xFF070B14).withOpacity(0.85)),
-                  child: ListTile(
-                    title: const Text('Sleep Duration (Hrs)', style: TextStyle(color: sysTextMuted, fontSize: 14)),
-                    trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                      IconButton(icon: const Icon(Icons.remove, color: sysBlue), onPressed: () { if(SystemMemory.uyunanSaat>0) { setState(() => SystemMemory.uyunanSaat--); SystemMemory.kaydet(); } }),
-                      Text('${SystemMemory.uyunanSaat}', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                      IconButton(icon: const Icon(Icons.add, color: sysBlue), onPressed: () { setState(() => SystemMemory.uyunanSaat++); SystemMemory.kaydet(); }),
-                    ]),
+                Text(
+                  'REQUIREMENTS',
+                  style: GoogleFonts.orbitron(
+                    color: sysBlue,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 2,
                   ),
                 ),
-                const SizedBox(height: 40), 
+                const SizedBox(height: 10),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: sysBlue.withValues(alpha: 0.4),
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.circular(4),
+                    color: const Color(0xFF070B14).withValues(alpha: 0.85),
+                  ),
+                  child: ListTile(
+                    title: const Text(
+                      'Sleep Duration (Hrs)',
+                      style: TextStyle(color: sysTextMuted, fontSize: 14),
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.remove, color: sysBlue),
+                          onPressed: () {
+                            if (SystemMemory.uyunanSaat > 0) {
+                              setState(() => SystemMemory.uyunanSaat--);
+                              SystemMemory.kaydet();
+                            }
+                          },
+                        ),
+                        Text(
+                          '${SystemMemory.uyunanSaat}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.add, color: sysBlue),
+                          onPressed: () {
+                            setState(() => SystemMemory.uyunanSaat++);
+                            SystemMemory.kaydet();
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 40),
               ],
             );
-          }
+          },
         ),
       ),
     );
@@ -179,20 +554,42 @@ class _StatusWindowState extends State<StatusWindow> {
       width: 130,
       child: Row(
         children: [
-          Icon(icon, color: sysBlue, size: 16), const SizedBox(width: 8),
-          Text('$label:', style: GoogleFonts.rajdhani(color: const Color(0xFF94A3B8), fontSize: 16, fontWeight: FontWeight.bold)), const Spacer(),
-          Text('$value', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+          Icon(icon, color: sysBlue, size: 16),
+          const SizedBox(width: 8),
+          Text(
+            '$label:',
+            style: GoogleFonts.rajdhani(
+              color: const Color(0xFF94A3B8),
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const Spacer(),
+          Text(
+            '$value',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           if (canUpgrade) ...[
             const SizedBox(width: 5),
             GestureDetector(
-              onTap: () { SystemMemory.statuYukselt(label); setState((){}); }, 
+              onTap: () {
+                SystemMemory.statuYukselt(label);
+                setState(() {});
+              },
               child: Container(
-                padding: const EdgeInsets.all(2), 
-                decoration: BoxDecoration(color: sysBlue.withOpacity(0.2), borderRadius: BorderRadius.circular(2)), 
-                child: Icon(Icons.add, color: sysBlue, size: 14) 
-              )
-            )
-          ]
+                padding: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  color: sysBlue.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+                child: Icon(Icons.add, color: sysBlue, size: 14),
+              ),
+            ),
+          ],
         ],
       ),
     );

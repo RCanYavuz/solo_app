@@ -72,7 +72,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF030712).withOpacity(0.95),
+          backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95),
           shape: RoundedRectangleBorder(
             side: const BorderSide(color: sysBlue, width: 1), 
             borderRadius: BorderRadius.circular(4)
@@ -87,7 +87,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             textAlign: TextAlign.center,
             decoration: InputDecoration(
               enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: sysBlue.withOpacity(0.5))
+                borderSide: BorderSide(color: sysBlue.withValues(alpha: 0.5))
               ),
               focusedBorder: const OutlineInputBorder(
                 borderSide: BorderSide(color: sysBlue)
@@ -101,7 +101,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: sysBlue.withOpacity(0.1), 
+                backgroundColor: sysBlue.withValues(alpha: 0.1), 
                 side: const BorderSide(color: sysBlue)
               ),
               onPressed: () {
@@ -131,7 +131,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              backgroundColor: const Color(0xFF030712).withOpacity(0.95), 
+              backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95), 
               shape: RoundedRectangleBorder(
                 side: const BorderSide(color: sysBlue, width: 1), 
                 borderRadius: BorderRadius.circular(4)
@@ -150,12 +150,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   const SizedBox(height: 10),
                   DropdownButtonFormField<String>(
-                    value: geciciHedef == "Bilinmiyor" ? null : geciciHedef,
+                    initialValue: geciciHedef == "Bilinmiyor" ? null : geciciHedef,
                     dropdownColor: const Color(0xFF0F172A),
                     style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                     decoration: InputDecoration(
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: sysBlue.withOpacity(0.5))
+                        borderSide: BorderSide(color: sysBlue.withValues(alpha: 0.5))
                       ),
                       focusedBorder: const OutlineInputBorder(
                         borderSide: BorderSide(color: sysBlue)
@@ -181,12 +181,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   const SizedBox(height: 10),
                   DropdownButtonFormField<String>(
-                    value: geciciZorluk == "Bilinmiyor" ? null : geciciZorluk,
+                    initialValue: geciciZorluk == "Bilinmiyor" ? null : geciciZorluk,
                     dropdownColor: const Color(0xFF0F172A),
                     style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                     decoration: InputDecoration(
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: sysBlue.withOpacity(0.5))
+                        borderSide: BorderSide(color: sysBlue.withValues(alpha: 0.5))
                       ),
                       focusedBorder: const OutlineInputBorder(
                         borderSide: BorderSide(color: sysBlue)
@@ -222,7 +222,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: sysBlue.withOpacity(0.1), 
+                    backgroundColor: sysBlue.withValues(alpha: 0.1), 
                     side: const BorderSide(color: sysBlue)
                   ), 
                   onPressed: () {
@@ -254,7 +254,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context, 
       builder: (context) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF030712).withOpacity(0.95), 
+          backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95), 
           shape: RoundedRectangleBorder(
             side: const BorderSide(color: sysBlue, width: 1), 
             borderRadius: BorderRadius.circular(4)
@@ -280,7 +280,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   suffixText: 'kg', 
                   suffixStyle: const TextStyle(color: sysBlue), 
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: sysBlue.withOpacity(0.5))
+                    borderSide: BorderSide(color: sysBlue.withValues(alpha: 0.5))
                   ), 
                   focusedBorder: const OutlineInputBorder(
                     borderSide: BorderSide(color: sysBlue)
@@ -296,7 +296,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: sysBlue.withOpacity(0.1), 
+                backgroundColor: sysBlue.withValues(alpha: 0.1), 
                 side: const BorderSide(color: sysBlue)
               ), 
               onPressed: () {
@@ -324,7 +324,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Color dialogRenk = cezaVarMi ? const Color(0xFFEF4444) : sysBlue;
 
         return AlertDialog(
-          backgroundColor: const Color(0xFF030712).withOpacity(0.95), 
+          backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95), 
           shape: RoundedRectangleBorder(
             side: BorderSide(color: dialogRenk, width: 1), 
             borderRadius: BorderRadius.circular(4)
@@ -340,7 +340,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           actions: [
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: dialogRenk.withOpacity(0.1), 
+                backgroundColor: dialogRenk.withValues(alpha: 0.1), 
                 side: BorderSide(color: dialogRenk)
               ), 
               onPressed: () => Navigator.pop(context), 
@@ -363,7 +363,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            border: Border(top: BorderSide(color: sysBlue.withOpacity(0.5), width: 2))
+            border: Border(top: BorderSide(color: sysBlue.withValues(alpha: 0.5), width: 2))
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -447,7 +447,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             int kazanilacakExp = secilenGun.toInt() * 300;
 
             return AlertDialog(
-              backgroundColor: const Color(0xFF030712).withOpacity(0.95),
+              backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95),
               shape: RoundedRectangleBorder(
                 side: const BorderSide(color: bloodRed, width: 2), 
                 borderRadius: BorderRadius.circular(4)
@@ -480,7 +480,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       max: 30, 
                       divisions: 29, 
                       activeColor: bloodRed, 
-                      inactiveColor: bloodRed.withOpacity(0.2),
+                      inactiveColor: bloodRed.withValues(alpha: 0.2),
                       onChanged: (val) { 
                         setDialogState(() { secilenGun = val; }); 
                       },
@@ -493,12 +493,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(height: 5),
                     DropdownButtonFormField<String>(
-                      value: secilenPlan,
+                      initialValue: secilenPlan,
                       dropdownColor: const Color(0xFF0F172A),
                       style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                       decoration: InputDecoration(
                         enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: bloodRed.withOpacity(0.5))
+                          borderSide: BorderSide(color: bloodRed.withValues(alpha: 0.5))
                         ),
                         focusedBorder: const OutlineInputBorder(
                           borderSide: BorderSide(color: bloodRed)
@@ -526,7 +526,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         suffixText: 'Kcal', 
                         suffixStyle: const TextStyle(color: bloodRed),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: bloodRed.withOpacity(0.5))
+                          borderSide: BorderSide(color: bloodRed.withValues(alpha: 0.5))
                         ),
                         focusedBorder: const OutlineInputBorder(
                           borderSide: BorderSide(color: bloodRed)
@@ -538,8 +538,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Container(
                       padding: const EdgeInsets.all(10), 
                       decoration: BoxDecoration(
-                        color: bloodRed.withOpacity(0.1), 
-                        border: Border.all(color: bloodRed.withOpacity(0.3)), 
+                        color: bloodRed.withValues(alpha: 0.1), 
+                        border: Border.all(color: bloodRed.withValues(alpha: 0.3)), 
                         borderRadius: BorderRadius.circular(4)
                       ),
                       child: const Text(
@@ -568,7 +568,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: bloodRed.withOpacity(0.2), 
+                    backgroundColor: bloodRed.withValues(alpha: 0.2), 
                     side: const BorderSide(color: bloodRed)
                   ),
                   onPressed: () {
@@ -603,7 +603,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF030712).withOpacity(0.95),
+          backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95),
           shape: RoundedRectangleBorder(
             side: const BorderSide(color: sysTextMuted, width: 2), 
             borderRadius: BorderRadius.circular(4)
@@ -682,7 +682,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       border: Border.all(color: SystemMemory.redGateAktif ? bloodRed : sysBlue, width: 1.5), 
                       boxShadow: [
                         BoxShadow(
-                          color: (SystemMemory.redGateAktif ? bloodRed : sysBlue).withOpacity(0.1), 
+                          color: (SystemMemory.redGateAktif ? bloodRed : sysBlue).withValues(alpha: 0.1), 
                           blurRadius: 20
                         )
                       ], 
@@ -853,7 +853,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       Switch(
                         value: SystemMemory.golgeModuAktif,
-                        activeColor: mentalPurple, 
+                        activeThumbColor: mentalPurple, 
                         inactiveThumbColor: sysTextMuted, 
                         inactiveTrackColor: sysDarkBg,
                         onChanged: SystemMemory.redGateAktif ? null : (val) { 
@@ -931,7 +931,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     style: TextStyle(color: bloodRed, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: bloodRed.withOpacity(0.1), 
+                    backgroundColor: bloodRed.withValues(alpha: 0.1), 
                     padding: const EdgeInsets.symmetric(vertical: 20), 
                     side: const BorderSide(color: bloodRed, width: 2), 
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
@@ -951,7 +951,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: TextStyle(color: sysBlue, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1)
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: sysBlue.withOpacity(0.1), 
+                  backgroundColor: sysBlue.withValues(alpha: 0.1), 
                   padding: const EdgeInsets.symmetric(vertical: 18), 
                   side: const BorderSide(color: sysBlue, width: 1), 
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))

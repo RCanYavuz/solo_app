@@ -20,15 +20,15 @@ class HologramCard extends StatelessWidget {
       padding: padding ?? const EdgeInsets.all(20),
       decoration: BoxDecoration(
         // YENİ: Animedeki gibi koyu lacivert/siyah şeffaf cam arka plan
-        color: const Color(0xFF070B14).withOpacity(0.85), 
+        color: const Color(0xFF070B14).withValues(alpha: 0.85), 
         // YENİ: Animedeki paneller gibi daha keskin (az yuvarlatılmış) köşeler
         borderRadius: BorderRadius.circular(4), 
         // YENİ: İncecik ve zarif bir çerçeve çizgisi
-        border: Border.all(color: neonRenk.withOpacity(0.4), width: 1.0), 
+        border: Border.all(color: neonRenk.withValues(alpha: 0.4), width: 1.0), 
         boxShadow: [
           // YENİ: Parlama çok daha hafif ve dipten geliyor, göz yormuyor
           BoxShadow(
-            color: neonRenk.withOpacity(0.08), 
+            color: neonRenk.withValues(alpha: 0.08), 
             blurRadius: 10,
             spreadRadius: 1
           ) 
