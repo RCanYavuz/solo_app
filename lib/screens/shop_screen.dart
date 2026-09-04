@@ -17,7 +17,6 @@ class _ShopScreenState extends State<ShopScreen> {
   static const Color sysBlue = Color(0xFF38BDF8); 
   static const Color physicalGold = Color(0xFFB08D57); 
   static const Color sysDarkBg = Color(0xFF030712); 
-  static const Color cardBg = Color(0xFF0F172A); 
   static const Color sysTextMuted = Color(0xFF94A3B8);
 
   final List<Map<String, dynamic>> marketEsyalari = [

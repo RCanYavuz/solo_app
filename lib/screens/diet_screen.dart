@@ -1,10 +1,13 @@
-// lib/screens/diet_screen.dart
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../controllers/system_memory.dart';
 import '../models/food_model.dart';
 import '../widgets/hologram_card.dart';
+import '../core/sistem_gecisi.dart';
+import '../core/services/gemini_service.dart';
+import 'macro_dashboard_screen.dart';
 
 class YemekEkrani extends StatefulWidget {
   const YemekEkrani({super.key});
@@ -23,62 +26,266 @@ class _YemekEkraniState extends State<YemekEkrani> {
   final TextEditingController _kaloriCtrl = TextEditingController();
 
   void _yemekEkleDialog() {
+    final TextEditingController aiTarifCtrl = TextEditingController();
+    bool aiYukleniyor = false;
+    String? aiHata;
+    Map<String, dynamic>? aiMakrolar;
+
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95),
-          shape: RoundedRectangleBorder(side: const BorderSide(color: sysBlue, width: 1), borderRadius: BorderRadius.circular(4)),
-          title: Text('ADD INVENTORY ITEM', style: GoogleFonts.orbitron(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: 1)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _yemekAdiCtrl,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                decoration: InputDecoration(
-                  labelText: 'Item Name (Food)', labelStyle: const TextStyle(color: sysTextMuted),
-                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: sysBlue.withValues(alpha: 0.5))),
-                  focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: sysBlue)),
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95),
+              shape: RoundedRectangleBorder(
+                side: const BorderSide(color: sysBlue, width: 1),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              title: Row(
+                children: [
+                  const Icon(Icons.restaurant_menu, color: sysBlue, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    'ADD INVENTORY ITEM',
+                    style: GoogleFonts.orbitron(
+                      color: sysBlue,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ],
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // ==========================================
+                    // GEMINI AI ÇÖZÜMLEME BÖLÜMÜ
+                    // ==========================================
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: sysBlue.withValues(alpha: 0.06),
+                        border: Border.all(color: sysBlue.withValues(alpha: 0.25)),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.auto_awesome, color: sysBlue, size: 14),
+                              const SizedBox(width: 6),
+                              Text(
+                                "AI DECODER (GEMINI)",
+                                style: GoogleFonts.orbitron(
+                                  color: sysBlue,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          TextField(
+                            controller: aiTarifCtrl,
+                            style: const TextStyle(color: Colors.white, fontSize: 13),
+                            decoration: InputDecoration(
+                              hintText: 'e.g. 2 eggs, 1 slice bread, 50g cheese',
+                              hintStyle: const TextStyle(color: Colors.white30, fontSize: 12),
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: sysBlue.withValues(alpha: 0.3)),
+                              ),
+                              focusedBorder: const OutlineInputBorder(
+                                borderSide: BorderSide(color: sysBlue),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: aiYukleniyor
+                                  ? null
+                                  : () async {
+                                      final tarif = aiTarifCtrl.text.trim();
+                                      if (tarif.isEmpty) {
+                                        setDialogState(() {
+                                          aiHata = 'Enter meal description first.';
+                                        });
+                                        return;
+                                      }
+                                      if (SystemMemory.geminiApiKey.isEmpty) {
+                                        setDialogState(() {
+                                          aiHata = 'API Key missing. Configure in Profile.';
+                                        });
+                                        return;
+                                      }
+
+                                      setDialogState(() {
+                                        aiYukleniyor = true;
+                                        aiHata = null;
+                                        aiMakrolar = null;
+                                      });
+
+                                      try {
+                                        final raw = await GeminiService.yemekAnalizEt(tarif);
+                                        if (raw == null) {
+                                          setDialogState(() {
+                                            aiYukleniyor = false;
+                                            aiHata = 'AI analysis could not connect.';
+                                          });
+                                          return;
+                                        }
+
+                                        final cleaned = raw.replaceAll(RegExp(r'```json\s*|```'), '').trim();
+                                        final data = jsonDecode(cleaned);
+
+                                        final ad = data['yemekAdi']?.toString() ?? tarif;
+                                        final cal = (data['kalori'] ?? 0).toString();
+
+                                        _yemekAdiCtrl.text = ad;
+                                        _kaloriCtrl.text = cal;
+
+                                        setDialogState(() {
+                                          aiYukleniyor = false;
+                                          aiMakrolar = data is Map<String, dynamic> ? data : null;
+                                        });
+                                      } catch (e) {
+                                        setDialogState(() {
+                                          aiYukleniyor = false;
+                                          aiHata = 'Parse failed: $e';
+                                        });
+                                      }
+                                    },
+                              icon: aiYukleniyor
+                                  ? const SizedBox(
+                                      width: 12,
+                                      height: 12,
+                                      child: CircularProgressIndicator(strokeWidth: 2, color: sysBlue),
+                                    )
+                                  : const Icon(Icons.flash_on, color: sysBlue, size: 14),
+                              label: Text(
+                                aiYukleniyor ? 'DECODING...' : 'DECODE WITH AI',
+                                style: const TextStyle(color: sysBlue, fontSize: 11, fontWeight: FontWeight.bold),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: sysBlue.withValues(alpha: 0.12),
+                                side: const BorderSide(color: sysBlue),
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                              ),
+                            ),
+                          ),
+                          if (aiHata != null) ...[
+                            const SizedBox(height: 6),
+                            Text(
+                              aiHata!,
+                              style: const TextStyle(color: sysRed, fontSize: 11),
+                            ),
+                          ],
+                          if (aiMakrolar != null) ...[
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.black45,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'P: ${aiMakrolar!['protein'] ?? 0}g | C: ${aiMakrolar!['karbonhidrat'] ?? 0}g | F: ${aiMakrolar!['yag'] ?? 0}g',
+                                    style: const TextStyle(color: Colors.greenAccent, fontSize: 11, fontWeight: FontWeight.bold),
+                                  ),
+                                  if (aiMakrolar!['sistemMesaji'] != null)
+                                    Text(
+                                      '${aiMakrolar!['sistemMesaji']}',
+                                      style: const TextStyle(color: sysTextMuted, fontSize: 10, fontStyle: FontStyle.italic),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // ==========================================
+                    // MANUEL ONAY / DÜZENLEME ALANLARI
+                    // ==========================================
+                    TextField(
+                      controller: _yemekAdiCtrl,
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      decoration: InputDecoration(
+                        labelText: 'Item Name (Food)',
+                        labelStyle: const TextStyle(color: sysTextMuted),
+                        enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: sysBlue.withValues(alpha: 0.5))),
+                        focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: sysBlue)),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: _kaloriCtrl,
+                      keyboardType: TextInputType.number,
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      decoration: InputDecoration(
+                        labelText: 'Energy (Kcal)',
+                        labelStyle: const TextStyle(color: sysTextMuted),
+                        suffixText: 'Kcal',
+                        suffixStyle: const TextStyle(color: sysBlue),
+                        enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: sysBlue.withValues(alpha: 0.5))),
+                        focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: sysBlue)),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 15),
-              TextField(
-                controller: _kaloriCtrl,
-                keyboardType: TextInputType.number,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                decoration: InputDecoration(
-                  labelText: 'Energy (Kcal)', labelStyle: const TextStyle(color: sysTextMuted),
-                  suffixText: 'Kcal', suffixStyle: const TextStyle(color: sysBlue),
-                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: sysBlue.withValues(alpha: 0.5))),
-                  focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: sysBlue)),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('CANCEL', style: TextStyle(color: sysTextMuted)),
                 ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL', style: TextStyle(color: sysTextMuted))),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: sysBlue.withValues(alpha: 0.1), side: const BorderSide(color: sysBlue)),
-              onPressed: () {
-                if (_yemekAdiCtrl.text.isNotEmpty && _kaloriCtrl.text.isNotEmpty) {
-                  int kalori = int.parse(_kaloriCtrl.text);
-                  setState(() {
-                    // HATA BURADAYDI, DÜZELTİLDİ: ad: ve kalori: kısımları kaldırıldı, direkt değerler girildi.
-                    SystemMemory.bugununYemekleri.add(TuketilenYemek(_yemekAdiCtrl.text, kalori));
-                    SystemMemory.bugunAlinanKalori += kalori;
-                  });
-                  SystemMemory.kaydet();
-                  _yemekAdiCtrl.clear();
-                  _kaloriCtrl.clear();
-                  Navigator.pop(context);
-                }
-              },
-              child: const Text('ADD ITEM', style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold)),
-            )
-          ],
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: sysBlue.withValues(alpha: 0.1),
+                    side: const BorderSide(color: sysBlue),
+                  ),
+                  onPressed: () {
+                    final ad = _yemekAdiCtrl.text.trim();
+                    final kalori = int.tryParse(_kaloriCtrl.text.trim());
+                    if (ad.isNotEmpty && kalori != null && kalori > 0) {
+                      setState(() {
+                        SystemMemory.bugununYemekleri.add(TuketilenYemek(ad, kalori));
+                        SystemMemory.bugunAlinanKalori += kalori;
+                      });
+                      SystemMemory.kaydet();
+                      _yemekAdiCtrl.clear();
+                      _kaloriCtrl.clear();
+                      Navigator.pop(context);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('SYSTEM WARNING: Enter valid item name and calorie amount!'),
+                          backgroundColor: sysRed,
+                        ),
+                      );
+                    }
+                  },
+                  child: const Text('ADD ITEM', style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            );
+          },
         );
-      }
+      },
     );
   }
 
@@ -184,6 +391,14 @@ class _YemekEkraniState extends State<YemekEkrani> {
         centerTitle: true,
         actions: [
           IconButton(
+            icon: const Icon(Icons.analytics_outlined, color: sysBlue, size: 26),
+            tooltip: 'Macro Lab',
+            onPressed: () => Navigator.push(
+              context,
+              SistemGecisi(sayfa: const MacroDashboardScreen()),
+            ).then((_) => setState(() {})),
+          ),
+          IconButton(
             icon: const Icon(Icons.history, color: sysBlue, size: 26),
             tooltip: 'Diet Archive',
             onPressed: _gecmisiGoster,
@@ -238,6 +453,26 @@ class _YemekEkraniState extends State<YemekEkrani> {
                     ],
                   )
                 ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => Navigator.push(
+                  context,
+                  SistemGecisi(sayfa: const MacroDashboardScreen()),
+                ).then((_) => setState(() {})),
+                icon: const Icon(Icons.science_outlined, color: sysBlue, size: 18),
+                label: const Text(
+                  'ACCESS NUTRITION & MACRO LAB',
+                  style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1.5),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: sysBlue.withValues(alpha: 0.4)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                ),
               ),
             ),
             const SizedBox(height: 30),

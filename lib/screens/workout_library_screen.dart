@@ -347,7 +347,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
           // 1. ŞABLON SEÇİCİ (Yatay Scroll)
           // ──────────────────────────────────
           SizedBox(
-            height: 130,
+            height: 145,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
@@ -514,7 +514,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOutCubic,
         width: 140,
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         decoration: BoxDecoration(
           color: secili ? s.renk.withValues(alpha: 0.1) : const Color(0xFF070B14).withValues(alpha: 0.85),
           border: Border.all(
@@ -529,8 +529,8 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(s.ikon, color: secili ? s.renk : _sysText.withValues(alpha: 0.5), size: 32),
-            const SizedBox(height: 10),
+            Icon(s.ikon, color: secili ? s.renk : _sysText.withValues(alpha: 0.5), size: 28),
+            const SizedBox(height: 6),
             Text(
               s.ad,
               style: GoogleFonts.rajdhani(
@@ -542,7 +542,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 5),
             _zorlukBadge(s.zorluk, secili ? s.renk : _sysText.withValues(alpha: 0.4)),
           ],
         ),

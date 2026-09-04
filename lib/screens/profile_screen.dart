@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import '../controllers/system_memory.dart';
 import '../widgets/hologram_card.dart';
 import '../core/audio_system.dart'; 
+import '../core/services/gemini_service.dart'; 
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -652,6 +653,182 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  bool _geminiTestEdiliyor = false;
+
+  void _geminiAyarDialog() {
+    TextEditingController apiKeyCtrl = TextEditingController(text: SystemMemory.geminiApiKey);
+    bool sifreli = true;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95),
+              shape: RoundedRectangleBorder(
+                side: const BorderSide(color: sysBlue, width: 1),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              title: Row(
+                children: [
+                  const Icon(Icons.auto_awesome, color: sysBlue, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    'GEMINI CORE PROTOCOL',
+                    style: GoogleFonts.orbitron(
+                      color: sysBlue,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ],
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Enter your Google Gemini API Key to enable AI Meal Decoding and System Voice synthesis.',
+                      style: TextStyle(color: sysTextMuted, fontSize: 12),
+                    ),
+                    const SizedBox(height: 15),
+                    TextField(
+                      controller: apiKeyCtrl,
+                      obscureText: sifreli,
+                      style: const TextStyle(color: Colors.white, fontSize: 13, fontFamily: 'monospace'),
+                      decoration: InputDecoration(
+                        labelText: 'API KEY (AIza...)',
+                        labelStyle: const TextStyle(color: sysTextMuted, fontSize: 12),
+                        suffixIcon: IconButton(
+                          icon: Icon(sifreli ? Icons.visibility : Icons.visibility_off, color: sysTextMuted, size: 18),
+                          onPressed: () => setDialogState(() => sifreli = !sifreli),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: sysBlue.withValues(alpha: 0.5)),
+                        ),
+                        focusedBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: sysBlue),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        const Text('Active Model: ', style: TextStyle(color: sysTextMuted, fontSize: 12)),
+                        Text(
+                          SystemMemory.geminiActiveModel,
+                          style: const TextStyle(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('CANCEL', style: TextStyle(color: sysTextMuted)),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: sysBlue.withValues(alpha: 0.15),
+                    side: const BorderSide(color: sysBlue),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      SystemMemory.geminiApiKey = apiKeyCtrl.text.trim();
+                    });
+                    SystemMemory.kaydet();
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('SYSTEM: Gemini Core Key Saved!'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  },
+                  child: const Text('SAVE KEY', style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _geminiBaglantiTestEt() async {
+    if (SystemMemory.geminiApiKey.isEmpty) {
+      _geminiAyarDialog();
+      return;
+    }
+
+    setState(() => _geminiTestEdiliyor = true);
+
+    final sonuc = await GeminiService.testBaglantisi();
+    if (!mounted) return;
+
+    setState(() => _geminiTestEdiliyor = false);
+
+    bool basarili = sonuc['basarili'] == true;
+    String mesaj = sonuc['mesaj'] ?? '';
+    String? model = sonuc['model'];
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95),
+          shape: RoundedRectangleBorder(
+            side: BorderSide(color: basarili ? sysBlue : bloodRed, width: 1),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          title: Row(
+            children: [
+              Icon(basarili ? Icons.check_circle : Icons.error, color: basarili ? sysBlue : bloodRed, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                basarili ? 'CORE ONLINE' : 'CORE DIAGNOSTIC FAILED',
+                style: GoogleFonts.orbitron(
+                  color: basarili ? sysBlue : bloodRed,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (model != null) ...[
+                Text('VERIFIED MODEL: $model', style: const TextStyle(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 13)),
+                const SizedBox(height: 10),
+              ],
+              Text(
+                mesaj,
+                style: const TextStyle(color: Colors.white, fontSize: 13),
+              ),
+            ],
+          ),
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: (basarili ? sysBlue : bloodRed).withValues(alpha: 0.15),
+                side: BorderSide(color: basarili ? sysBlue : bloodRed),
+              ),
+              onPressed: () => Navigator.pop(context),
+              child: const Text('ACKNOWLEDGE', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -867,7 +1044,93 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ]
               )
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
+
+            HologramCard(
+              neonRenk: SystemMemory.geminiApiKey.isNotEmpty ? sysBlue : Colors.amber,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.auto_awesome,
+                            color: SystemMemory.geminiApiKey.isNotEmpty ? sysBlue : Colors.amber,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            "AI CORE / GEMINI",
+                            style: GoogleFonts.orbitron(
+                              color: SystemMemory.geminiApiKey.isNotEmpty ? sysBlue : Colors.amber,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 2,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: (SystemMemory.geminiApiKey.isNotEmpty ? Colors.green : Colors.amber).withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(
+                            color: (SystemMemory.geminiApiKey.isNotEmpty ? Colors.green : Colors.amber).withValues(alpha: 0.4),
+                          ),
+                        ),
+                        child: Text(
+                          SystemMemory.geminiApiKey.isNotEmpty ? "CONFIGURED" : "NO KEY",
+                          style: TextStyle(
+                            color: SystemMemory.geminiApiKey.isNotEmpty ? Colors.greenAccent : Colors.amber,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  _protokolSatiri("Active Engine", SystemMemory.geminiActiveModel, sysTextMuted),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: _geminiAyarDialog,
+                          icon: const Icon(Icons.key, size: 14, color: sysBlue),
+                          label: const Text('SET KEY', style: TextStyle(color: sysBlue, fontSize: 11, fontWeight: FontWeight.bold)),
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: sysBlue.withValues(alpha: 0.5)),
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: _geminiTestEdiliyor ? null : _geminiBaglantiTestEt,
+                          icon: _geminiTestEdiliyor
+                              ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                              : const Icon(Icons.wifi, size: 14, color: Colors.white),
+                          label: const Text('DIAGNOSTIC', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: sysBlue.withValues(alpha: 0.2),
+                            side: const BorderSide(color: sysBlue),
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
 
             // ==========================================
             // KIRMIZI GEÇİT KARTLARI VE KAÇIŞ BUTONU

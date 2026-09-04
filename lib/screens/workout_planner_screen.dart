@@ -6,6 +6,8 @@ import '../controllers/system_memory.dart';
 import '../models/task_model.dart';
 import '../widgets/hologram_card.dart';
 import '../core/audio_system.dart'; 
+import '../core/sistem_gecisi.dart';
+import 'workout_library_screen.dart'; 
 
 class WorkoutPlannerScreen extends StatefulWidget {
   const WorkoutPlannerScreen({super.key});
@@ -191,6 +193,14 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
         title: Text('Q U E S T   P L A N N E R', style: GoogleFonts.rajdhani(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 24, letterSpacing: 4.0)), 
         backgroundColor: Colors.transparent, elevation: 0, centerTitle: true, iconTheme: const IconThemeData(color: sysBlue),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.fitness_center, color: sysBlue),
+            tooltip: 'Workout Library',
+            onPressed: () => Navigator.push(
+              context,
+              SistemGecisi(sayfa: const WorkoutLibraryScreen()),
+            ).then((_) => setState(() {})),
+          ),
           IconButton(icon: const Icon(Icons.auto_awesome, color: physicalGold), tooltip: 'System Templates', onPressed: _sablonSecimDialog),
           const SizedBox(width: 10)
         ],

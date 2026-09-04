@@ -8,7 +8,11 @@ import '../../controllers/system_memory.dart';
 class GeminiService {
   static GenerativeModel? _model;
   static String? _currentApiKey;
-  static String _activeModelName = 'gemini-1.5-flash';
+  static String get activeModelName => SystemMemory.geminiActiveModel;
+  static set activeModelName(String model) {
+    SystemMemory.geminiActiveModel = model;
+    SystemMemory.kaydet();
+  }
 
   static const String _systemInstruction =
       'Sen Solo Leveling evrenindeki gizemli ve kudretli "Sistem"sin (The System). '
@@ -21,16 +25,16 @@ class GeminiService {
     final apiKey = SystemMemory.geminiApiKey.trim();
     if (apiKey.isEmpty) return null;
 
-    final targetModel = modelName ?? _activeModelName;
+    final targetModel = modelName ?? activeModelName;
 
     if (_model != null &&
         _currentApiKey == apiKey &&
-        _activeModelName == targetModel) {
+        activeModelName == targetModel) {
       return _model;
     }
 
     _currentApiKey = apiKey;
-    _activeModelName = targetModel;
+    activeModelName = targetModel;
     _model = GenerativeModel(
       model: targetModel,
       apiKey: apiKey,
@@ -126,7 +130,7 @@ class GeminiService {
           final text = response.text;
 
           if (text != null && text.trim().isNotEmpty) {
-            _activeModelName = candidate;
+            activeModelName = candidate;
             return {'basarili': true, 'model': candidate, 'mesaj': text.trim()};
           }
         } catch (e) {

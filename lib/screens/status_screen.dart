@@ -8,6 +8,7 @@ import '../core/sistem_gecisi.dart';
 
 import 'workout_planner_screen.dart';
 import 'boxing_timer_screen.dart';
+import 'workout_library_screen.dart';
 
 class StatusWindow extends StatefulWidget {
   const StatusWindow({super.key});
@@ -42,6 +43,14 @@ class _StatusWindowState extends State<StatusWindow> {
         elevation: 0,
         centerTitle: true,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.fitness_center, color: sysBlue, size: 26),
+            tooltip: 'Workout Library',
+            onPressed: () => Navigator.push(
+              context,
+              SistemGecisi(sayfa: const WorkoutLibraryScreen()),
+            ).then((_) => setState(() {})),
+          ),
           IconButton(
             icon: const Icon(Icons.sports_mma, color: sysRed, size: 28),
             tooltip: 'Combat Simulation',
@@ -318,13 +327,13 @@ class _StatusWindowState extends State<StatusWindow> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _StatRow(
+                          _statRow(
                             Icons.fitness_center,
                             'STR',
                             SystemMemory.str.value,
                             sysBlue,
                           ),
-                          _StatRow(
+                          _statRow(
                             Icons.favorite,
                             'VIT',
                             SystemMemory.vit.value,
@@ -336,13 +345,13 @@ class _StatusWindowState extends State<StatusWindow> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _StatRow(
+                          _statRow(
                             Icons.directions_run,
                             'AGI',
                             SystemMemory.agi.value,
                             sysBlue,
                           ),
-                          _StatRow(
+                          _statRow(
                             Icons.psychology,
                             'INT',
                             SystemMemory.intStat.value,
@@ -354,7 +363,7 @@ class _StatusWindowState extends State<StatusWindow> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _StatRow(
+                          _statRow(
                             Icons.visibility,
                             'PER',
                             SystemMemory.per.value,
@@ -548,7 +557,7 @@ class _StatusWindowState extends State<StatusWindow> {
     );
   }
 
-  Widget _StatRow(IconData icon, String label, int value, Color sysBlue) {
+  Widget _statRow(IconData icon, String label, int value, Color sysBlue) {
     bool canUpgrade = SystemMemory.ap.value > 0;
     return SizedBox(
       width: 130,

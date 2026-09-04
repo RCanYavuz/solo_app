@@ -108,7 +108,7 @@ class _SetupScreenState extends State<SetupScreen> {
         return Theme(
           data: ThemeData.dark().copyWith(
             colorScheme: const ColorScheme.dark(primary: sysBlue, onPrimary: Colors.black, surface: Color(0xFF0F172A), onSurface: Colors.white),
-            dialogBackgroundColor: sysDarkBg,
+            dialogTheme: const DialogThemeData(backgroundColor: sysDarkBg),
           ),
           child: child!,
         );
@@ -146,8 +146,11 @@ class _SetupScreenState extends State<SetupScreen> {
   @override
   Widget build(BuildContext context) {
     List<String> zorlukSeviyeleri = [];
-    if (secilenHedef == 'Kilo Ver (Yağ Yak)') zorlukSeviyeleri = ['Normal', 'Yüksek', 'Cehennem'];
-    else if (secilenHedef == 'Kilo Al (Kas İnşa Et)') zorlukSeviyeleri = ['Normal', 'Yüksek', 'Canavar'];
+    if (secilenHedef == 'Kilo Ver (Yağ Yak)') {
+      zorlukSeviyeleri = ['Normal', 'Yüksek', 'Cehennem'];
+    } else if (secilenHedef == 'Kilo Al (Kas İnşa Et)') {
+      zorlukSeviyeleri = ['Normal', 'Yüksek', 'Canavar'];
+    }
 
     return Scaffold(
       backgroundColor: sysDarkBg, 
@@ -157,10 +160,10 @@ class _SetupScreenState extends State<SetupScreen> {
           child: Container(
             padding: const EdgeInsets.all(25),
             decoration: BoxDecoration(
-              color: const Color(0xFF070B14).withOpacity(0.85), 
+              color: const Color(0xFF070B14).withValues(alpha: 0.85), 
               borderRadius: BorderRadius.circular(4), 
-              border: Border.all(color: sysBlue.withOpacity(0.4), width: 1.0), 
-              boxShadow: [BoxShadow(color: sysBlue.withOpacity(0.08), blurRadius: 10, spreadRadius: 1)]
+              border: Border.all(color: sysBlue.withValues(alpha: 0.4), width: 1.0), 
+              boxShadow: [BoxShadow(color: sysBlue.withValues(alpha: 0.08), blurRadius: 10, spreadRadius: 1)]
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -178,7 +181,7 @@ class _SetupScreenState extends State<SetupScreen> {
                           image: secilenFotoByte != null ? DecorationImage(image: MemoryImage(secilenFotoByte!), fit: BoxFit.cover) : null,
                           color: const Color(0xFF0F172A),
                         ),
-                        child: secilenFotoByte == null ? Icon(Icons.person, color: sysTextMuted.withOpacity(0.5), size: 40) : null, 
+                        child: secilenFotoByte == null ? Icon(Icons.person, color: sysTextMuted.withValues(alpha: 0.5), size: 40) : null, 
                       ),
                       Container(padding: const EdgeInsets.all(6), decoration: const BoxDecoration(color: sysBlue, shape: BoxShape.circle), child: const Icon(Icons.camera_alt, color: Colors.black, size: 16))
                     ],
@@ -198,14 +201,14 @@ class _SetupScreenState extends State<SetupScreen> {
 
                 Row(
                   children: [
-                    Expanded(child: DropdownButtonFormField<String>(value: secilenCinsiyet, dropdownColor: const Color(0xFF0F172A), decoration: _inputStili('Gender'), style: const TextStyle(color: Colors.white), items: ['Erkek', 'Kadın'].map((String c) => DropdownMenuItem(value: c, child: Text(c))).toList(), onChanged: (val) => setState(() => secilenCinsiyet = val!))),
+                    Expanded(child: DropdownButtonFormField<String>(initialValue: secilenCinsiyet, dropdownColor: const Color(0xFF0F172A), decoration: _inputStili('Gender'), style: const TextStyle(color: Colors.white), items: ['Erkek', 'Kadın'].map((String c) => DropdownMenuItem(value: c, child: Text(c))).toList(), onChanged: (val) => setState(() => secilenCinsiyet = val!))),
                     const SizedBox(width: 15),
                     Expanded(
                       child: InkWell(
                         onTap: _tarihSec,
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 10),
-                          decoration: BoxDecoration(color: const Color(0xFF0F172A), border: Border.all(color: sysBlue.withOpacity(0.3)), borderRadius: BorderRadius.circular(4)), 
+                          decoration: BoxDecoration(color: const Color(0xFF0F172A), border: Border.all(color: sysBlue.withValues(alpha: 0.3)), borderRadius: BorderRadius.circular(4)), 
                           child: Text(
                             secilenTarih == null ? 'Birth Date' : '${secilenTarih!.day.toString().padLeft(2,'0')}.${secilenTarih!.month.toString().padLeft(2,'0')}.${secilenTarih!.year}',
                             style: TextStyle(color: secilenTarih == null ? sysTextMuted : Colors.white, fontSize: 16),
@@ -228,16 +231,16 @@ class _SetupScreenState extends State<SetupScreen> {
                 const SizedBox(height: 30),
 
                 DropdownButtonFormField<String>(
-                  value: secilenHedef, dropdownColor: const Color(0xFF0F172A), decoration: _inputStili('System Objective'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  initialValue: secilenHedef, dropdownColor: const Color(0xFF0F172A), decoration: _inputStili('System Objective'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                   items: ['Kilo Ver (Yağ Yak)', 'Kilo Koru (Dengede Kal)', 'Kilo Al (Kas İnşa Et)'].map((String c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
-                  onChanged: (val) { setState(() { secilenHedef = val!; if (val != 'Kilo Koru (Dengede Kal)') secilenZorluk = 'Normal'; }); },
+                  onChanged: (val) { setState(() { secilenHedef = val!; if (val != 'Kilo Koru (Dengede Kal)') { secilenZorluk = 'Normal'; } }); },
                 ),
                 const SizedBox(height: 15),
 
                 if (secilenHedef != 'Kilo Koru (Dengede Kal)')
                   DropdownButtonFormField<String>(
-                    value: secilenZorluk, dropdownColor: const Color(0xFF1A0505),
-                    decoration: InputDecoration(labelText: 'Dungeon Difficulty', labelStyle: const TextStyle(color: sysRed, fontWeight: FontWeight.bold), filled: true, fillColor: const Color(0xFF1A0505), enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: sysRed.withOpacity(0.5)), borderRadius: BorderRadius.circular(4)), focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: sysRed), borderRadius: BorderRadius.circular(4))),
+                    initialValue: secilenZorluk, dropdownColor: const Color(0xFF1A0505),
+                    decoration: InputDecoration(labelText: 'Dungeon Difficulty', labelStyle: const TextStyle(color: sysRed, fontWeight: FontWeight.bold), filled: true, fillColor: const Color(0xFF1A0505), enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: sysRed.withValues(alpha: 0.5)), borderRadius: BorderRadius.circular(4)), focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: sysRed), borderRadius: BorderRadius.circular(4))),
                     style: const TextStyle(color: sysRed, fontWeight: FontWeight.bold),
                     items: zorlukSeviyeleri.map((String c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
                     onChanged: (val) => setState(() => secilenZorluk = val!),
@@ -253,10 +256,10 @@ class _SetupScreenState extends State<SetupScreen> {
                     labelText: 'Gemini API Key (Optional)',
                     labelStyle: const TextStyle(color: sysTextMuted),
                     helperText: 'For System AI Voice & Smart Nutrition (Leave blank for classic mode)',
-                    helperStyle: TextStyle(color: sysTextMuted.withOpacity(0.6), fontSize: 11),
+                    helperStyle: TextStyle(color: sysTextMuted.withValues(alpha: 0.6), fontSize: 11),
                     filled: true,
                     fillColor: const Color(0xFF0F172A),
-                    enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: sysBlue.withOpacity(0.3)), borderRadius: BorderRadius.circular(4)),
+                    enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: sysBlue.withValues(alpha: 0.3)), borderRadius: BorderRadius.circular(4)),
                     focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: sysBlue), borderRadius: BorderRadius.circular(4)),
                     suffixIcon: IconButton(
                       icon: Icon(_isObscure ? Icons.visibility : Icons.visibility_off, color: sysBlue, size: 20),
@@ -283,7 +286,7 @@ class _SetupScreenState extends State<SetupScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: _apiTestBasarili ? sysBlue.withOpacity(0.1) : sysRed.withOpacity(0.1),
+                      color: _apiTestBasarili ? sysBlue.withValues(alpha: 0.1) : sysRed.withValues(alpha: 0.1),
                       border: Border.all(color: _apiTestBasarili ? sysBlue : sysRed, width: 1),
                       borderRadius: BorderRadius.circular(4),
                     ),
@@ -308,7 +311,7 @@ class _SetupScreenState extends State<SetupScreen> {
                   width: double.infinity, 
                   child: ElevatedButton(
                     onPressed: _analiziBaslat, 
-                    style: ElevatedButton.styleFrom(backgroundColor: sysBlue.withOpacity(0.1), side: const BorderSide(color: sysBlue), padding: const EdgeInsets.symmetric(vertical: 18), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))), 
+                    style: ElevatedButton.styleFrom(backgroundColor: sysBlue.withValues(alpha: 0.1), side: const BorderSide(color: sysBlue), padding: const EdgeInsets.symmetric(vertical: 18), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))), 
                     child: const Text('INITIALIZE SYSTEM', style: TextStyle(color: sysBlue, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2))
                   )
                 )
@@ -324,7 +327,7 @@ class _SetupScreenState extends State<SetupScreen> {
     return InputDecoration(
       labelText: label, labelStyle: const TextStyle(color: sysTextMuted), 
       filled: true, fillColor: const Color(0xFF0F172A), 
-      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: sysBlue.withOpacity(0.3)), borderRadius: BorderRadius.circular(4)), 
+      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: sysBlue.withValues(alpha: 0.3)), borderRadius: BorderRadius.circular(4)), 
       focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: sysBlue), borderRadius: BorderRadius.circular(4))
     );
   }

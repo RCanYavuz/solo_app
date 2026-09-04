@@ -577,10 +577,12 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
       padding: EdgeInsets.zero,
       child: Theme(
         data: ThemeData.dark().copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          tilePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-          childrenPadding: const EdgeInsets.only(left: 20, right: 20, bottom: 15),
-          initiallyExpanded: false,
+        child: Material(
+          color: Colors.transparent,
+          child: ExpansionTile(
+            tilePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+            childrenPadding: const EdgeInsets.only(left: 20, right: 20, bottom: 15),
+            initiallyExpanded: false,
           leading: Container(
             width: 42,
             height: 42,
@@ -611,7 +613,8 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 
   // ─── Yemek Satırı ───
