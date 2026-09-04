@@ -2,135 +2,129 @@
 
 **Solo Leveling** animesinden ilham alan, kişisel gelişim ve fitness takibi yapan bir **gamification (oyunlaştırma) uygulaması**. Kullanıcı bir "Avcı" (Hunter) olarak görev yapar; egzersiz, diyet ve zihinsel görevlerini tamamlayarak EXP, Gold, AP kazanır ve level atlar.
 
+---
+
 ## 📁 Proje Mimarisi
 
 ```
 lib/
-├── main.dart                    # Uygulama giriş noktası
+├── main.dart                       # Uygulama giriş noktası ve akıllı kayıt yönlendirmesi
 ├── controllers/
-│   └── system_memory.dart       # Tüm oyun state'i, persistence, RPG mekanikleri
+│   └── system_memory.dart          # Tüm oyun state'i, persistence, RPG mekanikleri, görev döngüsü
 ├── core/
-│   ├── audio_system.dart        # Ses efektleri yönetimi
-│   ├── diyet_motoru.dart        # Makro besin hesaplama motoru
-│   └── sistem_gecisi.dart       # Hologram sayfa geçiş animasyonu
+│   ├── audio_system.dart           # Ses efektleri yönetimi (mixWithOthers desteği)
+│   ├── diyet_motoru.dart           # Makro besin (Protein/Karb/Yağ) ve kalori hesaplama motoru
+│   ├── sistem_gecisi.dart          # Hologram sayfa geçiş animasyonu
+│   └── services/
+│       └── gemini_service.dart     # Google Gemini AI servisi (Doğal dil besin analizi & Sistem sesi)
 ├── models/
-│   ├── task_model.dart          # Görev (Gorev) veri modeli
-│   ├── food_model.dart          # Tüketilen yemek veri modeli
-│   └── workout_model.dart       # Egzersiz veri modeli
+│   ├── task_model.dart             # Görev (Gorev) veri modeli
+│   ├── food_model.dart             # Tüketilen yemek (TuketilenYemek) veri modeli
+│   └── workout_model.dart          # Egzersiz şablonu (EgzersizSablonu) veri modeli
 ├── screens/
-│   ├── ana_ekran.dart           # Ana navigasyon (Bottom Navigation)
-│   ├── dashboard_screen.dart    # Dashboard — Level, Stat, Başarımlar, Boss
-│   ├── status_screen.dart       # HP/MP/EXP barları, stat dağıtımı
-│   ├── calendar_screen.dart     # Haftalık görev takvimi (Quest Log)
-│   ├── diet_screen.dart         # Günlük kalori & yemek takibi (Inventory)
-│   ├── profile_screen.dart      # Profil, vücut bilgileri, hedef ayarları
-│   ├── setup_screen.dart        # İlk kurulum (cinsiyet, boy, kilo, hedef)
-│   ├── welcome_screen.dart      # Karşılama ekranı
-│   ├── instruction_screen.dart  # Sistem kuralları / kılavuz
-│   ├── active_workout_screen.dart # Aktif antrenman (Dungeon Raid)
-│   ├── workout_planner_screen.dart # Haftalık antrenman planlayıcı
-│   ├── workout_library_screen.dart # Egzersiz kütüphanesi
-│   ├── boxing_timer_screen.dart # Boks antrenman zamanlayıcısı
-│   ├── macro_dashboard_screen.dart # Makro besin analiz paneli
-│   └── shop_screen.dart         # Sistem Mağazası
+│   ├── ana_ekran.dart              # Ana navigasyon kabuğu (Bottom Navigation)
+│   ├── dashboard_screen.dart       # Dashboard — Level, Stat, Başarımlar, Haftalık Boss
+│   ├── status_screen.dart          # Stat dağıtımı, HP/MP barları & Antrenman Kütüphanesi köprüsü
+│   ├── calendar_screen.dart        # Haftalık görev takvimi (Quest Log & Streak)
+│   ├── diet_screen.dart            # Kalori & yemek envanteri + Gemini AI Besin Çözücü
+│   ├── macro_dashboard_screen.dart # Görsel Makro Laboratuvarı (Besin oranları, öneriler)
+│   ├── profile_screen.dart         # Profil, vücut verileri + Gemini API Key Yönetimi & Tanılama
+│   ├── setup_screen.dart           # İlk kurulum (Hunter adı, boy, kilo, hedef, opsiyonel API Key)
+│   ├── welcome_screen.dart         # Sistem uyanış ve karşılama ekranı
+│   ├── instruction_screen.dart     # Sistem kuralları ve avcı el kitabı
+│   ├── active_workout_screen.dart  # Aktif antrenman modu (Dungeon Raid kronometresi)
+│   ├── workout_planner_screen.dart # Haftalık antrenman planlayıcı & kütüphane bağlantısı
+│   ├── workout_library_screen.dart # YouTube destekli hazır antrenman kütüphanesi
+│   ├── boxing_timer_screen.dart    # Boks ve aralıklı antrenman zamanlayıcısı
+│   └── shop_screen.dart            # Sistem Mağazası (İksirler, Kaçamak Hakları, Eşyalar)
 └── widgets/
-    ├── hologram_card.dart       # Neon çerçeveli hologram kart widget'ı
-    └── stat_bar.dart            # HP/MP/EXP ilerleme çubuğu widget'ı
+    ├── hologram_card.dart          # Neon parlamalı hologram kart widget'ı
+    └── stat_bar.dart               # HP/MP/EXP ilerleme çubuğu widget'ı
 ```
 
 ### Katman Yapısı
 
-| Katman | Dosyalar | Rol |
-|--------|----------|-----|
-| **Controllers** | `system_memory.dart` | Tüm oyun state'i, persistence, RPG mekanikleri |
-| **Core** | `audio_system.dart`, `diyet_motoru.dart`, `sistem_gecisi.dart` | Ses, beslenme hesaplama, sayfa geçişleri |
-| **Models** | `task_model.dart`, `food_model.dart`, `workout_model.dart` | Veri modelleri (Görev, Yemek, Egzersiz) |
-| **Screens** | 15 ekran dosyası | UI katmanı |
-| **Widgets** | `hologram_card.dart`, `stat_bar.dart` | Yeniden kullanılabilir UI bileşenleri |
+| Katman | Bileşenler | Rol |
+|--------|------------|-----|
+| **Controllers** | `system_memory.dart` | Oyun durumu, kalıcılık (SharedPreferences), RPG formülleri, gece yarısı hesaplaşması |
+| **Core & Services** | `gemini_service.dart`, `diyet_motoru.dart`, `audio_system.dart`, `sistem_gecisi.dart` | Yapay zeka servisleri, beslenme algoritmaları, ses efektleri, görsel geçişler |
+| **Models** | `task_model.dart`, `food_model.dart`, `workout_model.dart` | Tip güvenli veri modelleri ve JSON serileştirme |
+| **Screens** | 15 ekran | Kullanıcı arayüzü ve navigasyon akışları |
+| **Widgets** | `hologram_card.dart`, `stat_bar.dart` | Tema uyumlu, yeniden kullanılabilir UI bileşenleri |
+| **Tests** | 5 test paketi (`test/`) | Yönlendirme, navigasyon, runtime koruma, AI ve mantık testleri |
 
 ---
 
 ## 🎯 Temel Özellikler
 
-### 1. RPG Stat Sistemi
-- **HP / MP** — Sağlık ve Mana puanları (görev başarısı/cezaları ile değişir)
-- **Level / EXP** — Deneyim puanı ve seviye atlama (EXP eşiği her level'da × 1.5 artar)
-- **AP (Ability Points)** — Level atlayınca +3 AP, stat'lara dağıtılır
-- **5 Stat**: STR (Kuvvet), AGI (Çeviklik), VIT (Dayanıklılık), INT (Zeka), PER (Algı)
-- **Altın** — Oyun içi para birimi, mağazada harcanır
-- **Fatigue** — Yorgunluk sistemi
+### 1. 🤖 Gemini Yapay Zeka Entegrasyonu (YENİ)
+- **AI Besin Çözücü (AI Decoder):** Yemek ekleme penceresinde serbest dille yazılan öğünleri (*ör: "2 haşlanmış yumurta, 1 dilim ekmek, 50g lor"*) Gemini API ile JSON formatında analiz eder; yemek adını, kaloriyi, protein, karbonhidrat ve yağ değerlerini otomatik ayrıştırıp form alanlarını doldurur.
+- **Profil API Yönetimi & Canlı Tanılama (Live Diagnostic):** Profil ekranı üzerinden Gemini API anahtarı güvenle girilebilir, düzenlenebilir ve Google Generative Language API ile canlı model keşfi (Flash kotası denetimi) gerçekleştirilebilir.
+- **Model Kalıcılığı:** Keşfedilen en optimize çalışan model (`gemini-1.5-flash`, `gemini-2.0-flash` vb.) `SystemMemory` ve `SharedPreferences` ile oturumlar arasında korunur.
 
-### 2. Günlük Görev Sistemi (Daily Quests)
-- 7 günlük haftalık plan → Her gün **Fiziksel** ve **Zihinsel** görevler
-- Görevler tamamlandığında: **+HP, +EXP, +Altın, +Stat** kazanımı
-- Kaçırılan görevler: **-HP veya -MP cezası**
-- **Streak sistemi**: Kesintisiz günler takip edilir, kırılırsa sıfırlanır
+### 2. 🧪 Görsel Makro Laboratuvarı (Macro Lab) (YENİ)
+- `diet_screen.dart` ve `diyet_motoru.dart` ile tam entegre çalışan analitik ekran.
+- Kullanıcının vücut tipi, metabolizma hızı ve hedefine göre önerilen protein, yağ ve karbonhidrat dengesini dairesel grafik ve animasyonlu göstergelerle sunar.
+- Öğün zamanlama önerileri ve kalori dağılım analizleri içerir.
 
-### 3. 🩸 Kırmızı Geçit (Red Gate) — Cehennem Modu
-- Kullanıcı belirli bir süre (gün sayısı) cehennem moduna girer
-- **3× ceza katsayısı** (ör. kalori aşımı: -60 HP vs normal -20)
-- **3× ödül katsayısı** (EXP ve Altın çarpanları artık)
-- 3 farklı antrenman planı: "Full Body + Cardio", "Push/Pull/Legs", "Saitama Hell"
-- HP = 0 olursa **ölüm**: -1 Level, EXP sıfırlanır, Red Gate sona erer
-- Başarıyla tamamlanırsa: **Devasa ödüller** (AP × gün, Altın × 1500/gün, EXP × 300/gün)
+### 3. 📚 YouTube Destekli Antrenman Kütüphanesi (Workout Library) (YENİ)
+- `StatusWindow` ve `WorkoutPlannerScreen` AppBar'larından doğrudan erişilebilir.
+- Kas gruplarına göre kategorize edilmiş 875+ satırlık kapsamlı hareket rehberi.
+- YouTube üzerinden doğru form videolarına tek tuşla yönlendirme ve kişiselleştirilmiş programlara hareket aktarma imkanı.
 
-### 4. 🌙 Gölge Modu (Stealth Mode)
-- Tüm cezalar devre dışı kalır
-- Streak donmuş kalır (kırılmaz)
-- Boss savaşı görmezden gelinir
+### 4. 🧭 Akıllı Yönlendirme & Yaşam Döngüsü (Smart Routing)
+- Kullanıcı daha önce kayıt olmuşsa açılışta doğrudan `AnaEkran`'a geçer; kayıt bulunmadığında ilk kurulum ekranı (`SetupScreen`) açılır.
+- **Gece Yarısı Görev Döngüsü:** Tarih değiştiğinde yalnızca tamamlanan günün görevleri sıfırlanır, haftanın diğer günlerinin kayıtları korunur.
 
-### 5. 👹 Haftalık Boss Savaşı
-- Her **Pazar** bir Weekly Boss belirir (level × 100 HP)
-- Boss türü: Fiziksel (Steel-Fanged Wolf) veya Zihinsel (Ancient Lich)
-- Görev tamamlama ve diyet başarısına göre hasar verilir
-- Yenilirse: **+1000 G, +2 AP, +500 EXP**
-- Yenilemezse: **HP'nin yarısı ceza olarak düşer**
+### 5. ⚔️ RPG Stat Sistemi
+- **HP / MP:** Sağlık ve Mana puanları (görev başarısı, diyet ve uykuya bağlı).
+- **Level / EXP:** Deneyim puanı ve seviye atlama (EXP eşiği her level'da × 1.5 ölçeklenir).
+- **AP (Ability Points):** Her level atlayışında +3 AP kazanılır; STR, AGI, VIT, INT, PER özelliklerine dağıtılır.
+- **5 Ana Stat:**
+  - **STR (Kuvvet):** Fiziksel güç antrenmanlarıyla artar.
+  - **AGI (Çeviklik):** Bacak ve kardiyo egzersizleriyle gelişir.
+  - **VIT (Dayanıklılık):** Mükemmel antrenman ve dinlenme ile yükselir, HP barını büyütür.
+  - **INT (Zeka):** Okuma ve zihinsel görevlerle gelişir, MP barını büyütür.
+  - **PER (Algı):** Meditasyon ve strateji pratikleriyle artar.
+- **Altın (Gold):** Görevler ve zindan akınlarıyla kazanılır, Sistem Mağazasında harcanır.
 
-### 6. 🍗 Beslenme Takibi
-- Mifflin-St Jeor formülüyle **BMR** hesaplama
-- Hedef bazlı kalori ayarı: Yağ yakma (-500 / -1000 / -1500) veya Kas inşa (+300 / +500 / +1000)
-- Günlük kalori takibi ve yemek geçmişi
-- Makro hesaplama motoru (protein / yağ / karbonhidrat)
+### 6. 📋 Günlük Görevler & Streak Takibi
+- 7 günlük haftalık program: Her gün için özelleştirilmiş **Fiziksel** ve **Zihinsel** görevler.
+- Günlük görevlerin tamamı bittiğinde **Flawless Streak** artar.
+- İhmal edilen görevler HP/MP cezalarına ve streak kırılmasına yol açar.
 
-### 7. ⚖️ Tartı ve Kilo Takibi
-- Kilo değişimi hedefe göre ödül veya ceza verir
-- Kilo geçmişi kaydedilir (tarih + kilo + günlük kalori)
+### 7. 🩸 Kırmızı Geçit (Red Gate) — Cehennem Modu
+- Seçilen gün sayısı boyunca avcıyı kilit altına alan yüksek zorluklu meydan okuma.
+- **3× Ceza Katsayısı:** Kalori aşımı veya görev ihmali ölümcül hasar verir (-60 HP).
+- **3× Ödül Katsayısı:** Katlanan EXP ve Altın çarpanları.
+- **Ölüm Riski:** HP sıfırlanırsa -1 Level cezası uygulanır.
+- Başarıyla tamamlandığında devasa AP, Altın ve EXP ödülü verilir.
 
-### 8. 🏋️ Antrenman Sistemi
-- **Zindan Akını (Dungeon Raid)**: Süre bazlı antrenman kaydı
-- **Workout Library**: Egzersiz kütüphanesi (YouTube bağlantılı)
-- **Boxing Timer**: Boks antrenman zamanlayıcısı
-- Aktif antrenman süresi takibi
+### 8. 🌙 Gölge Modu (Stealth Mode)
+- Gerçek hayat yoğunluğunda cezaları geçici olarak devre dışı bırakır.
+- Streak dondurulur, boss cezaları uygulanmaz.
 
-### 9. 🛒 Mağaza (System Shop)
+### 9. 👹 Haftalık Zindan Bossu
+- Her Pazar günü avcının karşısına çıkan haftalık Boss (Level × 100 HP).
+- Fiziksel (*Steel-Fanged Wolf*) veya Zihinsel (*Ancient Lich*) patron türü.
+- Görevler ve diyet başarısıyla boss'a hasar verilir; yenilirse devasa ganimet (+1000 Gold, +2 AP, +500 EXP) kazanılır.
 
-| Ürün | Fiyat | Etki |
+### 10. 🛒 Sistem Mağazası (System Shop)
+
+| Eşya | Fiyat | Etki |
 |------|-------|------|
-| Healing Potion | 150 G | HP'yi tamamen doldurur |
-| Water of Lethe | 1000 G | Stat puanlarını sıfırlar, AP iade eder |
-| Minor Cheat | 200 G | Küçük atıştırmalık (çikolata vb.) cezasız |
-| Cheat Meal | 500 G | Bir öğün serbest (burger menü vb.) |
-| Endless Feast | 2000 G | 1 tam gün serbest beslenme |
-| Gaming Pass (2 Hr) | 300 G | 2 saat oyun/dizi cezasız |
+| Healing Potion | 150 G | HP'yi anında tamamen doldurur |
+| Water of Lethe | 1000 G | Dağıtılan tüm Stat puanlarını sıfırlar ve AP iade eder |
+| Minor Cheat | 200 G | Küçük atıştırmalık (ör: çikolata) cezasız tüketilir |
+| Cheat Meal | 500 G | Bir serbest öğün hakkı (burger, pizza vb.) |
+| Endless Feast | 2000 G | 1 tam gün serbest beslenme hakkı |
+| Gaming Pass (2 Hr) | 300 G | 2 saatlik cezasız oyun/dizi hakkı |
 | Sloth Day | 1500 G | Günlük görevler cezasız atlanır |
-| Material: New Gear | 5000 G | Gerçek hayat ödülü (kıyafet, oyun vb.) |
+| Material: New Gear | 5000 G | Gerçek hayat ödülü (kıyafet, ekipman vb.) |
 
-### 10. 🎵 Ses Sistemi
-- Başarı, Level Up, Bell, Geçiş, Startup sesleri
-- Arka plan müziğini kesmeme özelliği (`mixWithOthers`)
-
----
-
-## 🎮 Oyun Mekanikleri Akışı
-
-```
-Kullanıcı Girişi          Sistem Motoru              Sonuçlar
-─────────────────    ──────────────────────    ──────────────────
-Görev Tamamla    ──→  Gün Sonu Hesaplaşması ──→  Level Up
-Yemek Kaydet     ──→  EXP / Altın Dağıtımı  ──→  Ödül / Ceza
-Tartıya Çık      ──→  Stat Değişimleri       ──→  Streak Update
-Antrenman Yap    ──→  Boss Hasar Hesabı      ──→  Boss Kill / Fail
-```
+### 11. 🎵 Ses & Atmosfer Motoru
+- Level Up, Quest Complete, Bell, Transition ve Dungeon ses efektleri.
+- `mixWithOthers` protokolü sayesinde arka planda çalan Spotify veya YouTube müziğini kesmeden mikslenir.
 
 ---
 
@@ -140,42 +134,66 @@ Antrenman Yap    ──→  Boss Hasar Hesabı      ──→  Boss Kill / Fail
 |---------|-----------|
 | Iron Will (Streak) | 7 / 14 / 30 / 60 / 100 / 365 Gün |
 | Unbreakable (Görev) | 50 / 100 / 250 / 500 / 1000 / 5000 Görev |
-| Awakening (Level) | 10 / 20 / 30 / 50 / 80 / 100 Level |
+| Awakening (Level) | 10 / 20 / 30 / 50 / 80 / 100 Seviye |
 | Warrior (STR) | 30 / 50 / 100 / 150 / 200 / 300 STR |
 | Shadow Step (AGI) | 30 / 50 / 100 / 150 / 200 / 300 AGI |
 | Sage (INT) | 30 / 50 / 100 / 150 / 200 / 300 INT |
-| Merchant (Altın) | 2K / 5K / 10K / 50K / 100K / 500K Gold |
-| Fat Burner / Titan (Kilo) | 5 / 10 / 15 / 20 / 30 / 50 KG |
+| Merchant (Altın) | 2K / 5K / 10K / 50K / 100K / 500K Altın |
+| Fat Burner / Titan (Kilo) | 5 / 10 / 15 / 20 / 30 / 50 KG Değişim |
 
-Her başarım Roma rakamlarıyla (I, II, III...) kademe atlar ve ilerleme çubuğuyla gösterilir.
+---
+
+## 🧪 Otomatik Test Paketi
+
+Proje güvenilirliği için 10 adet kapsamlı otomatik test hazırlanmıştır:
+
+| Test Dosyası | Kapsam |
+|--------------|--------|
+| [`test/main_routing_test.dart`](test/main_routing_test.dart) | Kayıtlı ve yeni kullanıcı başlangıç yönlendirmesi doğrulaması |
+| [`test/workout_library_navigation_test.dart`](test/workout_library_navigation_test.dart) | Status & Workout Planner üzerinden kütüphaneye geçiş ve render testi |
+| [`test/macro_lab_navigation_test.dart`](test/macro_lab_navigation_test.dart) | Diyet ekranından Makro Lab geçişi ve `FormatException` çökme koruması |
+| [`test/midnight_reset_test.dart`](test/midnight_reset_test.dart) | Gece yarısı tek gün sıfırlama ve aktif model kalıcılık testi |
+| [`test/gemini_integration_test.dart`](test/gemini_integration_test.dart) | Profil API anahtarı yönetimi ve Diyet ekranı AI besin çözücü widget testi |
+
+Testleri çalıştırmak için:
+```bash
+flutter test
+```
 
 ---
 
 ## 🛠️ Teknoloji Stack
 
-- **Framework**: Flutter (Dart SDK ^3.11.3)
-- **State**: ValueNotifier + setState
-- **Persistence**: SharedPreferences
-- **Fonts**: Google Fonts (Orbitron, Rajdhani)
-- **Audio**: audioplayers
-- **Calendar**: table_calendar
-- **Image**: image_picker
-- **Links**: url_launcher
+- **Platform:** Flutter (Dart SDK `^3.11.3`, Flutter `3.47.2+`)
+- **Yapay Zeka:** `google_generative_ai: ^0.4.7` & `http: ^1.2.0`
+- **Durum Yönetimi:** `ValueNotifier` + reactive state
+- **Veri Kalıcılığı:** `shared_preferences: ^2.5.5`
+- **Tipografi:** Google Fonts (`Orbitron`, `Rajdhani`)
+- **Ses Sistemi:** `audioplayers: ^6.6.0`
+- **Takvim & Arayüz:** `table_calendar: ^3.1.2`, `image_picker: ^1.2.1`
+- **Dış Bağlantılar:** `url_launcher: ^6.2.5`
+- **Kod Kalitesi:** `flutter_lints: ^6.0.0` (0 linter uyarısı)
 
 ---
 
-## 🚀 Kurulum
+## 🚀 Kurulum ve Çalıştırma
 
 ```bash
-# Bağımlılıkları yükle
+# 1. Depoyu klonlayın ve klasöre girin
+cd solo_app
+
+# 2. Paket bağımlılıklarını indirin
 flutter pub get
 
-# Uygulamayı çalıştır
-flutter run
+# 3. Testleri doğrulayın
+flutter test
+
+# 4. Uygulamayı Chrome üzerinde başlatın
+flutter run -d chrome
 ```
 
 ---
 
 ## 📜 Lisans
 
-Bu proje kişisel kullanım amaçlı geliştirilmektedir.
+Bu proje Solo Leveling temalı kişisel gelişim ve RPG motivasyon aracı olarak geliştirilmektedir.
