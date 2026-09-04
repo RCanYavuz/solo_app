@@ -10,7 +10,7 @@ class GeminiService {
   static String? _currentApiKey;
   static String _activeModelName = 'gemini-1.5-flash';
 
-  static const String _systemInstruction = 
+  static const String _systemInstruction =
       'Sen Solo Leveling evrenindeki gizemli ve kudretli "Sistem"sin (The System). '
       'Kullanıcı bir "Avcı" (Hunter). Ona kısa, otoriter, disiplinli ve motive edici bir dille hitap et. '
       'Türkçe konuş. Cümlelerinde bazen [SİSTEM], [BİLDİRİM] gibi RPG tarzı köşeli parantezler kullan. '
@@ -23,7 +23,9 @@ class GeminiService {
 
     final targetModel = modelName ?? _activeModelName;
 
-    if (_model != null && _currentApiKey == apiKey && _activeModelName == targetModel) {
+    if (_model != null &&
+        _currentApiKey == apiKey &&
+        _activeModelName == targetModel) {
       return _model;
     }
 
@@ -39,7 +41,9 @@ class GeminiService {
 
   /// API Anahtarını doğrudan Google API üzerinden denetler.
   /// Hangi modellerin açık olduğunu bulur veya kesin hata sebebini açıklar.
-  static Future<Map<String, dynamic>> testBaglantisi({String? hunterName}) async {
+  static Future<Map<String, dynamic>> testBaglantisi({
+    String? hunterName,
+  }) async {
     final apiKey = SystemMemory.geminiApiKey.trim();
     if (apiKey.isEmpty) {
       return {
@@ -50,7 +54,9 @@ class GeminiService {
 
     try {
       // 1. Google Sunucusuna doğrudan Model Listesi sorgusu at (Gerçek teşhis)
-      final url = Uri.parse('https://generativelanguage.googleapis.com/v1beta/models?key=$apiKey');
+      final url = Uri.parse(
+        'https://generativelanguage.googleapis.com/v1beta/models?key=$apiKey',
+      );
       final res = await http.get(url);
 
       if (res.statusCode != 200) {
@@ -68,7 +74,8 @@ class GeminiService {
       if (models.isEmpty) {
         return {
           'basarili': false,
-          'mesaj': '⚠️ API anahtarınız geçerli fakat bu projeye tanımlı hiçbir Gemini modeli bulunamadı.',
+          'mesaj':
+              '⚠️ API anahtarınız geçerli fakat bu projeye tanımlı hiçbir Gemini modeli bulunamadı.',
         };
       }
 
@@ -76,7 +83,9 @@ class GeminiService {
       final availableModelNames = <String>[];
       for (var m in models) {
         final name = (m['name'] as String? ?? '').replaceFirst('models/', '');
-        final methods = List<String>.from(m['supportedGenerationMethods'] ?? []);
+        final methods = List<String>.from(
+          m['supportedGenerationMethods'] ?? [],
+        );
         if (methods.contains('generateContent')) {
           availableModelNames.add(name);
         }
@@ -96,10 +105,14 @@ class GeminiService {
         return aScore.compareTo(bScore);
       });
 
-      final avciAdi = (hunterName != null && hunterName.isNotEmpty) 
-          ? hunterName 
-          : (SystemMemory.oyuncuIsmi.isNotEmpty && SystemMemory.oyuncuIsmi != 'PLAYER' ? SystemMemory.oyuncuIsmi : 'AVCI');
-      final prompt = 'Sistem protokolü onaylandı. Avcı $avciAdi için tek cümlelik otoriter bir Sistem uyanış mesajı üret.';
+      final avciAdi = (hunterName != null && hunterName.isNotEmpty)
+          ? hunterName
+          : (SystemMemory.oyuncuIsmi.isNotEmpty &&
+                    SystemMemory.oyuncuIsmi != 'PLAYER'
+                ? SystemMemory.oyuncuIsmi
+                : 'AVCI');
+      final prompt =
+          'Sistem protokolü onaylandı. Avcı $avciAdi için tek cümlelik otoriter bir Sistem uyanış mesajı üret.';
 
       String sonHata = '';
 
@@ -114,11 +127,7 @@ class GeminiService {
 
           if (text != null && text.trim().isNotEmpty) {
             _activeModelName = candidate;
-            return {
-              'basarili': true,
-              'model': candidate,
-              'mesaj': text.trim(),
-            };
+            return {'basarili': true, 'model': candidate, 'mesaj': text.trim()};
           }
         } catch (e) {
           sonHata = e.toString();
@@ -129,13 +138,11 @@ class GeminiService {
 
       return {
         'basarili': false,
-        'mesaj': '❌ Google Kota Uyarısı: Mevcut anahtarınızda modellerin ücretsiz kotası (limit: 0) olarak görünüyor. Detay: $sonHata',
+        'mesaj':
+            '❌ Google Kota Uyarısı: Mevcut anahtarınızda modellerin ücretsiz kotası (limit: 0) olarak görünüyor. Detay: $sonHata',
       };
     } catch (e) {
-      return {
-        'basarili': false,
-        'mesaj': '❌ Bağlantı hatası: $e',
-      };
+      return {'basarili': false, 'mesaj': '❌ Bağlantı hatası: $e'};
     }
   }
 
@@ -145,7 +152,8 @@ class GeminiService {
     if (model == null) return null;
 
     try {
-      final prompt = '''
+      final prompt =
+          '''
 Avcı şu öğünü tüketti: "$yemekTarifi".
 Lütfen bu öğünün yaklaşık besin değerlerini çıkar.
 Yalnızca geçerli bir JSON objesi döndür:

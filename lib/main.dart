@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'controllers/system_memory.dart'; 
 import 'screens/setup_screen.dart'; 
-import 'screens/instruction_screen.dart'; 
+import 'screens/ana_ekran.dart'; 
 import 'core/audio_system.dart'; 
 import 'core/theme/app_colors.dart';
 
@@ -43,8 +43,8 @@ class SoloApp extends StatelessWidget {
           displayColor: AppColors.systemBlue,
         ),
       ),
-      // Başlangıç ekranı olarak doğrudan Avcı Kayıt Ekranı (SetupScreen) açılır
-      home: const SetupScreen(), 
+      // Kayıt varsa doğrudan Ana Ekran, ilk kez açılıyorsa SetupScreen açılır
+      home: SystemMemory.kayitBulundu ? const AnaEkran() : const SetupScreen(), 
     );
   }
 }

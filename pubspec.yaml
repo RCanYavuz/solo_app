@@ -21,8 +21,7 @@ dependencies:
   http: ^1.2.0
 
 dependency_overrides:
-  objective_c: ^9.6.0
-  path_provider_foundation: ^2.6.0
+  path_provider_foundation: 2.4.0
 
 dev_dependencies:
   flutter_test:
