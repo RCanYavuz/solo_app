@@ -49,6 +49,11 @@ class _SetupScreenState extends State<SetupScreen> {
       );
       return;
     }
+
+    // Anahtarı önce SystemMemory'ye kaydet, yoksa servis bulamaz
+    SystemMemory.geminiApiKey = key;
+    await SystemMemory.kaydet();
+
     setState(() {
       _isTestingApi = true;
       _apiTestSonucu = null;
@@ -120,10 +125,10 @@ class _SetupScreenState extends State<SetupScreen> {
     }
   }
 
-  void _analiziBaslat() {
+  Future<void> _analiziBaslat() async {
     if (secilenTarih != null && boyCtrl.text.isNotEmpty && kiloCtrl.text.isNotEmpty) {
       
-      // YENİ: İsim girişi boşsa "PLAYER" olarak kaydet, doluysa girilen ismi kaydet
+      // İsim girişi boşsa "PLAYER" olarak kaydet, doluysa girilen ismi kaydet
       if (isimCtrl.text.trim().isNotEmpty) {
         SystemMemory.oyuncuIsmi = isimCtrl.text.trim().toUpperCase();
       } else {
@@ -134,13 +139,167 @@ class _SetupScreenState extends State<SetupScreen> {
       double kilo = double.tryParse(kiloCtrl.text.replaceAll(',', '.')) ?? 70.0;
 
       // Gemini API Key kaydı (İsteğe bağlı)
-      SystemMemory.geminiApiKey = apiKeyCtrl.text.trim();
+      if (apiKeyCtrl.text.trim().isNotEmpty) {
+        SystemMemory.geminiApiKey = apiKeyCtrl.text.trim();
+      }
 
       SystemMemory.oyuncuyuAnalizEt(secilenCinsiyet, secilenTarih!, boy, kilo, secilenHedef, secilenZorluk, secilenFotoByte);
+
+      // API anahtarı girildiyse → Sistem uyanış testi yap
+      if (SystemMemory.geminiApiKey.isNotEmpty) {
+        setState(() => _isTestingApi = true);
+
+        final sonuc = await GeminiService.testBaglantisi(
+          hunterName: SystemMemory.oyuncuIsmi,
+        );
+        if (!mounted) return;
+
+        setState(() => _isTestingApi = false);
+
+        final basarili = sonuc['basarili'] == true;
+        final mesaj = sonuc['mesaj'] ?? '';
+        final model = sonuc['model'];
+
+        await _sistemUyanisDialoguGoster(basarili, mesaj, model);
+        if (!mounted) return;
+      }
+
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const WelcomeScreen()));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('SİSTEM: Doğum tarihi, boy ve kilo verileri zorunludur!'), backgroundColor: sysRed));
     }
+  }
+
+  /// Gemini bağlantı sonucunu sinematik RPG tarzı bir dialog ile gösterir.
+  Future<void> _sistemUyanisDialoguGoster(bool basarili, String mesaj, String? model) {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95),
+          shape: RoundedRectangleBorder(
+            side: BorderSide(color: basarili ? sysBlue : sysRed, width: 1.5),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          titlePadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+          title: Row(
+            children: [
+              Icon(
+                basarili ? Icons.auto_awesome : Icons.error_outline,
+                color: basarili ? sysBlue : sysRed,
+                size: 22,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  basarili ? 'SYSTEM AWAKENED' : 'CORE DIAGNOSTIC FAILED',
+                  style: GoogleFonts.orbitron(
+                    color: basarili ? sysBlue : sysRed,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    letterSpacing: 2,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (basarili && model != null) ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: sysBlue.withValues(alpha: 0.1),
+                    border: Border.all(color: sysBlue.withValues(alpha: 0.4)),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.memory, color: sysBlue, size: 14),
+                      const SizedBox(width: 6),
+                      Text(
+                        'CORE MODEL: $model',
+                        style: const TextStyle(
+                          color: sysBlue,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 11,
+                          fontFamily: 'monospace',
+                          letterSpacing: 1,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+              ],
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: (basarili ? sysBlue : sysRed).withValues(alpha: 0.06),
+                  border: Border(
+                    left: BorderSide(
+                      color: basarili ? sysBlue : sysRed,
+                      width: 3,
+                    ),
+                  ),
+                ),
+                child: Text(
+                  mesaj,
+                  style: TextStyle(
+                    color: basarili ? Colors.white : Colors.redAccent,
+                    fontSize: 13,
+                    height: 1.5,
+                    fontStyle: basarili ? FontStyle.italic : FontStyle.normal,
+                  ),
+                ),
+              ),
+              if (basarili) ...[
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Container(width: 8, height: 8, decoration: const BoxDecoration(color: Colors.greenAccent, shape: BoxShape.circle)),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Connection Established. System is Online.',
+                      style: TextStyle(color: Colors.greenAccent, fontSize: 11, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+          actionsPadding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+          actions: [
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: (basarili ? sysBlue : sysRed).withValues(alpha: 0.15),
+                  side: BorderSide(color: basarili ? sysBlue : sysRed),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                ),
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  basarili ? 'ENTER THE SYSTEM' : 'ACKNOWLEDGE',
+                  style: TextStyle(
+                    color: basarili ? sysBlue : sysRed,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    letterSpacing: 2,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override

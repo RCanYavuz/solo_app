@@ -743,14 +743,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     });
                     SystemMemory.kaydet();
                     Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('SYSTEM: Gemini Core Key Saved!'),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
+
+                    // Kaydedildi → Hemen Sistem uyanış testi başlat
+                    if (SystemMemory.geminiApiKey.isNotEmpty) {
+                      _geminiBaglantiTestEt();
+                    } else {
+                      ScaffoldMessenger.of(this.context).showSnackBar(
+                        const SnackBar(
+                          content: Text('SYSTEM: API Key Cleared.'),
+                          backgroundColor: Colors.orange,
+                        ),
+                      );
+                    }
                   },
-                  child: const Text('SAVE KEY', style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold)),
+                  child: const Text('SAVE & AWAKEN', style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold)),
                 ),
               ],
             );
