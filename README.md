@@ -57,10 +57,12 @@ lib/
 
 ## 🎯 Temel Özellikler
 
-### 1. 🤖 Gemini Yapay Zeka Entegrasyonu (YENİ)
-- **AI Besin Çözücü (AI Decoder):** Yemek ekleme penceresinde serbest dille yazılan öğünleri (*ör: "2 haşlanmış yumurta, 1 dilim ekmek, 50g lor"*) Gemini API ile JSON formatında analiz eder; yemek adını, kaloriyi, protein, karbonhidrat ve yağ değerlerini otomatik ayrıştırıp form alanlarını doldurur.
-- **Profil API Yönetimi & Canlı Tanılama (Live Diagnostic):** Profil ekranı üzerinden Gemini API anahtarı güvenle girilebilir, düzenlenebilir ve Google Generative Language API ile canlı model keşfi (Flash kotası denetimi) gerçekleştirilebilir.
-- **Model Kalıcılığı:** Keşfedilen en optimize çalışan model (`gemini-1.5-flash`, `gemini-2.0-flash` vb.) `SystemMemory` ve `SharedPreferences` ile oturumlar arasında korunur.
+### 1. 🤖 Gemini Yapay Zeka Entegrasyonu (Gemini 3.6 Flash & Next-Gen Core)
+- **Doğrudan REST & Çoklu Model Desteği:** Google'ın en güncel **`gemini-3.6-flash`**, `gemini-3.5-flash` ve `gemini-3.1-pro` modelleriyle tam uyumlu, SDK bağımlılığı olmadan doğrudan çalışan yüksek hızlı REST mimarisi.
+- **AI Besin & Makro Çözücü (Natural Language AI Decoder):** Yemek ekleme penceresinde serbest dille yazılan karmaşık öğünleri (*ör: "2 haşlanmış yumurta, 1 dilim tam buğday ekmeği, 50g lor ve 5 zeytin"*) Gemini yapay zekasıyla saniyeler içinde analiz eder; yemek adını, toplam kaloriyi, protein, karbonhidrat ve yağ makrolarını ayrıştırıp forma otomatik işler.
+- **"Sistem" Uyanış & Canlı Teşhis (The System Voice & Live Diagnostic):** Solo Leveling evrenindeki otoriter ve disiplinli "Sistem" sesini simüle eder. Profil ekranındaki **`DIAGNOSTIC`** butonuyla avcının durumunu denetler, canlı model keşfi yapar ve `[BİLDİRİM]` formatında RPG atmosferli sistem uyanış mesajları üretir (`CORE ONLINE`).
+- **Güvenli API Anahtarı Yönetimi:** Profil ekranındaki **`SET KEY`** modalı üzerinden maskeli biçimde API anahtarı girilebilir, güncellenebilir veya test edilebilir. Anahtarlar Git depolarına sızmaz; tarayıcının ve cihazın güvenli yerel hafızasında (`SharedPreferences`) saklanır.
+- **Akıllı Model Kalıcılığı & Otomatik Migrasyon:** Keşfedilen çalışan model ve anahtar oturumlar arasında korunur; eski/kapatılmış model isimleri (`gemini-1.5-flash` vb.) otomatik olarak en güncel `gemini-3.6-flash` motoruna taşınır.
 
 ### 2. 🧪 Görsel Makro Laboratuvarı (Macro Lab) (YENİ)
 - `diet_screen.dart` ve `diyet_motoru.dart` ile tam entegre çalışan analitik ekran.
@@ -165,7 +167,7 @@ flutter test
 ## 🛠️ Teknoloji Stack
 
 - **Platform:** Flutter (Dart SDK `^3.11.3`, Flutter `3.47.2+`)
-- **Yapay Zeka:** `google_generative_ai: ^0.4.7` & `http: ^1.2.0`
+- **Yapay Zeka:** Google Gemini REST API (`gemini-3.6-flash`, `gemini-3.5-flash`, `gemini-3.1-pro`) & `http: ^1.2.0`
 - **Durum Yönetimi:** `ValueNotifier` + reactive state
 - **Veri Kalıcılığı:** `shared_preferences: ^2.5.5`
 - **Tipografi:** Google Fonts (`Orbitron`, `Rajdhani`)
