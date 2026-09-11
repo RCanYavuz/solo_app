@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'dart:typed_data';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../core/audio_system.dart';
@@ -120,11 +121,8 @@ class SystemMemory {
 
       oyuncuIsmi = prefs.getString('oyuncuIsmi') ?? "PLAYER";
       appLanguage.value = prefs.getString('appLanguage') ?? "en";
-      geminiApiKey = prefs.getString('geminiApiKey') ?? "";
-      final savedKey = prefs.getString('geminiApiKey') ?? prefs.getString('gemini_api_key');
-      if (savedKey != null && savedKey.trim().isNotEmpty) {
-        geminiApiKey = savedKey.trim();
-      }
+      const secureStorage = FlutterSecureStorage();
+      geminiApiKey = await secureStorage.read(key: 'gemini_api_key') ?? "";
       final savedModel = prefs.getString('gemini_active_model');
       if (savedModel != null && savedModel.isNotEmpty && !savedModel.contains('3.6')) {
         geminiActiveModel = savedModel;
@@ -228,8 +226,8 @@ class SystemMemory {
     prefs.setString('hunterRank', hunterRank);
     await prefs.setString('oyuncuIsmi', oyuncuIsmi);
     await prefs.setString('appLanguage', appLanguage.value);
-    await prefs.setString('geminiApiKey', geminiApiKey);
-    prefs.setString('gemini_api_key', geminiApiKey);
+    const secureStorage = FlutterSecureStorage();
+    await secureStorage.write(key: 'gemini_api_key', value: geminiApiKey);
     prefs.setString('gemini_active_model', geminiActiveModel);
     
     if (dogumTarihi != null) prefs.setString('dogumTarihi', dogumTarihi!.toIso8601String());
