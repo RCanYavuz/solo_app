@@ -49,6 +49,7 @@ class SystemMemory {
   static String geceRaporu = ""; 
 
   static Uint8List? profilFotoByte; 
+  static Uint8List? avatarFotoByte;
   static DateTime? dogumTarihi;     
   static String cinsiyet = "Erkek";
   static double boy = 175; 
@@ -149,6 +150,9 @@ class SystemMemory {
 
       String fotoB64 = prefs.getString('profilFoto') ?? '';
       if (fotoB64.isNotEmpty) profilFotoByte = base64Decode(fotoB64);
+      
+      String avatarB64 = prefs.getString('avatarFoto') ?? '';
+      if (avatarB64.isNotEmpty) avatarFotoByte = base64Decode(avatarB64);
 
       bugunAlinanKalori = prefs.getInt('bugunAlinanKalori') ?? 0;
       uyunanSaat = prefs.getInt('uyunanSaat') ?? 0;
@@ -205,8 +209,12 @@ class SystemMemory {
     prefs.setString('gemini_active_model', geminiActiveModel);
     
     if (dogumTarihi != null) prefs.setString('dogumTarihi', dogumTarihi!.toIso8601String());
-    if (profilFotoByte != null) prefs.setString('profilFoto', base64Encode(profilFotoByte!));
-
+    if (profilFotoByte != null) {
+      prefs.setString('profilFoto', base64Encode(profilFotoByte!));
+    }
+    if (avatarFotoByte != null) {
+      prefs.setString('avatarFoto', base64Encode(avatarFotoByte!));
+    }
     prefs.setInt('bugunAlinanKalori', bugunAlinanKalori); prefs.setInt('uyunanSaat', uyunanSaat);
     prefs.setString('bugununYemekleri', jsonEncode(bugununYemekleri.map((e) => e.toJson()).toList()));
     
@@ -794,6 +802,8 @@ class SystemMemory {
     level.value = 1;
     exp.value = 0;
     hp.value = 100;
+    avatarFotoByte = null;
+    profilFotoByte = null;
   }
 
   // ==========================================

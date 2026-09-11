@@ -1,6 +1,7 @@
 // lib/core/services/gemini_service.dart
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import '../../controllers/system_memory.dart';
 
@@ -19,8 +20,8 @@ class GeminiService {
       'Türkçe konuş. Cümlelerinde bazen [SİSTEM], [BİLDİRİM] gibi RPG tarzı köşeli parantezler kullan. '
       'Gereksiz nezaket cümleleri yerine net, keskin bir Sistem dili benimse.';
 
-  /// REST API üzerinden Gemini'ye mesaj gönderir.
-  static Future<String?> _generateContent(String modelName, String apiKey, String prompt) async {
+  /// REST API üzerinden Gemini'ye mesaj gönderir (Opsiyonel görsel ile).
+  static Future<String?> _generateContent(String modelName, String apiKey, String prompt, {String? base64Image}) async {
     final url = Uri.parse(
       'https://generativelanguage.googleapis.com/v1beta/models/$modelName:generateContent?key=$apiKey',
     );
@@ -31,7 +32,11 @@ class GeminiService {
       },
       'contents': [
         {
-          'parts': [{'text': prompt}]
+          'parts': [
+            {'text': prompt},
+            if (base64Image != null)
+              {'inline_data': {'mime_type': 'image/jpeg', 'data': base64Image}}
+          ]
         }
       ],
     });
@@ -89,7 +94,12 @@ class GeminiService {
 
     // Güncel, güvenilir ve aktif tek model kullanılıyor
     final modelsToTry = <String>[
-      'gemini-3.6-flash',
+      'gemini-1.5-flash-latest',
+      'gemini-1.5-flash',
+      'gemini-1.5-pro',
+      'gemini-pro',
+      'gemini-1.0-pro-vision-latest',
+      'gemini-1.0-pro'
     ];
 
     final hatalar = <String>[];
@@ -133,7 +143,7 @@ class GeminiService {
     if (apiKey.isEmpty) return null;
 
     // Engelleme filtresi kaldırıldı, doğrudan kararlı modele yönlendirildi
-    const model = 'gemini-3.6-flash';
+    final model = SystemMemory.geminiActiveModel;
 
     try {
       final prompt = '''
@@ -153,6 +163,53 @@ Yalnızca geçerli bir JSON objesi döndür:
       return await _generateContent(model, apiKey, prompt);
     } catch (e) {
       return null;
+    }
+  }
+  /// Fotoğrafı analiz edip Avatar için çok detaylı bir İngilizce prompt oluşturur.
+  static Future<String?> avatarIcinPromptUret(Uint8List fotoBytes) async {
+    final apiKey = SystemMemory.geminiApiKey.trim();
+    if (apiKey.isEmpty) return null;
+
+    final model = SystemMemory.geminiActiveModel;
+    String base64Image = base64Encode(fotoBytes);
+
+    try {
+      final prompt = '''
+Sen bir karakter tasarımcısısın. Sana verilen bu fotoğraftaki kişinin yüz hatlarını (saç stili, sakal/bıyık durumu, yüz şekli, göz yapısı) piksel piksel analiz et. 
+Ardından bu kişinin "Solo Leveling" tarzı bir RPG oyununda 'uyanmış' (awakened) halini betimleyen, 
+İNGİLİZCE, son derece detaylı bir "Görsel Üretim Promptu (Image Generation Prompt)" yaz.
+
+Kurallar:
+- Prompt İngilizce olmalı.
+- Kişinin fiziksel yüz benzerliği kesinlikle korunmalı (örneğin sakallıysa sakal tipi, saçları nasılsa o).
+- Kişi kaslı, fit ve üzerinde siyah bir v-yaka tişört ile çizilmeli.
+- Arka planda karanlık, kasvetli bir zindan (dungeon) veya loş bir spor salonu olmalı.
+- Önünde parlayan, havada süzülen neon mavi bir "Sistem Hologram Paneli" (glowing blue holographic system panel) bulunmalı ve kişi ona bakmalı.
+- "A hyper-realistic, highly detailed cinematic photograph..." şeklinde başla ve photorealistic, 8k resolution, cinematic lighting, sweat drops gibi etiketler ekle.
+- Sadece İngilizce promptu döndür, başka hiçbir şey yazma.
+''';
+
+      return await _generateContent(model, apiKey, prompt, base64Image: base64Image);
+    } catch (e) {
+      return "ERROR: \$e";
+    }
+  }
+
+  /// Pollinations.ai üzerinden ücretsiz görsel oluşturur ve indirir.
+  static Future<dynamic> avatarUret(String ingilizcePrompt) async {
+    try {
+      String encodedPrompt = Uri.encodeComponent(ingilizcePrompt);
+      final rawUrl = 'https://image.pollinations.ai/prompt/$encodedPrompt?width=512&height=512&nologo=true&enhance=false';
+      final url = Uri.parse(rawUrl);
+      
+      final response = await http.get(url).timeout(const Duration(seconds: 60));
+      if (response.statusCode == 200) {
+        return response.bodyBytes;
+      } else {
+        return "HTTP_ERROR: " + response.statusCode.toString() + " - " + response.body;
+      }
+    } catch (e) {
+      return "EXCEPTION: " + e.toString();
     }
   }
 }

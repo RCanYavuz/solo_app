@@ -59,8 +59,117 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('SYSTEM: Avatar Updated Successfully!'), 
+            content: Text('SYSTEM: Photo Updated Successfully!', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 14)), 
             backgroundColor: Colors.green
+          )
+        );
+      }
+    }
+  }
+
+  Future<void> _avatarUretimSureci() async {
+    if (SystemMemory.profilFotoByte == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('SYSTEM: Upload a photo first to Awaken!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)), 
+          backgroundColor: bloodRed
+        )
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95),
+          shape: RoundedRectangleBorder(
+            side: const BorderSide(color: sysBlue, width: 1),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          title: Text('VISUAL AWAKENING', style: GoogleFonts.orbitron(color: sysBlue, fontSize: 16, fontWeight: FontWeight.bold)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircularProgressIndicator(color: sysBlue),
+              const SizedBox(height: 20),
+              const Text('Analyzing facial features...', style: TextStyle(color: sysTextMuted, fontSize: 12)),
+              const SizedBox(height: 5),
+              const Text('Generating hyper-realistic prompt...', style: TextStyle(color: sysTextMuted, fontSize: 12)),
+            ],
+          ),
+        );
+      }
+    );
+
+    String? prompt = await GeminiService.avatarIcinPromptUret(SystemMemory.profilFotoByte!);
+    
+    if (prompt != null) {
+      if (mounted) {
+        Navigator.pop(context); // close first dialog
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) {
+            return AlertDialog(
+              backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95),
+              shape: RoundedRectangleBorder(
+                side: const BorderSide(color: mentalPurple, width: 1),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              title: Text('FORGING AVATAR', style: GoogleFonts.orbitron(color: mentalPurple, fontSize: 16, fontWeight: FontWeight.bold)),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(color: mentalPurple),
+                  const SizedBox(height: 20),
+                  const Text('Connecting to Pollinations AI...', style: TextStyle(color: sysTextMuted, fontSize: 12)),
+                  const SizedBox(height: 5),
+                  const Text('Forging new identity...', style: TextStyle(color: sysTextMuted, fontSize: 12)),
+                ],
+              ),
+            );
+          }
+        );
+      }
+      
+      dynamic avatarResult = await GeminiService.avatarUret(prompt);
+      
+      if (mounted) {
+        Navigator.pop(context); // close second dialog
+      }
+
+      if (avatarResult is Uint8List) {
+        setState(() {
+          SystemMemory.avatarFotoByte = avatarResult;
+        });
+        SystemMemory.kaydet();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('SYSTEM: Avatar Awakened!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)), 
+              backgroundColor: mentalPurple
+            )
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('SYSTEM: API Error: $avatarResult', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)), 
+              backgroundColor: bloodRed
+            )
+          );
+        }
+      }
+    } else {
+      if (mounted) {
+        Navigator.pop(context); // close dialog
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('SYSTEM: Failed to analyze face with Gemini.', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)), 
+            backgroundColor: bloodRed
           )
         );
       }
@@ -921,40 +1030,77 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            GestureDetector(
-              onTap: _fotoGuncelle, 
-              child: Stack(
-                alignment: Alignment.bottomRight,
-                children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                GestureDetector(
+                  onTap: _fotoGuncelle, 
+                  child: Stack(
+                    alignment: Alignment.bottomRight,
+                    children: [
+                      Container(
+                        width: 100, height: 100,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4), 
+                          border: Border.all(color: SystemMemory.redGateAktif ? bloodRed : sysBlue, width: 1.5), 
+                          boxShadow: [
+                            BoxShadow(
+                              color: (SystemMemory.redGateAktif ? bloodRed : sysBlue).withValues(alpha: 0.1), 
+                              blurRadius: 20
+                            )
+                          ], 
+                          image: SystemMemory.profilFotoByte != null 
+                              ? DecorationImage(image: MemoryImage(SystemMemory.profilFotoByte!), fit: BoxFit.cover) 
+                              : null, 
+                          color: const Color(0xFF0F172A)
+                        ),
+                        child: SystemMemory.profilFotoByte == null 
+                            ? Icon(Icons.person, size: 50, color: SystemMemory.redGateAktif ? bloodRed : sysBlue) 
+                            : null,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(4), 
+                        decoration: BoxDecoration(
+                          color: SystemMemory.redGateAktif ? bloodRed : sysBlue, 
+                          shape: BoxShape.circle
+                        ), 
+                        child: const Icon(Icons.camera_alt, color: Colors.black, size: 14)
+                      )
+                    ],
+                  ),
+                ),
+                if (SystemMemory.avatarFotoByte != null) ...[
+                  const SizedBox(width: 20),
+                  const Icon(Icons.arrow_forward_ios, color: sysBlue, size: 20),
+                  const SizedBox(width: 20),
                   Container(
                     width: 100, height: 100,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(4), 
-                      border: Border.all(color: SystemMemory.redGateAktif ? bloodRed : sysBlue, width: 1.5), 
+                      border: Border.all(color: mentalPurple, width: 2), 
                       boxShadow: [
                         BoxShadow(
-                          color: (SystemMemory.redGateAktif ? bloodRed : sysBlue).withValues(alpha: 0.1), 
-                          blurRadius: 20
+                          color: mentalPurple.withValues(alpha: 0.3), 
+                          blurRadius: 25,
+                          spreadRadius: 2
                         )
                       ], 
-                      image: SystemMemory.profilFotoByte != null 
-                          ? DecorationImage(image: MemoryImage(SystemMemory.profilFotoByte!), fit: BoxFit.cover) 
-                          : null, 
+                      image: DecorationImage(image: MemoryImage(SystemMemory.avatarFotoByte!), fit: BoxFit.cover), 
                       color: const Color(0xFF0F172A)
                     ),
-                    child: SystemMemory.profilFotoByte == null 
-                        ? Icon(Icons.person, size: 50, color: SystemMemory.redGateAktif ? bloodRed : sysBlue) 
-                        : null,
                   ),
-                  Container(
-                    padding: const EdgeInsets.all(4), 
-                    decoration: BoxDecoration(
-                      color: SystemMemory.redGateAktif ? bloodRed : sysBlue, 
-                      shape: BoxShape.circle
-                    ), 
-                    child: const Icon(Icons.camera_alt, color: Colors.black, size: 14)
-                  )
-                ],
+                ]
+              ],
+            ),
+            const SizedBox(height: 15),
+            OutlinedButton.icon(
+              onPressed: _avatarUretimSureci, 
+              icon: const Icon(Icons.auto_awesome, color: mentalPurple, size: 16), 
+              label: Text(SystemMemory.avatarFotoByte == null ? 'AWAKEN AVATAR' : 'RE-AWAKEN AVATAR', style: const TextStyle(color: mentalPurple, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1)),
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: mentalPurple, width: 1.5),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                backgroundColor: mentalPurple.withValues(alpha: 0.1)
               ),
             ),
             const SizedBox(height: 15),
