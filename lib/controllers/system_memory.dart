@@ -69,6 +69,12 @@ class SystemMemory {
   static String aktifHedef = "Bilinmiyor";
   static String aktifZorluk = "Bilinmiyor";
 
+  // --- AWAKENING TEST ---
+  static double maxBench = 0.0;
+  static double maxSquat = 0.0;
+  static double maxDeadlift = 0.0;
+  static String hunterRank = "Unranked";
+
   static int bugunAlinanKalori = 0;    
   static List<TuketilenYemek> bugununYemekleri = [];
   static int uyunanSaat = 0;           
@@ -145,6 +151,11 @@ class SystemMemory {
       aktifHedef = prefs.getString('aktifHedef') ?? "Unknown";
       aktifZorluk = prefs.getString('aktifZorluk') ?? "Unknown";
       
+      maxBench = prefs.getDouble('maxBench') ?? 0.0;
+      maxSquat = prefs.getDouble('maxSquat') ?? 0.0;
+      maxDeadlift = prefs.getDouble('maxDeadlift') ?? 0.0;
+      hunterRank = prefs.getString('hunterRank') ?? "Unranked";
+      
       String dtStr = prefs.getString('dogumTarihi') ?? '';
       if (dtStr.isNotEmpty) dogumTarihi = DateTime.parse(dtStr);
 
@@ -203,8 +214,14 @@ class SystemMemory {
     prefs.setString('idmanGecmisi', jsonEncode(idmanGecmisi));
     prefs.setString('yemekGecmisi', jsonEncode(yemekGecmisi));
 
-    prefs.setInt('gunlukHedefKalori', gunlukHedefKalori); prefs.setString('vucutSinifi', vucutSinifi);
-    prefs.setString('aktifHedef', aktifHedef); prefs.setString('aktifZorluk', aktifZorluk);
+    prefs.setInt('gunlukHedefKalori', gunlukHedefKalori);    prefs.setString('vucutSinifi', vucutSinifi);
+    prefs.setString('aktifHedef', aktifHedef);
+    prefs.setString('aktifZorluk', aktifZorluk);
+
+    prefs.setDouble('maxBench', maxBench);
+    prefs.setDouble('maxSquat', maxSquat);
+    prefs.setDouble('maxDeadlift', maxDeadlift);
+    prefs.setString('hunterRank', hunterRank);
     prefs.setString('gemini_api_key', geminiApiKey);
     prefs.setString('gemini_active_model', geminiActiveModel);
     

@@ -177,17 +177,23 @@ class GeminiService {
     }
   }
 
-  /// Avcının serbest dille yazdığı öğünü analiz eder ve besin değerlerini tahmin eder.
-  static Future<String?> yemekAnalizEt(String yemekTarifi) async {
+  /// Avcının serbest dille yazdığı öğünü veya gönderdiği fotoğrafı analiz eder ve besin değerlerini tahmin eder.
+  static Future<String?> yemekAnalizEt(String yemekTarifi, {Uint8List? imageBytes}) async {
     final apiKey = SystemMemory.geminiApiKey.trim();
     if (apiKey.isEmpty) return null;
 
     final model = SystemMemory.geminiActiveModel;
+    String? base64Image;
+    if (imageBytes != null) {
+      base64Image = base64Encode(imageBytes);
+    }
 
     try {
       final prompt = '''
-Avcı şu öğünü tüketti: "$yemekTarifi".
-Lütfen bu öğünün yaklaşık besin değerlerini çıkar.
+Avcı şu öğünü tüketti/gönderdi: "$yemekTarifi".
+${imageBytes != null ? "Bununla birlikte sana bir fotoğraf da gönderdi. ÖNCE fotoğrafta herhangi bir yiyecek/içecek olup olmadığını kontrol et. Eğer fotoğrafta YİYECEK YOKSA (örneğin sadece bir duvar, eşya, insan veya manzara varsa) HATA döndürmelisin." : ""}
+
+Lütfen bu öğünün/fotoğrafın yaklaşık besin değerlerini çıkar.
 Yalnızca geçerli bir JSON objesi döndür:
 {
   "yemekAdi": "Kısa yemek adı",
@@ -197,9 +203,14 @@ Yalnızca geçerli bir JSON objesi döndür:
   "yag": 12,
   "sistemMesaji": "Disiplinli beslenme tespit edildi."
 }
+
+EĞER FOTOĞRAFTA YEMEK YOKSA ŞU ŞEKİLDE DÖNDÜR:
+{
+  "hata": "Lütfen yiyeceği yazınız veya net bir yemek fotoğrafı yükleyiniz."
+}
 ''';
 
-      return await _generateContent(model, apiKey, prompt);
+      return await _generateContent(model, apiKey, prompt, base64Image: base64Image);
     } catch (e) {
       return null;
     }
@@ -235,21 +246,50 @@ Kurallar:
     }
   }
 
-  /// Pollinations.ai üzerinden ücretsiz görsel oluşturur ve indirir.
   static Future<dynamic> avatarUret(String ingilizcePrompt) async {
+    // Return mock since the service is currently blocked by Cloudflare turnstile.
+    return "AVATAR_SYSTEM_LOCKED";
+  }
+
+  /// Faz 6: Akıllı Antrenör
+  /// Oyuncunun rank'ine ve max ağırlıklarına göre tam oranlı, kg bazlı idman çıkartır.
+  static Future<String?> akilliAntrenor(String talep, String vucutSinifi, String hunterRank, double maxBench, double maxSquat, double maxDeadlift, double kilo) async {
+    final apiKey = SystemMemory.geminiApiKey.trim();
+    if (apiKey.isEmpty) return null;
+
+    final model = SystemMemory.geminiActiveModel;
+    final prompt = '''
+Sen "Sistem" adında acımasız ve motive edici bir yapay zeka antrenörüsün (Solo Leveling temalı).
+Karşındaki Avcı'nın Fiziksel İstatistikleri:
+- Vücut Sınıfı: $vucutSinifi
+- Vücut Ağırlığı: ${kilo.toInt()} KG
+- Hunter Rank (Allometric Güç): $hunterRank
+- Maksimum Güç (1RM): Bench Press: ${maxBench.toInt()} KG, Squat: ${maxSquat.toInt()} KG, Deadlift: ${maxDeadlift.toInt()} KG
+
+Kullanıcının bugünkü talebi: "$talep"
+Eğer talep boşsa, vücut sınıfına ve rütbesine uygun sert bir idman uydur.
+
+Hunter Rank ve 1RM (Maksimum Tekrar) verilerini kullanarak, setlerde kaldırması gereken KİLOLARI BİZZAT HESAPLA. (Örn: Hacim için 1RM'nin %70-75'i).
+Döndüreceğin idmanı SADECE aşağıdaki JSON formatında ver, JSON dışında tek bir harf yazma.
+
+{
+  "planAdi": "Görev Başlığı (Örn: C-Rank Göğüs Yıkımı)",
+  "sistemMesaji": "Sistem uyarısı (Örn: Mevcut gücün zindan için yetersiz, kaslarını parçala.)",
+  "gorevler": [
+    {"isim": "[CHEST] Barbell Bench Press", "set_tekrar": "4 set x 10 tekrar (75 KG)"},
+    {"isim": "[CHEST] Incline Dumbbell Press", "set_tekrar": "3 set x 12 tekrar (Dambıl ile)"}
+  ]
+}
+''';
+
     try {
-      String encodedPrompt = Uri.encodeComponent(ingilizcePrompt);
-      final rawUrl = 'https://image.pollinations.ai/prompt/$encodedPrompt?width=512&height=512&nologo=true&enhance=false';
-      final url = Uri.parse(rawUrl);
-      
-      final response = await http.get(url).timeout(const Duration(seconds: 60));
-      if (response.statusCode == 200) {
-        return response.bodyBytes;
-      } else {
-        return 'HTTP_ERROR: ' + response.statusCode.toString() + ' - ' + response.body;
+      String json = await _generateContent(model, apiKey, prompt);
+      if (json.startsWith("```json")) {
+        json = json.replaceAll("```json", "").replaceAll("```", "").trim();
       }
+      return json;
     } catch (e) {
-      return 'EXCEPTION: ' + e.toString();
+      return null;
     }
   }
 }

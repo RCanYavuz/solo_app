@@ -7,6 +7,8 @@ import '../models/task_model.dart';
 import '../widgets/hologram_card.dart';
 import '../core/audio_system.dart'; 
 import '../core/sistem_gecisi.dart';
+import '../core/services/gemini_service.dart';
+import 'dart:convert';
 import 'workout_library_screen.dart'; 
 
 class WorkoutPlannerScreen extends StatefulWidget {
@@ -70,6 +72,230 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
   void hareketSil(int gun, int index) {
     setState(() { SystemMemory.haftalikPlan[gun]!.removeAt(index); });
     SystemMemory.kaydet();
+  }
+
+  // --- FAZ 6: AI SMART TRAINER ---
+  void _aiTrainerDialog() {
+    TextEditingController talepCtrl = TextEditingController();
+    bool yukleniyor = false;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95),
+              shape: RoundedRectangleBorder(
+                side: const BorderSide(color: mentalPurple, width: 1.5),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              title: Row(
+                children: [
+                  const Icon(Icons.psychology, color: mentalPurple, size: 24),
+                  const SizedBox(width: 8),
+                  Text(
+                    'AI SMART TRAINER',
+                    style: GoogleFonts.orbitron(color: mentalPurple, fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Current Rank: ${SystemMemory.hunterRank} | Vücut Sınıfı: ${SystemMemory.vucutSinifi}",
+                    style: const TextStyle(color: physicalGold, fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Sistem, istatistiklerine göre sana uygun bir idman çıkaracak. İstersen spesifik bir istek girebilirsin (Örn: Sadece dambıl ile kol).',
+                    style: TextStyle(color: sysTextMuted, fontSize: 12),
+                  ),
+                  const SizedBox(height: 15),
+                  TextField(
+                    controller: talepCtrl,
+                    maxLines: 3,
+                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                    decoration: InputDecoration(
+                      labelText: 'Hunter Request (Optional)',
+                      labelStyle: const TextStyle(color: sysTextMuted, fontSize: 12),
+                      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: mentalPurple.withValues(alpha: 0.5))),
+                      focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: mentalPurple)),
+                    ),
+                  ),
+                  if (yukleniyor) ...[
+                    const SizedBox(height: 20),
+                    const Center(child: CircularProgressIndicator(color: mentalPurple)),
+                    const SizedBox(height: 10),
+                    const Center(child: Text("Sistem antrenmanı hesaplıyor...", style: TextStyle(color: mentalPurple, fontSize: 12))),
+                  ]
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: yukleniyor ? null : () => Navigator.pop(context),
+                  child: const Text('CANCEL', style: TextStyle(color: sysTextMuted)),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: mentalPurple.withValues(alpha: 0.2),
+                    side: const BorderSide(color: mentalPurple),
+                  ),
+                  onPressed: yukleniyor ? null : () async {
+                    if (seciliGunler.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Lütfen önce gün seçin (Örn: Pzt, Çar)."), backgroundColor: sysRed));
+                      return;
+                    }
+                    setDialogState(() => yukleniyor = true);
+                    AudioSystem.playTransition();
+                    String? jsonCevap = await GeminiService.akilliAntrenor(
+                      talepCtrl.text.trim(), 
+                      SystemMemory.vucutSinifi, 
+                      SystemMemory.hunterRank, 
+                      SystemMemory.maxBench, 
+                      SystemMemory.maxSquat, 
+                      SystemMemory.maxDeadlift,
+                      SystemMemory.kilo
+                    );
+                    setDialogState(() => yukleniyor = false);
+
+                    if (mounted) {
+                      Navigator.pop(context); // Dialogu kapat
+                      if (jsonCevap != null && jsonCevap.isNotEmpty) {
+                        _reviewAndEditDialog(jsonCevap);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Sistem hata verdi, lütfen tekrar dene."), backgroundColor: sysRed));
+                      }
+                    }
+                  },
+                  child: const Text('GENERATE', style: TextStyle(color: mentalPurple, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            );
+          }
+        );
+      }
+    );
+  }
+
+  void _reviewAndEditDialog(String jsonString) {
+    try {
+      final data = jsonDecode(jsonString);
+      String planAdi = data['planAdi'] ?? "Unknown Plan";
+      String sistemMesaji = data['sistemMesaji'] ?? "";
+      List<dynamic> rawGorevler = data['gorevler'] ?? [];
+      
+      List<Map<String, String>> taslakListesi = [];
+      for (var g in rawGorevler) {
+        taslakListesi.add({
+          "isim": g['isim'].toString(),
+          "set_tekrar": g['set_tekrar'].toString(),
+        });
+      }
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return StatefulBuilder(
+            builder: (context, setDialogState) {
+              return AlertDialog(
+                backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95),
+                shape: RoundedRectangleBorder(
+                  side: const BorderSide(color: sysBlue, width: 2),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(planAdi.toUpperCase(), style: GoogleFonts.orbitron(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 16)),
+                    if (sistemMesaji.isNotEmpty) ...[
+                      const SizedBox(height: 5),
+                      Text(sistemMesaji, style: const TextStyle(color: sysTextMuted, fontSize: 10, fontStyle: FontStyle.italic)),
+                    ]
+                  ],
+                ),
+                content: SizedBox(
+                  width: double.maxFinite,
+                  height: MediaQuery.of(context).size.height * 0.5,
+                  child: ListView.builder(
+                    itemCount: taslakListesi.length,
+                    itemBuilder: (context, index) {
+                      final item = taslakListesi[index];
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: sysBlue.withValues(alpha: 0.1),
+                          border: Border.all(color: sysBlue.withValues(alpha: 0.3)),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(item['isim']!, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                                  const SizedBox(height: 4),
+                                  Text(item['set_tekrar']!, style: const TextStyle(color: physicalGold, fontSize: 11)),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: sysRed, size: 18),
+                              onPressed: () {
+                                setDialogState(() {
+                                  taslakListesi.removeAt(index);
+                                });
+                              },
+                            )
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('DISCARD', style: TextStyle(color: sysRed)),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: sysBlue.withValues(alpha: 0.2),
+                      side: const BorderSide(color: sysBlue),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        for (int gun in seciliGunler) {
+                          for (var task in taslakListesi) {
+                            String finalTitle = "${task['isim']} - ${task['set_tekrar']}";
+                            SystemMemory.haftalikPlan[gun]!.add(Gorev(finalTitle, false, "Fiziksel"));
+                          }
+                        }
+                      });
+                      SystemMemory.kaydet();
+                      AudioSystem.playSuccess();
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text('SYSTEM: $planAdi applied to ${seciliGunler.length} day(s)!'),
+                        backgroundColor: Colors.green
+                      ));
+                    },
+                    child: const Text('CONFIRM & SYNC', style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              );
+            }
+          );
+        }
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Format Hatası: $e"), backgroundColor: sysRed));
+    }
   }
 
   // --- YENİ: SİSTEM ŞABLONLARI ---
@@ -200,6 +426,11 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
               context,
               SistemGecisi(sayfa: const WorkoutLibraryScreen()),
             ).then((_) => setState(() {})),
+          ),
+          IconButton(
+            icon: const Icon(Icons.psychology, color: mentalPurple), 
+            tooltip: 'AI Smart Trainer', 
+            onPressed: _aiTrainerDialog
           ),
           IconButton(icon: const Icon(Icons.auto_awesome, color: physicalGold), tooltip: 'System Templates', onPressed: _sablonSecimDialog),
           const SizedBox(width: 10)

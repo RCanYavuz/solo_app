@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'dart:typed_data';
 import '../controllers/system_memory.dart';
 import '../models/food_model.dart';
+import 'package:image_picker/image_picker.dart';
 import '../widgets/hologram_card.dart';
 import '../core/sistem_gecisi.dart';
 import '../core/services/gemini_service.dart';
@@ -30,6 +32,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
     bool aiYukleniyor = false;
     String? aiHata;
     Map<String, dynamic>? aiMakrolar;
+    Uint8List? secilenFoto;
 
     showDialog(
       context: context,
@@ -95,18 +98,58 @@ class _YemekEkraniState extends State<YemekEkrani> {
                             controller: aiTarifCtrl,
                             style: const TextStyle(color: Colors.white, fontSize: 13),
                             decoration: InputDecoration(
-                              hintText: 'e.g. 2 eggs, 1 slice bread, 50g cheese',
+                              hintText: 'e.g. 2 eggs, 1 slice bread, 50g cheese (optional if photo is given)',
                               hintStyle: const TextStyle(color: Colors.white30, fontSize: 12),
                               isDense: true,
                               contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: sysBlue.withValues(alpha: 0.3)),
-                              ),
-                              focusedBorder: const OutlineInputBorder(
-                                borderSide: BorderSide(color: sysBlue),
-                              ),
+                              enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: sysBlue.withValues(alpha: 0.3))),
+                              focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: sysBlue)),
                             ),
                           ),
+                          const SizedBox(height: 8),
+                          
+                          // Fotoğraf Yükleme Butonu
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  onPressed: aiYukleniyor ? null : () async {
+                                    final ImagePicker picker = ImagePicker();
+                                    final XFile? image = await picker.pickImage(source: ImageSource.gallery, maxWidth: 800, maxHeight: 800);
+                                    if (image != null) {
+                                      final bytes = await image.readAsBytes();
+                                      setDialogState(() {
+                                        secilenFoto = bytes;
+                                        aiHata = null;
+                                      });
+                                    }
+                                  },
+                                  icon: const Icon(Icons.add_a_photo, color: sysBlue, size: 14),
+                                  label: Text(
+                                    secilenFoto != null ? 'PHOTO ATTACHED' : 'ATTACH PHOTO',
+                                    style: const TextStyle(color: sysBlue, fontSize: 10, fontWeight: FontWeight.bold),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: sysBlue.withValues(alpha: 0.1),
+                                    side: BorderSide(color: secilenFoto != null ? Colors.greenAccent : sysBlue.withValues(alpha: 0.5)),
+                                    padding: const EdgeInsets.symmetric(vertical: 8),
+                                  ),
+                                ),
+                              ),
+                              if (secilenFoto != null) ...[
+                                const SizedBox(width: 8),
+                                IconButton(
+                                  icon: const Icon(Icons.close, color: sysRed, size: 16),
+                                  onPressed: () {
+                                    setDialogState(() {
+                                      secilenFoto = null;
+                                    });
+                                  },
+                                )
+                              ]
+                            ],
+                          ),
+                          const SizedBox(height: 8),
                           const SizedBox(height: 8),
                           SizedBox(
                             width: double.infinity,
@@ -115,9 +158,9 @@ class _YemekEkraniState extends State<YemekEkrani> {
                                   ? null
                                   : () async {
                                       final tarif = aiTarifCtrl.text.trim();
-                                      if (tarif.isEmpty) {
+                                      if (tarif.isEmpty && secilenFoto == null) {
                                         setDialogState(() {
-                                          aiHata = 'Enter meal description first.';
+                                          aiHata = 'Enter meal description or attach a photo.';
                                         });
                                         return;
                                       }
@@ -135,7 +178,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
                                       });
 
                                       try {
-                                        final raw = await GeminiService.yemekAnalizEt(tarif);
+                                        final raw = await GeminiService.yemekAnalizEt(tarif, imageBytes: secilenFoto);
                                         if (raw == null) {
                                           setDialogState(() {
                                             aiYukleniyor = false;
@@ -146,8 +189,16 @@ class _YemekEkraniState extends State<YemekEkrani> {
 
                                         final cleaned = raw.replaceAll(RegExp(r'```json\s*|```'), '').trim();
                                         final data = jsonDecode(cleaned);
+                                        
+                                        if (data.containsKey('hata')) {
+                                          setDialogState(() {
+                                            aiYukleniyor = false;
+                                            aiHata = data['hata'].toString();
+                                          });
+                                          return;
+                                        }
 
-                                        final ad = data['yemekAdi']?.toString() ?? tarif;
+                                        final ad = data['yemekAdi']?.toString() ?? (tarif.isNotEmpty ? tarif : 'Photo AI Meal');
                                         final cal = (data['kalori'] ?? 0).toString();
 
                                         _yemekAdiCtrl.text = ad;

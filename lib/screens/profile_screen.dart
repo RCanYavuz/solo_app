@@ -849,6 +849,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 20),
+                    Center(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: sysBlue.withValues(alpha: 0.1),
+                          side: const BorderSide(color: sysBlue),
+                          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                        ),
+                        onPressed: () {
+                          SystemMemory.geminiApiKey = apiKeyCtrl.text.trim();
+                          SystemMemory.kaydet();
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('SYSTEM: Gemini Key Updated.'), backgroundColor: Colors.green)
+                          );
+                        },
+                        child: const Text('SAVE KEY', style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold)),
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -857,31 +876,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onPressed: () => Navigator.pop(context),
                   child: const Text('CANCEL', style: TextStyle(color: sysTextMuted)),
                 ),
-                ElevatedButton(
+                ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: sysBlue.withValues(alpha: 0.15),
-                    side: const BorderSide(color: sysBlue),
+                    backgroundColor: Colors.amber.withValues(alpha: 0.1),
+                    side: const BorderSide(color: Colors.amber),
                   ),
-                  onPressed: () {
-                    setState(() {
-                      SystemMemory.geminiApiKey = apiKeyCtrl.text.trim();
-                    });
-                    SystemMemory.kaydet();
-                    Navigator.pop(context);
+                  icon: _geminiTestEdiliyor
+                      ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(color: Colors.amber, strokeWidth: 2))
+                      : const Icon(Icons.troubleshoot, size: 16, color: Colors.amber),
+                  label: const Text('DIAGNOSTIC', style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold)),
+                  onPressed: _geminiTestEdiliyor ? null : () async {
+                    setDialogState(() => _geminiTestEdiliyor = true);
+                    final key = apiKeyCtrl.text.trim();
+                    final res = await GeminiService.testBaglantisi(hunterName: SystemMemory.oyuncuIsmi, apiKeyOverride: key);
+                    setDialogState(() => _geminiTestEdiliyor = false);
 
-                    // Kaydedildi → Hemen Sistem uyanış testi başlat
-                    if (SystemMemory.geminiApiKey.isNotEmpty) {
-                      _geminiBaglantiTestEt();
-                    } else {
-                      ScaffoldMessenger.of(this.context).showSnackBar(
-                        const SnackBar(
-                          content: Text('SYSTEM: API Key Cleared.'),
-                          backgroundColor: Colors.orange,
-                        ),
-                      );
+                    if (mounted) {
+                      Navigator.pop(context);
+                      _showGeminiTestResult(res['basarili'], res['mesaj'], res['model']);
                     }
                   },
-                  child: const Text('SAVE & AWAKEN', style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold)),
                 ),
               ],
             );
@@ -1161,11 +1175,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const Divider(color: Colors.white12, thickness: 1), 
                   const SizedBox(height: 10),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween, 
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text("Body Class:", style: TextStyle(color: sysTextMuted, fontSize: 14)), 
-                      Text(SystemMemory.vucutSinifi, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold))
+                      Row(
+                        children: [
+                          const Text("Body Class: ", style: TextStyle(color: sysTextMuted, fontSize: 14)),
+                          Text(SystemMemory.vucutSinifi, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          const Text("Rank: ", style: TextStyle(color: sysTextMuted, fontSize: 14)),
+                          Text(
+                            SystemMemory.hunterRank, 
+                            style: GoogleFonts.orbitron(
+                              color: SystemMemory.hunterRank != 'Unranked' ? physicalGold : sysTextMuted, 
+                              fontSize: 14, 
+                              fontWeight: FontWeight.bold
+                            )
+                          ),
+                        ],
+                      ),
                     ]
+                  ),
+                  const SizedBox(height: 15),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: _awakeningTestDialog,
+                      icon: const Icon(Icons.fitness_center, color: physicalGold, size: 14),
+                      label: const Text('TAKE AWAKENING TEST', style: TextStyle(color: physicalGold, fontWeight: FontWeight.bold, fontSize: 12)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: physicalGold.withValues(alpha: 0.1),
+                        side: const BorderSide(color: physicalGold, width: 1),
+                        padding: const EdgeInsets.symmetric(vertical: 10)
+                      ),
+                    ),
                   )
                 ]
               )
