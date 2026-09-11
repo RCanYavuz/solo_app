@@ -19,7 +19,9 @@ dependencies:
   url_launcher: ^6.2.5
   google_generative_ai: ^0.4.7
   http: ^1.2.0
-
+  flutter_background_service: ^5.1.0
+  wakelock_plus: ^1.2.8
+  workmanager: ^0.5.2
 dependency_overrides:
   path_provider_foundation: 2.4.0
 

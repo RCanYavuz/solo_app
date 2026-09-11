@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'dart:typed_data';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../core/audio_system.dart';
 import '../models/task_model.dart';
@@ -402,7 +403,7 @@ class SystemMemory {
   // ========================================================
   // YENİ DÜZELTME: KALORİ YEDEKLEME KORUMASI (TARTI)
   // ========================================================
-  static void oyuncuyuAnalizEt(String secilenCinsiyet, DateTime girilenDogumTarihi, double girilenBoy, double girilenKilo, String hedef, String zorluk, Uint8List? foto) {
+  static void oyuncuyuAnalizEt(String secilenCinsiyet, DateTime girilenDogumTarihi, double girilenBoy, double girilenKilo, String hedef, String zorluk, Uint8List? foto, [int? idmanGunu]) {
     cinsiyet = secilenCinsiyet; dogumTarihi = girilenDogumTarihi; boy = girilenBoy; kilo = girilenKilo;
     aktifHedef = hedef; aktifZorluk = zorluk; if (foto != null) profilFotoByte = foto;
 
@@ -456,7 +457,47 @@ class SystemMemory {
       gunlukHedefKalori = hesaplanan;
     }
 
+    if (idmanGunu != null && !redGateAktif) {
+      _takvimOlustur(idmanGunu, hedef);
+    }
+
     kaydet();
+  }
+
+  static void _takvimOlustur(int idmanGunu, String hedef) {
+    haftalikPlan.clear();
+    for (int i = 1; i <= 7; i++) {
+      haftalikPlan[i] = [];
+    }
+
+    if (idmanGunu <= 3) {
+      haftalikPlan[1]!.addAll([Gorev("[PHY] Full Body A", false, "Fiziksel"), Gorev("[PHY] Core", false, "Fiziksel")]);
+      haftalikPlan[3]!.addAll([Gorev("[PHY] Full Body B", false, "Fiziksel"), Gorev("[PHY] Cardio", false, "Fiziksel")]);
+      haftalikPlan[5]!.addAll([Gorev("[PHY] Full Body C", false, "Fiziksel"), Gorev("[PHY] Core", false, "Fiziksel")]);
+    } else if (idmanGunu == 4) {
+      haftalikPlan[1]!.addAll([Gorev("[PHY] Upper Body", false, "Fiziksel"), Gorev("[PHY] Core", false, "Fiziksel")]);
+      haftalikPlan[2]!.addAll([Gorev("[PHY] Lower Body", false, "Fiziksel")]);
+      haftalikPlan[4]!.addAll([Gorev("[PHY] Upper Body", false, "Fiziksel"), Gorev("[PHY] Cardio", false, "Fiziksel")]);
+      haftalikPlan[5]!.addAll([Gorev("[PHY] Lower Body", false, "Fiziksel"), Gorev("[PHY] Core", false, "Fiziksel")]);
+    } else if (idmanGunu == 5) {
+      haftalikPlan[1]!.addAll([Gorev("[PHY] Chest & Triceps", false, "Fiziksel")]);
+      haftalikPlan[2]!.addAll([Gorev("[PHY] Back & Biceps", false, "Fiziksel")]);
+      haftalikPlan[3]!.addAll([Gorev("[PHY] Legs", false, "Fiziksel")]);
+      haftalikPlan[4]!.addAll([Gorev("[PHY] Shoulders & Core", false, "Fiziksel")]);
+      haftalikPlan[5]!.addAll([Gorev("[PHY] Weak Point / Arms", false, "Fiziksel")]);
+    } else { 
+      haftalikPlan[1]!.addAll([Gorev("[PHY] Push", false, "Fiziksel")]);
+      haftalikPlan[2]!.addAll([Gorev("[PHY] Pull", false, "Fiziksel")]);
+      haftalikPlan[3]!.addAll([Gorev("[PHY] Legs", false, "Fiziksel")]);
+      haftalikPlan[4]!.addAll([Gorev("[PHY] Push", false, "Fiziksel")]);
+      haftalikPlan[5]!.addAll([Gorev("[PHY] Pull", false, "Fiziksel")]);
+      haftalikPlan[6]!.addAll([Gorev("[PHY] Legs", false, "Fiziksel")]);
+    }
+
+    normalHaftalikPlan.clear();
+    haftalikPlan.forEach((key, value) {
+      normalHaftalikPlan[key] = value.map((e) => Gorev(e.ad, false, e.tip)).toList();
+    });
   }
 
   static String tartiGuncelle(double yeniKilo) {
@@ -737,5 +778,33 @@ class SystemMemory {
     if (hp.value > maxHp) hp.value = maxHp;
     if (mp.value > maxMp) mp.value = maxMp;
     kaydet();
+  }
+
+  static Future<void> sistemiSifirla() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    kayitBulundu = false;
+    geminiApiKey = "";
+    redGateAktif = false;
+    golgeModuAktif = false;
+    haftalikPlan.clear();
+    for(int i=1; i<=7; i++) haftalikPlan[i] = [];
+    normalHaftalikPlan.clear();
+    for(int i=1; i<=7; i++) normalHaftalikPlan[i] = [];
+    level.value = 1;
+    exp.value = 0;
+    hp.value = 100;
+  }
+
+  // ==========================================
+  // SHADOW PROTOCOL (ARKAPLAN İZİNLERİ & WAKELOCK)
+  // ==========================================
+  static void idmanModunuBaslat() {
+    WakelockPlus.enable(); // Ekranın kapanmasını engeller
+    // Arkaplan servisine idman başladığını bildir (İleride eklenecek)
+  }
+
+  static void idmanModunuBitir() {
+    WakelockPlus.disable(); // Normale dön
   }
 }

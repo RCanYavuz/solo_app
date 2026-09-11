@@ -19,6 +19,7 @@ class _SetupScreenState extends State<SetupScreen> {
   String secilenCinsiyet = 'Erkek';
   String secilenHedef = 'Kilo Ver (Yağ Yak)';
   String secilenZorluk = 'Normal';
+  int secilenIdmanGunu = 3;
 
   DateTime? secilenTarih;
   Uint8List? secilenFotoByte; 
@@ -143,7 +144,7 @@ class _SetupScreenState extends State<SetupScreen> {
         SystemMemory.geminiApiKey = apiKeyCtrl.text.trim();
       }
 
-      SystemMemory.oyuncuyuAnalizEt(secilenCinsiyet, secilenTarih!, boy, kilo, secilenHedef, secilenZorluk, secilenFotoByte);
+      SystemMemory.oyuncuyuAnalizEt(secilenCinsiyet, secilenTarih!, boy, kilo, secilenHedef, secilenZorluk, secilenFotoByte, secilenIdmanGunu);
 
       // API anahtarı girildiyse → Sistem uyanış testi yap
       if (SystemMemory.geminiApiKey.isNotEmpty) {
@@ -393,6 +394,13 @@ class _SetupScreenState extends State<SetupScreen> {
                   initialValue: secilenHedef, dropdownColor: const Color(0xFF0F172A), decoration: _inputStili('System Objective'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                   items: ['Kilo Ver (Yağ Yak)', 'Kilo Koru (Dengede Kal)', 'Kilo Al (Kas İnşa Et)'].map((String c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
                   onChanged: (val) { setState(() { secilenHedef = val!; if (val != 'Kilo Koru (Dengede Kal)') { secilenZorluk = 'Normal'; } }); },
+                ),
+                const SizedBox(height: 15),
+
+                DropdownButtonFormField<int>(
+                  initialValue: secilenIdmanGunu, dropdownColor: const Color(0xFF0F172A), decoration: _inputStili('Weekly Training Days'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  items: [3, 4, 5, 6].map((int val) => DropdownMenuItem(value: val, child: Text('$val Days / Week'))).toList(),
+                  onChanged: (val) { setState(() { secilenIdmanGunu = val!; }); },
                 ),
                 const SizedBox(height: 15),
 

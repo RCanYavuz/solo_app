@@ -8,6 +8,7 @@ import '../controllers/system_memory.dart';
 import '../widgets/hologram_card.dart';
 import '../core/audio_system.dart'; 
 import '../core/services/gemini_service.dart'; 
+import 'setup_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -249,7 +250,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _kiloGuncelleDialog() {
+    TextEditingController boyCtrl = TextEditingController(text: SystemMemory.boy.toInt().toString());
     TextEditingController kiloCtrl = TextEditingController(text: SystemMemory.kilo.toString());
+    TextEditingController yasCtrl = TextEditingController(text: SystemMemory.yas.toString());
     
     showDialog(
       context: context, 
@@ -261,34 +264,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
             borderRadius: BorderRadius.circular(4)
           ),
           title: Text(
-            'SYSTEM WEIGH-IN', 
+            'SYSTEM UPDATE', 
             style: GoogleFonts.orbitron(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: 1)
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min, 
-            children: [
-              const Text(
-                "The System will analyze your current mass and apply rewards or penalties. Do you confirm?", 
-                style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12)
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: kiloCtrl, 
-                keyboardType: TextInputType.number, 
-                style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold), 
-                textAlign: TextAlign.center, 
-                decoration: InputDecoration(
-                  suffixText: 'kg', 
-                  suffixStyle: const TextStyle(color: sysBlue), 
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: sysBlue.withValues(alpha: 0.5))
-                  ), 
-                  focusedBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: sysBlue)
-                  )
-                )
-              ),
-            ]
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min, 
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "The System will analyze your current physical specs and apply rewards or penalties.", 
+                  style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12)
+                ),
+                const SizedBox(height: 20),
+                _profilGirdiAlani("HEIGHT (cm)", boyCtrl),
+                const SizedBox(height: 10),
+                _profilGirdiAlani("WEIGHT (kg)", kiloCtrl),
+                const SizedBox(height: 10),
+                _profilGirdiAlani("AGE", yasCtrl),
+              ]
+            ),
           ),
           actions: [
             TextButton(
@@ -302,6 +297,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ), 
               onPressed: () {
                 if(kiloCtrl.text.isNotEmpty) {
+                  setState(() {
+                    if (boyCtrl.text.isNotEmpty) SystemMemory.boy = double.tryParse(boyCtrl.text) ?? SystemMemory.boy;
+                    if (yasCtrl.text.isNotEmpty) {
+                      int yeniYas = int.tryParse(yasCtrl.text) ?? SystemMemory.yas;
+                      SystemMemory.dogumTarihi = DateTime(DateTime.now().year - yeniYas, 1, 1);
+                    }
+                  });
                   double yeniKilo = double.parse(kiloCtrl.text);
                   String rapor = SystemMemory.tartiGuncelle(yeniKilo);
                   setState(() {});
@@ -309,7 +311,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _tartiRaporuGoster(rapor);
                 }
               }, 
-              child: const Text('WEIGH-IN', style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold))
+              child: const Text('CONFIRM', style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold))
             )
           ],
         );
@@ -350,6 +352,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         );
       }
+    );
+  }
+
+  Widget _profilGirdiAlani(String etiket, TextEditingController ctrl) {
+    return TextField(
+      controller: ctrl,
+      keyboardType: TextInputType.number,
+      style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+      decoration: InputDecoration(
+        labelText: etiket,
+        labelStyle: const TextStyle(color: sysTextMuted, fontSize: 12),
+        enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: sysBlue.withValues(alpha: 0.3))),
+        focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: sysBlue)),
+      ),
     );
   }
 
@@ -763,6 +779,58 @@ class _ProfileScreenState extends State<ProfileScreen> {
           },
         );
       },
+    );
+  }
+
+  void _sistemiSifirlaDialog() {
+    showDialog(
+      context: context, 
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95), 
+          shape: RoundedRectangleBorder(
+            side: const BorderSide(color: bloodRed, width: 2), 
+            borderRadius: BorderRadius.circular(4)
+          ),
+          title: Row(
+            children: [
+              const Icon(Icons.warning_amber, color: bloodRed),
+              const SizedBox(width: 10),
+              Text(
+                'SYSTEM PURGE', 
+                style: GoogleFonts.orbitron(color: bloodRed, fontWeight: FontWeight.bold, fontSize: 16)
+              ),
+            ],
+          ),
+          content: const Text(
+            "Tüm veriler (seviye, altın, geçmiş, API anahtarı) kalıcı olarak silinecek. Emin misin?", 
+            style: TextStyle(color: Colors.white, fontSize: 14)
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context), 
+              child: const Text('CANCEL', style: TextStyle(color: sysTextMuted))
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: bloodRed.withValues(alpha: 0.2), 
+                side: const BorderSide(color: bloodRed)
+              ), 
+              onPressed: () async {
+                Navigator.pop(context);
+                await SystemMemory.sistemiSifirla();
+                if (mounted) {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => const SetupScreen()),
+                    (route) => false
+                  );
+                }
+              }, 
+              child: const Text('WIPE DATA', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))
+            )
+          ],
+        );
+      }
     );
   }
 
@@ -1216,13 +1284,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onPressed: _kiloGuncelleDialog,
                 icon: const Icon(Icons.monitor_weight, color: sysBlue, size: 16),
                 label: const Text(
-                  'SYSTEM WEIGH-IN', 
+                  'SYSTEM UPDATE', 
                   style: TextStyle(color: sysBlue, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1)
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: sysBlue.withValues(alpha: 0.1), 
                   padding: const EdgeInsets.symmetric(vertical: 18), 
                   side: const BorderSide(color: sysBlue, width: 1), 
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _sistemiSifirlaDialog,
+                icon: const Icon(Icons.delete_forever, color: Colors.white, size: 16),
+                label: const Text(
+                  'SYSTEM RESET (WIPE DATA)', 
+                  style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1)
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: bloodRed.withValues(alpha: 0.2), 
+                  padding: const EdgeInsets.symmetric(vertical: 18), 
+                  side: const BorderSide(color: bloodRed, width: 2), 
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
                 ),
               ),

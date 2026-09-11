@@ -87,12 +87,9 @@ class GeminiService {
     final prompt =
         'Sistem protokolü onaylandı. Avcı $avciAdi için tek cümlelik otoriter bir Sistem uyanış mesajı üret.';
 
-    // Güncel modeller (Eylül 2026)
+    // Güncel, güvenilir ve aktif tek model kullanılıyor
     final modelsToTry = <String>[
       'gemini-3.6-flash',
-      'gemini-3.5-flash',
-      'gemini-3.1-pro',
-      'gemini-3-flash-preview',
     ];
 
     final hatalar = <String>[];
@@ -135,11 +132,8 @@ class GeminiService {
     final apiKey = SystemMemory.geminiApiKey.trim();
     if (apiKey.isEmpty) return null;
 
-    final model = activeModelName.isNotEmpty &&
-            !activeModelName.contains('1.5') &&
-            !activeModelName.contains('2.5')
-        ? activeModelName
-        : 'gemini-3.6-flash';
+    // Engelleme filtresi kaldırıldı, doğrudan kararlı modele yönlendirildi
+    const model = 'gemini-3.6-flash';
 
     try {
       final prompt = '''

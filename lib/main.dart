@@ -7,10 +7,16 @@ import 'screens/setup_screen.dart';
 import 'screens/ana_ekran.dart'; 
 import 'core/audio_system.dart'; 
 import 'core/theme/app_colors.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 
 void main() async {
   // Flutter motorunun tam yüklendiğinden emin ol
   WidgetsFlutterBinding.ensureInitialized();
+  
+  if (!kIsWeb) {
+    await initializeService();
+  }
   
   // SİSTEM HAFIZASINI OKU VE YÜKLE
   await SystemMemory.baslat();
@@ -47,4 +53,26 @@ class SoloApp extends StatelessWidget {
       home: SystemMemory.kayitBulundu ? const AnaEkran() : const SetupScreen(), 
     );
   }
+}
+
+Future<void> initializeService() async {
+  final service = FlutterBackgroundService();
+  await service.configure(
+    androidConfiguration: AndroidConfiguration(
+      onStart: onStart,
+      autoStart: false,
+      isForegroundMode: true,
+    ),
+    iosConfiguration: IosConfiguration(
+      autoStart: false,
+      onForeground: onStart,
+    ),
+  );
+}
+
+@pragma('vm:entry-point')
+void onStart(ServiceInstance service) async {
+  service.on('stopService').listen((event) {
+    service.stopSelf();
+  });
 }
