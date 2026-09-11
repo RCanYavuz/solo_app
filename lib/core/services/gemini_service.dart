@@ -26,17 +26,20 @@ class GeminiService {
       'https://generativelanguage.googleapis.com/v1beta/models/$modelName:generateContent?key=$apiKey',
     );
 
+    // System instruction'ı prompt'un başına ekle
+    final fullPrompt = '$_systemInstruction\n\n$prompt';
+
+    final parts = <Map<String, dynamic>>[
+      {'text': fullPrompt},
+    ];
+    if (base64Image != null) {
+      parts.add({'inline_data': {'mime_type': 'image/jpeg', 'data': base64Image}});
+    }
+
     final body = jsonEncode({
-      'system_instruction': {
-        'parts': [{'text': _systemInstruction}]
-      },
       'contents': [
         {
-          'parts': [
-            {'text': prompt},
-            if (base64Image != null)
-              {'inline_data': {'mime_type': 'image/jpeg', 'data': base64Image}}
-          ]
+          'parts': parts
         }
       ],
     });
@@ -49,9 +52,9 @@ class GeminiService {
       final data = jsonDecode(response.body);
       final candidates = data['candidates'] as List?;
       if (candidates != null && candidates.isNotEmpty) {
-        final parts = candidates[0]['content']?['parts'] as List?;
-        if (parts != null && parts.isNotEmpty) {
-          for (final part in parts) {
+        final contentParts = candidates[0]['content']?['parts'] as List?;
+        if (contentParts != null && contentParts.isNotEmpty) {
+          for (final part in contentParts) {
             if (part is Map && part.containsKey('text') && part['text'] != null) {
               final text = part['text'].toString().trim();
               if (text.isNotEmpty) return text;
@@ -68,14 +71,12 @@ class GeminiService {
   }
 
   /// API Anahtarını doğrudan REST API üzerinden denetler.
-  /// Çalışan bir model bulur ve Sistem uyanış mesajı üretir.
-  static Future<Map<String, dynamic>> testBaglantisi({
-    String? hunterName,
-    String? apiKeyOverride,
-  }) async {
+  /// Hangi modellerin açık olduğunu bulur veya kesin hata sebebini açıklar.
+  static Future<Map<String, dynamic>> testBaglantisi({String? hunterName, String? apiKeyOverride}) async {
     final apiKey = (apiKeyOverride != null && apiKeyOverride.trim().isNotEmpty)
         ? apiKeyOverride.trim()
         : SystemMemory.geminiApiKey.trim();
+        
     if (apiKey.isEmpty) {
       return {
         'basarili': false,
@@ -83,58 +84,97 @@ class GeminiService {
       };
     }
 
-    final avciAdi = (hunterName != null && hunterName.isNotEmpty)
-        ? hunterName
-        : (SystemMemory.oyuncuIsmi.isNotEmpty &&
-                  SystemMemory.oyuncuIsmi != 'PLAYER'
-              ? SystemMemory.oyuncuIsmi
-              : 'AVCI');
-    final prompt =
-        'Sistem protokolü onaylandı. Avcı $avciAdi için tek cümlelik otoriter bir Sistem uyanış mesajı üret.';
+    try {
+      // 1. Google Sunucusuna doğrudan Model Listesi sorgusu at (Gerçek teşhis)
+      final url = Uri.parse('https://generativelanguage.googleapis.com/v1beta/models?key=$apiKey');
+      final res = await http.get(url);
 
-    // Güncel, güvenilir ve aktif tek model kullanılıyor
-    final modelsToTry = <String>[
-      'gemini-1.5-flash-latest',
-      'gemini-1.5-flash',
-      'gemini-1.5-pro',
-      'gemini-pro',
-      'gemini-1.0-pro-vision-latest',
-      'gemini-1.0-pro'
-    ];
-
-    final hatalar = <String>[];
-
-    for (final candidate in modelsToTry) {
-      try {
-        final text = await _generateContent(candidate, apiKey, prompt);
-
-        if (text != null && text.trim().isNotEmpty) {
-          activeModelName = candidate;
-          SystemMemory.geminiApiKey = apiKey;
-          await SystemMemory.kaydet();
-          return {'basarili': true, 'model': candidate, 'mesaj': text.trim()};
-        }
-      } on TimeoutException {
-        hatalar.add('$candidate: Zaman aşımı (30s)');
-        continue;
-      } catch (e) {
-        String hataOzet = e.toString();
-        if (hataOzet.length > 150) hataOzet = '${hataOzet.substring(0, 150)}...';
-        hatalar.add('$candidate: $hataOzet');
-        continue;
+      if (res.statusCode != 200) {
+        final errJson = jsonDecode(res.body);
+        final errMsg = errJson['error']?['message'] ?? res.body;
+        return {
+          'basarili': false,
+          'mesaj': '❌ Google API Hatası (${res.statusCode}): $errMsg',
+        };
       }
-    }
 
-    return {
-      'basarili': false,
-      'mesaj':
-          '❌ Hiçbir model yanıt veremedi.\n\n'
-          'Denenen modeller:\n${hatalar.join('\n')}\n\n'
-          'Olası sebepler:\n'
-          '• API anahtarı geçersiz\n'
-          '• Generative AI API projenizde aktif değil\n'
-          '• Ücretsiz kota dolmuş',
-    };
+      final data = jsonDecode(res.body);
+      final List models = data['models'] ?? [];
+
+      if (models.isEmpty) {
+        return {
+          'basarili': false,
+          'mesaj': '⚠️ API anahtarınız geçerli fakat bu projeye tanımlı hiçbir Gemini modeli bulunamadı.',
+        };
+      }
+
+      // generateContent destekleyen modelleri filtrele
+      final availableModelNames = <String>[];
+      for (var m in models) {
+        final name = (m['name'] as String? ?? '').replaceFirst('models/', '');
+        final methods = List<String>.from(m['supportedGenerationMethods'] ?? []);
+        if (methods.contains('generateContent')) {
+          availableModelNames.add(name);
+        }
+      }
+
+      if (availableModelNames.isEmpty) {
+        return {
+          'basarili': false,
+          'mesaj': '⚠️ Kullanılabilir metin üretim modeli bulunamadı.',
+        };
+      }
+
+      // En yeni modelleri ön sıraya al
+      availableModelNames.sort((a, b) {
+        if (a.contains('2.5') && !b.contains('2.5')) return -1;
+        if (!a.contains('2.5') && b.contains('2.5')) return 1;
+        if (a.contains('2.0') && !b.contains('2.0')) return -1;
+        if (!a.contains('2.0') && b.contains('2.0')) return 1;
+        if (a.contains('1.5') && !b.contains('1.5')) return -1;
+        if (!a.contains('1.5') && b.contains('1.5')) return 1;
+        return a.compareTo(b);
+      });
+
+      final avciAdi = (hunterName != null && hunterName.isNotEmpty) 
+          ? hunterName 
+          : (SystemMemory.oyuncuIsmi.isNotEmpty && SystemMemory.oyuncuIsmi != 'PLAYER' ? SystemMemory.oyuncuIsmi : 'AVCI');
+      final prompt = 'Sistem protokolü onaylandı. Avcı $avciAdi için tek cümlelik otoriter bir Sistem uyanış mesajı üret.';
+
+      String sonHata = '';
+
+      // Sırayla modelleri dene, hangisinin kotası açıksa onu bul
+      for (final candidate in availableModelNames) {
+        try {
+          final text = await _generateContent(candidate, apiKey, prompt);
+
+          if (text != null && text.trim().isNotEmpty) {
+            activeModelName = candidate;
+            SystemMemory.geminiApiKey = apiKey;
+            await SystemMemory.kaydet();
+            return {
+              'basarili': true,
+              'model': candidate,
+              'mesaj': text.trim(),
+            };
+          }
+        } catch (e) {
+          sonHata = e.toString();
+          // Kota dolu veya desteklenmiyorsa diğer modele geç
+          continue;
+        }
+      }
+
+      return {
+        'basarili': false,
+        'mesaj': '❌ Google Kota Uyarısı: Mevcut anahtarınızda modellerin ücretsiz kotası bitmiş olabilir veya bölgesel kısıtlama var. Detay: $sonHata',
+      };
+    } catch (e) {
+      return {
+        'basarili': false,
+        'mesaj': '❌ Bağlantı hatası: $e',
+      };
+    }
   }
 
   /// Avcının serbest dille yazdığı öğünü analiz eder ve besin değerlerini tahmin eder.
@@ -142,7 +182,6 @@ class GeminiService {
     final apiKey = SystemMemory.geminiApiKey.trim();
     if (apiKey.isEmpty) return null;
 
-    // Engelleme filtresi kaldırıldı, doğrudan kararlı modele yönlendirildi
     final model = SystemMemory.geminiActiveModel;
 
     try {
@@ -165,6 +204,7 @@ Yalnızca geçerli bir JSON objesi döndür:
       return null;
     }
   }
+
   /// Fotoğrafı analiz edip Avatar için çok detaylı bir İngilizce prompt oluşturur.
   static Future<String?> avatarIcinPromptUret(Uint8List fotoBytes) async {
     final apiKey = SystemMemory.geminiApiKey.trim();
@@ -191,7 +231,7 @@ Kurallar:
 
       return await _generateContent(model, apiKey, prompt, base64Image: base64Image);
     } catch (e) {
-      return "ERROR: \$e";
+      return 'ERROR: $e';
     }
   }
 
@@ -206,10 +246,10 @@ Kurallar:
       if (response.statusCode == 200) {
         return response.bodyBytes;
       } else {
-        return "HTTP_ERROR: " + response.statusCode.toString() + " - " + response.body;
+        return 'HTTP_ERROR: ' + response.statusCode.toString() + ' - ' + response.body;
       }
     } catch (e) {
-      return "EXCEPTION: " + e.toString();
+      return 'EXCEPTION: ' + e.toString();
     }
   }
 }

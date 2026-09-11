@@ -43,7 +43,7 @@ class SystemMemory {
 
   static String oyuncuIsmi = "PLAYER";
   static String geminiApiKey = "";
-  static String geminiActiveModel = "gemini-3.6-flash";
+  static String geminiActiveModel = "gemini-2.5-flash";
 
   static String sonGirisTarihi = "";
   static String geceRaporu = ""; 
@@ -116,10 +116,10 @@ class SystemMemory {
         geminiApiKey = savedKey.trim();
       }
       final savedModel = prefs.getString('gemini_active_model');
-      if (savedModel != null && savedModel.isNotEmpty && !savedModel.contains('1.5') && !savedModel.contains('2.5')) {
+      if (savedModel != null && savedModel.isNotEmpty && !savedModel.contains('3.6')) {
         geminiActiveModel = savedModel;
       } else {
-        geminiActiveModel = "gemini-3.6-flash";
+        geminiActiveModel = "gemini-2.5-flash";
       }
       sonGirisTarihi = prefs.getString('sonGirisTarihi') ?? "";
 
