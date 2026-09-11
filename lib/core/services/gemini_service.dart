@@ -283,7 +283,7 @@ Provide the workout ONLY in the following JSON format in ENGLISH, do not write a
 ''';
 
     try {
-      String json = await _generateContent(model, apiKey, prompt);
+      String json = await _generateContent(model, apiKey, prompt) ?? "";
       if (json.startsWith("```json")) {
         json = json.replaceAll("```json", "").replaceAll("```", "").trim();
       }

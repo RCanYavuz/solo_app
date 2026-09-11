@@ -893,7 +893,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     if (mounted) {
                       Navigator.pop(context);
-                      _showGeminiTestResult(res['basarili'], res['mesaj'], res['model']);
+                      /* _showGeminiTestResult(res['basarili'], res['mesaj'], res['model']); */
                     }
                   },
                 ),
@@ -1202,7 +1202,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: _awakeningTestDialog,
+                      onPressed: () {}, /* _awakeningTestDialog, */
                       icon: const Icon(Icons.fitness_center, color: physicalGold, size: 14),
                       label: const Text('TAKE AWAKENING TEST', style: TextStyle(color: physicalGold, fontWeight: FontWeight.bold, fontSize: 12)),
                       style: ElevatedButton.styleFrom(

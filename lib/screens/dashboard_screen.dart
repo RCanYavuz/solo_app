@@ -120,7 +120,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           children: [
                             Text('${SystemMemory.level.value}', style: GoogleFonts.orbitron(color: Colors.white, fontSize: 36, fontWeight: FontWeight.bold, height: 1)),
                             const SizedBox(width: 8),
-                            const Padding(padding: EdgeInsets.only(bottom: 6), child: Text(TranslationManager.get('dash_level'), style: TextStyle(color: sysBlue, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2))),
+                            Padding(padding: const EdgeInsets.only(bottom: 6), child: Text(TranslationManager.get('dash_level'), style: const TextStyle(color: sysBlue, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2))),
                           ],
                         ),
                         const SizedBox(height: 5),
@@ -300,7 +300,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               neonRenk: sysBlue,
               padding: EdgeInsets.zero,
               child: bugununGorevleri.isEmpty 
-              ? const Padding(padding: EdgeInsets.all(20), child: Center(child: Text(TranslationManager.get('dash_no_quests'), style: TextStyle(color: sysTextMuted))))
+              ? Padding(padding: const EdgeInsets.all(20), child: Center(child: Text(TranslationManager.get('dash_no_quests'), style: const TextStyle(color: sysTextMuted))))
               : ListView.builder(
                   shrinkWrap: true, physics: const NeverScrollableScrollPhysics(),
                   itemCount: bugununGorevleri.length,
@@ -326,7 +326,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               neonRenk: sysRed,
               padding: EdgeInsets.zero,
               child: bugununIdmanlari.isEmpty 
-              ? const Padding(padding: EdgeInsets.all(20), child: Center(child: Text(TranslationManager.get('dash_no_raids'), style: TextStyle(color: sysTextMuted))))
+              ? Padding(padding: const EdgeInsets.all(20), child: Center(child: Text(TranslationManager.get('dash_no_raids'), style: const TextStyle(color: sysTextMuted))))
               : ListView.builder(
                   shrinkWrap: true, physics: const NeverScrollableScrollPhysics(),
                   itemCount: bugununIdmanlari.length,
