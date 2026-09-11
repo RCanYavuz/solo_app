@@ -80,7 +80,7 @@ class GeminiService {
     if (apiKey.isEmpty) {
       return {
         'basarili': false,
-        'mesaj': '⚠️ Sistem hafızasında API anahtarı bulunamadı.',
+        'mesaj': '⚠️ No API key found in System memory.',
       };
     }
 
@@ -94,7 +94,7 @@ class GeminiService {
         final errMsg = errJson['error']?['message'] ?? res.body;
         return {
           'basarili': false,
-          'mesaj': '❌ Google API Hatası (${res.statusCode}): $errMsg',
+          'mesaj': '❌ Google API Error (${res.statusCode}): $errMsg',
         };
       }
 
@@ -104,7 +104,7 @@ class GeminiService {
       if (models.isEmpty) {
         return {
           'basarili': false,
-          'mesaj': '⚠️ API anahtarınız geçerli fakat bu projeye tanımlı hiçbir Gemini modeli bulunamadı.',
+          'mesaj': '⚠️ Your API key is valid, but no Gemini models are defined for this project.',
         };
       }
 
@@ -121,7 +121,7 @@ class GeminiService {
       if (availableModelNames.isEmpty) {
         return {
           'basarili': false,
-          'mesaj': '⚠️ Kullanılabilir metin üretim modeli bulunamadı.',
+          'mesaj': '⚠️ No available text generation model found.',
         };
       }
 
@@ -138,8 +138,8 @@ class GeminiService {
 
       final avciAdi = (hunterName != null && hunterName.isNotEmpty) 
           ? hunterName 
-          : (SystemMemory.oyuncuIsmi.isNotEmpty && SystemMemory.oyuncuIsmi != 'PLAYER' ? SystemMemory.oyuncuIsmi : 'AVCI');
-      final prompt = 'Sistem protokolü onaylandı. Avcı $avciAdi için tek cümlelik otoriter bir Sistem uyanış mesajı üret.';
+          : (SystemMemory.oyuncuIsmi.isNotEmpty && SystemMemory.oyuncuIsmi != 'PLAYER' ? SystemMemory.oyuncuIsmi : 'HUNTER');
+      final prompt = 'System protocol confirmed. Generate a single-sentence authoritative System awakening message for Hunter $hunterName in English.';
 
       String sonHata = '';
 

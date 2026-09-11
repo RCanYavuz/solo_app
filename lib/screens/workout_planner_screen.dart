@@ -105,7 +105,7 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Current Rank: ${SystemMemory.hunterRank} | Vücut Sınıfı: ${SystemMemory.vucutSinifi}",
+                    "Current Rank: ${SystemMemory.hunterRank} | Body Class: ${SystemMemory.vucutSinifi}",
                     style: const TextStyle(color: physicalGold, fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 10),

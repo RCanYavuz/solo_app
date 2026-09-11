@@ -77,46 +77,46 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
       return [
         _Ogun(
           baslik: "MORNING RATION",
-          altBaslik: "Sabah Rasyonu",
+          altBaslik: "Morning Ration",
           ikon: Icons.wb_sunny_rounded,
           renk: _sysGold,
           yemekler: [
-            _YemekOnerisi("Yumurta Beyazı Omleti (3 Adet)", 150, "30g P / 1g F / 0g C", Icons.egg_alt),
-            _YemekOnerisi("Yulaf Ezmesi + Tarçın", 200, "7g P / 4g F / 35g C", Icons.grain),
-            _YemekOnerisi("Yeşil Çay (Şekersiz)", 0, "0g P / 0g F / 0g C", Icons.local_cafe),
+            _YemekOnerisi("Egg White Omelette (3 pcs)", 150, "30g P / 1g F / 0g C", Icons.egg_alt),
+            _YemekOnerisi("Oatmeal + Cinnamon", 200, "7g P / 4g F / 35g C", Icons.grain),
+            _YemekOnerisi("Green Tea (Unsweetened)", 0, "0g P / 0g F / 0g C", Icons.local_cafe),
           ],
         ),
         _Ogun(
           baslik: "HUNTER'S FEAST",
-          altBaslik: "Öğle Avı",
+          altBaslik: "Midday Hunt",
           ikon: Icons.restaurant,
           renk: _sysBlue,
           yemekler: [
-            _YemekOnerisi("Izgara Tavuk Göğsü", 250, "45g P / 6g F / 0g C", Icons.set_meal),
-            _YemekOnerisi("Bulgur Pilavı", 180, "6g P / 1g F / 38g C", Icons.rice_bowl),
-            _YemekOnerisi("Mevsim Salatası + Limon", 50, "2g P / 0g F / 10g C", Icons.eco),
+            _YemekOnerisi("Grilled Chicken Breast", 250, "45g P / 6g F / 0g C", Icons.set_meal),
+            _YemekOnerisi("Bulgur Pilaf", 180, "6g P / 1g F / 38g C", Icons.rice_bowl),
+            _YemekOnerisi("Seasonal Salad + Lemon", 50, "2g P / 0g F / 10g C", Icons.eco),
           ],
         ),
         _Ogun(
           baslik: "EVENING PROTOCOL",
-          altBaslik: "Akşam Protokolü",
+          altBaslik: "Evening Protocol",
           ikon: Icons.nightlight_round,
           renk: _sysPurple,
           yemekler: [
-            _YemekOnerisi("Somon Fileto (Fırında)", 300, "35g P / 18g F / 0g C", Icons.set_meal),
-            _YemekOnerisi("Buharda Brokoli & Havuç", 55, "3g P / 0g F / 10g C", Icons.spa),
-            _YemekOnerisi("Kinoa (1 Porsiyon)", 120, "5g P / 2g F / 21g C", Icons.grain),
+            _YemekOnerisi("Baked Salmon Fillet", 300, "35g P / 18g F / 0g C", Icons.set_meal),
+            _YemekOnerisi("Steamed Broccoli & Carrots", 55, "3g P / 0g F / 10g C", Icons.spa),
+            _YemekOnerisi("Quinoa (1 Portion)", 120, "5g P / 2g F / 21g C", Icons.grain),
           ],
         ),
         _Ogun(
           baslik: "RECOVERY POTION",
-          altBaslik: "İyileşme İksiri",
+          altBaslik: "Recovery Potion",
           ikon: Icons.local_pharmacy,
           renk: _sysGreen,
           yemekler: [
-            _YemekOnerisi("Badem (15 Adet)", 100, "4g P / 9g F / 3g C", Icons.filter_vintage),
+            _YemekOnerisi("Almonds (15 pcs)", 100, "4g P / 9g F / 3g C", Icons.filter_vintage),
             _YemekOnerisi("Whey Protein Shake", 120, "25g P / 1g F / 3g C", Icons.local_drink),
-            _YemekOnerisi("Yeşil Elma", 80, "0g P / 0g F / 20g C", Icons.apple),
+            _YemekOnerisi("Green Apple", 80, "0g P / 0g F / 20g C", Icons.apple),
           ],
         ),
       ];
@@ -124,46 +124,46 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
       return [
         _Ogun(
           baslik: "MORNING RATION",
-          altBaslik: "Sabah Rasyonu",
+          altBaslik: "Morning Ration",
           ikon: Icons.wb_sunny_rounded,
           renk: _sysGold,
           yemekler: [
-            _YemekOnerisi("Tam Yumurta (3 Adet)", 240, "18g P / 15g F / 2g C", Icons.egg_alt),
-            _YemekOnerisi("Peynirli Tam Buğday Tost", 350, "15g P / 12g F / 42g C", Icons.bakery_dining),
-            _YemekOnerisi("Bal + Fıstık Ezmesi", 200, "6g P / 10g F / 24g C", Icons.icecream),
+            _YemekOnerisi("Whole Eggs (3 pcs)", 240, "18g P / 15g F / 2g C", Icons.egg_alt),
+            _YemekOnerisi("Whole Wheat Cheese Toast", 350, "15g P / 12g F / 42g C", Icons.bakery_dining),
+            _YemekOnerisi("Honey + Peanut Butter", 200, "6g P / 10g F / 24g C", Icons.icecream),
           ],
         ),
         _Ogun(
           baslik: "HUNTER'S FEAST",
-          altBaslik: "Öğle Avı",
+          altBaslik: "Midday Hunt",
           ikon: Icons.restaurant,
           renk: _sysBlue,
           yemekler: [
-            _YemekOnerisi("Kırmızı Et (200g Dana)", 400, "50g P / 20g F / 0g C", Icons.set_meal),
-            _YemekOnerisi("Makarna (Tam Buğday)", 350, "12g P / 3g F / 70g C", Icons.dinner_dining),
-            _YemekOnerisi("Pirinç Pilavı", 250, "5g P / 1g F / 55g C", Icons.rice_bowl),
+            _YemekOnerisi("Red Meat (200g Beef)", 400, "50g P / 20g F / 0g C", Icons.set_meal),
+            _YemekOnerisi("Whole Wheat Pasta", 350, "12g P / 3g F / 70g C", Icons.dinner_dining),
+            _YemekOnerisi("Rice Pilaf", 250, "5g P / 1g F / 55g C", Icons.rice_bowl),
           ],
         ),
         _Ogun(
           baslik: "EVENING PROTOCOL",
-          altBaslik: "Akşam Protokolü",
+          altBaslik: "Evening Protocol",
           ikon: Icons.nightlight_round,
           renk: _sysPurple,
           yemekler: [
-            _YemekOnerisi("Tavuk But (Fırında)", 350, "40g P / 18g F / 0g C", Icons.set_meal),
-            _YemekOnerisi("Patates Püresi", 250, "4g P / 8g F / 40g C", Icons.breakfast_dining),
-            _YemekOnerisi("Mercimek Çorbası", 200, "12g P / 3g F / 30g C", Icons.soup_kitchen),
+            _YemekOnerisi("Baked Chicken Thigh", 350, "40g P / 18g F / 0g C", Icons.set_meal),
+            _YemekOnerisi("Mashed Potatoes", 250, "4g P / 8g F / 40g C", Icons.breakfast_dining),
+            _YemekOnerisi("Lentil Soup", 200, "12g P / 3g F / 30g C", Icons.soup_kitchen),
           ],
         ),
         _Ogun(
           baslik: "RECOVERY POTION",
-          altBaslik: "İyileşme İksiri",
+          altBaslik: "Recovery Potion",
           ikon: Icons.local_pharmacy,
           renk: _sysGreen,
           yemekler: [
-            _YemekOnerisi("Muz (2 Adet)", 200, "2g P / 0g F / 50g C", Icons.spa),
+            _YemekOnerisi("Banana (2 pcs)", 200, "2g P / 0g F / 50g C", Icons.spa),
             _YemekOnerisi("Mass Gainer Shake", 400, "30g P / 8g F / 65g C", Icons.local_drink),
-            _YemekOnerisi("Kuru Üzüm + Ceviz", 150, "3g P / 8g F / 18g C", Icons.filter_vintage),
+            _YemekOnerisi("Raisins + Walnuts", 150, "3g P / 8g F / 18g C", Icons.filter_vintage),
           ],
         ),
       ];
@@ -265,19 +265,19 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
                   ),
                   const SizedBox(height: 20),
 
-                  // Hedef Seçimi
+                  // Objective Selection
                   Text('OBJECTIVE', style: GoogleFonts.rajdhani(color: _sysText, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1)),
                   const SizedBox(height: 10),
                   Row(
                     children: [
-                      Expanded(child: _hedefChip("yag_yakma", "YAĞ YAK", "CUT", Icons.local_fire_department, _sysRed)),
-                      const SizedBox(width: 12),
-                      Expanded(child: _hedefChip("kilo_alma", "KAS İNŞA", "BULK", Icons.fitness_center, _sysGreen)),
+                      Expanded(child: _hedefChip("yag_yakma", "BURN FAT", "CUT", Icons.local_fire_department, _sysRed)),
+                      const SizedBox(width: 15),
+                      Expanded(child: _hedefChip("kilo_alma", "BUILD MUSCLE", "BULK", Icons.fitness_center, _sysGreen)),
                     ],
                   ),
                   const SizedBox(height: 25),
 
-                  // Hesapla Butonu
+                  // Calculate Button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
@@ -379,9 +379,9 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
                       children: [
                         _makroDetayBar("Protein", topP, topGram, _sysBlue, "${topP * 4} kcal"),
                         const SizedBox(height: 12),
-                        _makroDetayBar("Fat (Yağ)", topF, topGram, _sysGold, "${topF * 9} kcal"),
+                        _makroDetayBar("Fat", topF, topGram, _sysGold, "${topF * 9} kcal"),
                         const SizedBox(height: 12),
-                        _makroDetayBar("Carbs (Karb)", topC, topGram, _sysGreen, "${topC * 4} kcal"),
+                        _makroDetayBar("Carbs", topC, topGram, _sysGreen, "${topC * 4} kcal"),
                       ],
                     ),
                   );
@@ -430,7 +430,7 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'Bu plan tahmini değerler içerir. Kişisel ihtiyaçlarınıza göre miktarları ayarlayabilirsiniz.',
+                        'This plan provides estimates. Adjust portions according to your personal needs.',
                         style: GoogleFonts.rajdhani(color: _sysText, fontSize: 13, fontWeight: FontWeight.w500),
                       ),
                     ),

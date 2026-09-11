@@ -926,7 +926,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
           ),
           content: const Text(
-            "Tüm veriler (seviye, altın, geçmiş, API anahtarı) kalıcı olarak silinecek. Emin misin?", 
+            "All data (level, gold, history, API key) will be permanently deleted. Are you sure?", 
             style: TextStyle(color: Colors.white, fontSize: 14)
           ),
           actions: [
