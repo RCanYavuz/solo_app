@@ -110,7 +110,7 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
                   ),
                   const SizedBox(height: 10),
                   const Text(
-                    'Sistem, istatistiklerine göre sana uygun bir idman çıkaracak. İstersen spesifik bir istek girebilirsin (Örn: Sadece dambıl ile kol).',
+                    'The system will generate a workout based on your stats. You can enter a specific request if you want.',
                     style: TextStyle(color: sysTextMuted, fontSize: 12),
                   ),
                   const SizedBox(height: 15),
@@ -129,7 +129,7 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
                     const SizedBox(height: 20),
                     const Center(child: CircularProgressIndicator(color: mentalPurple)),
                     const SizedBox(height: 10),
-                    const Center(child: Text("Sistem antrenmanı hesaplıyor...", style: TextStyle(color: mentalPurple, fontSize: 12))),
+                    const Center(child: Text("System is calculating...", style: TextStyle(color: mentalPurple, fontSize: 12))),
                   ]
                 ],
               ),
@@ -145,7 +145,7 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
                   ),
                   onPressed: yukleniyor ? null : () async {
                     if (seciliGunler.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Lütfen önce gün seçin (Örn: Pzt, Çar)."), backgroundColor: sysRed));
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("SYSTEM: Please select at least one day first."), backgroundColor: sysRed));
                       return;
                     }
                     setDialogState(() => yukleniyor = true);
@@ -166,7 +166,7 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
                       if (jsonCevap != null && jsonCevap.isNotEmpty) {
                         _reviewAndEditDialog(jsonCevap);
                       } else {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Sistem hata verdi, lütfen tekrar dene."), backgroundColor: sysRed));
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("SYSTEM: Generation failed, try again."), backgroundColor: sysRed));
                       }
                     }
                   },
@@ -294,7 +294,7 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
         }
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Format Hatası: $e"), backgroundColor: sysRed));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Format Error: $e"), backgroundColor: sysRed));
     }
   }
 

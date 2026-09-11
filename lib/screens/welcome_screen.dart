@@ -32,7 +32,7 @@ class WelcomeScreen extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  "[ SİSTEM HOŞ GELDİNİZ ]",
+                  "[ SYSTEM WELCOME ]",
                   style: GoogleFonts.orbitron(
                     color: Colors.cyanAccent, 
                     fontSize: 20, 
@@ -44,7 +44,7 @@ class WelcomeScreen extends StatelessWidget {
                 const Divider(color: Colors.cyanAccent, thickness: 1),
                 const SizedBox(height: 20),
                 Text(
-                  "Tebrikler, Avcı.\nTaramayı tamamladınız.\nŞimdi Sisteme tam erişim sağladınız.\n[UYANMAK İÇİN ONAYLA]",
+                  "Congratulations, Hunter.\nScan completed.\nYou now have full access to the System.\n[CONFIRM TO AWAKEN]",
                   textAlign: TextAlign.center,
                   style: GoogleFonts.rajdhani(
                     color: Colors.white, 
@@ -67,7 +67,7 @@ class WelcomeScreen extends StatelessWidget {
                       side: const BorderSide(color: Colors.cyanAccent, width: 1.5),
                     ),
                     child: const Text(
-                      'SİSTEMİ BAŞLAT',
+                      'START SYSTEM',
                       style: TextStyle(
                         color: Colors.cyanAccent, 
                         fontWeight: FontWeight.bold, 

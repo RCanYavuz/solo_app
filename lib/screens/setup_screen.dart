@@ -46,7 +46,7 @@ class _SetupScreenState extends State<SetupScreen> {
     final key = apiKeyCtrl.text.trim();
     if (key.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('⚠️ Önce bir API anahtarı giriniz!'), backgroundColor: sysRed),
+        const SnackBar(content: Text('⚠️ Please enter an API key first!'), backgroundColor: sysRed),
       );
       return;
     }
@@ -102,7 +102,7 @@ class _SetupScreenState extends State<SetupScreen> {
       final Uint8List fotoBytes = await image.readAsBytes();
       setState(() { secilenFotoByte = fotoBytes; });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('SİSTEM: Avatar Verisi Algılandı!'), backgroundColor: Colors.green));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('SYSTEM: Avatar Data Detected!'), backgroundColor: Colors.green));
       }
     }
   }
@@ -167,7 +167,7 @@ class _SetupScreenState extends State<SetupScreen> {
 
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const WelcomeScreen()));
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('SİSTEM: Doğum tarihi, boy ve kilo verileri zorunludur!'), backgroundColor: sysRed));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('SYSTEM: Birth date, height and weight data are mandatory!'), backgroundColor: sysRed));
     }
   }
 
@@ -361,7 +361,7 @@ class _SetupScreenState extends State<SetupScreen> {
 
                 Row(
                   children: [
-                    Expanded(child: DropdownButtonFormField<String>(initialValue: secilenCinsiyet, dropdownColor: const Color(0xFF0F172A), decoration: _inputStili('Gender'), style: const TextStyle(color: Colors.white), items: ['Erkek', 'Kadın'].map((String c) => DropdownMenuItem(value: c, child: Text(c))).toList(), onChanged: (val) => setState(() => secilenCinsiyet = val!))),
+                    Expanded(child: DropdownButtonFormField<String>(initialValue: secilenCinsiyet, dropdownColor: const Color(0xFF0F172A), decoration: _inputStili('Gender'), style: const TextStyle(color: Colors.white), items: ['Erkek', 'Kadın'].map((String c) => DropdownMenuItem(value: c, child: Text(c == 'Erkek' ? 'Male' : 'Female'))).toList(), onChanged: (val) => setState(() => secilenCinsiyet = val!))),
                     const SizedBox(width: 15),
                     Expanded(
                       child: InkWell(
@@ -392,7 +392,13 @@ class _SetupScreenState extends State<SetupScreen> {
 
                 DropdownButtonFormField<String>(
                   initialValue: secilenHedef, dropdownColor: const Color(0xFF0F172A), decoration: _inputStili('System Objective'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                  items: ['Kilo Ver (Yağ Yak)', 'Kilo Koru (Dengede Kal)', 'Kilo Al (Kas İnşa Et)'].map((String c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                  items: ['Kilo Ver (Yağ Yak)', 'Kilo Koru (Dengede Kal)', 'Kilo Al (Kas İnşa Et)'].map((String c) {
+                    String label = c;
+                    if (c == 'Kilo Ver (Yağ Yak)') label = 'Lose Weight (Burn Fat)';
+                    if (c == 'Kilo Koru (Dengede Kal)') label = 'Maintain Weight (Balance)';
+                    if (c == 'Kilo Al (Kas İnşa Et)') label = 'Gain Weight (Build Muscle)';
+                    return DropdownMenuItem(value: c, child: Text(label));
+                  }).toList(),
                   onChanged: (val) { setState(() { secilenHedef = val!; if (val != 'Kilo Koru (Dengede Kal)') { secilenZorluk = 'Normal'; } }); },
                 ),
                 const SizedBox(height: 15),
@@ -409,7 +415,14 @@ class _SetupScreenState extends State<SetupScreen> {
                     initialValue: secilenZorluk, dropdownColor: const Color(0xFF1A0505),
                     decoration: InputDecoration(labelText: 'Dungeon Difficulty', labelStyle: const TextStyle(color: sysRed, fontWeight: FontWeight.bold), filled: true, fillColor: const Color(0xFF1A0505), enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: sysRed.withValues(alpha: 0.5)), borderRadius: BorderRadius.circular(4)), focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: sysRed), borderRadius: BorderRadius.circular(4))),
                     style: const TextStyle(color: sysRed, fontWeight: FontWeight.bold),
-                    items: zorlukSeviyeleri.map((String c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                    items: zorlukSeviyeleri.map((String c) {
+                      String label = c;
+                      if (c == 'Normal') label = 'Normal';
+                      if (c == 'Yüksek') label = 'High';
+                      if (c == 'Cehennem') label = 'Hell';
+                      if (c == 'Canavar') label = 'Monster';
+                      return DropdownMenuItem(value: c, child: Text(label));
+                    }).toList(),
                     onChanged: (val) => setState(() => secilenZorluk = val!),
                   ),
                 const SizedBox(height: 15),
@@ -443,7 +456,7 @@ class _SetupScreenState extends State<SetupScreen> {
                         ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: sysBlue))
                         : const Icon(Icons.bolt, size: 16, color: sysBlue),
                     label: Text(
-                      _isTestingApi ? 'SİSTEM TEST EDİLİYOR...' : 'TEST SİSTEM BAĞLANTISI',
+                      _isTestingApi ? 'TESTING SYSTEM...' : 'TEST SYSTEM CONNECTION',
                       style: const TextStyle(color: sysBlue, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1),
                     ),
                   ),
@@ -479,7 +492,7 @@ class _SetupScreenState extends State<SetupScreen> {
                   child: ElevatedButton(
                     onPressed: _analiziBaslat, 
                     style: ElevatedButton.styleFrom(backgroundColor: sysBlue.withValues(alpha: 0.1), side: const BorderSide(color: sysBlue), padding: const EdgeInsets.symmetric(vertical: 18), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))), 
-                    child: const Text('INITIALIZE SYSTEM', style: TextStyle(color: sysBlue, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2))
+                    child: const Text('AWAKEN THE SYSTEM', style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold, letterSpacing: 2)),
                   )
                 )
               ],
