@@ -13,6 +13,8 @@ class SystemMemory {
   static bool kayitBulundu = false; 
 
   static bool golgeModuAktif = false;
+  
+  static ValueNotifier<String> appLanguage = ValueNotifier('en');
 
   // ==========================================
   // ÖZELLEŞTİRİLEBİLİR KIRMIZI GEÇİT (RED GATE)
@@ -117,7 +119,9 @@ class SystemMemory {
       per.value = prefs.getInt('per') ?? 10;
 
       oyuncuIsmi = prefs.getString('oyuncuIsmi') ?? "PLAYER";
-      final savedKey = prefs.getString('gemini_api_key');
+      appLanguage.value = prefs.getString('appLanguage') ?? "en";
+      geminiApiKey = prefs.getString('geminiApiKey') ?? "";
+      final savedKey = prefs.getString('geminiApiKey') ?? prefs.getString('gemini_api_key');
       if (savedKey != null && savedKey.trim().isNotEmpty) {
         geminiApiKey = savedKey.trim();
       }
@@ -222,6 +226,9 @@ class SystemMemory {
     prefs.setDouble('maxSquat', maxSquat);
     prefs.setDouble('maxDeadlift', maxDeadlift);
     prefs.setString('hunterRank', hunterRank);
+    await prefs.setString('oyuncuIsmi', oyuncuIsmi);
+    await prefs.setString('appLanguage', appLanguage.value);
+    await prefs.setString('geminiApiKey', geminiApiKey);
     prefs.setString('gemini_api_key', geminiApiKey);
     prefs.setString('gemini_active_model', geminiActiveModel);
     

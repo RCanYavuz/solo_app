@@ -32,25 +32,30 @@ class SoloApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Solo App',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: AppColors.background,
-        colorScheme: const ColorScheme.dark(
-          primary: AppColors.systemBlue,
-          secondary: AppColors.questGold,
-          error: AppColors.errorRed,
-          surface: AppColors.background,
-        ),
-        textTheme: GoogleFonts.rajdhaniTextTheme(Theme.of(context).textTheme).apply(
-          bodyColor: Colors.white, 
-          displayColor: AppColors.systemBlue,
-        ),
-      ),
-      // Kayıt varsa doğrudan Ana Ekran, ilk kez açılıyorsa SetupScreen açılır
-      home: SystemMemory.kayitBulundu ? const AnaEkran() : const SetupScreen(), 
+    return ValueListenableBuilder<String>(
+      valueListenable: SystemMemory.appLanguage,
+      builder: (context, currentLang, child) {
+        return MaterialApp(
+          title: 'Solo App',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            brightness: Brightness.dark,
+            scaffoldBackgroundColor: AppColors.background,
+            colorScheme: const ColorScheme.dark(
+              primary: AppColors.systemBlue,
+              secondary: AppColors.questGold,
+              error: AppColors.errorRed,
+              surface: AppColors.background,
+            ),
+            textTheme: GoogleFonts.rajdhaniTextTheme(Theme.of(context).textTheme).apply(
+              bodyColor: Colors.white, 
+              displayColor: AppColors.systemBlue,
+            ),
+          ),
+          // Kayıt varsa doğrudan Ana Ekran, ilk kez açılıyorsa SetupScreen açılır
+          home: SystemMemory.kayitBulundu ? const AnaEkran() : const SetupScreen(), 
+        );
+      },
     );
   }
 }

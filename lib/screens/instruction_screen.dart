@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/audio_system.dart'; 
 import 'ana_ekran.dart'; 
+import '../core/translation_manager.dart';
 
 class InstructionScreen extends StatefulWidget {
   const InstructionScreen({super.key});
@@ -35,9 +36,9 @@ class _InstructionScreenState extends State<InstructionScreen> {
                   children: [
                     const Icon(Icons.info_outline, color: Colors.amberAccent, size: 50),
                     const SizedBox(height: 15),
-                    Text('[ SYSTEM GUIDE ]', style: GoogleFonts.orbitron(color: Colors.amberAccent, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                    Text(TranslationManager.get('instruction_title'), style: GoogleFonts.orbitron(color: Colors.amberAccent, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 2)),
                     const SizedBox(height: 10),
-                    Text('System integration successful. Please read the rules.', style: GoogleFonts.rajdhani(color: Colors.white70, fontSize: 16)),
+                    Text(TranslationManager.get('instruction_subtitle'), style: GoogleFonts.rajdhani(color: Colors.white70, fontSize: 16)),
                   ],
                 ),
               ),
@@ -49,24 +50,24 @@ class _InstructionScreenState extends State<InstructionScreen> {
                   physics: const BouncingScrollPhysics(),
                   children: [
                     _kuralKarti(
-                      ikon: Icons.gavel, renk: Colors.redAccent, baslik: "1. DAILY RECKONING",
-                      metin: "At the end of each day, the System performs an automated midnight reckoning. You will be rewarded (EXP/Stats) for completed quests and penalized (HP Loss) for neglected ones."
+                      ikon: Icons.gavel, renk: Colors.redAccent, baslik: TranslationManager.get('instruction_r1_title'),
+                      metin: TranslationManager.get('instruction_r1_desc')
                     ),
                     _kuralKarti(
-                      ikon: Icons.trending_up, renk: Colors.amberAccent, baslik: "2. LEVEL & ABILITIES",
-                      metin: "Accumulate enough EXP to Level Up. Leveling up clears fatigue, restores HP/MP, and grants AP (Ability Points). Use these to upgrade your stats like STR, AGI, or INT."
+                      ikon: Icons.trending_up, renk: Colors.amberAccent, baslik: TranslationManager.get('instruction_r2_title'),
+                      metin: TranslationManager.get('instruction_r2_desc')
                     ),
                     _kuralKarti(
-                      ikon: Icons.local_fire_department, renk: Colors.cyanAccent, baslik: "3. ENERGY & DIET",
-                      metin: "The System has set a daily calorie limit based on your goal. Exceeding it will make your body sluggish, resulting in HP penalties. Log your intake in the 'INVENTORY'."
+                      ikon: Icons.local_fire_department, renk: Colors.cyanAccent, baslik: TranslationManager.get('instruction_r3_title'),
+                      metin: TranslationManager.get('instruction_r3_desc')
                     ),
                     _kuralKarti(
-                      ikon: Icons.calendar_month, renk: Colors.purpleAccent, baslik: "4. ENDLESS CYCLE",
-                      metin: "Quests added to the Planner will repeat weekly on their assigned days until deleted. Track your history in the 'QUEST LOG' and 'INVENTORY' archives."
+                      ikon: Icons.calendar_month, renk: Colors.purpleAccent, baslik: TranslationManager.get('instruction_r4_title'),
+                      metin: TranslationManager.get('instruction_r4_desc')
                     ),
                     _kuralKarti(
-                      ikon: Icons.warning_amber_rounded, renk: Colors.orangeAccent, baslik: "5. THREAT OF DEATH",
-                      metin: "If your HP (Health Points) drops to zero... You don't want to find out what happens. Survive and grow stronger."
+                      ikon: Icons.warning_amber_rounded, renk: Colors.orangeAccent, baslik: TranslationManager.get('instruction_r5_title'),
+                      metin: TranslationManager.get('instruction_r5_desc')
                     ),
                   ],
                 ),
@@ -83,7 +84,7 @@ class _InstructionScreenState extends State<InstructionScreen> {
                     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AnaEkran()));
                   },
                   icon: const Icon(Icons.login, color: Colors.cyanAccent),
-                  label: const Text('I UNDERSTAND AND ACCEPT THE RULES', style: TextStyle(color: Colors.cyanAccent, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                  label: Text(TranslationManager.get('instruction_confirm'), style: const TextStyle(color: Colors.cyanAccent, fontWeight: FontWeight.bold, letterSpacing: 1)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.cyanAccent.withValues(alpha: 0.1), padding: const EdgeInsets.symmetric(vertical: 20),
                     side: const BorderSide(color: Colors.cyanAccent, width: 2), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))

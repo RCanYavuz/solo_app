@@ -2,7 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'active_workout_screen.dart';
-import '../controllers/system_memory.dart'; 
+import '../controllers/system_memory.dart';
+import '../core/translation_manager.dart'; 
 import '../models/task_model.dart';
 import '../widgets/hologram_card.dart';
 import '../core/sistem_gecisi.dart'; 
@@ -84,7 +85,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       backgroundColor: sysDarkBg, 
       appBar: AppBar(
-        title: Text('S T A T U S', style: GoogleFonts.rajdhani(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 24, letterSpacing: 4.0)),
+        title: Text(TranslationManager.get('dash_status'), style: GoogleFonts.rajdhani(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 24, letterSpacing: 4.0)),
         backgroundColor: Colors.transparent, 
         elevation: 0,
         centerTitle: true,
@@ -119,7 +120,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           children: [
                             Text('${SystemMemory.level.value}', style: GoogleFonts.orbitron(color: Colors.white, fontSize: 36, fontWeight: FontWeight.bold, height: 1)),
                             const SizedBox(width: 8),
-                            const Padding(padding: EdgeInsets.only(bottom: 6), child: Text('LEVEL', style: TextStyle(color: sysBlue, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2))),
+                            const Padding(padding: EdgeInsets.only(bottom: 6), child: Text(TranslationManager.get('dash_level'), style: TextStyle(color: sysBlue, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2))),
                           ],
                         ),
                         const SizedBox(height: 5),
@@ -148,7 +149,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text('ENERGY', style: GoogleFonts.orbitron(color: sysTextMuted, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                          Text(TranslationManager.get('dash_energy'), style: GoogleFonts.orbitron(color: sysTextMuted, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2)),
                           const SizedBox(height: 15),
                           Stack(
                             alignment: Alignment.center,
@@ -179,7 +180,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Text('PHYSICAL', style: GoogleFonts.orbitron(color: sysTextMuted, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                          Text(TranslationManager.get('dash_physical'), style: GoogleFonts.orbitron(color: sysTextMuted, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2)),
                           const Divider(color: Colors.white12, thickness: 1),
                           _statSatiri('STR', '${SystemMemory.str.value}', sysBlue),
                           _statSatiri('INT', '${SystemMemory.intStat.value}', sysBlue),
@@ -194,7 +195,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(height: 20),
 
             // --- 3. BAŞARIMLAR VİTRİNİ (DİNAMİK KADEMELİ) ---
-            Text('ACHIEVEMENTS', style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
+            Text(TranslationManager.get('dash_achievements'), style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
             const SizedBox(height: 10),
             SizedBox(
               height: 135,
@@ -222,7 +223,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(height: 20),
 
             // --- 4. HAFTALIK BOSS (ZİNDAN KAPISI) ---
-            Text('DUNGEON GATE', style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
+            Text(TranslationManager.get('dash_dungeon_gate'), style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
             const SizedBox(height: 10),
             
             if (SystemMemory.bossMaxHP > 0)
@@ -241,14 +242,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           children: [
                             Icon(bossOldu ? Icons.check_circle : Icons.warning_amber_rounded, color: bossRenk, size: 28),
                             const SizedBox(width: 10),
-                            Text(bossOldu ? 'BOSS DEFEATED' : 'WARNING: BOSS ACTIVE', style: GoogleFonts.orbitron(color: bossRenk, fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                            Text(bossOldu ? TranslationManager.get('dash_boss_defeated') : TranslationManager.get('dash_boss_active'), style: GoogleFonts.orbitron(color: bossRenk, fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 1)),
                           ],
                         ),
                         const SizedBox(height: 15),
                         Icon(SystemMemory.bossTuru == 'Fiziksel' ? Icons.pets : Icons.ac_unit, color: bossRenk.withValues(alpha: 0.5), size: 60),
                         const SizedBox(height: 10),
                         Text(SystemMemory.bossIsim.toUpperCase(), style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 2)),
-                        Text('Weakness: ${SystemMemory.bossTuru == "Fiziksel" ? "Physical" : "Mental"} Quests', style: const TextStyle(color: sysTextMuted, fontSize: 12)),
+                        Text('Weakness: ${SystemMemory.bossTuru == "Fiziksel" ? TranslationManager.get("dash_weakness_phy") : TranslationManager.get("dash_weakness_men")} Quests', style: const TextStyle(color: sysTextMuted, fontSize: 12)),
                         const SizedBox(height: 15),
                         
                         Stack(
@@ -283,9 +284,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     children: [
                       Icon(Icons.door_sliding, color: sysTextMuted.withValues(alpha: 0.5), size: 40),
                       const SizedBox(height: 10),
-                      Text('GATE IS DORMANT', style: GoogleFonts.orbitron(color: sysTextMuted, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                      Text(TranslationManager.get('dash_gate_dormant'), style: GoogleFonts.orbitron(color: sysTextMuted, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2)),
                       const SizedBox(height: 5),
-                      const Text('The Weekly Boss will appear on Sunday.', style: TextStyle(color: sysTextMuted, fontSize: 12)),
+                      Text(TranslationManager.get('dash_boss_sunday'), style: const TextStyle(color: sysTextMuted, fontSize: 12)),
                     ],
                   ),
                 ),
@@ -293,13 +294,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(height: 20),
 
             // --- 5. GÜNLÜK GÖREVLER ---
-            Text('DAILY QUESTS', style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
+            Text(TranslationManager.get('dash_daily_quests'), style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
             const SizedBox(height: 10),
             HologramCard(
               neonRenk: sysBlue,
               padding: EdgeInsets.zero,
               child: bugununGorevleri.isEmpty 
-              ? const Padding(padding: EdgeInsets.all(20), child: Center(child: Text("No active quests.", style: TextStyle(color: sysTextMuted))))
+              ? const Padding(padding: EdgeInsets.all(20), child: Center(child: Text(TranslationManager.get('dash_no_quests'), style: TextStyle(color: sysTextMuted))))
               : ListView.builder(
                   shrinkWrap: true, physics: const NeverScrollableScrollPhysics(),
                   itemCount: bugununGorevleri.length,
@@ -310,7 +311,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       child: ListTile(
                         leading: Icon(g.yapildiMi ? Icons.check_box : Icons.check_box_outline_blank, color: g.yapildiMi ? sysBlue : sysTextMuted, size: 20),
                         title: Text(g.ad, style: TextStyle(color: g.yapildiMi ? sysTextMuted : Colors.white, fontSize: 14, decoration: g.yapildiMi ? TextDecoration.lineThrough : null)),
-                        trailing: Text(g.tip == 'Fiziksel' ? '[PHY]' : '[MNT]', style: TextStyle(color: sysBlue.withValues(alpha: 0.5), fontSize: 10)),
+                        trailing: Text(g.tip == 'Fiziksel' ? TranslationManager.get('dash_phy') : TranslationManager.get('dash_mnt'), style: TextStyle(color: sysBlue.withValues(alpha: 0.5), fontSize: 10)),
                       ),
                     );
                   },
@@ -319,13 +320,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(height: 20),
 
             // --- 6. BUGÜNÜN ZİNDAN (İDMAN) KAYITLARI ---
-            Text('TODAY\'S DUNGEON LOGS', style: GoogleFonts.orbitron(color: sysRed, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
+            Text(TranslationManager.get('dash_todays_dungeon'), style: GoogleFonts.orbitron(color: sysRed, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
             const SizedBox(height: 10),
             HologramCard(
               neonRenk: sysRed,
               padding: EdgeInsets.zero,
               child: bugununIdmanlari.isEmpty 
-              ? const Padding(padding: EdgeInsets.all(20), child: Center(child: Text("No raids completed today.", style: TextStyle(color: sysTextMuted))))
+              ? const Padding(padding: EdgeInsets.all(20), child: Center(child: Text(TranslationManager.get('dash_no_raids'), style: TextStyle(color: sysTextMuted))))
               : ListView.builder(
                   shrinkWrap: true, physics: const NeverScrollableScrollPhysics(),
                   itemCount: bugununIdmanlari.length,
@@ -352,7 +353,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: ElevatedButton.icon(
                 onPressed: () => Navigator.push(context, SistemGecisi(sayfa: const ActiveWorkoutScreen())).then((_) => setState((){})),
                 icon: const Icon(Icons.flash_on, color: sysRed, size: 24),
-                label: const Text('ENTER DUNGEON (START WORKOUT)', style: TextStyle(color: sysRed, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                label: Text(TranslationManager.get('dash_enter_dungeon'), style: const TextStyle(color: sysRed, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: sysRed.withValues(alpha: 0.1), padding: const EdgeInsets.symmetric(vertical: 20),
                   side: const BorderSide(color: sysRed, width: 2), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),

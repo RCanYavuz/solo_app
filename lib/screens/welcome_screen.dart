@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'instruction_screen.dart'; // YENİ: Kurallar ekranı yolu
 
+import '../core/translation_manager.dart';
+
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
@@ -32,7 +34,7 @@ class WelcomeScreen extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  "[ SYSTEM WELCOME ]",
+                  TranslationManager.get('welcome_init'),
                   style: GoogleFonts.orbitron(
                     color: Colors.cyanAccent, 
                     fontSize: 20, 
@@ -44,7 +46,7 @@ class WelcomeScreen extends StatelessWidget {
                 const Divider(color: Colors.cyanAccent, thickness: 1),
                 const SizedBox(height: 20),
                 Text(
-                  "Congratulations, Hunter.\nScan completed.\nYou now have full access to the System.\n[CONFIRM TO AWAKEN]",
+                  TranslationManager.get('welcome_message'),
                   textAlign: TextAlign.center,
                   style: GoogleFonts.rajdhani(
                     color: Colors.white, 
@@ -66,9 +68,9 @@ class WelcomeScreen extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 18),
                       side: const BorderSide(color: Colors.cyanAccent, width: 1.5),
                     ),
-                    child: const Text(
-                      'START SYSTEM',
-                      style: TextStyle(
+                    child: Text(
+                      TranslationManager.get('welcome_start'),
+                      style: const TextStyle(
                         color: Colors.cyanAccent, 
                         fontWeight: FontWeight.bold, 
                         letterSpacing: 2

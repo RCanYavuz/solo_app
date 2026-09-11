@@ -1305,6 +1305,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         },
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 10), 
+                  const Divider(color: Colors.white12, thickness: 1), 
+                  const SizedBox(height: 5),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "System Language / Dil", 
+                            style: GoogleFonts.orbitron(color: sysBlue, fontSize: 12, fontWeight: FontWeight.bold)
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            SystemMemory.appLanguage.value == 'en' ? "English" : "Türkçe", 
+                            style: const TextStyle(color: sysTextMuted, fontSize: 10)
+                          ),
+                        ],
+                      ),
+                      OutlinedButton(
+                        onPressed: () {
+                          setState(() {
+                            SystemMemory.appLanguage.value = SystemMemory.appLanguage.value == 'en' ? 'tr' : 'en';
+                          });
+                          SystemMemory.kaydet();
+                        },
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: sysBlue),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))
+                        ),
+                        child: Text(
+                          SystemMemory.appLanguage.value == 'en' ? "EN" : "TR",
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
+                        ),
+                      ),
+                    ],
                   )
                 ]
               )
