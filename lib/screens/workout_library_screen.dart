@@ -14,6 +14,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/workout_model.dart';
 import '../widgets/hologram_card.dart';
 import '../core/audio_system.dart';
+import '../controllers/system_memory.dart';
+import '../models/task_model.dart';
 
 // ──────────────────────────────────────────────
 // ANA EKRAN
@@ -34,6 +36,16 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
   static const Color _sysText   = Color(0xFF94A3B8);
   static const Color _sysGreen  = Color(0xFF22C55E);
   static const Color _sysPurple = Color(0xFFA855F7);
+
+  static const Map<int, String> _gunIsimleri = {
+    1: 'Monday (Pazartesi)',
+    2: 'Tuesday (Salı)',
+    3: 'Wednesday (Çarşamba)',
+    4: 'Thursday (Perşembe)',
+    5: 'Friday (Cuma)',
+    6: 'Saturday (Cumartesi)',
+    7: 'Sunday (Pazar)',
+  };
 
   // ─── State ───
   int _seciliSablonIndex = 0;
@@ -302,6 +314,203 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
     );
   }
 
+  // ─── Egzersizi Haftalık Plana Ata Diyalogu ───
+  void _egzersiziPlanaAtaDialog(Egzersiz egz) {
+    int secilenGun = DateTime.now().weekday;
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setDialogState) {
+            return AlertDialog(
+              backgroundColor: const Color(0xFF0A0E17),
+              shape: RoundedRectangleBorder(
+                side: const BorderSide(color: _sysBlue, width: 1),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              title: Text(
+                '[ ASSIGN TO WEEKLY PLAN ]',
+                style: GoogleFonts.orbitron(color: _sysBlue, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 1),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    egz.ad,
+                    style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    '${egz.setTekrar} • ${egz.kategori}',
+                    style: const TextStyle(color: _sysText, fontSize: 12),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'SELECT TARGET DAY:',
+                    style: GoogleFonts.orbitron(color: _sysBlue, fontSize: 11, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: _sysBlue.withValues(alpha: 0.4)),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<int>(
+                        value: secilenGun,
+                        dropdownColor: const Color(0xFF0A0E17),
+                        isExpanded: true,
+                        items: _gunIsimleri.entries.map((e) {
+                          return DropdownMenuItem<int>(
+                            value: e.key,
+                            child: Text(e.value, style: const TextStyle(color: Colors.white, fontSize: 13)),
+                          );
+                        }).toList(),
+                        onChanged: (val) {
+                          if (val != null) setDialogState(() => secilenGun = val);
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('CANCEL', style: TextStyle(color: _sysText)),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final gorevBaslik = "[${_sablonlar[_seciliSablonIndex].ad.toUpperCase()}] ${egz.ad} (${egz.setTekrar})";
+                    SystemMemory.haftalikPlan.putIfAbsent(secilenGun, () => []);
+                    SystemMemory.haftalikPlan[secilenGun]!.add(Gorev(gorevBaslik, false, egz.kategori));
+                    await SystemMemory.kaydet();
+                    AudioSystem.playSuccess();
+                    if (ctx.mounted) Navigator.pop(ctx);
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('[SYSTEM] "${egz.ad}" added to ${_gunIsimleri[secilenGun]}!'),
+                          backgroundColor: _sysBlue,
+                        ),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _sysBlue.withValues(alpha: 0.15),
+                    side: const BorderSide(color: _sysBlue),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                  ),
+                  child: Text('ASSIGN QUEST', style: GoogleFonts.orbitron(color: _sysBlue, fontSize: 11, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // ─── Tüm Şablonu Plana Ata Diyalogu ───
+  void _tumSablonuPlanaAtaDialog() {
+    int secilenGun = DateTime.now().weekday;
+    final sablon = _sablonlar[_seciliSablonIndex];
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setDialogState) {
+            return AlertDialog(
+              backgroundColor: const Color(0xFF0A0E17),
+              shape: RoundedRectangleBorder(
+                side: BorderSide(color: sablon.renk, width: 1),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              title: Text(
+                '[ ASSIGN ROUTINE TO PLAN ]',
+                style: GoogleFonts.orbitron(color: sablon.renk, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 1),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Assign all ${sablon.egzersizler.length} exercises from "${sablon.ad}" to a specific day of your weekly planner.',
+                    style: const TextStyle(color: _sysText, fontSize: 13),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'SELECT TARGET DAY:',
+                    style: GoogleFonts.orbitron(color: sablon.renk, fontSize: 11, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: sablon.renk.withValues(alpha: 0.4)),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<int>(
+                        value: secilenGun,
+                        dropdownColor: const Color(0xFF0A0E17),
+                        isExpanded: true,
+                        items: _gunIsimleri.entries.map((e) {
+                          return DropdownMenuItem<int>(
+                            value: e.key,
+                            child: Text(e.value, style: const TextStyle(color: Colors.white, fontSize: 13)),
+                          );
+                        }).toList(),
+                        onChanged: (val) {
+                          if (val != null) setDialogState(() => secilenGun = val);
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('CANCEL', style: TextStyle(color: _sysText)),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    SystemMemory.haftalikPlan.putIfAbsent(secilenGun, () => []);
+                    for (var egz in sablon.egzersizler) {
+                      final gorevBaslik = "[${sablon.ad.toUpperCase()}] ${egz.ad} (${egz.setTekrar})";
+                      SystemMemory.haftalikPlan[secilenGun]!.add(Gorev(gorevBaslik, false, egz.kategori));
+                    }
+                    await SystemMemory.kaydet();
+                    AudioSystem.playSuccess();
+                    if (ctx.mounted) Navigator.pop(ctx);
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('[SYSTEM] ${sablon.egzersizler.length} exercises added to ${_gunIsimleri[secilenGun]}!'),
+                          backgroundColor: sablon.renk,
+                        ),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: sablon.renk.withValues(alpha: 0.15),
+                    side: BorderSide(color: sablon.renk),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                  ),
+                  child: Text('ASSIGN ROUTINE', style: GoogleFonts.orbitron(color: sablon.renk, fontSize: 11, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   // ══════════════════════════════════════════════
   // ANA BUILD
   // ══════════════════════════════════════════════
@@ -427,7 +636,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
               ),
             ),
 
-          // Egzersiz sayacı
+          // Egzersiz sayacı & Plana Aktarma
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
             child: Row(
@@ -445,6 +654,26 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                     border: Border.all(color: sablon.renk.withValues(alpha: 0.3)),
                   ),
                   child: Text('${sablon.egzersizler.length}', style: GoogleFonts.orbitron(color: sablon.renk, fontSize: 11, fontWeight: FontWeight.bold)),
+                ),
+                const Spacer(),
+                GestureDetector(
+                  onTap: _tumSablonuPlanaAtaDialog,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: _sysBlue.withValues(alpha: 0.1),
+                      border: Border.all(color: _sysBlue.withValues(alpha: 0.5)),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.event_available, color: _sysBlue, size: 14),
+                        const SizedBox(width: 5),
+                        Text('ASSIGN TO PLAN', style: GoogleFonts.orbitron(color: _sysBlue, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -676,6 +905,22 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                   border: Border.all(color: _sysRed.withValues(alpha: 0.3)),
                 ),
                 child: const Icon(Icons.play_circle_fill, color: _sysRed, size: 20),
+              ),
+            ),
+            const SizedBox(width: 8),
+
+            // Plana Ekle Butonu
+            GestureDetector(
+              onTap: () => _egzersiziPlanaAtaDialog(egz),
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: _sysBlue.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: _sysBlue.withValues(alpha: 0.3)),
+                ),
+                child: const Icon(Icons.playlist_add, color: _sysBlue, size: 20),
               ),
             ),
 

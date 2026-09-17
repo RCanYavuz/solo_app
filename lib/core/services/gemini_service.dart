@@ -139,7 +139,7 @@ class GeminiService {
       final avciAdi = (hunterName != null && hunterName.isNotEmpty) 
           ? hunterName 
           : (SystemMemory.oyuncuIsmi.isNotEmpty && SystemMemory.oyuncuIsmi != 'PLAYER' ? SystemMemory.oyuncuIsmi : 'HUNTER');
-      final prompt = 'System protocol confirmed. Generate a single-sentence authoritative System awakening message for Hunter $hunterName in English.';
+      final prompt = 'System protocol confirmed. Generate a single-sentence authoritative System awakening message for Hunter $avciAdi in English.';
 
       String sonHata = '';
 

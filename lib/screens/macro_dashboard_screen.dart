@@ -47,6 +47,11 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
   void initState() {
     super.initState();
     _kilo = SystemMemory.kilo > 0 ? SystemMemory.kilo : 75.0;
+    if (SystemMemory.aktifHedef.contains("Kilo Al") || SystemMemory.aktifHedef.contains("Kas")) {
+      _secilenHedef = "kilo_alma";
+    } else {
+      _secilenHedef = "yag_yakma";
+    }
 
     _animCtrl = AnimationController(
       vsync: this,

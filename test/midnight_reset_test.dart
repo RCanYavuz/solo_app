@@ -42,8 +42,8 @@ void main() {
   });
 
   test('geminiActiveModel can be updated and retrieved from SystemMemory', () {
-    expect(SystemMemory.geminiActiveModel, 'gemini-1.5-flash');
-    SystemMemory.geminiActiveModel = 'gemini-2.0-flash';
-    expect(SystemMemory.geminiActiveModel, 'gemini-2.0-flash');
+    expect(SystemMemory.geminiActiveModel, 'gemini-3.6-flash');
+    SystemMemory.geminiActiveModel = 'gemini-3.5-flash';
+    expect(SystemMemory.geminiActiveModel, 'gemini-3.5-flash');
   });
 }

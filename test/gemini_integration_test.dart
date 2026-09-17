@@ -83,10 +83,10 @@ void main() {
       // Tap Decode without text
       await tester.tap(find.text('DECODE WITH AI'));
       await tester.pumpAndSettle();
-      expect(find.text('Enter meal description first.'), findsOneWidget);
+      expect(find.text('Enter meal description or attach a photo.'), findsOneWidget);
 
       // Enter text when key is empty
-      final aiField = find.widgetWithText(TextField, 'e.g. 2 eggs, 1 slice bread, 50g cheese');
+      final aiField = find.widgetWithText(TextField, 'e.g. 2 eggs, 1 slice bread, 50g cheese (optional if photo is given)');
       await tester.enterText(aiField, '2 eggs');
       await tester.pumpAndSettle();
 

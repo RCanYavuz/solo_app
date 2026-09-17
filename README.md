@@ -20,7 +20,8 @@ lib/
 ├── models/
 │   ├── task_model.dart             # Görev (Gorev) veri modeli
 │   ├── food_model.dart             # Tüketilen yemek (TuketilenYemek) veri modeli
-│   └── workout_model.dart          # Egzersiz şablonu (EgzersizSablonu) veri modeli
+│   ├── workout_model.dart          # Egzersiz şablonu (EgzersizSablonu) veri modeli
+│   └── inventory_item_model.dart   # Avcı çantası eşya (InventoryItem) modeli
 ├── screens/
 │   ├── ana_ekran.dart              # Ana navigasyon kabuğu (Bottom Navigation)
 │   ├── dashboard_screen.dart       # Dashboard — Level, Stat, Başarımlar, Haftalık Boss
@@ -127,6 +128,46 @@ lib/
 ### 11. 🎵 Ses & Atmosfer Motoru
 - Level Up, Quest Complete, Bell, Transition ve Dungeon ses efektleri.
 - `mixWithOthers` protokolü sayesinde arka planda çalan Spotify veya YouTube müziğini kesmeden mikslenir.
+
+---
+
+## ⚡ Son Eklenen Özellikler & Sistem İyileştirmeleri (YENİ)
+
+> [!WARNING]
+> **DİKKAT — TEST AŞAMASI BİLDİRİMİ:**
+> Aşağıdaki sistem özellikleri, arayüz bileşenleri ve mantık entegrasyonları kod seviyesinde tamamlanıp projeye eklenmiştir. Ancak başka bir test ajanı (agent) tarafından detaylı uçtan uca (E2E) fonksiyonel ve kullanıcı akış testleri gerçekleştirileceğinden, **şu ana kadar yapılan bu yeni eklemeler kullanıcı tarafında henüz test edilmemiştir / test aşamasındadır.**
+
+### 1. 💧 Su Takibi Sistemi (Hydration Core)
+- **Arayüz (`diet_screen.dart`):** Günlük tüketilen su miktarını ve hedefini (varsayılan 3000 ml) gösteren neon Solo Leveling temalı ilerleme çubuğu.
+- **Hızlı Giriş Aksiyonları:** `+250 ml`, `+500 ml` butonları ve sayacı sıfırlama seçeneği.
+- **Gece Yarısı Ödül & Ceza Entegrasyonu:** `SystemMemory._gunSonuHesaplasmasi` motorunda su hedefi kontrol edilir; hedefi tutturan avcıya ekstra **+5 HP** ve **+10 EXP** ödülü verilir ve yeni gün başlangıcında sayaç sıfırlanır.
+
+### 2. 🎒 Avcı Çantası & Eşya Kullanımı (Hunter's Bag / Inventory)
+- **Çanta Modalı (`shop_screen.dart`):** Mağaza ekranının AppBar'ına eklenen çanta ikonu ile satın alınan tüm eşyaların adetleriyle listelendiği modal pencere.
+- **Envanter İstifleme (Stacking):** Satın alınan iksir ve buff biletleri `SystemMemory.canta` listesine eklenir ve mevcut eşyaların adetleri artırılır.
+- **Canlı Eşya Kullanımı ("USE"):** Çantadaki eşyaya basıldığında `SystemMemory.esyaKullan` tetiklenir:
+  - `hp_full`: Canı anında 100% doldurur (`acilSifa`).
+  - `stat_reset`: Dağıtılmış statları sıfırlayarak tüm AP puanlarını iade eder.
+  - `cheat_meal` / `minor_cheat` / `endless_feast`: O geceki kalori aşım cezasını bypass eden `bugunCheatMealAktif` buff'ını açar.
+  - `sloth_day`: O günkü yapılmayan görev cezalarını engelleyen `bugunSlothDayAktif` buff'ını açar.
+
+### 3. 🥩 Yemek Makro Takibi & Kalıcı Veri Modeli (P / C / F)
+- **Model Genişletmesi (`food_model.dart`):** `TuketilenYemek` sınıfına kalori haricinde `protein`, `karbonhidrat` ve `yag` değişkenleri ile JSON serileştirme desteği eklendi.
+- **AI & Manuel Entegrasyon:** Gemini AI tarafından çözümlenen veya kullanıcının elle girdiği makro değerleri kaydedilip SharedPreferences hafızasına yazılır.
+- **Görsel Diyet Listesi:** Diyet ekranında tüketilen yemeklerin altında `P: Xg | C: Yg | F: Zg` dökümü canlı olarak listelenir; `SystemMemory.bugunProtein`, `bugunKarb`, `bugunYag` toplamları hesaplanır.
+
+### 4. 📅 Antrenman Kütüphanesinden Haftalık Plana Aktarma (Assign to Plan)
+- **Tekil Egzersiz Aktarımı (`workout_library_screen.dart`):** Kütüphanedeki her hareket satırına eklenen `Plana Ekle` (`playlist_add`) butonu ile haftanın istenen günü seçilerek hareket o günün `Gorev` listesine anında eklenebilir.
+- **Toplu Şablon Aktarımı:** Şablon kartı üzerindeki `ASSIGN TO PLAN` butonu ile şablondaki tüm egzersizler tek seferde seçilen günün antrenman programına aktarılabilir.
+
+### 5. 🥊 Boks / Zindan Simülasyonu Ödül Mekanizması (Combat Sim Rewards)
+- **Antrenman Tamamlama Kaydı (`boxing_timer_screen.dart`):** Parkur ve raundlar bittiğinde `SystemMemory.zindanAkiniBitir` çağrılır.
+- **Dungeon Raid Ödülleri:** Tamamlanan antrenman süresi `toplamIdmanDakikasi` ve `idmanGecmisi` kayıtlarına işlenir. Avcıya geçen dakika başına Altın (Red Gate'te 5 kat) ve EXP kazandırılır, ödül özeti ekrandaki dialog penceresinde sunulur.
+
+### 6. 💾 Veri Kasası / JSON Yedekleme & Geri Yükleme (Data Vault)
+- **Profil Kartı (`profile_screen.dart`):** Profil ekranına eklenen `DATA VAULT / ARCHIVE` hologram kartı.
+- **Arşiv Dışa Aktarma (Export):** Tek tuşla tüm oyuncu profili, statlar, seviye, envanter, antrenman ve kilo geçmişini şifrelenmiş JSON olarak panoya kopyalar veya görüntüler.
+- **Arşiv İçe Aktarma (Restore):** Yapıştırılan yedek JSON metnini doğrulayarak (`importBackupJson`) oyuncunun tüm profilini başka bir cihaza veya sıfır kurulum üzerine eksiksiz geri yükler.
 
 ---
 

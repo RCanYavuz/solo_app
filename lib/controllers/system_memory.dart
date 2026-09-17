@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'dart:typed_data';
 import 'dart:convert';
+import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -9,8 +10,17 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import '../core/audio_system.dart';
 import '../models/task_model.dart';
 import '../models/food_model.dart';
+import '../models/inventory_item_model.dart';
 
 class SystemMemory {
+  static bool get _isTest {
+    try {
+      return !kIsWeb && Platform.environment.containsKey('FLUTTER_TEST');
+    } catch (_) {
+      return false;
+    }
+  }
+
   static bool kayitBulundu = false; 
 
   static bool golgeModuAktif = false;
@@ -46,7 +56,21 @@ class SystemMemory {
 
   static String oyuncuIsmi = "PLAYER";
   static String geminiApiKey = "";
-  static String geminiActiveModel = "gemini-2.5-flash";
+  static String geminiActiveModel = "gemini-3.6-flash";
+
+  // SU TAKİBİ (HYDRATION CORE)
+  static int suHedefiMl = 3000;
+  static ValueNotifier<int> bugunIcilenSuMl = ValueNotifier(0);
+
+  // AVCI ÇANTASI (INVENTORY) & GÜNLÜK BUFFLAR
+  static List<InventoryItem> canta = [];
+  static bool bugunCheatMealAktif = false;
+  static bool bugunSlothDayAktif = false;
+
+  // MAKRO BESİN DİNAMİK HESAPLAYICILARI
+  static int get bugunProtein => bugununYemekleri.fold(0, (sum, item) => sum + item.protein);
+  static int get bugunKarb => bugununYemekleri.fold(0, (sum, item) => sum + item.karbonhidrat);
+  static int get bugunYag => bugununYemekleri.fold(0, (sum, item) => sum + item.yag);
 
   static String sonGirisTarihi = "";
   static String geceRaporu = ""; 
@@ -121,13 +145,21 @@ class SystemMemory {
 
       oyuncuIsmi = prefs.getString('oyuncuIsmi') ?? "PLAYER";
       appLanguage.value = prefs.getString('appLanguage') ?? "en";
-      const secureStorage = FlutterSecureStorage();
-      geminiApiKey = await secureStorage.read(key: 'gemini_api_key') ?? "";
+      if (!_isTest) {
+        try {
+          const secureStorage = FlutterSecureStorage();
+          geminiApiKey = await secureStorage.read(key: 'gemini_api_key') ?? prefs.getString('gemini_api_key') ?? "";
+        } catch (_) {
+          geminiApiKey = prefs.getString('gemini_api_key') ?? "";
+        }
+      } else {
+        geminiApiKey = prefs.getString('gemini_api_key') ?? "";
+      }
       final savedModel = prefs.getString('gemini_active_model');
-      if (savedModel != null && savedModel.isNotEmpty && !savedModel.contains('3.6')) {
+      if (savedModel != null && savedModel.isNotEmpty) {
         geminiActiveModel = savedModel;
       } else {
-        geminiActiveModel = "gemini-2.5-flash";
+        geminiActiveModel = "gemini-3.6-flash";
       }
       sonGirisTarihi = prefs.getString('sonGirisTarihi') ?? "";
 
@@ -182,6 +214,16 @@ class SystemMemory {
       Map<String, dynamic> npMap = jsonDecode(normalPlanJson);
       npMap.forEach((key, value) { normalHaftalikPlan[int.parse(key)] = (value as List).map((e) => Gorev.fromJson(e)).toList(); });
 
+      // Su ve Envanter Yükle
+      suHedefiMl = prefs.getInt('suHedefiMl') ?? 3000;
+      bugunIcilenSuMl.value = prefs.getInt('bugunIcilenSuMl') ?? prefs.getInt('bugunIçilenSuMl') ?? 0;
+      bugunCheatMealAktif = prefs.getBool('bugunCheatMealAktif') ?? false;
+      bugunSlothDayAktif = prefs.getBool('bugunSlothDayAktif') ?? false;
+
+      String cantaJson = prefs.getString('canta') ?? '[]';
+      List<dynamic> cList = jsonDecode(cantaJson);
+      canta = cList.map((e) => InventoryItem.fromJson(e)).toList();
+
       bossGuncelle();
     }
   }
@@ -226,8 +268,13 @@ class SystemMemory {
     prefs.setString('hunterRank', hunterRank);
     await prefs.setString('oyuncuIsmi', oyuncuIsmi);
     await prefs.setString('appLanguage', appLanguage.value);
-    const secureStorage = FlutterSecureStorage();
-    await secureStorage.write(key: 'gemini_api_key', value: geminiApiKey);
+    await prefs.setString('gemini_api_key', geminiApiKey);
+    if (!_isTest) {
+      try {
+        const secureStorage = FlutterSecureStorage();
+        await secureStorage.write(key: 'gemini_api_key', value: geminiApiKey);
+      } catch (_) {}
+    }
     prefs.setString('gemini_active_model', geminiActiveModel);
     
     if (dogumTarihi != null) prefs.setString('dogumTarihi', dogumTarihi!.toIso8601String());
@@ -240,6 +287,12 @@ class SystemMemory {
     prefs.setInt('bugunAlinanKalori', bugunAlinanKalori); prefs.setInt('uyunanSaat', uyunanSaat);
     prefs.setString('bugununYemekleri', jsonEncode(bugununYemekleri.map((e) => e.toJson()).toList()));
     
+    prefs.setInt('suHedefiMl', suHedefiMl);
+    prefs.setInt('bugunIcilenSuMl', bugunIcilenSuMl.value);
+    prefs.setBool('bugunCheatMealAktif', bugunCheatMealAktif);
+    prefs.setBool('bugunSlothDayAktif', bugunSlothDayAktif);
+    prefs.setString('canta', jsonEncode(canta.map((e) => e.toJson()).toList()));
+
     Map<String, dynamic> planKayit = {};
     haftalikPlan.forEach((key, value) { planKayit[key.toString()] = value.map((e) => e.toJson()).toList(); });
     prefs.setString('haftalikPlan', jsonEncode(planKayit));
@@ -350,9 +403,10 @@ class SystemMemory {
 
   static String zindanAkiniBitir(int gecenSaniye) {
     int dakika = gecenSaniye ~/ 60;
+    if (dakika == 0 && gecenSaniye > 0) dakika = 1;
     
     int bugun = DateTime.now().weekday;
-    int bitenGorevSayisiSimdi = haftalikPlan[bugun]!.where((g) => g.yapildiMi).length;
+    int bitenGorevSayisiSimdi = haftalikPlan[bugun]?.where((g) => g.yapildiMi).length ?? 0;
 
     toplamIdmanDakikasi += dakika;
     idmanGecmisi.add({
@@ -364,10 +418,13 @@ class SystemMemory {
     int kazanilanAltin = dakika * (redGateAktif ? 10 : 2); 
     altin.value += kazanilanAltin;
     
+    int kazanilanExp = dakika * 5;
+    String lvlUp = expKazan(kazanilanExp);
+    
     kaydet();
     AudioSystem.playSuccess();
     
-    return "[RAID COMPLETED]\nTime in Dungeon: $dakika Min\nQuests Completed: $bitenGorevSayisiSimdi\nTime Reward: +$kazanilanAltin Gold";
+    return "[RAID COMPLETED]\nTime in Dungeon: $dakika Min\nQuests Completed: $bitenGorevSayisiSimdi\nTime Reward: +$kazanilanAltin Gold | +$kazanilanExp EXP$lvlUp";
   }
 
   // ========================================================
@@ -584,7 +641,9 @@ class SystemMemory {
       rapor += "[ 🌙 STEALTH MODE ACTIVE: All Penalties Disabled ]\n\n";
     }
 
-    if (bugunAlinanKalori > gunlukHedefKalori) { 
+    if (bugunCheatMealAktif) {
+      rapor += "[ 🍔 CHEAT PASS ACTIVE ] Calorie excess penalty waived for today!\n";
+    } else if (bugunAlinanKalori > gunlukHedefKalori) { 
       if (redGateAktif) { hpFarki -= 60; rapor += "[FATAL PENALTY] Calorie Limit Exceeded in Hell: -60 HP\n"; }
       else if (!golgeModuAktif) { hpFarki -= 20; rapor += "[PENALTY] Calorie Limit Exceeded: -20 HP\n"; }
       else { rapor += "[STEALTH] Calorie Excess Ignored.\n"; }
@@ -597,6 +656,13 @@ class SystemMemory {
       else { rapor += "[STEALTH] Sleep Deficit Ignored.\n"; }
     } 
     else { mpFarki += 2; kazanilanExp += 10; kazanilanVIT += 1; kazanilanAltin += 10; rapor += "[REWARD] Solid Rest: +2 MP, +10 EXP, +1 VIT, +10 G\n"; }
+
+    // SU HEDEFİ KONTROLÜ
+    if (bugunIcilenSuMl.value >= suHedefiMl && suHedefiMl > 0) {
+      hpFarki += 5;
+      kazanilanExp += 10;
+      rapor += "[REWARD] Hydration Goal Achieved (${bugunIcilenSuMl.value}ml): +5 HP, +10 EXP\n";
+    }
 
     List<Gorev> oGununProgrami = haftalikPlan[degerlendirilenGun]!;
     
@@ -631,7 +697,9 @@ class SystemMemory {
     int toplamBiten = bitenFiziksel + bitenZihinsel;
     bitenGorevSayisi += toplamBiten; 
 
-    if (toplamGorev > 0) {
+    if (bugunSlothDayAktif) {
+      rapor += "[ 🦥 SLOTH PASS ACTIVE ] Quests excused today. Streak preserved without penalty!\n";
+    } else if (toplamGorev > 0) {
       if (toplamBiten == toplamGorev) {
         streakGunSayisi++;
         rapor += "[STREAK] Flawless Day Streak: $streakGunSayisi Days!\n";
@@ -671,7 +739,7 @@ class SystemMemory {
       
       if (redGateAktif) {
         hpFarki -= (kacan * 45);
-      } else if (!golgeModuAktif) {
+      } else if (!golgeModuAktif && !bugunSlothDayAktif) {
         hpFarki -= (kacan * 15);
       } 
       
@@ -686,8 +754,8 @@ class SystemMemory {
         kazanilanVIT += 1; kazanilanAltin += 50; statMesaji += "+1 VIT ";
         rapor += "[REWARD] Flawless Workout: +${bitenFiziksel*15} HP, $statMesaji\n"; 
       } 
-      else if (bitenFiziksel > 0) { rapor += "[INFO] Partial Workout: +${bitenFiziksel*15} HP, ${golgeModuAktif ? '0' : '-${kacan*15}'} HP, $statMesaji\n"; } 
-      else { rapor += redGateAktif ? "[FATAL PENALTY] Workout Neglected: -${kacan*45} HP\n" : (golgeModuAktif ? "[STEALTH] Workout Ignored safely.\n" : "[PENALTY] Workout Neglected: -${kacan*15} HP\n"); }
+      else if (bitenFiziksel > 0) { rapor += "[INFO] Partial Workout: +${bitenFiziksel*15} HP, ${(golgeModuAktif || bugunSlothDayAktif) ? '0' : '-${kacan*15}'} HP, $statMesaji\n"; } 
+      else { rapor += redGateAktif ? "[FATAL PENALTY] Workout Neglected: -${kacan*45} HP\n" : ((golgeModuAktif || bugunSlothDayAktif) ? "[STEALTH/SLOTH] Workout Ignored safely.\n" : "[PENALTY] Workout Neglected: -${kacan*15} HP\n"); }
     }
 
     if (topZihinsel > 0) {
@@ -698,7 +766,7 @@ class SystemMemory {
       
       if (redGateAktif) {
         mpFarki -= (kacan * 15);
-      } else if (!golgeModuAktif) {
+      } else if (!golgeModuAktif && !bugunSlothDayAktif) {
         mpFarki -= (kacan * 5);
       }
       
@@ -713,8 +781,8 @@ class SystemMemory {
         kazanilanAltin += 30;
         rapor += "[REWARD] Flawless Mental Training: +${bitenZihinsel*5} MP, $statMesaji\n"; 
       } 
-      else if (bitenZihinsel > 0) { rapor += "[INFO] Partial Mental Training: +${bitenZihinsel*5} MP, ${golgeModuAktif ? '0' : '-${kacan*5}'} MP, $statMesaji\n"; } 
-      else { rapor += redGateAktif ? "[FATAL PENALTY] Mind Neglected: -${kacan*15} MP\n" : (golgeModuAktif ? "[STEALTH] Mind Training Ignored safely.\n" : "[PENALTY] Mind Neglected: -${kacan*5} MP\n"); }
+      else if (bitenZihinsel > 0) { rapor += "[INFO] Partial Mental Training: +${bitenZihinsel*5} MP, ${(golgeModuAktif || bugunSlothDayAktif) ? '0' : '-${kacan*5}'} MP, $statMesaji\n"; } 
+      else { rapor += redGateAktif ? "[FATAL PENALTY] Mind Neglected: -${kacan*15} MP\n" : ((golgeModuAktif || bugunSlothDayAktif) ? "[STEALTH/SLOTH] Mind Training Ignored safely.\n" : "[PENALTY] Mind Neglected: -${kacan*5} MP\n"); }
     }
 
     hp.value += hpFarki; 
@@ -764,6 +832,9 @@ class SystemMemory {
     bugunAlinanKalori = 0; 
     bugununYemekleri.clear(); 
     uyunanSaat = 0;
+    bugunIcilenSuMl.value = 0;
+    bugunCheatMealAktif = false;
+    bugunSlothDayAktif = false;
     
     // Yalnızca değerlendirilen günün görevleri sıfırlanır (haftanın diğer günleri korunur)
     if (haftalikPlan.containsKey(degerlendirilenGun)) {
@@ -809,7 +880,6 @@ class SystemMemory {
     if (mp.value > maxMp) mp.value = maxMp;
     kaydet();
   }
-
   static Future<void> sistemiSifirla() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
@@ -818,13 +888,16 @@ class SystemMemory {
     redGateAktif = false;
     golgeModuAktif = false;
     haftalikPlan.clear();
-    for(int i=1; i<=7; i++) haftalikPlan[i] = [];
+    for(int i=1; i<=7; i++) {
+      haftalikPlan[i] = [];
+    }
     normalHaftalikPlan.clear();
-    for(int i=1; i<=7; i++) normalHaftalikPlan[i] = [];
+    for(int i=1; i<=7; i++) {
+      normalHaftalikPlan[i] = [];
+    }
     level.value = 1;
     exp.value = 0;
     hp.value = 100;
-    avatarFotoByte = null;
     profilFotoByte = null;
   }
 
@@ -832,11 +905,155 @@ class SystemMemory {
   // SHADOW PROTOCOL (ARKAPLAN İZİNLERİ & WAKELOCK)
   // ==========================================
   static void idmanModunuBaslat() {
-    WakelockPlus.enable(); // Ekranın kapanmasını engeller
+    if (!_isTest) {
+      try {
+        WakelockPlus.enable(); // Ekranın kapanmasını engeller
+      } catch (_) {}
+    }
     // Arkaplan servisine idman başladığını bildir (İleride eklenecek)
   }
 
   static void idmanModunuBitir() {
-    WakelockPlus.disable(); // Normale dön
+    if (!_isTest) {
+      try {
+        WakelockPlus.disable(); // Normale dön
+      } catch (_) {}
+    }
+  }
+
+  // ========================================================
+  // SU TAKİBİ METOTLARI
+  // ========================================================
+  static void suEkle(int miktarMl) {
+    bugunIcilenSuMl.value += miktarMl;
+    kaydet();
+  }
+
+  static void suSifirla() {
+    bugunIcilenSuMl.value = 0;
+    kaydet();
+  }
+
+  // ========================================================
+  // AVCI ÇANTASI (INVENTORY) METOTLARI
+  // ========================================================
+  static void esyaEkle(InventoryItem yeniEsya) {
+    final index = canta.indexWhere((e) => e.aksiyon == yeniEsya.aksiyon);
+    if (index != -1) {
+      canta[index].adet += yeniEsya.adet;
+    } else {
+      canta.add(yeniEsya);
+    }
+    kaydet();
+  }
+
+  static String esyaKullan(String aksiyon) {
+    final index = canta.indexWhere((e) => e.aksiyon == aksiyon);
+    if (index == -1 || canta[index].adet <= 0) {
+      return "SYSTEM WARNING: Item not found in inventory!";
+    }
+
+    final esya = canta[index];
+    String rapor = "";
+
+    if (aksiyon == "hp_full") {
+      acilSifa();
+      rapor = "[HP FULL] Life force completely restored!";
+    } else if (aksiyon == "stat_reset") {
+      statuleriSifirla();
+      rapor = "[STAT RESET] All stats reset to 10. AP refunded!";
+    } else if (aksiyon == "cheat_meal" || aksiyon == "minor_cheat" || aksiyon == "endless_feast") {
+      bugunCheatMealAktif = true;
+      rapor = "[CHEAT PASS ACTIVATED] Calorie penalty will be bypassed tonight!";
+    } else if (aksiyon == "sloth_day") {
+      bugunSlothDayAktif = true;
+      rapor = "[SLOTH DAY ACTIVATED] Daily quest penalties waived for today!";
+    } else {
+      rapor = "[REWARD USED] ${esya.ad} claimed in real world!";
+    }
+
+    esya.adet--;
+    if (esya.adet <= 0) {
+      canta.removeAt(index);
+    }
+    AudioSystem.playSuccess();
+    kaydet();
+    return rapor;
+  }
+
+  // ========================================================
+  // VERİ YEDEKLEME VE GERİ YÜKLEME (BACKUP & RESTORE)
+  // ========================================================
+  static String exportBackupJson() {
+    final data = {
+      'oyuncuIsmi': oyuncuIsmi,
+      'level': level.value,
+      'exp': exp.value,
+      'maxExp': maxExp.value,
+      'ap': ap.value,
+      'altin': altin.value,
+      'hp': hp.value,
+      'maxHp': maxHp,
+      'mp': mp.value,
+      'maxMp': maxMp,
+      'str': str.value,
+      'agi': agi.value,
+      'vit': vit.value,
+      'intStat': intStat.value,
+      'per': per.value,
+      'boy': boy,
+      'kilo': kilo,
+      'baslangicKilosu': baslangicKilosu,
+      'streakGunSayisi': streakGunSayisi,
+      'bitenGorevSayisi': bitenGorevSayisi,
+      'suHedefiMl': suHedefiMl,
+      'kiloGecmisi': kiloGecmisi,
+      'idmanGecmisi': idmanGecmisi,
+      'toplamIdmanDakikasi': toplamIdmanDakikasi,
+      'geminiApiKey': geminiApiKey,
+      'geminiActiveModel': geminiActiveModel,
+      'canta': canta.map((e) => e.toJson()).toList(),
+      'backupTimestamp': DateTime.now().toIso8601String(),
+    };
+    return jsonEncode(data);
+  }
+
+  static bool importBackupJson(String rawJson) {
+    try {
+      final Map<String, dynamic> data = jsonDecode(rawJson);
+      if (data.containsKey('level') && data.containsKey('oyuncuIsmi')) {
+        oyuncuIsmi = data['oyuncuIsmi'] ?? oyuncuIsmi;
+        level.value = (data['level'] as num?)?.toInt() ?? level.value;
+        exp.value = (data['exp'] as num?)?.toInt() ?? exp.value;
+        maxExp.value = (data['maxExp'] as num?)?.toInt() ?? maxExp.value;
+        ap.value = (data['ap'] as num?)?.toInt() ?? ap.value;
+        altin.value = (data['altin'] as num?)?.toInt() ?? altin.value;
+        hp.value = (data['hp'] as num?)?.toInt() ?? hp.value;
+        maxHp = (data['maxHp'] as num?)?.toInt() ?? maxHp;
+        mp.value = (data['mp'] as num?)?.toInt() ?? mp.value;
+        maxMp = (data['maxMp'] as num?)?.toInt() ?? maxMp;
+        str.value = (data['str'] as num?)?.toInt() ?? str.value;
+        agi.value = (data['agi'] as num?)?.toInt() ?? agi.value;
+        vit.value = (data['vit'] as num?)?.toInt() ?? vit.value;
+        intStat.value = (data['intStat'] as num?)?.toInt() ?? intStat.value;
+        per.value = (data['per'] as num?)?.toInt() ?? per.value;
+        boy = (data['boy'] as num?)?.toDouble() ?? boy;
+        kilo = (data['kilo'] as num?)?.toDouble() ?? kilo;
+        baslangicKilosu = (data['baslangicKilosu'] as num?)?.toDouble() ?? baslangicKilosu;
+        streakGunSayisi = (data['streakGunSayisi'] as num?)?.toInt() ?? streakGunSayisi;
+        bitenGorevSayisi = (data['bitenGorevSayisi'] as num?)?.toInt() ?? bitenGorevSayisi;
+        suHedefiMl = (data['suHedefiMl'] as num?)?.toInt() ?? suHedefiMl;
+
+        if (data['canta'] != null) {
+          final List<dynamic> cList = data['canta'];
+          canta = cList.map((e) => InventoryItem.fromJson(e)).toList();
+        }
+        kaydet();
+        return true;
+      }
+      return false;
+    } catch (_) {
+      return false;
+    }
   }
 }

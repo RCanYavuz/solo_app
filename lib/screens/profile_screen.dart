@@ -1,7 +1,7 @@
 // lib/screens/profile_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:typed_data'; 
 import 'package:image_picker/image_picker.dart'; 
 
 import '../controllers/system_memory.dart';
@@ -861,6 +861,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           SystemMemory.geminiApiKey = apiKeyCtrl.text.trim();
                           SystemMemory.kaydet();
                           Navigator.pop(context);
+                          setState(() {});
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('SYSTEM: Gemini Key Updated.'), backgroundColor: Colors.green)
                           );
@@ -888,7 +889,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onPressed: _geminiTestEdiliyor ? null : () async {
                     setDialogState(() => _geminiTestEdiliyor = true);
                     final key = apiKeyCtrl.text.trim();
-                    final res = await GeminiService.testBaglantisi(hunterName: SystemMemory.oyuncuIsmi, apiKeyOverride: key);
+                    await GeminiService.testBaglantisi(hunterName: SystemMemory.oyuncuIsmi, apiKeyOverride: key);
                     setDialogState(() => _geminiTestEdiliyor = false);
 
                     if (mounted) {
@@ -1019,6 +1020,176 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               onPressed: () => Navigator.pop(context),
               child: const Text('ACKNOWLEDGE', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _yedekExportDialog() {
+    final String backupData = SystemMemory.exportBackupJson();
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95),
+          shape: RoundedRectangleBorder(
+            side: const BorderSide(color: sysBlue, width: 1),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          title: Row(
+            children: [
+              const Icon(Icons.file_download, color: sysBlue, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'SYSTEM ARCHIVE EXPORT',
+                style: GoogleFonts.orbitron(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 1),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Copy your complete Hunter encrypted archive to clipboard. You can restore your stats, level, inventory, and history on any device.',
+                style: TextStyle(color: sysTextMuted, fontSize: 12),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                height: 160,
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF070B14),
+                  border: Border.all(color: sysBlue.withValues(alpha: 0.3)),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: SingleChildScrollView(
+                  child: SelectableText(
+                    backupData,
+                    style: const TextStyle(color: Colors.white70, fontSize: 11, fontFamily: 'monospace'),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('CLOSE', style: TextStyle(color: sysTextMuted)),
+            ),
+            ElevatedButton.icon(
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: backupData));
+                AudioSystem.playSuccess();
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('[SYSTEM] Hunter archive copied to clipboard!'),
+                    backgroundColor: sysBlue,
+                  ),
+                );
+              },
+              icon: const Icon(Icons.copy, size: 16, color: Colors.black),
+              label: const Text('COPY TO CLIPBOARD', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 11)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: sysBlue,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _yedekImportDialog() {
+    final TextEditingController jsonCtrl = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95),
+          shape: RoundedRectangleBorder(
+            side: const BorderSide(color: physicalGold, width: 1),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          title: Row(
+            children: [
+              const Icon(Icons.file_upload, color: physicalGold, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'RESTORE ARCHIVE',
+                style: GoogleFonts.orbitron(color: physicalGold, fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 1),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Paste your raw backup JSON archive below to overwrite and restore all Hunter data.',
+                style: TextStyle(color: sysTextMuted, fontSize: 12),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: jsonCtrl,
+                maxLines: 6,
+                style: const TextStyle(color: Colors.white, fontSize: 11, fontFamily: 'monospace'),
+                decoration: InputDecoration(
+                  hintText: '{"oyuncuIsmi": "PLAYER", ...}',
+                  hintStyle: const TextStyle(color: Colors.white24, fontSize: 11),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: physicalGold.withValues(alpha: 0.4)),
+                  ),
+                  focusedBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: physicalGold),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('CANCEL', style: TextStyle(color: sysTextMuted)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final text = jsonCtrl.text.trim();
+                if (text.isEmpty) return;
+
+                final success = SystemMemory.importBackupJson(text);
+                Navigator.pop(ctx);
+
+                if (success) {
+                  setState(() {});
+                  AudioSystem.playLevelUp();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('[SYSTEM] Hunter archive successfully restored!'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('[SYSTEM ERROR] Invalid or corrupt archive JSON!'),
+                      backgroundColor: bloodRed,
+                    ),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: physicalGold.withValues(alpha: 0.2),
+                side: const BorderSide(color: physicalGold),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+              ),
+              child: const Text('RESTORE DATA', style: TextStyle(color: physicalGold, fontWeight: FontWeight.bold)),
             ),
           ],
         );
@@ -1540,6 +1711,85 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   side: const BorderSide(color: bloodRed, width: 2), 
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
                 ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // ==========================================
+            // VERİ YEDEKLEME VE GERİ YÜKLEME (DATA VAULT)
+            // ==========================================
+            HologramCard(
+              neonRenk: physicalGold,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.storage, color: physicalGold, size: 18),
+                          const SizedBox(width: 10),
+                          Text(
+                            "DATA VAULT / ARCHIVE",
+                            style: GoogleFonts.orbitron(
+                              color: physicalGold,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 2,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: physicalGold.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: physicalGold.withValues(alpha: 0.4)),
+                        ),
+                        child: const Text(
+                          "CLOUD / JSON",
+                          style: TextStyle(color: physicalGold, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    "Export your full Hunter profile or restore from a previously saved JSON archive.",
+                    style: TextStyle(color: sysTextMuted, fontSize: 12),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: _yedekExportDialog,
+                          icon: const Icon(Icons.file_download, size: 14, color: sysBlue),
+                          label: const Text('EXPORT', style: TextStyle(color: sysBlue, fontSize: 11, fontWeight: FontWeight.bold)),
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: sysBlue.withValues(alpha: 0.5)),
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: _yedekImportDialog,
+                          icon: const Icon(Icons.file_upload, size: 14, color: physicalGold),
+                          label: const Text('RESTORE', style: TextStyle(color: physicalGold, fontSize: 11, fontWeight: FontWeight.bold)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: physicalGold.withValues(alpha: 0.15),
+                            side: const BorderSide(color: physicalGold),
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 40),

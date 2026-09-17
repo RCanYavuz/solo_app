@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import '../controllers/system_memory.dart';
 
 class TranslationManager {

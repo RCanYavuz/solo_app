@@ -241,14 +241,45 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
   void _sifirla() { _timer?.cancel(); setState(() { calisiyor = false; _parkuruOlustur(); }); }
 
   void _antrenmanBittiDialog() {
+    int toplamSaniye = parkur.fold<int>(0, (sum, f) => sum + f.sureSaniye);
+    String odulRaporu = SystemMemory.zindanAkiniBitir(toplamSaniye);
+
     showDialog(
       context: context, barrierDismissible: false,
       builder: (context) => AlertDialog(
         backgroundColor: deepBlack,
         shape: RoundedRectangleBorder(side: const BorderSide(color: physicalGold), borderRadius: BorderRadius.circular(4)),
         title: Text('[ DUNGEON CLEARED ]', style: GoogleFonts.orbitron(color: physicalGold, fontWeight: FontWeight.bold)),
-        content: Text("You have completed the course for your rank.\nThe System is watching.", style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-        actions: [ ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: physicalGold.withValues(alpha: 0.2), side: const BorderSide(color: physicalGold)), onPressed: () { Navigator.pop(context); _sifirla(); }, child: const Text('CONFIRM', style: TextStyle(color: physicalGold, fontWeight: FontWeight.bold))) ],
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("You have survived the trial.\nThe System rewards your discipline.", style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: physicalGold.withValues(alpha: 0.1),
+                border: Border.all(color: physicalGold.withValues(alpha: 0.4)),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                odulRaporu,
+                style: GoogleFonts.orbitron(color: physicalGold, fontSize: 12, height: 1.4),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: physicalGold.withValues(alpha: 0.2), side: const BorderSide(color: physicalGold)),
+            onPressed: () {
+              Navigator.pop(context);
+              _sifirla();
+            },
+            child: const Text('CLAIM REWARDS', style: TextStyle(color: physicalGold, fontWeight: FontWeight.bold)),
+          ),
+        ],
       ),
     );
   }

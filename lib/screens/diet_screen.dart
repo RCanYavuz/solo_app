@@ -29,6 +29,9 @@ class _YemekEkraniState extends State<YemekEkrani> {
 
   void _yemekEkleDialog() {
     final TextEditingController aiTarifCtrl = TextEditingController();
+    final TextEditingController proteinCtrl = TextEditingController();
+    final TextEditingController karbCtrl = TextEditingController();
+    final TextEditingController yagCtrl = TextEditingController();
     bool aiYukleniyor = false;
     String? aiHata;
     Map<String, dynamic>? aiMakrolar;
@@ -200,9 +203,15 @@ class _YemekEkraniState extends State<YemekEkrani> {
 
                                         final ad = data['yemekAdi']?.toString() ?? (tarif.isNotEmpty ? tarif : 'Photo AI Meal');
                                         final cal = (data['kalori'] ?? 0).toString();
+                                        final p = (data['protein'] ?? 0).toString();
+                                        final c = (data['karbonhidrat'] ?? 0).toString();
+                                        final f = (data['yag'] ?? 0).toString();
 
                                         _yemekAdiCtrl.text = ad;
                                         _kaloriCtrl.text = cal;
+                                        proteinCtrl.text = p;
+                                        karbCtrl.text = c;
+                                        yagCtrl.text = f;
 
                                         setDialogState(() {
                                           aiYukleniyor = false;
@@ -283,6 +292,61 @@ class _YemekEkraniState extends State<YemekEkrani> {
                       ),
                     ),
                     const SizedBox(height: 12),
+
+                    // Makro Giriş Alanları (P / C / F)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: proteinCtrl,
+                            keyboardType: TextInputType.number,
+                            style: const TextStyle(color: Colors.greenAccent, fontSize: 13, fontWeight: FontWeight.bold),
+                            decoration: InputDecoration(
+                              labelText: 'Protein (g)',
+                              labelStyle: const TextStyle(color: sysTextMuted, fontSize: 11),
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                              enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.greenAccent.withValues(alpha: 0.4))),
+                              focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.greenAccent)),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextField(
+                            controller: karbCtrl,
+                            keyboardType: TextInputType.number,
+                            style: const TextStyle(color: Colors.amberAccent, fontSize: 13, fontWeight: FontWeight.bold),
+                            decoration: InputDecoration(
+                              labelText: 'Carb (g)',
+                              labelStyle: const TextStyle(color: sysTextMuted, fontSize: 11),
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                              enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.amberAccent.withValues(alpha: 0.4))),
+                              focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.amberAccent)),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextField(
+                            controller: yagCtrl,
+                            keyboardType: TextInputType.number,
+                            style: const TextStyle(color: Colors.redAccent, fontSize: 13, fontWeight: FontWeight.bold),
+                            decoration: InputDecoration(
+                              labelText: 'Fat (g)',
+                              labelStyle: const TextStyle(color: sysTextMuted, fontSize: 11),
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                              enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.redAccent.withValues(alpha: 0.4))),
+                              focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.redAccent)),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+
                     TextField(
                       controller: _kaloriCtrl,
                       keyboardType: TextInputType.number,
@@ -312,9 +376,19 @@ class _YemekEkraniState extends State<YemekEkrani> {
                   onPressed: () {
                     final ad = _yemekAdiCtrl.text.trim();
                     final kalori = int.tryParse(_kaloriCtrl.text.trim());
+                    final pVal = int.tryParse(proteinCtrl.text.trim()) ?? 0;
+                    final cVal = int.tryParse(karbCtrl.text.trim()) ?? 0;
+                    final fVal = int.tryParse(yagCtrl.text.trim()) ?? 0;
+
                     if (ad.isNotEmpty && kalori != null && kalori > 0) {
                       setState(() {
-                        SystemMemory.bugununYemekleri.add(TuketilenYemek(ad, kalori));
+                        SystemMemory.bugununYemekleri.add(TuketilenYemek(
+                          ad,
+                          kalori,
+                          protein: pVal,
+                          karbonhidrat: cVal,
+                          yag: fVal,
+                        ));
                         SystemMemory.bugunAlinanKalori += kalori;
                       });
                       SystemMemory.kaydet();
@@ -526,7 +600,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
                 ),
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 25),
 
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -556,12 +630,126 @@ class _YemekEkraniState extends State<YemekEkrani> {
                         child: ListTile(
                           leading: const Icon(Icons.restaurant_menu, color: sysTextMuted, size: 20),
                           title: Text(y.ad, style: const TextStyle(color: Colors.white, fontSize: 14)),
-                          subtitle: Text('${y.kalori} Kcal', style: const TextStyle(color: sysBlue, fontSize: 12, fontWeight: FontWeight.bold)),
+                          subtitle: Text(
+                            (y.protein > 0 || y.karbonhidrat > 0 || y.yag > 0)
+                              ? '${y.kalori} Kcal | P: ${y.protein}g C: ${y.karbonhidrat}g F: ${y.yag}g'
+                              : '${y.kalori} Kcal',
+                            style: const TextStyle(color: sysBlue, fontSize: 11, fontWeight: FontWeight.bold),
+                          ),
                           trailing: IconButton(icon: const Icon(Icons.delete, color: sysRed, size: 20), onPressed: () => _yemekSil(index)),
                         ),
                       );
                     },
                   ),
+            ),
+            const SizedBox(height: 25),
+
+            // ==========================================
+            // SU TAKİBİ PANELİ (HYDRATION CORE)
+            // ==========================================
+            ValueListenableBuilder<int>(
+              valueListenable: SystemMemory.bugunIcilenSuMl,
+              builder: (context, icilenSu, _) {
+                final hedef = SystemMemory.suHedefiMl;
+                final double suOrani = hedef > 0 ? (icilenSu / hedef).clamp(0.0, 1.0) : 0.0;
+                final bool hedefUlasildi = icilenSu >= hedef && hedef > 0;
+                const Color waterColor = Color(0xFF00E5FF);
+
+                return HologramCard(
+                  neonRenk: hedefUlasildi ? Colors.greenAccent : waterColor,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.water_drop, color: waterColor, size: 20),
+                              const SizedBox(width: 8),
+                              Text(
+                                'HYDRATION CORE',
+                                style: GoogleFonts.orbitron(
+                                  color: hedefUlasildi ? Colors.greenAccent : waterColor,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            '$icilenSu / $hedef ml',
+                            style: GoogleFonts.orbitron(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: suOrani,
+                          minHeight: 10,
+                          backgroundColor: const Color(0xFF0F172A),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            hedefUlasildi ? Colors.greenAccent : waterColor,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                setState(() {
+                                  SystemMemory.suEkle(250);
+                                });
+                              },
+                              icon: const Icon(Icons.local_drink, size: 14, color: waterColor),
+                              label: const Text('+250 ml', style: TextStyle(color: waterColor, fontSize: 11, fontWeight: FontWeight.bold)),
+                              style: OutlinedButton.styleFrom(
+                                side: BorderSide(color: waterColor.withValues(alpha: 0.5)),
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                setState(() {
+                                  SystemMemory.suEkle(500);
+                                });
+                              },
+                              icon: const Icon(Icons.local_cafe, size: 14, color: waterColor),
+                              label: const Text('+500 ml', style: TextStyle(color: waterColor, fontSize: 11, fontWeight: FontWeight.bold)),
+                              style: OutlinedButton.styleFrom(
+                                side: BorderSide(color: waterColor.withValues(alpha: 0.5)),
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            icon: const Icon(Icons.refresh, color: sysTextMuted, size: 18),
+                            tooltip: 'Reset Water',
+                            onPressed: () {
+                              setState(() {
+                                SystemMemory.suSifirla();
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 40),
           ],

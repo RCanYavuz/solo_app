@@ -19,34 +19,44 @@ class AudioSystem {
   }
 
   static Future<void> playSuccess() async {
-    await _player.stop();
-    await _player.play(AssetSource('audio/success.mp3'));
+    try {
+      await _player.stop();
+      await _player.play(AssetSource('audio/success.mp3'));
+    } catch (_) {}
   }
 
   static Future<void> playLevelUp() async {
-    await _player.stop();
-    await _player.play(AssetSource('audio/level_up.mp3'));
+    try {
+      await _player.stop();
+      await _player.play(AssetSource('audio/level_up.mp3'));
+    } catch (_) {}
   }
 
   static Future<void> playBell() async {
-    await _player.stop();
-    await _player.play(AssetSource('audio/bell.mp3'));
+    try {
+      await _player.stop();
+      await _player.play(AssetSource('audio/bell.mp3'));
+    } catch (_) {}
   }
 
   // ===================================================
   // KUSURSUZ SAYFA VE MENÜ GEÇİŞ SESİ
   // ===================================================
   static Future<void> playTransition() async {
-    // Sesi anında durdurur ve süreyi (00:00) konumuna zorla geri sarar.
-    await _transitionPlayer.stop();
-    await _transitionPlayer.play(AssetSource('audio/transition.mp3'));
+    try {
+      // Sesi anında durdurur ve süreyi (00:00) konumuna zorla geri sarar.
+      await _transitionPlayer.stop();
+      await _transitionPlayer.play(AssetSource('audio/transition.mp3'));
+    } catch (_) {}
   }
 
   static Future<void> playStartup() async {
-    final AudioPlayer startupPlayer = AudioPlayer();
-    await startupPlayer.play(AssetSource('audio/startup.mp3'));
-    startupPlayer.onPlayerComplete.listen((event) {
-      startupPlayer.dispose();
-    });
+    try {
+      final AudioPlayer startupPlayer = AudioPlayer();
+      await startupPlayer.play(AssetSource('audio/startup.mp3'));
+      startupPlayer.onPlayerComplete.listen((event) {
+        startupPlayer.dispose();
+      });
+    } catch (_) {}
   }
 }
