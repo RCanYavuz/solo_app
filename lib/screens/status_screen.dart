@@ -9,6 +9,7 @@ import '../core/sistem_gecisi.dart';
 import 'workout_planner_screen.dart';
 import 'boxing_timer_screen.dart';
 import 'workout_library_screen.dart';
+import '../core/translation_manager.dart';
 
 class StatusWindow extends StatefulWidget {
   const StatusWindow({super.key});
@@ -27,25 +28,28 @@ class _StatusWindowState extends State<StatusWindow> {
     int bugunIndex = DateTime.now().weekday;
     List<Gorev> bugununProgrami = SystemMemory.haftalikPlan[bugunIndex]!;
 
-    return Scaffold(
-      backgroundColor: sysDarkBg,
-      appBar: AppBar(
-        title: Text(
-          'S T A T U S',
-          style: GoogleFonts.rajdhani(
-            color: sysBlue,
-            fontWeight: FontWeight.bold,
-            fontSize: 24,
-            letterSpacing: 4.0,
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
+    return ValueListenableBuilder<String>(
+      valueListenable: SystemMemory.appLanguage,
+      builder: (context, currentLang, _) {
+        return Scaffold(
+          backgroundColor: sysDarkBg,
+          appBar: AppBar(
+            title: Text(
+              TranslationManager.get('dash_status'),
+              style: GoogleFonts.rajdhani(
+                color: sysBlue,
+                fontWeight: FontWeight.bold,
+                fontSize: 24,
+                letterSpacing: 4.0,
+              ),
+            ),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.fitness_center, color: sysBlue, size: 26),
-            tooltip: 'Workout Library',
+            tooltip: TranslationManager.get('status_workout_lib_tooltip'),
             onPressed: () => Navigator.push(
               context,
               SistemGecisi(sayfa: const WorkoutLibraryScreen()),
@@ -53,7 +57,7 @@ class _StatusWindowState extends State<StatusWindow> {
           ),
           IconButton(
             icon: const Icon(Icons.sports_mma, color: sysRed, size: 28),
-            tooltip: 'Combat Simulation',
+            tooltip: TranslationManager.get('status_combat_sim_tooltip'),
             onPressed: () => Navigator.push(
               context,
               SistemGecisi(sayfa: const BoxingTimerScreen()),
@@ -95,11 +99,11 @@ class _StatusWindowState extends State<StatusWindow> {
                       ),
                     ),
                     const SizedBox(width: 10),
-                    const Padding(
-                      padding: EdgeInsets.only(bottom: 8),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
                       child: Text(
-                        'LEVEL',
-                        style: TextStyle(
+                        TranslationManager.get('dash_level'),
+                        style: const TextStyle(
                           color: sysBlue,
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -373,9 +377,9 @@ class _StatusWindowState extends State<StatusWindow> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                'Available Pts:',
+                                TranslationManager.get('status_available_pts'),
                                 textAlign: TextAlign.right,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: sysTextMuted,
                                   fontSize: 10,
                                   letterSpacing: 1,
@@ -404,7 +408,7 @@ class _StatusWindowState extends State<StatusWindow> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'QUESTS',
+                      TranslationManager.get('status_quests'),
                       style: GoogleFonts.orbitron(
                         color: sysBlue,
                         fontSize: 14,
@@ -437,12 +441,12 @@ class _StatusWindowState extends State<StatusWindow> {
                     color: const Color(0xFF070B14).withValues(alpha: 0.85),
                   ),
                   child: bugununProgrami.isEmpty
-                      ? const Padding(
-                          padding: EdgeInsets.all(20),
+                      ? Padding(
+                          padding: const EdgeInsets.all(20),
                           child: Center(
                             child: Text(
-                              "No quests today.",
-                              style: TextStyle(color: sysTextMuted),
+                              TranslationManager.get('status_no_quests'),
+                              style: const TextStyle(color: sysTextMuted),
                             ),
                           ),
                         )
@@ -494,7 +498,7 @@ class _StatusWindowState extends State<StatusWindow> {
                 const SizedBox(height: 20),
 
                 Text(
-                  'REQUIREMENTS',
+                  TranslationManager.get('status_requirements'),
                   style: GoogleFonts.orbitron(
                     color: sysBlue,
                     fontSize: 14,
@@ -513,9 +517,9 @@ class _StatusWindowState extends State<StatusWindow> {
                     color: const Color(0xFF070B14).withValues(alpha: 0.85),
                   ),
                   child: ListTile(
-                    title: const Text(
-                      'Sleep Duration (Hrs)',
-                      style: TextStyle(color: sysTextMuted, fontSize: 14),
+                    title: Text(
+                      TranslationManager.get('status_sleep_title'),
+                      style: const TextStyle(color: sysTextMuted, fontSize: 14),
                     ),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -554,6 +558,8 @@ class _StatusWindowState extends State<StatusWindow> {
           },
         ),
       ),
+    );
+      },
     );
   }
 

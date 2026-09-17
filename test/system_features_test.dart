@@ -145,6 +145,24 @@ void main() {
       SystemMemory.esyaKullan('sloth_day');
       expect(SystemMemory.bugunSlothDayAktif, isTrue);
     });
+
+    test('Using gaming_pass activates bugunGamingPassAktif and returns report', () {
+      SystemMemory.esyaEkle(InventoryItem(
+        id: 'gaming_pass',
+        ad: 'Gaming Pass (2 Hrs)',
+        aciklama: 'Play games or watch series guilt-free.',
+        aksiyon: 'gaming_pass',
+        adet: 1,
+        ikonKodu: 0xe5e7,
+        renkDegeri: 0xFF38BDF8,
+      ));
+
+      expect(SystemMemory.bugunGamingPassAktif, isFalse);
+      final report = SystemMemory.esyaKullan('gaming_pass');
+      expect(SystemMemory.bugunGamingPassAktif, isTrue);
+      expect(report.contains('GAMING PASS ACTIVATED'), isTrue);
+      expect(SystemMemory.canta.isEmpty, isTrue);
+    });
   });
 
   group('Macro Tracking Tests', () {
@@ -181,6 +199,9 @@ void main() {
       SystemMemory.level.value = 15;
       SystemMemory.altin.value = 2500;
       SystemMemory.suHedefiMl = 3500;
+      SystemMemory.gunlukHedefKalori = 2800;
+      SystemMemory.vucutSinifi = "Berserker";
+      SystemMemory.geminiActiveModel = "gemini-2.0-flash";
 
       final jsonStr = SystemMemory.exportBackupJson();
       expect(jsonStr.isNotEmpty, isTrue);
@@ -190,11 +211,15 @@ void main() {
       expect(decoded['level'], 15);
       expect(decoded['altin'], 2500);
       expect(decoded['suHedefiMl'], 3500);
+      expect(decoded['gunlukHedefKalori'], 2800);
+      expect(decoded['vucutSinifi'], "Berserker");
+      expect(decoded['geminiActiveModel'], "gemini-2.0-flash");
     });
 
     test('importBackupJson restores player stats and inventory', () {
       final sampleBackup = {
         'oyuncuIsmi': "SUNG_JIN_WOO",
+        'cinsiyet': "Erkek",
         'level': 50,
         'exp': 120,
         'maxExp': 1000,
@@ -215,6 +240,25 @@ void main() {
         'streakGunSayisi': 45,
         'bitenGorevSayisi': 120,
         'suHedefiMl': 3500,
+        'bugunIcilenSuMl': 1500,
+        'gunlukHedefKalori': 3200,
+        'vucutSinifi': "Shadow Lord",
+        'hunterRank': "S-Rank",
+        'maxBench': 140.0,
+        'maxSquat': 180.0,
+        'maxDeadlift': 220.0,
+        'toplamIdmanDakikasi': 420,
+        'geminiApiKey': "AIzaSyTestKey123",
+        'geminiActiveModel': "gemini-2.5-flash",
+        'kiloGecmisi': [
+          {'tarih': '2026-03-01', 'kilo': 75.0}
+        ],
+        'idmanGecmisi': [
+          {'tarih': '2026-03-01T10:00:00.000', 'dakika': 60, 'gorevSayisi': 5}
+        ],
+        'yemekGecmisi': [
+          {'tarih': '2026-03-01', 'toplamKalori': 2800}
+        ],
         'canta': [
           {
             'id': 'hp_full',
@@ -234,6 +278,17 @@ void main() {
       expect(SystemMemory.level.value, 50);
       expect(SystemMemory.altin.value, 99999);
       expect(SystemMemory.str.value, 75);
+      expect(SystemMemory.bugunIcilenSuMl.value, 1500);
+      expect(SystemMemory.gunlukHedefKalori, 3200);
+      expect(SystemMemory.vucutSinifi, "Shadow Lord");
+      expect(SystemMemory.hunterRank, "S-Rank");
+      expect(SystemMemory.maxBench, 140.0);
+      expect(SystemMemory.toplamIdmanDakikasi, 420);
+      expect(SystemMemory.geminiApiKey, "AIzaSyTestKey123");
+      expect(SystemMemory.geminiActiveModel, "gemini-2.5-flash");
+      expect(SystemMemory.kiloGecmisi.length, 1);
+      expect(SystemMemory.idmanGecmisi.length, 1);
+      expect(SystemMemory.yemekGecmisi.length, 1);
       expect(SystemMemory.canta.length, 1);
       expect(SystemMemory.canta[0].adet, 5);
     });

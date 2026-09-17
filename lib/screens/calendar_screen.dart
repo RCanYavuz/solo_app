@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../controllers/system_memory.dart';
 import '../models/task_model.dart';
+import '../core/translation_manager.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
@@ -20,9 +21,17 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   late ScrollController _scrollController;
   
-  final List<String> aylar = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  final List<String> gunAdlari = ["", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  final List<String> gunKisa = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  List<String> get aylar => TranslationManager.isTurkish
+      ? ["", "Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"]
+      : ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  List<String> get gunAdlari => TranslationManager.isTurkish
+      ? ["", "Pzt", "Sal", "Çar", "Per", "Cum", "Cts", "Paz"]
+      : ["", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+  List<String> get gunKisa => TranslationManager.isTurkish
+      ? ["Pzt", "Sal", "Çar", "Per", "Cum", "Cts", "Paz"]
+      : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   static const Color sysBlue = Color(0xFF38BDF8); 
   static const Color sysDarkBg = Color(0xFF030712); 
@@ -35,12 +44,22 @@ class _CalendarScreenState extends State<CalendarScreen> {
     _scrollController = ScrollController(initialScrollOffset: 15 * 80.0); 
   }
 
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   Widget _buildTopToggle() {
     return Container(
       margin: const EdgeInsets.all(15), padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(color: const Color(0xFF0F172A), borderRadius: BorderRadius.circular(4), border: Border.all(color: sysBlue.withValues(alpha: 0.3))),
       child: Row(
-        children: [_buildToggleBtn('Strip', 0), _buildToggleBtn('Month', 1), _buildToggleBtn('Year', 2)],
+        children: [
+          _buildToggleBtn(TranslationManager.get('calendar_strip'), 0),
+          _buildToggleBtn(TranslationManager.get('calendar_month'), 1),
+          _buildToggleBtn(TranslationManager.get('calendar_year'), 2),
+        ],
       ),
     );
   }
@@ -225,95 +244,107 @@ class _CalendarScreenState extends State<CalendarScreen> {
       }
     }
 
-    return Scaffold(
-      backgroundColor: sysDarkBg,
-      appBar: AppBar(title: Text('Q U E S T   L O G', style: GoogleFonts.rajdhani(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 24, letterSpacing: 4.0)), backgroundColor: Colors.transparent, elevation: 0, centerTitle: true),
-      body: Column(
-        children: [
-          _buildTopToggle(), 
-          Expanded(flex: 3, child: SingleChildScrollView(child: Column(children: [if (seciliMod == 0) _buildSeritTakvim(), if (seciliMod == 1) _buildAylikTakvim(), if (seciliMod == 2) _buildYillikTakvim()]))),
-          
-          Expanded(
-            flex: 2,
-            child: Container(
-              width: double.infinity,
-              decoration: const BoxDecoration(color: Color(0xFF030712), border: Border(top: BorderSide(color: Colors.white12))),
-              child: ListView(
-                padding: const EdgeInsets.all(20),
-                children: [
-                  Text('${seciliTarih.day} ${aylar[seciliTarih.month]} ${seciliTarih.year} - ${gunAdlari[seciliHaftaninGunu].toUpperCase()}', style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 1)),
-                  const SizedBox(height: 5),
-                  
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return ValueListenableBuilder<String>(
+      valueListenable: SystemMemory.appLanguage,
+      builder: (context, currentLang, _) {
+        return Scaffold(
+          backgroundColor: sysDarkBg,
+          appBar: AppBar(
+            title: Text(
+              TranslationManager.get('calendar_title'),
+              style: GoogleFonts.rajdhani(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 24, letterSpacing: 4.0),
+            ),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            centerTitle: true,
+          ),
+          body: Column(
+            children: [
+              _buildTopToggle(), 
+              Expanded(flex: 3, child: SingleChildScrollView(child: Column(children: [if (seciliMod == 0) _buildSeritTakvim(), if (seciliMod == 1) _buildAylikTakvim(), if (seciliMod == 2) _buildYillikTakvim()]))),
+              
+              Expanded(
+                flex: 2,
+                child: Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(color: Color(0xFF030712), border: Border(top: BorderSide(color: Colors.white12))),
+                  child: ListView(
+                    padding: const EdgeInsets.all(20),
                     children: [
-                      const Text('SYSTEM QUEST PROTOCOL', style: TextStyle(color: sysTextMuted, fontSize: 10, letterSpacing: 2)),
-                      // YENİ: ARTIK GEÇMİŞ GÜNE BASINCA O GÜNÜN KALORİSİNİ GÖSTERECEK!
-                      if (SystemMemory.gunlukHedefKalori > 0)
-                        Text(
-                          isToday 
-                            ? 'ENERGY: ${SystemMemory.bugunAlinanKalori} / ${SystemMemory.gunlukHedefKalori} KCAL'
-                            : (gecmisKayitBulundu 
-                                ? 'LOGGED ENERGY: $gecmisKalori / ${SystemMemory.gunlukHedefKalori} KCAL'
-                                : 'TARGET: ${SystemMemory.gunlukHedefKalori} KCAL'), 
-                          style: TextStyle(
-                            color: isToday 
-                              ? (SystemMemory.bugunAlinanKalori > SystemMemory.gunlukHedefKalori ? sysRed : sysBlue)
-                              : (gecmisKayitBulundu && gecmisKalori > SystemMemory.gunlukHedefKalori ? sysRed : sysBlue), 
-                            fontSize: 10, 
-                            fontWeight: FontWeight.bold, 
-                            letterSpacing: 1
-                          )
+                      Text('${seciliTarih.day} ${aylar[seciliTarih.month]} ${seciliTarih.year} - ${gunAdlari[seciliHaftaninGunu].toUpperCase()}', style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                      const SizedBox(height: 5),
+                      
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(TranslationManager.get('calendar_protocol'), style: const TextStyle(color: sysTextMuted, fontSize: 10, letterSpacing: 2)),
+                          if (SystemMemory.gunlukHedefKalori > 0)
+                            Text(
+                              isToday 
+                                ? '${TranslationManager.get('calendar_energy')}: ${SystemMemory.bugunAlinanKalori} / ${SystemMemory.gunlukHedefKalori} KCAL'
+                                : (gecmisKayitBulundu 
+                                    ? '${TranslationManager.get('calendar_logged_energy')}: $gecmisKalori / ${SystemMemory.gunlukHedefKalori} KCAL'
+                                    : '${TranslationManager.get('calendar_target')}: ${SystemMemory.gunlukHedefKalori} KCAL'), 
+                              style: TextStyle(
+                                color: isToday 
+                                  ? (SystemMemory.bugunAlinanKalori > SystemMemory.gunlukHedefKalori ? sysRed : sysBlue)
+                                  : (gecmisKayitBulundu && gecmisKalori > SystemMemory.gunlukHedefKalori ? sysRed : sysBlue), 
+                                fontSize: 10, 
+                                fontWeight: FontWeight.bold, 
+                                letterSpacing: 1
+                              )
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 15),
+
+                      if (seciliGunProgrami.isEmpty)
+                        Padding(padding: const EdgeInsets.symmetric(vertical: 20), child: Center(child: Text(TranslationManager.get('calendar_rest_day'), textAlign: TextAlign.center, style: const TextStyle(color: sysTextMuted, fontSize: 12))))
+                      else
+                        ListView.builder(
+                          shrinkWrap: true, physics: const NeverScrollableScrollPhysics(),
+                          itemCount: seciliGunProgrami.length,
+                          itemBuilder: (context, index) {
+                            Gorev gorev = seciliGunProgrami[index];
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 10),
+                              decoration: BoxDecoration(color: const Color(0xFF070B14), border: Border(left: BorderSide(color: sysBlue, width: 2)), borderRadius: BorderRadius.circular(4)),
+                              child: ListTile(
+                                title: Text(gorev.ad, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                                subtitle: Text(gorev.tip == "Fiziksel" ? TranslationManager.get('dash_phy') : TranslationManager.get('dash_mnt'), style: const TextStyle(color: sysTextMuted, fontSize: 10)),
+                              ),
+                            );
+                          },
                         ),
+
+                      const SizedBox(height: 20),
+                      
+                      Text(TranslationManager.get('calendar_dungeon_logs'), style: GoogleFonts.orbitron(color: sysRed, fontSize: 10, letterSpacing: 2)),
+                      const SizedBox(height: 10),
+                      if (seciliGunIdmanlari.isEmpty)
+                        Text(TranslationManager.get('calendar_no_raids'), style: const TextStyle(color: sysTextMuted, fontSize: 12))
+                      else
+                        ...seciliGunIdmanlari.map((idman) {
+                          DateTime t = DateTime.parse(idman['tarih']);
+                          String saat = "${t.hour.toString().padLeft(2,'0')}:${t.minute.toString().padLeft(2,'0')}";
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            decoration: BoxDecoration(color: const Color(0xFF070B14), border: Border.all(color: sysRed.withValues(alpha: 0.3)), borderRadius: BorderRadius.circular(4)),
+                            child: ListTile(
+                              leading: const Icon(Icons.whatshot, color: sysRed, size: 20),
+                              title: Text('${TranslationManager.get('calendar_raid_at')} $saat', style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                              subtitle: Text('${TranslationManager.get('dash_duration')}: ${idman['dakika']} ${TranslationManager.get('dash_min')} | ${TranslationManager.get('dash_quests_done')}: ${idman['gorevSayisi']}', style: const TextStyle(color: sysTextMuted, fontSize: 12)),
+                            ),
+                          );
+                        }),
                     ],
                   ),
-                  const SizedBox(height: 15),
-
-                  if (seciliGunProgrami.isEmpty)
-                    const Padding(padding: EdgeInsets.symmetric(vertical: 20), child: Center(child: Text("REST DAY.\nNo quests planned.", textAlign: TextAlign.center, style: TextStyle(color: sysTextMuted, fontSize: 12))))
-                  else
-                    ListView.builder(
-                      shrinkWrap: true, physics: const NeverScrollableScrollPhysics(),
-                      itemCount: seciliGunProgrami.length,
-                      itemBuilder: (context, index) {
-                        Gorev gorev = seciliGunProgrami[index];
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          decoration: BoxDecoration(color: const Color(0xFF070B14), border: Border(left: BorderSide(color: sysBlue, width: 2)), borderRadius: BorderRadius.circular(4)),
-                          child: ListTile(
-                            title: Text(gorev.ad, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
-                            subtitle: Text(gorev.tip == "Fiziksel" ? '[PHY]' : '[MNT]', style: const TextStyle(color: sysTextMuted, fontSize: 10)),
-                          ),
-                        );
-                      },
-                    ),
-
-                  const SizedBox(height: 20),
-                  
-                  Text('DUNGEON LOGS', style: GoogleFonts.orbitron(color: sysRed, fontSize: 10, letterSpacing: 2)),
-                  const SizedBox(height: 10),
-                  if (seciliGunIdmanlari.isEmpty)
-                    const Text("No dungeon raids recorded for this date.", style: TextStyle(color: sysTextMuted, fontSize: 12))
-                  else
-                    ...seciliGunIdmanlari.map((idman) {
-                      DateTime t = DateTime.parse(idman['tarih']);
-                      String saat = "${t.hour.toString().padLeft(2,'0')}:${t.minute.toString().padLeft(2,'0')}";
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        decoration: BoxDecoration(color: const Color(0xFF070B14), border: Border.all(color: sysRed.withValues(alpha: 0.3)), borderRadius: BorderRadius.circular(4)),
-                        child: ListTile(
-                          leading: const Icon(Icons.whatshot, color: sysRed, size: 20),
-                          title: Text('Raid at $saat', style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
-                          subtitle: Text('Duration: ${idman['dakika']} Min | Quests Done: ${idman['gorevSayisi']}', style: const TextStyle(color: sysTextMuted, fontSize: 12)),
-                        ),
-                      );
-                    }),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

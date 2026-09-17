@@ -19,11 +19,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   
   String _unvanBelirle(int level) {
-    if (level < 5) return "Rookie Hunter (E-Rank)"; 
-    if (level < 10) return "Experienced Hunter (C-Rank)";
-    if (level < 20) return "Elite Hunter (B-Rank)"; 
-    if (level < 50) return "National Level Hunter (A-Rank)";
-    return "Shadow Monarch (S-Rank)";
+    return TranslationManager.rankTitle(level);
   }
 
   // --- YENİ: DİNAMİK BAŞARIM HESAPLAMA MOTORU ---
@@ -82,59 +78,63 @@ class _DashboardScreenState extends State<DashboardScreen> {
     int kiloFarki = (SystemMemory.baslangicKilosu - SystemMemory.kilo).abs().toInt();
     var bKilo = _kademeHesapla(kiloFarki, [5, 10, 15, 20, 30, 50]);
 
-    return Scaffold(
-      backgroundColor: sysDarkBg, 
-      appBar: AppBar(
-        title: Text(TranslationManager.get('dash_status'), style: GoogleFonts.rajdhani(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 24, letterSpacing: 4.0)),
-        backgroundColor: Colors.transparent, 
-        elevation: 0,
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // --- 1. OYUNCU KİMLİĞİ ---
-            HologramCard(
-              neonRenk: sysBlue,
-              child: Row(
-                children: [
-                  Container(
-                    width: 70, height: 70,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: sysBlue.withValues(alpha: 0.5), width: 1),
-                      image: SystemMemory.profilFotoByte != null ? DecorationImage(image: MemoryImage(SystemMemory.profilFotoByte!), fit: BoxFit.cover) : null,
-                      color: const Color(0xFF0F172A)
-                    ),
-                    child: SystemMemory.profilFotoByte == null ? const Icon(Icons.person, size: 35, color: sysBlue) : null,
-                  ),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
+    return ValueListenableBuilder<String>(
+      valueListenable: SystemMemory.appLanguage,
+      builder: (context, currentLang, _) {
+        return Scaffold(
+          backgroundColor: sysDarkBg, 
+          appBar: AppBar(
+            title: Text(TranslationManager.get('dash_status'), style: GoogleFonts.rajdhani(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 24, letterSpacing: 4.0)),
+            backgroundColor: Colors.transparent, 
+            elevation: 0,
+            centerTitle: true,
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // --- 1. OYUNCU KİMLİĞİ ---
+                HologramCard(
+                  neonRenk: sysBlue,
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 70, height: 70,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: sysBlue.withValues(alpha: 0.5), width: 1),
+                          image: SystemMemory.profilFotoByte != null ? DecorationImage(image: MemoryImage(SystemMemory.profilFotoByte!), fit: BoxFit.cover) : null,
+                          color: const Color(0xFF0F172A)
+                        ),
+                        child: SystemMemory.profilFotoByte == null ? const Icon(Icons.person, size: 35, color: sysBlue) : null,
+                      ),
+                      const SizedBox(width: 15),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('${SystemMemory.level.value}', style: GoogleFonts.orbitron(color: Colors.white, fontSize: 36, fontWeight: FontWeight.bold, height: 1)),
-                            const SizedBox(width: 8),
-                            Padding(padding: const EdgeInsets.only(bottom: 6), child: Text(TranslationManager.get('dash_level'), style: const TextStyle(color: sysBlue, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2))),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text('${SystemMemory.level.value}', style: GoogleFonts.orbitron(color: Colors.white, fontSize: 36, fontWeight: FontWeight.bold, height: 1)),
+                                const SizedBox(width: 8),
+                                Padding(padding: const EdgeInsets.only(bottom: 6), child: Text(TranslationManager.get('dash_level'), style: const TextStyle(color: sysBlue, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2))),
+                              ],
+                            ),
+                            const SizedBox(height: 5),
+                            Text('${TranslationManager.get('dash_title')}: ${_unvanBelirle(SystemMemory.level.value)}', style: GoogleFonts.rajdhani(color: sysTextMuted, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1)),
                           ],
                         ),
-                        const SizedBox(height: 5),
-                        Text('TITLE: ${_unvanBelirle(SystemMemory.level.value)}', style: GoogleFonts.rajdhani(color: sysTextMuted, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1)),
-                      ],
-                    ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.storefront, color: sysBlue, size: 30),
+                        tooltip: TranslationManager.get('dash_store_tooltip'),
+                        onPressed: () => Navigator.push(context, SistemGecisi(sayfa: const ShopScreen())),
+                      )
+                    ],
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.storefront, color: sysBlue, size: 30),
-                    onPressed: () => Navigator.push(context, SistemGecisi(sayfa: const ShopScreen())),
-                  )
-                ],
-              ),
-            ),
+                ),
             const SizedBox(height: 20),
 
             // --- 2. DURUM VE ENERJİ ---
@@ -203,16 +203,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
                 children: [
-                  _basarimKarti("Iron Will ${_romaRakam(bStreak['kademe'])}", "${bStreak['hedef']} Day Streak", SystemMemory.streakGunSayisi, bStreak['hedef'], Icons.shield, sysBlue, sysTextMuted),
-                  _basarimKarti("Unbreakable ${_romaRakam(bGorev['kademe'])}", "${bGorev['hedef']} Quests Done", SystemMemory.bitenGorevSayisi, bGorev['hedef'], Icons.hardware, sysBlue, sysTextMuted),
-                  _basarimKarti("Awakening ${_romaRakam(bLevel['kademe'])}", "Level ${bLevel['hedef']}", SystemMemory.level.value, bLevel['hedef'], Icons.flash_on, sysBlue, sysTextMuted),
-                  _basarimKarti("Warrior ${_romaRakam(bStr['kademe'])}", "Reach ${bStr['hedef']} STR", SystemMemory.str.value, bStr['hedef'], Icons.fitness_center, sysBlue, sysTextMuted),
-                  _basarimKarti("Shadow Step ${_romaRakam(bAgi['kademe'])}", "Reach ${bAgi['hedef']} AGI", SystemMemory.agi.value, bAgi['hedef'], Icons.directions_run, sysBlue, sysTextMuted),
-                  _basarimKarti("Sage ${_romaRakam(bInt['kademe'])}", "Reach ${bInt['hedef']} INT", SystemMemory.intStat.value, bInt['hedef'], Icons.psychology, sysBlue, sysTextMuted),
-                  _basarimKarti("Merchant ${_romaRakam(bAltin['kademe'])}", "${bAltin['hedef']} Gold", SystemMemory.altin.value, bAltin['hedef'], Icons.monetization_on, sysBlue, sysTextMuted),
+                  _basarimKarti("${TranslationManager.get('ach_iron_will')} ${_romaRakam(bStreak['kademe'])}", "${bStreak['hedef']} ${TranslationManager.get('ach_day_streak')}", SystemMemory.streakGunSayisi, bStreak['hedef'], Icons.shield, sysBlue, sysTextMuted),
+                  _basarimKarti("${TranslationManager.get('ach_unbreakable')} ${_romaRakam(bGorev['kademe'])}", "${bGorev['hedef']} ${TranslationManager.get('ach_quests_done')}", SystemMemory.bitenGorevSayisi, bGorev['hedef'], Icons.hardware, sysBlue, sysTextMuted),
+                  _basarimKarti("${TranslationManager.get('ach_awakening')} ${_romaRakam(bLevel['kademe'])}", "${TranslationManager.get('dash_level')} ${bLevel['hedef']}", SystemMemory.level.value, bLevel['hedef'], Icons.flash_on, sysBlue, sysTextMuted),
+                  _basarimKarti("${TranslationManager.get('ach_warrior')} ${_romaRakam(bStr['kademe'])}", "${TranslationManager.get('ach_reach')} ${bStr['hedef']} STR", SystemMemory.str.value, bStr['hedef'], Icons.fitness_center, sysBlue, sysTextMuted),
+                  _basarimKarti("${TranslationManager.get('ach_shadow_step')} ${_romaRakam(bAgi['kademe'])}", "${TranslationManager.get('ach_reach')} ${bAgi['hedef']} AGI", SystemMemory.agi.value, bAgi['hedef'], Icons.directions_run, sysBlue, sysTextMuted),
+                  _basarimKarti("${TranslationManager.get('ach_sage')} ${_romaRakam(bInt['kademe'])}", "${TranslationManager.get('ach_reach')} ${bInt['hedef']} INT", SystemMemory.intStat.value, bInt['hedef'], Icons.psychology, sysBlue, sysTextMuted),
+                  _basarimKarti("${TranslationManager.get('ach_merchant')} ${_romaRakam(bAltin['kademe'])}", "${bAltin['hedef']} ${TranslationManager.get('shop_gold')}", SystemMemory.altin.value, bAltin['hedef'], Icons.monetization_on, sysBlue, sysTextMuted),
                   _basarimKarti(
-                    "${SystemMemory.aktifHedef == 'Kilo Al (Kas İnşa Et)' ? 'Titan' : 'Fat Burner'} ${_romaRakam(bKilo['kademe'])}", 
-                    "${bKilo['hedef']} KG Change", 
+                    "${SystemMemory.aktifHedef.contains('Kilo Al') ? TranslationManager.get('ach_titan') : TranslationManager.get('ach_fat_burner')} ${_romaRakam(bKilo['kademe'])}", 
+                    "${bKilo['hedef']} ${TranslationManager.get('ach_kg_change')}", 
                     kiloFarki, 
                     bKilo['hedef'], 
                     Icons.monitor_weight, sysBlue, sysTextMuted
@@ -249,7 +249,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         Icon(SystemMemory.bossTuru == 'Fiziksel' ? Icons.pets : Icons.ac_unit, color: bossRenk.withValues(alpha: 0.5), size: 60),
                         const SizedBox(height: 10),
                         Text(SystemMemory.bossIsim.toUpperCase(), style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 2)),
-                        Text('Weakness: ${SystemMemory.bossTuru == "Fiziksel" ? TranslationManager.get("dash_weakness_phy") : TranslationManager.get("dash_weakness_men")} Quests', style: const TextStyle(color: sysTextMuted, fontSize: 12)),
+                        Text(SystemMemory.bossTuru == "Fiziksel" ? TranslationManager.get("dash_weakness_phy") : TranslationManager.get("dash_weakness_men"), style: const TextStyle(color: sysTextMuted, fontSize: 12)),
                         const SizedBox(height: 15),
                         
                         Stack(
@@ -338,8 +338,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.white12, width: 0.5))),
                       child: ListTile(
                         leading: const Icon(Icons.whatshot, color: sysRed, size: 24),
-                        title: Text('Dungeon Raid at $saat', style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
-                        subtitle: Text('Duration: ${idman['dakika']} Min | Quests Done: ${idman['gorevSayisi']}', style: const TextStyle(color: sysTextMuted, fontSize: 12)),
+                        title: Text('${TranslationManager.get('dash_raid_at')} $saat', style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                        subtitle: Text('${TranslationManager.get('dash_duration')}: ${idman['dakika']} ${TranslationManager.get('dash_min')} | ${TranslationManager.get('dash_quests_done')}: ${idman['gorevSayisi']}', style: const TextStyle(color: sysTextMuted, fontSize: 12)),
                       ),
                     );
                   },
@@ -366,6 +366,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
       ),
+    );
+      },
     );
   }
 

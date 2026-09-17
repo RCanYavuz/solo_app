@@ -10,6 +10,7 @@ import '../widgets/hologram_card.dart';
 import '../core/sistem_gecisi.dart';
 import '../core/services/gemini_service.dart';
 import 'macro_dashboard_screen.dart';
+import '../core/translation_manager.dart';
 
 class YemekEkrani extends StatefulWidget {
   const YemekEkrani({super.key});
@@ -53,7 +54,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
                   const Icon(Icons.restaurant_menu, color: sysBlue, size: 20),
                   const SizedBox(width: 8),
                   Text(
-                    'ADD INVENTORY ITEM',
+                    TranslationManager.get('diet_dialog_title'),
                     style: GoogleFonts.orbitron(
                       color: sysBlue,
                       fontWeight: FontWeight.bold,
@@ -86,7 +87,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
                               const Icon(Icons.auto_awesome, color: sysBlue, size: 14),
                               const SizedBox(width: 6),
                               Text(
-                                "AI DECODER (GEMINI)",
+                                TranslationManager.get('diet_ai_decoder'),
                                 style: GoogleFonts.orbitron(
                                   color: sysBlue,
                                   fontSize: 11,
@@ -101,7 +102,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
                             controller: aiTarifCtrl,
                             style: const TextStyle(color: Colors.white, fontSize: 13),
                             decoration: InputDecoration(
-                              hintText: 'e.g. 2 eggs, 1 slice bread, 50g cheese (optional if photo is given)',
+                              hintText: TranslationManager.get('diet_ai_hint'),
                               hintStyle: const TextStyle(color: Colors.white30, fontSize: 12),
                               isDense: true,
                               contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -129,7 +130,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
                                   },
                                   icon: const Icon(Icons.add_a_photo, color: sysBlue, size: 14),
                                   label: Text(
-                                    secilenFoto != null ? 'PHOTO ATTACHED' : 'ATTACH PHOTO',
+                                    secilenFoto != null ? TranslationManager.get('diet_photo_attached') : TranslationManager.get('diet_attach_photo'),
                                     style: const TextStyle(color: sysBlue, fontSize: 10, fontWeight: FontWeight.bold),
                                   ),
                                   style: ElevatedButton.styleFrom(
@@ -232,7 +233,9 @@ class _YemekEkraniState extends State<YemekEkrani> {
                                     )
                                   : const Icon(Icons.flash_on, color: sysBlue, size: 14),
                               label: Text(
-                                aiYukleniyor ? 'DECODING...' : 'DECODE WITH AI',
+                                aiYukleniyor
+                                    ? TranslationManager.get('diet_decoding')
+                                    : TranslationManager.get('diet_decode_ai'),
                                 style: const TextStyle(color: sysBlue, fontSize: 11, fontWeight: FontWeight.bold),
                               ),
                               style: ElevatedButton.styleFrom(
@@ -285,7 +288,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
                       controller: _yemekAdiCtrl,
                       style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                       decoration: InputDecoration(
-                        labelText: 'Item Name (Food)',
+                        labelText: TranslationManager.get('diet_item_name'),
                         labelStyle: const TextStyle(color: sysTextMuted),
                         enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: sysBlue.withValues(alpha: 0.5))),
                         focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: sysBlue)),
@@ -302,7 +305,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
                             keyboardType: TextInputType.number,
                             style: const TextStyle(color: Colors.greenAccent, fontSize: 13, fontWeight: FontWeight.bold),
                             decoration: InputDecoration(
-                              labelText: 'Protein (g)',
+                              labelText: '${TranslationManager.get('diet_protein')} (g)',
                               labelStyle: const TextStyle(color: sysTextMuted, fontSize: 11),
                               isDense: true,
                               contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -318,7 +321,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
                             keyboardType: TextInputType.number,
                             style: const TextStyle(color: Colors.amberAccent, fontSize: 13, fontWeight: FontWeight.bold),
                             decoration: InputDecoration(
-                              labelText: 'Carb (g)',
+                              labelText: '${TranslationManager.get('diet_carb')} (g)',
                               labelStyle: const TextStyle(color: sysTextMuted, fontSize: 11),
                               isDense: true,
                               contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -334,7 +337,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
                             keyboardType: TextInputType.number,
                             style: const TextStyle(color: Colors.redAccent, fontSize: 13, fontWeight: FontWeight.bold),
                             decoration: InputDecoration(
-                              labelText: 'Fat (g)',
+                              labelText: '${TranslationManager.get('diet_fat')} (g)',
                               labelStyle: const TextStyle(color: sysTextMuted, fontSize: 11),
                               isDense: true,
                               contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -352,7 +355,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
                       keyboardType: TextInputType.number,
                       style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                       decoration: InputDecoration(
-                        labelText: 'Energy (Kcal)',
+                        labelText: TranslationManager.get('diet_energy_kcal'),
                         labelStyle: const TextStyle(color: sysTextMuted),
                         suffixText: 'Kcal',
                         suffixStyle: const TextStyle(color: sysBlue),
@@ -366,7 +369,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('CANCEL', style: TextStyle(color: sysTextMuted)),
+                  child: Text(TranslationManager.get('cancel'), style: const TextStyle(color: sysTextMuted)),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -397,14 +400,14 @@ class _YemekEkraniState extends State<YemekEkrani> {
                       Navigator.pop(context);
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('SYSTEM WARNING: Enter valid item name and calorie amount!'),
+                        SnackBar(
+                          content: Text(TranslationManager.get('diet_warning_valid_item')),
                           backgroundColor: sysRed,
                         ),
                       );
                     }
                   },
-                  child: const Text('ADD ITEM', style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold)),
+                  child: Text(TranslationManager.get('diet_add_item_btn'), style: const TextStyle(color: sysBlue, fontWeight: FontWeight.bold)),
                 ),
               ],
             );
@@ -443,10 +446,10 @@ class _YemekEkraniState extends State<YemekEkrani> {
               decoration: BoxDecoration(border: Border(top: BorderSide(color: sysBlue.withValues(alpha: 0.5), width: 2))),
               child: Column(
                 children: [
-                  Text('DIET ARCHIVE', style: GoogleFonts.orbitron(color: sysBlue, fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                  Text(TranslationManager.get('diet_archive_title'), style: GoogleFonts.orbitron(color: sysBlue, fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 2)),
                   const SizedBox(height: 15),
                   SystemMemory.yemekGecmisi.isEmpty
-                  ? const Expanded(child: Center(child: Text("No records found in the vault.", style: TextStyle(color: sysTextMuted))))
+                  ? Expanded(child: Center(child: Text(TranslationManager.get('diet_archive_empty'), style: const TextStyle(color: sysTextMuted))))
                   : Expanded(
                       child: ListView.builder(
                         controller: scrollController,
@@ -469,9 +472,9 @@ class _YemekEkraniState extends State<YemekEkrani> {
                               iconColor: sysBlue,
                               leading: const Icon(Icons.inventory_2, color: sysTextMuted),
                               title: Text(tarih, style: GoogleFonts.orbitron(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
-                              subtitle: Text('Total Energy: $topKalori Kcal', style: const TextStyle(color: sysBlue, fontSize: 12, fontWeight: FontWeight.bold)),
+                              subtitle: Text('${TranslationManager.get('diet_total_energy')}: $topKalori Kcal', style: const TextStyle(color: sysBlue, fontSize: 12, fontWeight: FontWeight.bold)),
                               children: yemeklerListesi.isEmpty 
-                                ? [const Padding(padding: EdgeInsets.all(10), child: Text("No specific items recorded.", style: TextStyle(color: sysTextMuted, fontSize: 12)))]
+                                ? [Padding(padding: const EdgeInsets.all(10), child: Text(TranslationManager.get('diet_no_specific_items'), style: const TextStyle(color: sysTextMuted, fontSize: 12)))]
                                 : yemeklerListesi.map((y) {
                                   return Container(
                                     decoration: const BoxDecoration(border: Border(top: BorderSide(color: Colors.white12, width: 0.5))),
@@ -507,17 +510,20 @@ class _YemekEkraniState extends State<YemekEkrani> {
     bool kaloriAsildi = SystemMemory.bugunAlinanKalori > SystemMemory.gunlukHedefKalori;
     Color barRengi = kaloriAsildi ? sysRed : sysBlue;
 
-    return Scaffold(
-      backgroundColor: sysDarkBg,
-      appBar: AppBar(
-        title: Text('I N V E N T O R Y', style: GoogleFonts.rajdhani(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 24, letterSpacing: 4.0)), 
-        backgroundColor: Colors.transparent, 
-        elevation: 0,
-        centerTitle: true,
+    return ValueListenableBuilder<String>(
+      valueListenable: SystemMemory.appLanguage,
+      builder: (context, currentLang, _) {
+        return Scaffold(
+          backgroundColor: sysDarkBg,
+          appBar: AppBar(
+            title: Text(TranslationManager.get('diet_title'), style: GoogleFonts.rajdhani(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 24, letterSpacing: 4.0)), 
+            backgroundColor: Colors.transparent, 
+            elevation: 0,
+            centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.analytics_outlined, color: sysBlue, size: 26),
-            tooltip: 'Macro Lab',
+            tooltip: TranslationManager.get('diet_macro_lab_tooltip'),
             onPressed: () => Navigator.push(
               context,
               SistemGecisi(sayfa: const MacroDashboardScreen()),
@@ -525,7 +531,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
           ),
           IconButton(
             icon: const Icon(Icons.history, color: sysBlue, size: 26),
-            tooltip: 'Diet Archive',
+            tooltip: TranslationManager.get('diet_archive_tooltip'),
             onPressed: _gecmisiGoster,
           ),
           const SizedBox(width: 10),
@@ -543,7 +549,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('ENERGY GAUGE', style: GoogleFonts.orbitron(color: barRengi, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                      Text(TranslationManager.get('diet_energy_gauge'), style: GoogleFonts.orbitron(color: barRengi, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
                       Icon(kaloriAsildi ? Icons.warning_amber_rounded : Icons.bolt, color: barRengi, size: 20),
                     ],
                   ),
@@ -573,7 +579,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text("Daily Limit:", style: TextStyle(color: sysTextMuted, fontSize: 14)),
+                      Text(TranslationManager.get('diet_daily_limit'), style: const TextStyle(color: sysTextMuted, fontSize: 14)),
                       Text("${SystemMemory.gunlukHedefKalori} Kcal", style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold))
                     ],
                   )
@@ -589,9 +595,9 @@ class _YemekEkraniState extends State<YemekEkrani> {
                   SistemGecisi(sayfa: const MacroDashboardScreen()),
                 ).then((_) => setState(() {})),
                 icon: const Icon(Icons.science_outlined, color: sysBlue, size: 18),
-                label: const Text(
-                  'ACCESS NUTRITION & MACRO LAB',
-                  style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1.5),
+                label: Text(
+                  TranslationManager.get('diet_access_macro_lab'),
+                  style: const TextStyle(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1.5),
                 ),
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(color: sysBlue.withValues(alpha: 0.4)),
@@ -605,11 +611,11 @@ class _YemekEkraniState extends State<YemekEkrani> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('TODAY\'S INVENTORY', style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                Text(TranslationManager.get('diet_todays_inventory'), style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
                 ElevatedButton.icon(
                   onPressed: _yemekEkleDialog,
                   icon: const Icon(Icons.add, color: sysDarkBg, size: 16),
-                  label: const Text('ADD ITEM', style: TextStyle(color: sysDarkBg, fontWeight: FontWeight.bold)),
+                  label: Text(TranslationManager.get('diet_add_item_btn'), style: const TextStyle(color: sysDarkBg, fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(backgroundColor: sysBlue, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))),
                 )
               ],
@@ -619,7 +625,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
             Container(
               decoration: BoxDecoration(border: Border.all(color: sysBlue.withValues(alpha: 0.4), width: 1), borderRadius: BorderRadius.circular(4), color: const Color(0xFF070B14).withValues(alpha: 0.85)),
               child: SystemMemory.bugununYemekleri.isEmpty
-                ? const Padding(padding: EdgeInsets.all(30), child: Center(child: Text("Inventory is empty. Fuel up, Hunter.", style: TextStyle(color: sysTextMuted))))
+                ? Padding(padding: const EdgeInsets.all(30), child: Center(child: Text(TranslationManager.get('diet_inventory_empty'), style: const TextStyle(color: sysTextMuted))))
                 : ListView.builder(
                     shrinkWrap: true, physics: const NeverScrollableScrollPhysics(),
                     itemCount: SystemMemory.bugununYemekleri.length,
@@ -668,7 +674,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
                               const Icon(Icons.water_drop, color: waterColor, size: 20),
                               const SizedBox(width: 8),
                               Text(
-                                'HYDRATION CORE',
+                                TranslationManager.get('diet_hydration_title'),
                                 style: GoogleFonts.orbitron(
                                   color: hedefUlasildi ? Colors.greenAccent : waterColor,
                                   fontSize: 13,
@@ -737,7 +743,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
                           const SizedBox(width: 8),
                           IconButton(
                             icon: const Icon(Icons.refresh, color: sysTextMuted, size: 18),
-                            tooltip: 'Reset Water',
+                            tooltip: TranslationManager.get('diet_water_reset'),
                             onPressed: () {
                               setState(() {
                                 SystemMemory.suSifirla();
@@ -756,5 +762,14 @@ class _YemekEkraniState extends State<YemekEkrani> {
         ),
       ),
     );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _yemekAdiCtrl.dispose();
+    _kaloriCtrl.dispose();
+    super.dispose();
   }
 }

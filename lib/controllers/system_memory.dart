@@ -15,7 +15,7 @@ import '../models/inventory_item_model.dart';
 class SystemMemory {
   static bool get _isTest {
     try {
-      return !kIsWeb && Platform.environment.containsKey('FLUTTER_TEST');
+      return Platform.environment.containsKey('FLUTTER_TEST');
     } catch (_) {
       return false;
     }
@@ -66,6 +66,7 @@ class SystemMemory {
   static List<InventoryItem> canta = [];
   static bool bugunCheatMealAktif = false;
   static bool bugunSlothDayAktif = false;
+  static bool bugunGamingPassAktif = false;
 
   // MAKRO BESİN DİNAMİK HESAPLAYICILARI
   static int get bugunProtein => bugununYemekleri.fold(0, (sum, item) => sum + item.protein);
@@ -219,6 +220,7 @@ class SystemMemory {
       bugunIcilenSuMl.value = prefs.getInt('bugunIcilenSuMl') ?? prefs.getInt('bugunIçilenSuMl') ?? 0;
       bugunCheatMealAktif = prefs.getBool('bugunCheatMealAktif') ?? false;
       bugunSlothDayAktif = prefs.getBool('bugunSlothDayAktif') ?? false;
+      bugunGamingPassAktif = prefs.getBool('bugunGamingPassAktif') ?? false;
 
       String cantaJson = prefs.getString('canta') ?? '[]';
       List<dynamic> cList = jsonDecode(cantaJson);
@@ -291,6 +293,7 @@ class SystemMemory {
     prefs.setInt('bugunIcilenSuMl', bugunIcilenSuMl.value);
     prefs.setBool('bugunCheatMealAktif', bugunCheatMealAktif);
     prefs.setBool('bugunSlothDayAktif', bugunSlothDayAktif);
+    prefs.setBool('bugunGamingPassAktif', bugunGamingPassAktif);
     prefs.setString('canta', jsonEncode(canta.map((e) => e.toJson()).toList()));
 
     Map<String, dynamic> planKayit = {};
@@ -697,6 +700,10 @@ class SystemMemory {
     int toplamBiten = bitenFiziksel + bitenZihinsel;
     bitenGorevSayisi += toplamBiten; 
 
+    if (bugunGamingPassAktif) {
+      rapor += "[ 🎮 GAMING PASS ACTIVE ] 2-hour entertainment privilege granted. No penalty.\n";
+    }
+
     if (bugunSlothDayAktif) {
       rapor += "[ 🦥 SLOTH PASS ACTIVE ] Quests excused today. Streak preserved without penalty!\n";
     } else if (toplamGorev > 0) {
@@ -835,6 +842,7 @@ class SystemMemory {
     bugunIcilenSuMl.value = 0;
     bugunCheatMealAktif = false;
     bugunSlothDayAktif = false;
+    bugunGamingPassAktif = false;
     
     // Yalnızca değerlendirilen günün görevleri sıfırlanır (haftanın diğer günleri korunur)
     if (haftalikPlan.containsKey(degerlendirilenGun)) {
@@ -968,6 +976,9 @@ class SystemMemory {
     } else if (aksiyon == "sloth_day") {
       bugunSlothDayAktif = true;
       rapor = "[SLOTH DAY ACTIVATED] Daily quest penalties waived for today!";
+    } else if (aksiyon == "gaming_pass") {
+      bugunGamingPassAktif = true;
+      rapor = "[GAMING PASS ACTIVATED] 2-hour entertainment pass granted. Rest, Hunter.";
     } else {
       rapor = "[REWARD USED] ${esya.ad} claimed in real world!";
     }
@@ -987,6 +998,7 @@ class SystemMemory {
   static String exportBackupJson() {
     final data = {
       'oyuncuIsmi': oyuncuIsmi,
+      'cinsiyet': cinsiyet,
       'level': level.value,
       'exp': exp.value,
       'maxExp': maxExp.value,
@@ -1007,8 +1019,18 @@ class SystemMemory {
       'streakGunSayisi': streakGunSayisi,
       'bitenGorevSayisi': bitenGorevSayisi,
       'suHedefiMl': suHedefiMl,
+      'bugunIcilenSuMl': bugunIcilenSuMl.value,
+      'gunlukHedefKalori': gunlukHedefKalori,
+      'vucutSinifi': vucutSinifi,
+      'aktifHedef': aktifHedef,
+      'aktifZorluk': aktifZorluk,
+      'maxBench': maxBench,
+      'maxSquat': maxSquat,
+      'maxDeadlift': maxDeadlift,
+      'hunterRank': hunterRank,
       'kiloGecmisi': kiloGecmisi,
       'idmanGecmisi': idmanGecmisi,
+      'yemekGecmisi': yemekGecmisi,
       'toplamIdmanDakikasi': toplamIdmanDakikasi,
       'geminiApiKey': geminiApiKey,
       'geminiActiveModel': geminiActiveModel,
@@ -1022,7 +1044,8 @@ class SystemMemory {
     try {
       final Map<String, dynamic> data = jsonDecode(rawJson);
       if (data.containsKey('level') && data.containsKey('oyuncuIsmi')) {
-        oyuncuIsmi = data['oyuncuIsmi'] ?? oyuncuIsmi;
+        oyuncuIsmi = data['oyuncuIsmi']?.toString() ?? oyuncuIsmi;
+        cinsiyet = data['cinsiyet']?.toString() ?? cinsiyet;
         level.value = (data['level'] as num?)?.toInt() ?? level.value;
         exp.value = (data['exp'] as num?)?.toInt() ?? exp.value;
         maxExp.value = (data['maxExp'] as num?)?.toInt() ?? maxExp.value;
@@ -1043,6 +1066,59 @@ class SystemMemory {
         streakGunSayisi = (data['streakGunSayisi'] as num?)?.toInt() ?? streakGunSayisi;
         bitenGorevSayisi = (data['bitenGorevSayisi'] as num?)?.toInt() ?? bitenGorevSayisi;
         suHedefiMl = (data['suHedefiMl'] as num?)?.toInt() ?? suHedefiMl;
+
+        if (data['bugunIcilenSuMl'] != null) {
+          bugunIcilenSuMl.value = (data['bugunIcilenSuMl'] as num).toInt();
+        }
+        if (data['gunlukHedefKalori'] != null) {
+          gunlukHedefKalori = (data['gunlukHedefKalori'] as num).toInt();
+        }
+        if (data['vucutSinifi'] != null) {
+          vucutSinifi = data['vucutSinifi'].toString();
+        }
+        if (data['aktifHedef'] != null) {
+          aktifHedef = data['aktifHedef'].toString();
+        }
+        if (data['aktifZorluk'] != null) {
+          aktifZorluk = data['aktifZorluk'].toString();
+        }
+        if (data['maxBench'] != null) {
+          maxBench = (data['maxBench'] as num).toDouble();
+        }
+        if (data['maxSquat'] != null) {
+          maxSquat = (data['maxSquat'] as num).toDouble();
+        }
+        if (data['maxDeadlift'] != null) {
+          maxDeadlift = (data['maxDeadlift'] as num).toDouble();
+        }
+        if (data['hunterRank'] != null) {
+          hunterRank = data['hunterRank'].toString();
+        }
+        if (data['toplamIdmanDakikasi'] != null) {
+          toplamIdmanDakikasi = (data['toplamIdmanDakikasi'] as num).toInt();
+        }
+        if (data['geminiApiKey'] != null) {
+          geminiApiKey = data['geminiApiKey'].toString();
+        }
+        if (data['geminiActiveModel'] != null) {
+          geminiActiveModel = data['geminiActiveModel'].toString();
+        }
+
+        if (data['kiloGecmisi'] != null && data['kiloGecmisi'] is List) {
+          kiloGecmisi = List<Map<String, dynamic>>.from(
+            (data['kiloGecmisi'] as List).map((x) => Map<String, dynamic>.from(x as Map)),
+          );
+        }
+        if (data['idmanGecmisi'] != null && data['idmanGecmisi'] is List) {
+          idmanGecmisi = List<Map<String, dynamic>>.from(
+            (data['idmanGecmisi'] as List).map((x) => Map<String, dynamic>.from(x as Map)),
+          );
+        }
+        if (data['yemekGecmisi'] != null && data['yemekGecmisi'] is List) {
+          yemekGecmisi = List<Map<String, dynamic>>.from(
+            (data['yemekGecmisi'] as List).map((x) => Map<String, dynamic>.from(x as Map)),
+          );
+        }
 
         if (data['canta'] != null) {
           final List<dynamic> cList = data['canta'];

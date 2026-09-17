@@ -13,6 +13,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../core/diyet_motoru.dart';
 import '../controllers/system_memory.dart';
 import '../widgets/hologram_card.dart';
+import '../core/translation_manager.dart';
 
 // ──────────────────────────────────────────────
 // ANA EKRAN
@@ -193,260 +194,267 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
     double fYuzde = topGram > 0 ? topF / topGram : 0;
     double cYuzde = topGram > 0 ? topC / topGram : 0;
 
-    return Scaffold(
-      backgroundColor: _sysDarkBg,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: _sysBlue, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'N U T R I T I O N   L A B',
-          style: GoogleFonts.orbitron(
-            color: _sysBlue,
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-            letterSpacing: 2,
-          ),
-        ),
-      ),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ──────────────────────────────────
-            // 1. GİRDİ PANELİ
-            // ──────────────────────────────────
-            HologramCard(
-              neonRenk: _sysBlue,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('BODY SCAN INPUT', style: GoogleFonts.orbitron(color: _sysText, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 2)),
-                  const SizedBox(height: 20),
-
-                  // Kilo Slider
-                  Row(
-                    children: [
-                      const Icon(Icons.monitor_weight_outlined, color: _sysBlue, size: 22),
-                      const SizedBox(width: 10),
-                      Text('WEIGHT', style: GoogleFonts.rajdhani(color: _sysText, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1)),
-                      const Spacer(),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: _sysBlue.withValues(alpha: 0.1),
-                          border: Border.all(color: _sysBlue.withValues(alpha: 0.4)),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          '${_kilo.toStringAsFixed(1)} KG',
-                          style: GoogleFonts.orbitron(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  SliderTheme(
-                    data: SliderTheme.of(context).copyWith(
-                      activeTrackColor: _sysBlue,
-                      inactiveTrackColor: _sysBlue.withValues(alpha: 0.15),
-                      thumbColor: _sysBlue,
-                      overlayColor: _sysBlue.withValues(alpha: 0.1),
-                      trackHeight: 4,
-                      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
-                    ),
-                    child: Slider(
-                      value: _kilo.clamp(30, 200),
-                      min: 30,
-                      max: 200,
-                      onChanged: (v) => setState(() => _kilo = double.parse(v.toStringAsFixed(1))),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Objective Selection
-                  Text('OBJECTIVE', style: GoogleFonts.rajdhani(color: _sysText, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1)),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(child: _hedefChip("yag_yakma", "BURN FAT", "CUT", Icons.local_fire_department, _sysRed)),
-                      const SizedBox(width: 15),
-                      Expanded(child: _hedefChip("kilo_alma", "BUILD MUSCLE", "BULK", Icons.fitness_center, _sysGreen)),
-                    ],
-                  ),
-                  const SizedBox(height: 25),
-
-                  // Calculate Button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: _hesapla,
-                      icon: const Icon(Icons.bolt, color: _sysBlue, size: 22),
-                      label: Text('ANALYZE MACROS', style: GoogleFonts.orbitron(color: _sysBlue, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 2)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _sysBlue.withValues(alpha: 0.08),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: const BorderSide(color: _sysBlue, width: 1.5),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                      ),
-                    ),
-                  ),
-                ],
+    return ValueListenableBuilder<String>(
+      valueListenable: SystemMemory.appLanguage,
+      builder: (context, currentLang, _) {
+        return Scaffold(
+          backgroundColor: _sysDarkBg,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            centerTitle: true,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios, color: _sysBlue, size: 20),
+              onPressed: () => Navigator.pop(context),
+            ),
+            title: Text(
+              TranslationManager.get('macro_title'),
+              style: GoogleFonts.orbitron(
+                color: _sysBlue,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                letterSpacing: 2,
               ),
             ),
-            const SizedBox(height: 25),
+          ),
+          body: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ──────────────────────────────────
+                // 1. GİRDİ PANELİ
+                // ──────────────────────────────────
+                HologramCard(
+                  neonRenk: _sysBlue,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(TranslationManager.get('macro_body_scan'), style: GoogleFonts.orbitron(color: _sysText, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                      const SizedBox(height: 20),
 
-            // ──────────────────────────────────
-            // 2. SONUÇ PANELİ (Animasyonlu)
-            // ──────────────────────────────────
-            if (_sonuc != null) ...[
-              // Toplam Kalori Göstergesi
-              AnimatedBuilder(
-                animation: _animDeger,
-                builder: (context, child) {
-                  int animKalori = (topKalori * _animDeger.value).round();
-                  return HologramCard(
-                    neonRenk: _sysBlue,
-                    child: Column(
-                      children: [
-                        Text('DAILY ENERGY TARGET', style: GoogleFonts.orbitron(color: _sysText, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 2)),
-                        const SizedBox(height: 15),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              '$animKalori',
-                              style: GoogleFonts.orbitron(
-                                color: Colors.white,
-                                fontSize: 48,
-                                fontWeight: FontWeight.bold,
-                                shadows: [Shadow(color: _sysBlue.withValues(alpha: 0.6), blurRadius: 20)],
-                              ),
+                      // Kilo Slider
+                      Row(
+                        children: [
+                          const Icon(Icons.monitor_weight_outlined, color: _sysBlue, size: 22),
+                          const SizedBox(width: 10),
+                          Text(TranslationManager.get('profile_weight'), style: GoogleFonts.rajdhani(color: _sysText, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                          const Spacer(),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: _sysBlue.withValues(alpha: 0.1),
+                              border: Border.all(color: _sysBlue.withValues(alpha: 0.4)),
+                              borderRadius: BorderRadius.circular(4),
                             ),
-                            const SizedBox(width: 8),
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 10),
-                              child: Text('KCAL', style: GoogleFonts.rajdhani(color: _sysBlue, fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                            child: Text(
+                              '${_kilo.toStringAsFixed(1)} KG',
+                              style: GoogleFonts.orbitron(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      SliderTheme(
+                        data: SliderTheme.of(context).copyWith(
+                          activeTrackColor: _sysBlue,
+                          inactiveTrackColor: _sysBlue.withValues(alpha: 0.15),
+                          thumbColor: _sysBlue,
+                          overlayColor: _sysBlue.withValues(alpha: 0.1),
+                          trackHeight: 4,
+                          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+                        ),
+                        child: Slider(
+                          value: _kilo.clamp(30, 200),
+                          min: 30,
+                          max: 200,
+                          onChanged: (v) => setState(() => _kilo = double.parse(v.toStringAsFixed(1))),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Objective Selection
+                      Text(TranslationManager.get('profile_main_objective'), style: GoogleFonts.rajdhani(color: _sysText, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(child: _hedefChip("yag_yakma", TranslationManager.get('macro_burn_fat'), "CUT", Icons.local_fire_department, _sysRed)),
+                          const SizedBox(width: 15),
+                          Expanded(child: _hedefChip("kilo_alma", TranslationManager.get('macro_build_muscle'), "BULK", Icons.fitness_center, _sysGreen)),
+                        ],
+                      ),
+                      const SizedBox(height: 25),
+
+                      // Calculate Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: _hesapla,
+                          icon: const Icon(Icons.bolt, color: _sysBlue, size: 22),
+                          label: Text(TranslationManager.get('macro_analyze'), style: GoogleFonts.orbitron(color: _sysBlue, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _sysBlue.withValues(alpha: 0.08),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            side: const BorderSide(color: _sysBlue, width: 1.5),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 25),
+
+                // ──────────────────────────────────
+                // 2. SONUÇ PANELİ (Animasyonlu)
+                // ──────────────────────────────────
+                if (_sonuc != null) ...[
+                  // Toplam Kalori Göstergesi
+                  AnimatedBuilder(
+                    animation: _animDeger,
+                    builder: (context, child) {
+                      int animKalori = (topKalori * _animDeger.value).round();
+                      return HologramCard(
+                        neonRenk: _sysBlue,
+                        child: Column(
+                          children: [
+                            Text(TranslationManager.get('macro_daily_target'), style: GoogleFonts.orbitron(color: _sysText, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                            const SizedBox(height: 15),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  '$animKalori',
+                                  style: GoogleFonts.orbitron(
+                                    color: Colors.white,
+                                    fontSize: 48,
+                                    fontWeight: FontWeight.bold,
+                                    shadows: [Shadow(color: _sysBlue.withValues(alpha: 0.6), blurRadius: 20)],
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 10),
+                                  child: Text('KCAL', style: GoogleFonts.rajdhani(color: _sysBlue, fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 5),
+                            Text(
+                              _secilenHedef == "yag_yakma"
+                                  ? (TranslationManager.isTurkish ? 'Yağ Yakma Protokolü Aktif' : 'Fat Burning Protocol Active')
+                                  : (TranslationManager.isTurkish ? 'Kas İnşa Etme Protokolü Aktif' : 'Muscle Building Protocol Active'),
+                              style: GoogleFonts.rajdhani(
+                                color: _secilenHedef == "yag_yakma" ? _sysRed : _sysGreen,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1,
+                              ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 5),
-                        Text(
-                          _secilenHedef == "yag_yakma" ? 'Fat Burning Protocol Active' : 'Muscle Building Protocol Active',
-                          style: GoogleFonts.rajdhani(
-                            color: _secilenHedef == "yag_yakma" ? _sysRed : _sysGreen,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Makro Çemberleri
+                  Text(TranslationManager.get('macro_distribution'), style: GoogleFonts.orbitron(color: _sysBlue, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                  const SizedBox(height: 15),
+                  AnimatedBuilder(
+                    animation: _animDeger,
+                    builder: (context, child) {
+                      return Row(
+                        children: [
+                          Expanded(child: _makroCemberi(TranslationManager.get('macro_protein').toUpperCase(), topP, pYuzde * _animDeger.value, _sysBlue, "g")),
+                          const SizedBox(width: 10),
+                          Expanded(child: _makroCemberi(TranslationManager.get('macro_fats').toUpperCase(), topF, fYuzde * _animDeger.value, _sysGold, "g")),
+                          const SizedBox(width: 10),
+                          Expanded(child: _makroCemberi(TranslationManager.get('macro_carbs').toUpperCase(), topC, cYuzde * _animDeger.value, _sysGreen, "g")),
+                        ],
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Makro Detay Barları
+                  AnimatedBuilder(
+                    animation: _animDeger,
+                    builder: (context, child) {
+                      return HologramCard(
+                        neonRenk: _sysBlue,
+                        padding: const EdgeInsets.all(15),
+                        child: Column(
+                          children: [
+                            _makroDetayBar(TranslationManager.get('macro_protein'), topP, topGram, _sysBlue, "${topP * 4} kcal"),
+                            const SizedBox(height: 12),
+                            _makroDetayBar(TranslationManager.get('macro_fats'), topF, topGram, _sysGold, "${topF * 9} kcal"),
+                            const SizedBox(height: 12),
+                            _makroDetayBar(TranslationManager.get('macro_carbs'), topC, topGram, _sysGreen, "${topC * 4} kcal"),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 30),
+
+                  // ──────────────────────────────────
+                  // 3. YEMEK PLANI KARTLARI
+                  // ──────────────────────────────────
+                  Row(
+                    children: [
+                      const Icon(Icons.menu_book, color: _sysGold, size: 20),
+                      const SizedBox(width: 8),
+                      Text(TranslationManager.get('macro_meal_plan'), style: GoogleFonts.orbitron(color: _sysGold, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: _sysGold.withValues(alpha: 0.4)),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          _secilenHedef == "yag_yakma" ? "CUT MODE" : "BULK MODE",
+                          style: GoogleFonts.rajdhani(color: _sysGold, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 15),
+
+                  ...ogunler.map((ogun) => Padding(
+                    padding: const EdgeInsets.only(bottom: 15),
+                    child: _ogunKartiWidget(ogun),
+                  )),
+
+                  const SizedBox(height: 20),
+
+                  // Uyarı Notu
+                  HologramCard(
+                    neonRenk: _sysText.withValues(alpha: 0.3),
+                    padding: const EdgeInsets.all(15),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.info_outline, color: _sysText, size: 18),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            TranslationManager.get('macro_disclaimer'),
+                            style: GoogleFonts.rajdhani(color: _sysText, fontSize: 13, fontWeight: FontWeight.w500),
                           ),
                         ),
                       ],
                     ),
-                  );
-                },
-              ),
-              const SizedBox(height: 20),
-
-              // Makro Çemberleri
-              Text('MACRO DISTRIBUTION', style: GoogleFonts.orbitron(color: _sysBlue, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 2)),
-              const SizedBox(height: 15),
-              AnimatedBuilder(
-                animation: _animDeger,
-                builder: (context, child) {
-                  return Row(
-                    children: [
-                      Expanded(child: _makroCemberi("PROTEIN", topP, pYuzde * _animDeger.value, _sysBlue, "g")),
-                      const SizedBox(width: 10),
-                      Expanded(child: _makroCemberi("FAT", topF, fYuzde * _animDeger.value, _sysGold, "g")),
-                      const SizedBox(width: 10),
-                      Expanded(child: _makroCemberi("CARBS", topC, cYuzde * _animDeger.value, _sysGreen, "g")),
-                    ],
-                  );
-                },
-              ),
-              const SizedBox(height: 10),
-
-              // Makro Detay Barları
-              AnimatedBuilder(
-                animation: _animDeger,
-                builder: (context, child) {
-                  return HologramCard(
-                    neonRenk: _sysBlue,
-                    padding: const EdgeInsets.all(15),
-                    child: Column(
-                      children: [
-                        _makroDetayBar("Protein", topP, topGram, _sysBlue, "${topP * 4} kcal"),
-                        const SizedBox(height: 12),
-                        _makroDetayBar("Fat", topF, topGram, _sysGold, "${topF * 9} kcal"),
-                        const SizedBox(height: 12),
-                        _makroDetayBar("Carbs", topC, topGram, _sysGreen, "${topC * 4} kcal"),
-                      ],
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 30),
-
-              // ──────────────────────────────────
-              // 3. YEMEK PLANI KARTLARI
-              // ──────────────────────────────────
-              Row(
-                children: [
-                  const Icon(Icons.menu_book, color: _sysGold, size: 20),
-                  const SizedBox(width: 8),
-                  Text('MEAL PLAN', style: GoogleFonts.orbitron(color: _sysGold, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 2)),
-                  const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: _sysGold.withValues(alpha: 0.4)),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      _secilenHedef == "yag_yakma" ? "CUT MODE" : "BULK MODE",
-                      style: GoogleFonts.rajdhani(color: _sysGold, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1),
-                    ),
                   ),
+                  const SizedBox(height: 30),
                 ],
-              ),
-              const SizedBox(height: 15),
-
-              ...ogunler.map((ogun) => Padding(
-                padding: const EdgeInsets.only(bottom: 15),
-                child: _ogunKartiWidget(ogun),
-              )),
-
-              const SizedBox(height: 20),
-
-              // Uyarı Notu
-              HologramCard(
-                neonRenk: _sysText.withValues(alpha: 0.3),
-                padding: const EdgeInsets.all(15),
-                child: Row(
-                  children: [
-                    const Icon(Icons.info_outline, color: _sysText, size: 18),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        'This plan provides estimates. Adjust portions according to your personal needs.',
-                        style: GoogleFonts.rajdhani(color: _sysText, fontSize: 13, fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 30),
-            ],
-          ],
-        ),
-      ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

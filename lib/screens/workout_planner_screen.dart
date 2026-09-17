@@ -10,6 +10,7 @@ import '../core/sistem_gecisi.dart';
 import '../core/services/gemini_service.dart';
 import 'dart:convert';
 import 'workout_library_screen.dart'; 
+import '../core/translation_manager.dart';
 
 class WorkoutPlannerScreen extends StatefulWidget {
   const WorkoutPlannerScreen({super.key});
@@ -38,8 +39,12 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
 
   final TextEditingController hareketKontrolcusu = TextEditingController();
   
-  final Map<int, String> gunKisaIsimleri = { 1: "MON", 2: "TUE", 3: "WED", 4: "THU", 5: "FRI", 6: "SAT", 7: "SUN" };
-  final Map<int, String> gunTamIsimleri = { 1: "MONDAY", 2: "TUESDAY", 3: "WEDNESDAY", 4: "THURSDAY", 5: "FRIDAY", 6: "SATURDAY", 7: "SUNDAY" };
+  Map<int, String> get gunKisaIsimleri => TranslationManager.isTurkish
+      ? { 1: "PZT", 2: "SAL", 3: "ÇAR", 4: "PER", 5: "CUM", 6: "CTS", 7: "PAZ" }
+      : { 1: "MON", 2: "TUE", 3: "WED", 4: "THU", 5: "FRI", 6: "SAT", 7: "SUN" };
+  Map<int, String> get gunTamIsimleri => TranslationManager.isTurkish
+      ? { 1: "PAZARTESİ", 2: "SALI", 3: "ÇARŞAMBA", 4: "PERŞEMBE", 5: "CUMA", 6: "CUMARTESİ", 7: "PAZAR" }
+      : { 1: "MONDAY", 2: "TUESDAY", 3: "WEDNESDAY", 4: "THURSDAY", 5: "FRIDAY", 6: "SATURDAY", 7: "SUNDAY" };
 
   // --- YENİ: ÇOKLU EKLENTİ MOTORU ---
   void hareketEkle() {
@@ -161,13 +166,15 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
                     );
                     setDialogState(() => yukleniyor = false);
 
-                    if (mounted) {
-                      Navigator.pop(context); // Dialogu kapat
-                      if (jsonCevap != null && jsonCevap.isNotEmpty) {
-                        _reviewAndEditDialog(jsonCevap);
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("SYSTEM: Generation failed, try again."), backgroundColor: sysRed));
-                      }
+                    if (!mounted) return;
+                    // ignore: use_build_context_synchronously
+                    Navigator.pop(context); // Dialogu kapat
+                    if (jsonCevap != null && jsonCevap.isNotEmpty) {
+                      // ignore: use_build_context_synchronously
+                      _reviewAndEditDialog(jsonCevap);
+                    } else {
+                      // ignore: use_build_context_synchronously
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("SYSTEM: Generation failed, try again."), backgroundColor: sysRed));
                     }
                   },
                   child: const Text('GENERATE', style: TextStyle(color: mentalPurple, fontWeight: FontWeight.bold)),
@@ -182,7 +189,8 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
 
   void _reviewAndEditDialog(String jsonString) {
     try {
-      final data = jsonDecode(jsonString);
+      final cleanJson = jsonString.replaceAll(RegExp(r'```json\s*|```'), '').trim();
+      final data = jsonDecode(cleanJson);
       String planAdi = data['planAdi'] ?? "Unknown Plan";
       String sistemMesaji = data['sistemMesaji'] ?? "";
       List<dynamic> rawGorevler = data['gorevler'] ?? [];
@@ -413,177 +421,192 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: sysDarkBg, 
-      appBar: AppBar(
-        title: Text('Q U E S T   P L A N N E R', style: GoogleFonts.rajdhani(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 24, letterSpacing: 4.0)), 
-        backgroundColor: Colors.transparent, elevation: 0, centerTitle: true, iconTheme: const IconThemeData(color: sysBlue),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.fitness_center, color: sysBlue),
-            tooltip: 'Workout Library',
-            onPressed: () => Navigator.push(
-              context,
-              SistemGecisi(sayfa: const WorkoutLibraryScreen()),
-            ).then((_) => setState(() {})),
-          ),
-          IconButton(
-            icon: const Icon(Icons.psychology, color: mentalPurple), 
-            tooltip: 'AI Smart Trainer', 
-            onPressed: _aiTrainerDialog
-          ),
-          IconButton(icon: const Icon(Icons.auto_awesome, color: physicalGold), tooltip: 'System Templates', onPressed: _sablonSecimDialog),
-          const SizedBox(width: 10)
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            HologramCard(
-              neonRenk: sysBlue, 
-              child: Column(
-                children: [
-                  // --- YENİ: ÇOKLU GÜN SEÇİCİ ---
-                  Text("SELECT DAYS TO SYNC", style: GoogleFonts.orbitron(color: sysBlue, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2)),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: gunKisaIsimleri.entries.map((e) {
-                      bool isSelected = seciliGunler.contains(e.key);
-                      return GestureDetector(
-                        onTap: () {
-                          AudioSystem.playTransition();
-                          setState(() {
-                            if (isSelected) {
-                              if (seciliGunler.length > 1) seciliGunler.remove(e.key); 
-                            } else {
-                              seciliGunler.add(e.key);
-                            }
-                          });
-                        },
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200), width: 38, height: 38,
-                          decoration: BoxDecoration(color: isSelected ? sysBlue : cardBg, shape: BoxShape.circle, border: Border.all(color: isSelected ? sysBlue : sysTextMuted)),
-                          child: Center(child: Text(e.value, style: GoogleFonts.rajdhani(color: isSelected ? Colors.black : sysTextMuted, fontSize: 12, fontWeight: FontWeight.bold))),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 20),
-                  const Divider(color: Colors.white12, thickness: 1),
-                  const SizedBox(height: 15),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ChoiceChip(
-                        label: const Text('PHYSICAL (STR/AGI)'), selected: secilenTip == 'Fiziksel', selectedColor: physicalGold.withValues(alpha: 0.2), 
-                        labelStyle: GoogleFonts.orbitron(color: secilenTip == 'Fiziksel' ? physicalGold : sysTextMuted, fontSize: 10, fontWeight: FontWeight.bold),
-                        backgroundColor: cardBg, side: BorderSide(color: secilenTip == 'Fiziksel' ? physicalGold : Colors.white12),
-                        onSelected: (val) => setState(() => secilenTip = 'Fiziksel'),
-                      ),
-                      ChoiceChip(
-                        label: const Text('MENTAL (INT/PER)'), selected: secilenTip == 'Zihinsel', selectedColor: mentalPurple.withValues(alpha: 0.2), 
-                        labelStyle: GoogleFonts.orbitron(color: secilenTip == 'Zihinsel' ? mentalPurple : sysTextMuted, fontSize: 10, fontWeight: FontWeight.bold),
-                        backgroundColor: cardBg, side: BorderSide(color: secilenTip == 'Zihinsel' ? mentalPurple : Colors.white12),
-                        onSelected: (val) => setState(() => secilenTip = 'Zihinsel'),
-                      ),
-                    ],
-                  ),
-                ],
+    return ValueListenableBuilder<String>(
+      valueListenable: SystemMemory.appLanguage,
+      builder: (context, currentLang, _) {
+        return Scaffold(
+          backgroundColor: sysDarkBg, 
+          appBar: AppBar(
+            title: Text(TranslationManager.get('planner_title'), style: GoogleFonts.rajdhani(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 24, letterSpacing: 4.0)), 
+            backgroundColor: Colors.transparent, elevation: 0, centerTitle: true, iconTheme: const IconThemeData(color: sysBlue),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.fitness_center, color: sysBlue),
+                tooltip: TranslationManager.get('status_workout_lib_tooltip'),
+                onPressed: () => Navigator.push(
+                  context,
+                  SistemGecisi(sayfa: const WorkoutLibraryScreen()),
+                ).then((_) => setState(() {})),
               ),
-            ),
-            const SizedBox(height: 20),
-
-            HologramCard(
-              neonRenk: secilenTip == 'Fiziksel' ? physicalGold : mentalPurple,
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(secilenTip == 'Fiziksel' ? Icons.accessibility_new : Icons.psychology, color: secilenTip == 'Fiziksel' ? physicalGold : mentalPurple, size: 20),
-                      const SizedBox(width: 10),
-                      Text("TARGET AREA", style: GoogleFonts.orbitron(color: secilenTip == 'Fiziksel' ? physicalGold : mentalPurple, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2)),
-                    ],
-                  ),
-                  const SizedBox(height: 15),
-                  
-                  if (secilenTip == 'Fiziksel')
-                    _buildVisualSelector(bolgeler, secilenBolge, (val) => setState(() => secilenBolge = val), physicalGold)
-                  else
-                    _buildVisualSelector(zihinBolgeler, secilenZihinBolge, (val) => setState(() => secilenZihinBolge = val), mentalPurple),
-
-                  const SizedBox(height: 20),
-                  const Divider(color: Colors.white12, thickness: 1),
-                  const SizedBox(height: 15),
-
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: hareketKontrolcusu, style: const TextStyle(color: Colors.white, fontSize: 14), 
-                          decoration: InputDecoration(
-                            hintText: 'Quest Name (e.g. 50 Push-ups)', hintStyle: const TextStyle(color: sysTextMuted), filled: true, fillColor: const Color(0xFF070B14), 
-                            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: secilenTip == 'Fiziksel' ? physicalGold.withValues(alpha: 0.3) : mentalPurple.withValues(alpha: 0.3)), borderRadius: BorderRadius.circular(4)), 
-                            focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: secilenTip == 'Fiziksel' ? physicalGold : mentalPurple), borderRadius: BorderRadius.circular(4))
-                          )
-                        )
-                      ),
-                      const SizedBox(width: 10),
-                      Container(
-                        decoration: BoxDecoration(color: secilenTip == 'Fiziksel' ? physicalGold.withValues(alpha: 0.15) : mentalPurple.withValues(alpha: 0.15), border: Border.all(color: secilenTip == 'Fiziksel' ? physicalGold : mentalPurple), borderRadius: BorderRadius.circular(4)), 
-                        child: IconButton(icon: Icon(Icons.add, color: secilenTip == 'Fiziksel' ? physicalGold : mentalPurple), onPressed: hareketEkle)
-                      ),
-                    ],
-                  ),
-                ],
+              IconButton(
+                icon: const Icon(Icons.psychology, color: mentalPurple), 
+                tooltip: TranslationManager.get('planner_ai_btn'), 
+                onPressed: _aiTrainerDialog
               ),
-            ),
-            const SizedBox(height: 20),
-
-            // --- YENİ: SEÇİLİ GÜNLERİN GÖREV LİSTESİ ---
-            Expanded(
-              child: ListView.builder(
-                itemCount: seciliGunler.length,
-                itemBuilder: (context, index) {
-                  // Seçili günleri sırayla al (Örn: 1-Pzt, 3-Çarş, 5-Cuma)
-                  List<int> siraliGunler = seciliGunler.toList()..sort();
-                  int sGun = siraliGunler[index]; 
-                  List<Gorev> gununGorevleri = SystemMemory.haftalikPlan[sGun]!;
-                  
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              IconButton(
+                icon: const Icon(Icons.auto_awesome, color: physicalGold), 
+                tooltip: TranslationManager.get('planner_templates'), 
+                onPressed: _sablonSecimDialog
+              ),
+              const SizedBox(width: 10)
+            ],
+          ),
+          body: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              children: [
+                HologramCard(
+                  neonRenk: sysBlue, 
+                  child: Column(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 10, bottom: 5),
-                        child: Text(gunTamIsimleri[sGun]!, style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                      // --- YENİ: ÇOKLU GÜN SEÇİCİ ---
+                      Text(TranslationManager.get('planner_select_days'), style: GoogleFonts.orbitron(color: sysBlue, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: gunKisaIsimleri.entries.map((e) {
+                          bool isSelected = seciliGunler.contains(e.key);
+                          return GestureDetector(
+                            onTap: () {
+                              AudioSystem.playTransition();
+                              setState(() {
+                                if (isSelected) {
+                                  if (seciliGunler.length > 1) seciliGunler.remove(e.key); 
+                                } else {
+                                  seciliGunler.add(e.key);
+                                }
+                              });
+                            },
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200), width: 38, height: 38,
+                              decoration: BoxDecoration(color: isSelected ? sysBlue : cardBg, shape: BoxShape.circle, border: Border.all(color: isSelected ? sysBlue : sysTextMuted)),
+                              child: Center(child: Text(e.value, style: GoogleFonts.rajdhani(color: isSelected ? Colors.black : sysTextMuted, fontSize: 12, fontWeight: FontWeight.bold))),
+                            ),
+                          );
+                        }).toList(),
                       ),
-                      if (gununGorevleri.isEmpty)
-                        const Padding(padding: EdgeInsets.only(bottom: 15), child: Text("No quests assigned.", style: TextStyle(color: sysTextMuted, fontSize: 12))),
-                      
-                      ...gununGorevleri.asMap().entries.map((entry) {
-                        int gIndex = entry.key; Gorev gorev = entry.value;
-                        bool fizikselMi = gorev.tip == 'Fiziksel';
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          decoration: BoxDecoration(color: const Color(0xFF070B14).withValues(alpha: 0.85), border: Border.all(color: fizikselMi ? physicalGold.withValues(alpha: 0.3) : mentalPurple.withValues(alpha: 0.3)), borderRadius: BorderRadius.circular(4)),
-                          child: ListTile(
-                            leading: Icon(fizikselMi ? Icons.fitness_center : Icons.psychology, color: fizikselMi ? physicalGold : mentalPurple, size: 20),
-                            title: Text(gorev.ad, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
-                            trailing: IconButton(icon: const Icon(Icons.close, color: sysRed, size: 18), onPressed: () => hareketSil(sGun, gIndex)),
+                      const SizedBox(height: 20),
+                      const Divider(color: Colors.white12, thickness: 1),
+                      const SizedBox(height: 15),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ChoiceChip(
+                            label: Text(TranslationManager.get('planner_physical')), selected: secilenTip == 'Fiziksel', selectedColor: physicalGold.withValues(alpha: 0.2), 
+                            labelStyle: GoogleFonts.orbitron(color: secilenTip == 'Fiziksel' ? physicalGold : sysTextMuted, fontSize: 10, fontWeight: FontWeight.bold),
+                            backgroundColor: cardBg, side: BorderSide(color: secilenTip == 'Fiziksel' ? physicalGold : Colors.white12),
+                            onSelected: (val) => setState(() => secilenTip = 'Fiziksel'),
                           ),
-                        );
-                      }),
+                          ChoiceChip(
+                            label: Text(TranslationManager.get('planner_mental')), selected: secilenTip == 'Zihinsel', selectedColor: mentalPurple.withValues(alpha: 0.2), 
+                            labelStyle: GoogleFonts.orbitron(color: secilenTip == 'Zihinsel' ? mentalPurple : sysTextMuted, fontSize: 10, fontWeight: FontWeight.bold),
+                            backgroundColor: cardBg, side: BorderSide(color: secilenTip == 'Zihinsel' ? mentalPurple : Colors.white12),
+                            onSelected: (val) => setState(() => secilenTip = 'Zihinsel'),
+                          ),
+                        ],
+                      ),
                     ],
-                  );
-                },
-              ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                HologramCard(
+                  neonRenk: secilenTip == 'Fiziksel' ? physicalGold : mentalPurple,
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(secilenTip == 'Fiziksel' ? Icons.accessibility_new : Icons.psychology, color: secilenTip == 'Fiziksel' ? physicalGold : mentalPurple, size: 20),
+                          const SizedBox(width: 10),
+                          Text(TranslationManager.get('planner_target_area'), style: GoogleFonts.orbitron(color: secilenTip == 'Fiziksel' ? physicalGold : mentalPurple, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                        ],
+                      ),
+                      const SizedBox(height: 15),
+                      
+                      if (secilenTip == 'Fiziksel')
+                        _buildVisualSelector(bolgeler, secilenBolge, (val) => setState(() => secilenBolge = val), physicalGold)
+                      else
+                        _buildVisualSelector(zihinBolgeler, secilenZihinBolge, (val) => setState(() => secilenZihinBolge = val), mentalPurple),
+
+                      const SizedBox(height: 20),
+                      const Divider(color: Colors.white12, thickness: 1),
+                      const SizedBox(height: 15),
+
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: hareketKontrolcusu, style: const TextStyle(color: Colors.white, fontSize: 14), 
+                              decoration: InputDecoration(
+                                hintText: TranslationManager.get('planner_exercise_hint'), hintStyle: const TextStyle(color: sysTextMuted), filled: true, fillColor: const Color(0xFF070B14), 
+                                enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: secilenTip == 'Fiziksel' ? physicalGold.withValues(alpha: 0.3) : mentalPurple.withValues(alpha: 0.3)), borderRadius: BorderRadius.circular(4)), 
+                                focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: secilenTip == 'Fiziksel' ? physicalGold : mentalPurple), borderRadius: BorderRadius.circular(4))
+                              )
+                            )
+                          ),
+                          const SizedBox(width: 10),
+                          Container(
+                            decoration: BoxDecoration(color: secilenTip == 'Fiziksel' ? physicalGold.withValues(alpha: 0.15) : mentalPurple.withValues(alpha: 0.15), border: Border.all(color: secilenTip == 'Fiziksel' ? physicalGold : mentalPurple), borderRadius: BorderRadius.circular(4)), 
+                            child: IconButton(icon: Icon(Icons.add, color: secilenTip == 'Fiziksel' ? physicalGold : mentalPurple), onPressed: hareketEkle)
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // --- YENİ: SEÇİLİ GÜNLERİN GÖREV LİSTESİ ---
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: seciliGunler.length,
+                    itemBuilder: (context, index) {
+                      // Seçili günleri sırayla al (Örn: 1-Pzt, 3-Çarş, 5-Cuma)
+                      List<int> siraliGunler = seciliGunler.toList()..sort();
+                      int sGun = siraliGunler[index]; 
+                      List<Gorev> gununGorevleri = SystemMemory.haftalikPlan[sGun]!;
+                      
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10, bottom: 5),
+                            child: Text(gunTamIsimleri[sGun]!, style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                          ),
+                          if (gununGorevleri.isEmpty)
+                            Padding(padding: const EdgeInsets.only(bottom: 15), child: Text(TranslationManager.get('planner_no_quests'), style: const TextStyle(color: sysTextMuted, fontSize: 12))),
+                          
+                          ...gununGorevleri.asMap().entries.map((entry) {
+                            int gIndex = entry.key; Gorev gorev = entry.value;
+                            bool fizikselMi = gorev.tip == 'Fiziksel';
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 10),
+                              decoration: BoxDecoration(color: const Color(0xFF070B14).withValues(alpha: 0.85), border: Border.all(color: fizikselMi ? physicalGold.withValues(alpha: 0.3) : mentalPurple.withValues(alpha: 0.3)), borderRadius: BorderRadius.circular(4)),
+                              child: ListTile(
+                                leading: Icon(fizikselMi ? Icons.fitness_center : Icons.psychology, color: fizikselMi ? physicalGold : mentalPurple, size: 20),
+                                title: Text(gorev.ad, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                                trailing: IconButton(icon: const Icon(Icons.close, color: sysRed, size: 18), onPressed: () => hareketSil(sGun, gIndex)),
+                              ),
+                            );
+                          }),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
+  }
+
+  @override
+  void dispose() {
+    hareketKontrolcusu.dispose();
+    super.dispose();
   }
 }
