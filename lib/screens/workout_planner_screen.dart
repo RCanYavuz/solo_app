@@ -10,6 +10,7 @@ import '../core/sistem_gecisi.dart';
 import 'workout_library_screen.dart'; 
 import '../core/translation_manager.dart';
 import '../core/youtube_helper.dart';
+import '../widgets/exercise_detail_modal.dart';
 
 class WorkoutPlannerScreen extends StatefulWidget {
   const WorkoutPlannerScreen({super.key});
@@ -506,11 +507,26 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
                               decoration: BoxDecoration(color: const Color(0xFF070B14).withValues(alpha: 0.85), border: Border.all(color: fizikselMi ? physicalGold.withValues(alpha: 0.3) : mentalPurple.withValues(alpha: 0.3)), borderRadius: BorderRadius.circular(4)),
                               child: ListTile(
                                 leading: Icon(fizikselMi ? Icons.fitness_center : Icons.psychology, color: fizikselMi ? physicalGold : mentalPurple, size: 20),
-                                title: Text(gorev.ad, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                                title: GestureDetector(
+                                  onTap: () => ExerciseDetailModal.show(
+                                    context,
+                                    gorevAdi: gorev.ad,
+                                    gun: sGun,
+                                    index: gIndex,
+                                    onSwapped: () => setState(() {}),
+                                  ),
+                                  child: Text(gorev.ad, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                                ),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    YoutubeHelper.buildYouTubeButton(gorevAdi: gorev.ad, size: 20),
+                                    YoutubeHelper.buildTacticalActionButtons(
+                                      gorevAdi: gorev.ad,
+                                      gun: sGun,
+                                      index: gIndex,
+                                      onSwapped: () => setState(() {}),
+                                      size: 18,
+                                    ),
                                     IconButton(icon: const Icon(Icons.close, color: sysRed, size: 18), onPressed: () => hareketSil(sGun, gIndex)),
                                   ],
                                 ),

@@ -7,6 +7,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../widgets/exercise_detail_modal.dart';
 
 class YoutubeHelper {
   /// Görev adını temizleyip en doğru YouTube form arama terimini üretir.
@@ -70,6 +71,9 @@ class YoutubeHelper {
   /// Herhangi bir görev kartı veya satırına eklenebilen YouTube Form Butonu
   static Widget buildYouTubeButton({
     required String gorevAdi,
+    int? gun,
+    int? index,
+    VoidCallback? onSwapped,
     double size = 20,
     Color color = const Color(0xFFEF4444),
     EdgeInsetsGeometry padding = const EdgeInsets.all(4),
@@ -78,13 +82,74 @@ class YoutubeHelper {
       builder: (context) {
         return IconButton(
           icon: Icon(Icons.play_circle_fill, color: color, size: size),
-          tooltip: 'YouTube Form & Nasıl Yapılır Rehberi',
+          tooltip: 'YouTube Form Rehberi (Uzun bas: Taktik Kartı)',
           padding: padding,
           constraints: const BoxConstraints(),
           splashRadius: size + 6,
           onPressed: () => videoAc(gorevAdi, context: context),
         );
       },
+    );
+  }
+
+  /// Taktik form modalını açan şık buton
+  static Widget buildTacticsButton({
+    required String gorevAdi,
+    int? gun,
+    int? index,
+    VoidCallback? onSwapped,
+    double size = 18,
+    Color color = const Color(0xFF38BDF8),
+    EdgeInsetsGeometry padding = const EdgeInsets.all(4),
+  }) {
+    return Builder(
+      builder: (context) {
+        return IconButton(
+          icon: Icon(Icons.info_outline, color: color, size: size),
+          tooltip: 'Avcı Taktik Kartı & Alternatifler',
+          padding: padding,
+          constraints: const BoxConstraints(),
+          splashRadius: size + 6,
+          onPressed: () {
+            ExerciseDetailModal.show(
+              context,
+              gorevAdi: gorevAdi,
+              gun: gun,
+              index: index,
+              onSwapped: onSwapped,
+            );
+          },
+        );
+      },
+    );
+  }
+
+  /// Taktik Form Bilgisi ve YouTube butonunu bir arada sunan ikili aksiyon seti
+  static Widget buildTacticalActionButtons({
+    required String gorevAdi,
+    int? gun,
+    int? index,
+    VoidCallback? onSwapped,
+    double size = 18,
+  }) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        buildTacticsButton(
+          gorevAdi: gorevAdi,
+          gun: gun,
+          index: index,
+          onSwapped: onSwapped,
+          size: size,
+        ),
+        buildYouTubeButton(
+          gorevAdi: gorevAdi,
+          gun: gun,
+          index: index,
+          onSwapped: onSwapped,
+          size: size,
+        ),
+      ],
     );
   }
 }

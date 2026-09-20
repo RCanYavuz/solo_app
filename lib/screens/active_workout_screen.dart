@@ -9,6 +9,8 @@ import '../core/sistem_gecisi.dart';
 import '../core/audio_system.dart'; 
 import 'boxing_timer_screen.dart'; 
 import '../core/youtube_helper.dart'; 
+import '../widgets/exercise_detail_modal.dart';
+import '../widgets/rest_timer_dialog.dart'; 
 
 class ActiveWorkoutScreen extends StatefulWidget {
   const ActiveWorkoutScreen({super.key});
@@ -28,6 +30,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
   int gecenSaniye = 0;
   Timer? _kronometre;
   int bugunIndex = DateTime.now().weekday;
+  final Set<int> _acikSetler = {};
 
   // 2. YENİ: Arka plana düşüş zamanını kaydedeceğimiz değişken
   DateTime? _arkaPlanaGidisZamani;
@@ -244,17 +247,35 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('ACTIVE QUESTS', style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
-                      ElevatedButton.icon(
-                        onPressed: _sablonSecimDialog, 
-                        icon: const Icon(Icons.auto_awesome, color: physicalGold, size: 16),
-                        label: const Text('TEMPLATES', style: TextStyle(color: physicalGold, fontWeight: FontWeight.bold, fontSize: 12)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: physicalGold.withValues(alpha: 0.1),
-                          side: const BorderSide(color: physicalGold, width: 1),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
-                        ),
-                      )
+                      Text('ACTIVE QUESTS', style: GoogleFonts.orbitron(color: sysBlue, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: () => RestTimerDialog.show(context),
+                            icon: const Icon(Icons.timer_outlined, color: sysBlue, size: 14),
+                            label: const Text('REST', style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 11)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: sysBlue.withValues(alpha: 0.1),
+                              side: const BorderSide(color: sysBlue, width: 1),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          ElevatedButton.icon(
+                            onPressed: _sablonSecimDialog, 
+                            icon: const Icon(Icons.auto_awesome, color: physicalGold, size: 14),
+                            label: const Text('TEMPLATES', style: TextStyle(color: physicalGold, fontWeight: FontWeight.bold, fontSize: 11)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: physicalGold.withValues(alpha: 0.1),
+                              side: const BorderSide(color: physicalGold, width: 1),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                   const SizedBox(height: 15),
@@ -265,27 +286,8 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                       child: Text("No quests assigned. Load a template or return to planner.", style: TextStyle(color: Color(0xFF94A3B8))),
                     )),
                   
-                  ...bugununProgrami.map((gorev) {
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 10),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF070B14).withValues(alpha: 0.85),
-                        border: Border.all(color: sysBlue.withValues(alpha: 0.3)),
-                        borderRadius: BorderRadius.circular(4)
-                      ),
-                      child: CheckboxListTile(
-                        secondary: YoutubeHelper.buildYouTubeButton(gorevAdi: gorev.ad, size: 22),
-                        title: Text(gorev.ad, style: TextStyle(color: gorev.yapildiMi ? const Color(0xFF94A3B8) : Colors.white, fontSize: 14, decoration: gorev.yapildiMi ? TextDecoration.lineThrough : null)),
-                        subtitle: Text(gorev.tip == "Fiziksel" ? '[PHY]' : '[MNT]', style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 10)),
-                        value: gorev.yapildiMi,
-                        activeColor: sysBlue, checkColor: sysDarkBg,
-                        onChanged: (val) { 
-                          setState(() { gorev.yapildiMi = val ?? false; }); 
-                          SystemMemory.kaydet(); 
-                          if(val == true) AudioSystem.playTransition(); 
-                        },
-                      ),
-                    );
+                  ...bugununProgrami.asMap().entries.map((entry) {
+                    return _buildQuestCard(entry.value, entry.key);
                   }),
                 ],
               ),
@@ -308,6 +310,317 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
             )
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildQuestCard(Gorev gorev, int index) {
+    final bool acik = _acikSetler.contains(index);
+    final bool fiziksel = gorev.tip == "Fiziksel";
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF070B14).withValues(alpha: 0.85),
+        border: Border.all(
+          color: gorev.yapildiMi ? sysBlue.withValues(alpha: 0.2) : sysBlue.withValues(alpha: 0.4),
+          width: 1,
+        ),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Column(
+        children: [
+          ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+            leading: Checkbox(
+              value: gorev.yapildiMi,
+              activeColor: sysBlue,
+              checkColor: sysDarkBg,
+              onChanged: (val) {
+                setState(() {
+                  gorev.yapildiMi = val ?? false;
+                });
+                SystemMemory.kaydet();
+                if (val == true) {
+                  AudioSystem.playTransition();
+                  RestTimerDialog.show(context, exerciseName: gorev.ad);
+                }
+              },
+            ),
+            title: GestureDetector(
+              onTap: () => ExerciseDetailModal.show(
+                context,
+                gorevAdi: gorev.ad,
+                gun: bugunIndex,
+                index: index,
+                onSwapped: () => setState(() {}),
+              ),
+              child: Text(
+                gorev.ad,
+                style: TextStyle(
+                  color: gorev.yapildiMi ? const Color(0xFF94A3B8) : Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  decoration: gorev.yapildiMi ? TextDecoration.lineThrough : null,
+                ),
+              ),
+            ),
+            subtitle: GestureDetector(
+              onTap: () => ExerciseDetailModal.show(
+                context,
+                gorevAdi: gorev.ad,
+                gun: bugunIndex,
+                index: index,
+                onSwapped: () => setState(() {}),
+              ),
+              child: Row(
+                children: [
+                  Text(
+                    fiziksel ? '[PHY]' : '[MNT]',
+                    style: TextStyle(
+                      color: fiziksel ? sysBlue.withValues(alpha: 0.7) : mentalPurple,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(width: 5),
+                  const Text('• Dokun: Taktik / Alternatif', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 10)),
+                ],
+              ),
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (fiziksel)
+                  IconButton(
+                    icon: Icon(
+                      acik ? Icons.expand_less : Icons.playlist_add_check,
+                      color: physicalGold,
+                      size: 20,
+                    ),
+                    tooltip: 'Set & Ağırlık Takibi',
+                    padding: const EdgeInsets.all(4),
+                    constraints: const BoxConstraints(),
+                    onPressed: () {
+                      setState(() {
+                        if (acik) {
+                          _acikSetler.remove(index);
+                        } else {
+                          _acikSetler.add(index);
+                        }
+                      });
+                    },
+                  ),
+                YoutubeHelper.buildYouTubeButton(gorevAdi: gorev.ad, size: 20),
+              ],
+            ),
+          ),
+          if (fiziksel && acik) ...[
+            const Divider(color: Colors.white10, height: 1),
+            _buildSetListesi(gorev),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSetListesi(Gorev gorev) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'SET & OVERLOAD LOG',
+                style: GoogleFonts.orbitron(
+                  color: physicalGold,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1,
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    gorev.setler.add(SetKaydi(
+                      setNo: gorev.setler.length + 1,
+                      kilo: gorev.setler.isNotEmpty ? gorev.setler.last.kilo : 0,
+                      tekrar: gorev.setler.isNotEmpty ? gorev.setler.last.tekrar : 10,
+                    ));
+                  });
+                  SystemMemory.kaydet();
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: physicalGold.withValues(alpha: 0.15),
+                    border: Border.all(color: physicalGold.withValues(alpha: 0.4)),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Icon(Icons.add, color: physicalGold, size: 12),
+                      SizedBox(width: 3),
+                      Text(
+                        'SET EKLE',
+                        style: TextStyle(color: physicalGold, fontSize: 10, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          if (gorev.setler.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 6),
+              child: Text(
+                'Henüz set eklenmedi. "SET EKLE" butonuna basarak ağırlık kaydedin.',
+                style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
+              ),
+            )
+          else
+            ...gorev.setler.asMap().entries.map((entry) {
+              final int sIdx = entry.key;
+              final SetKaydi s = entry.value;
+              return Container(
+                margin: const EdgeInsets.only(bottom: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0F172A),
+                  border: Border.all(color: s.tamamlandi ? sysBlue.withValues(alpha: 0.5) : Colors.white12),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      'SET ${s.setNo}',
+                      style: GoogleFonts.orbitron(color: sysBlue, fontSize: 11, fontWeight: FontWeight.bold),
+                    ),
+                    const Spacer(),
+                    GestureDetector(
+                      onTap: () => _setDuzenleDialog(gorev, sIdx),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: Colors.black45,
+                          border: Border.all(color: Colors.white24),
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                        child: Text(
+                          '${s.kilo > 0 ? "${s.kilo.toStringAsFixed(s.kilo.truncateToDouble() == s.kilo ? 0 : 1)} kg" : "BW"} x ${s.tekrar} rep',
+                          style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: Icon(
+                        s.tamamlandi ? Icons.check_circle : Icons.radio_button_unchecked,
+                        color: s.tamamlandi ? sysBlue : const Color(0xFF94A3B8),
+                        size: 18,
+                      ),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      onPressed: () {
+                        setState(() {
+                          s.tamamlandi = !s.tamamlandi;
+                        });
+                        SystemMemory.kaydet();
+                        if (s.tamamlandi) {
+                          AudioSystem.playTransition();
+                          RestTimerDialog.show(context, exerciseName: '${gorev.ad} (Set ${s.setNo})');
+                        }
+                      },
+                    ),
+                    const SizedBox(width: 6),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: sysRed, size: 14),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      onPressed: () {
+                        setState(() {
+                          gorev.setler.removeAt(sIdx);
+                        });
+                        SystemMemory.kaydet();
+                      },
+                    ),
+                  ],
+                ),
+              );
+            }),
+        ],
+      ),
+    );
+  }
+
+  void _setDuzenleDialog(Gorev gorev, int sIdx) {
+    final s = gorev.setler[sIdx];
+    final kiloCtrl = TextEditingController(text: s.kilo > 0 ? s.kilo.toString() : '');
+    final repCtrl = TextEditingController(text: s.tekrar.toString());
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF070B14),
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(color: sysBlue, width: 1),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        title: Text(
+          'SET ${s.setNo} DÜZENLE',
+          style: GoogleFonts.orbitron(color: sysBlue, fontSize: 13, fontWeight: FontWeight.bold),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: kiloCtrl,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                labelText: 'Ağırlık (kg - Vücut ağırlığı için boş bırakın)',
+                labelStyle: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: repCtrl,
+              keyboardType: TextInputType.number,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                labelText: 'Tekrar Sayısı (Reps)',
+                labelStyle: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('İPTAL', style: TextStyle(color: Color(0xFF94A3B8))),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: sysBlue.withValues(alpha: 0.2),
+              side: const BorderSide(color: sysBlue),
+            ),
+            onPressed: () {
+              setState(() {
+                s.kilo = double.tryParse(kiloCtrl.text) ?? 0.0;
+                s.tekrar = int.tryParse(repCtrl.text) ?? s.tekrar;
+              });
+              SystemMemory.kaydet();
+              Navigator.pop(ctx);
+            },
+            child: const Text('KAYDET', style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold)),
+          ),
+        ],
       ),
     );
   }

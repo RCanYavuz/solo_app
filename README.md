@@ -167,14 +167,32 @@ lib/
 ### 4. 📺 Tek Dokunuşla YouTube Egzersiz Formu Rehberi (Akıllı Sanitize & Video Yönlendirme)
 - **Akıllı Başlık Temizleme (`YoutubeHelper.gorevAdiniTemizle`):** Sistem etiketlerini (`[COMBAT]`, `[PHY]`, `[CORE / ABS]`), set ve tekrar bilgilerini (`(4 Set x 8 Tekrar)`, `(3 Min)`) otomatik temizleyerek optimize edilmiş `"hareket adı egzersizi nasıl yapılır form"` YouTube arama sorgusunu hazırlar.
 - **Tüm Egzersiz Ekranlarında Canlı Buton:**
-  - **Dashboard (Bugünün Görevleri):** Her fiziksel görevin yanında YouTube butonu.
+  - **Dashboard (Bugünün Görevleri):** Her fiziksel görevin yanında YouTube ve Taktik Bilgi butonu.
   - **Takvim (CalendarScreen):** Seçilen günün görevlerinde YouTube butonu.
-  - **Antrenman Planlayıcı (WorkoutPlannerScreen):** Planlanan her egzersizin yanında YouTube butonu.
+  - **Antrenman Planlayıcı (WorkoutPlannerScreen):** Planlanan her egzersizin yanında YouTube ve Taktik Değiştirme butonu.
   - **Aktif Zindan Baskını (ActiveWorkoutScreen):** İdman esnasında hareketi hatırlamak için anında erişim.
   - **Antrenman Kütüphanesi (WorkoutLibraryScreen):** Kütüphanedeki tüm hazır hareketlerde tek tıkla video başlatma.
 - **Doğrudan Harici Uygulama Açılışı:** YouTube mobil uygulaması veya tarayıcıda ilgili yapılış/form videosu anında açılır.
 
-### 5. 💧 Su Takibi Sistemi (Hydration Core)
+### 5. 📋 Solo Leveling "Avcı Taktik Kartı" & Akıllı Alternatif Değiştirici (Smart Swap)
+- **`ExerciseCoach` & `ExerciseDetailModal`:**
+  - Egzersiz kartına veya bilgi butonuna dokunulduğunda açılan sinematik Solo Leveling modalı.
+  - **Hedef Kaslar & Dövüşe Katkısı:** Hedeflenen anatomik kas grupları ve dövüş sporlarındaki (yumruk hızı, gard direnci, takedown patlayıcılığı) somut faydaları.
+  - **3 Kritik Altın Kural:** Doğru duruş, nefes zamanlaması ve sakatlık önleme teknikleri.
+  - **Akıllı Egzersiz Değiştirici (Smart Swap):** Salondaki makine doluysa veya eklem ağrısı varsa tek dokunuşla muadil hareket listesi açılır (Örn: Bench Press yerine Floor Press / Şınav) ve program anında güncellenir.
+  - **YouTube Rehberi Entegrasyonu:** Tek tıkla ilgili yapılış/form videosu başlar.
+
+### 6. ⏱️ Set Arası Dinlenme Sayacı (Hunter MP Recovery Timer)
+- **`RestTimerDialog`:** Aktif idman esnasında bir set veya hareket tamamlandığında devreye giren dairesel Solo Leveling geri sayım sayacı.
+- **Hızlı Süre Seçenekleri:** 30s, 60s, 90s, 120s hızlı butonları ve `+15 SN` ekleme aksiyonu.
+- **Sesli & Görsel Uyarı:** Dinlenme bittiğinde ses efekti (`AudioSystem.playBell()`) çalar ve sistem *"SIRADAKİ SETE HAZIRSIN, AVCI!"* ikazı verir.
+
+### 7. 📈 Set, Ağırlık ve Tekrar Takip Kaydedicisi (Progressive Overload Logger)
+- **`SetKaydi` Modeli:** Her egzersizin altında `Set 1: [80 kg] x [10 rep] [✓]` şeklinde set bazlı ağırlık ve tekrar takibi.
+- **Ağırlık Düzenleme Modalı:** Tek dokunuşla ağırlık (kg) ve tekrar sayısını güncelleme imkanı.
+- **Kalıcı JSON Depolama:** Yapılan tüm setler hafızaya ve idman geçmişine kaydedilir.
+
+### 8. 💧 Su Takibi Sistemi (Hydration Core)
 - **Arayüz (`diet_screen.dart`):** Günlük tüketilen su miktarını ve hedefini (varsayılan 3000 ml) gösteren neon Solo Leveling temalı ilerleme çubuğu.
 - **Hızlı Giriş Aksiyonları:** `+250 ml`, `+500 ml` butonları ve sayacı sıfırlama seçeneği.
 - **Gece Yarısı Ödül & Ceza Entegrasyonu:** Su hedefini tutturan avcıya ekstra **+5 HP** ve **+10 EXP** ödülü verilir ve yeni gün başlangıcında sayaç sıfırlanır.
