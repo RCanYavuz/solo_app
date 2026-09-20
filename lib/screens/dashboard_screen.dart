@@ -8,7 +8,6 @@ import '../models/task_model.dart';
 import '../widgets/hologram_card.dart';
 import '../widgets/awakening_test_dialog.dart';
 import '../core/sistem_gecisi.dart'; 
-import '../core/youtube_helper.dart';
 import '../widgets/exercise_detail_modal.dart';
 import 'shop_screen.dart'; 
 
@@ -411,7 +410,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           children: [
                             Text(g.tip == 'Fiziksel' ? TranslationManager.get('dash_phy') : TranslationManager.get('dash_mnt'), style: TextStyle(color: sysBlue.withValues(alpha: 0.5), fontSize: 10)),
                             const SizedBox(width: 4),
-                            YoutubeHelper.buildTacticalActionButtons(
+                            ExerciseTacticalButtons(
                               gorevAdi: g.ad,
                               gun: bugun,
                               index: index,

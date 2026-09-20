@@ -6,8 +6,6 @@ import 'package:solo_leveling_app/models/task_model.dart';
 import 'package:solo_leveling_app/screens/active_workout_screen.dart';
 import 'package:solo_leveling_app/screens/dashboard_screen.dart';
 import 'package:solo_leveling_app/screens/workout_planner_screen.dart';
-import 'package:solo_leveling_app/widgets/exercise_detail_modal.dart';
-import 'package:solo_leveling_app/widgets/rest_timer_dialog.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

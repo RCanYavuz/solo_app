@@ -9,7 +9,6 @@ import '../core/audio_system.dart';
 import '../core/sistem_gecisi.dart';
 import 'workout_library_screen.dart'; 
 import '../core/translation_manager.dart';
-import '../core/youtube_helper.dart';
 import '../widgets/exercise_detail_modal.dart';
 
 class WorkoutPlannerScreen extends StatefulWidget {
@@ -520,7 +519,7 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    YoutubeHelper.buildTacticalActionButtons(
+                                    ExerciseTacticalButtons(
                                       gorevAdi: gorev.ad,
                                       gun: sGun,
                                       index: gIndex,

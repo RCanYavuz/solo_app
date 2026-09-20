@@ -451,3 +451,51 @@ class _ExerciseDetailModalState extends State<ExerciseDetailModal> {
     );
   }
 }
+
+/// Taktik Bilgi Modalı ve YouTube Butonunu birleştiren kompakt satır widget'ı
+class ExerciseTacticalButtons extends StatelessWidget {
+  final String gorevAdi;
+  final int? gun;
+  final int? index;
+  final VoidCallback? onSwapped;
+  final double size;
+
+  const ExerciseTacticalButtons({
+    super.key,
+    required this.gorevAdi,
+    this.gun,
+    this.index,
+    this.onSwapped,
+    this.size = 18,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          icon: Icon(Icons.info_outline, color: const Color(0xFF38BDF8), size: size),
+          tooltip: 'Avcı Taktik Kartı & Alternatifler',
+          padding: const EdgeInsets.all(4),
+          constraints: const BoxConstraints(),
+          splashRadius: size + 6,
+          onPressed: () {
+            ExerciseDetailModal.show(
+              context,
+              gorevAdi: gorevAdi,
+              gun: gun,
+              index: index,
+              onSwapped: onSwapped,
+            );
+          },
+        ),
+        YoutubeHelper.buildYouTubeButton(
+          gorevAdi: gorevAdi,
+          size: size,
+        ),
+      ],
+    );
+  }
+}
+
