@@ -437,12 +437,16 @@ class _SetupScreenState extends State<SetupScreen> {
       final sonuc = await GeminiService.testBaglantisi(
         hunterName: SystemMemory.oyuncuIsmi,
       );
-      if (!mounted) return;
-      Navigator.of(context, rootNavigator: true).pop(); // Loading modalını kapat
-
       final basarili = sonuc['basarili'] == true;
       final mesaj = sonuc['mesaj'] ?? '';
       final model = sonuc['model'];
+
+      if (basarili) {
+        await SystemMemory.aiPrograminiUygula(idmanGunu: secilenIdmanGunu);
+      }
+
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop(); // Loading modalını kapat
 
       await _sistemUyanisDialoguGoster(basarili, mesaj, model);
       if (!mounted) return;

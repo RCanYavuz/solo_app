@@ -1,9 +1,9 @@
 # 🎮 Solo Leveling App — Sistem Analizi, Test ve Durum Raporu
 
-**Tarih:** 2026-09-20  
+**Tarih:** 2026-09-21  
 **Proje:** Solo Leveling Gamification & Fitness App  
 **Platform:** Flutter / Dart  
-**Rapor Kapsamı:** Kod tabanı analizi, otomatik test doğrulamaları, çalışan ve çalışmayan butonlar/mekanizmalar, eksik özellikler ve nihai tamamlanma yol haritası.
+**Rapor Kapsamı:** Kod tabanı analizi, otomatik test doğrulamaları (39/39 test), dövüş sporcusu ağırlık & odak bölgeleri entegrasyonu, sistem uyanış bekleme modalı, Gemini AI antrenman üretimi ve Diyetisyen listesi entegrasyon yol haritası.
 
 ---
 
@@ -12,7 +12,7 @@
 2. [Çalışmayan, Eksik veya Tam Çalışmayan Noktalar](#2-çalışmayan-eksik-veya-tam-çalışmayan-noktalar)
 3. [Tam Çalışan Sistemler ve Buton Listesi](#3-tam-çalışan-sistemler-ve-buton-listesi)
 4. [Sistem Tamamlandığında Olacak Özellikler (Nihai Vizyon)](#4-sistem-tamamlandığında-olacak-özellikler-nihai-vizyon)
-5. [Önerilen Eylem Planı ve Sıradaki Adımlar](#5-önerilen-eylem-planı-ve-sıradaki-adımlar)
+5. [Aktif Yol Haritası ve Sıradaki Geliştirmeler](#5-aktif-yol-haritası-ve-sıradaki-geliştirmeler)
 
 ---
 
@@ -21,11 +21,12 @@
 Tüm test paketleri Flutter test altyapısı ve Dart SDK analizi ile çalıştırılarak kontrol edilmiştir.
 
 ### 🧪 Otomatik Test Paketi Sonuçları
-Mevcut **7 test paketi ve toplam 28 test senaryosunun tamamı başarıyla geçmektedir**:
+Mevcut **8 test paketi ve toplam 39 test senaryosunun tamamı başarıyla geçmektedir**:
 
 | Test Dosyası | Test Sayısı | Durum | Kapsam |
 |---|:---:|:---:|---|
-| [`test/system_features_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/system_features_test.dart) | 13 | ✅ GEÇTİ | Su takibi, çanta/envanter, makrolar, Data Vault JSON yedek/geri yükleme, zindan ödülleri, plana aktarım ve **Awakening Test 1RM hesaplamaları** |
+| [`test/assessment_flow_widget_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/assessment_flow_widget_test.dart) | 7 | ✅ GEÇTİ | 4 Adımlı Wizard, çoklu dövüş branşı, 1RM dövüş ağırlık testleri, odak bölgeleri, canlı rank rozeti, Profile ve Dashboard banner senkronizasyonu |
+| [`test/system_features_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/system_features_test.dart) | 17 | ✅ GEÇTİ | Su takibi, çanta/envanter, makrolar, Data Vault JSON yedek/geri yükleme, zindan ödülleri, **hedef odak bölgelerine göre dinamik antrenman uyarlaması**, rank ve dövüş katsayıları |
 | [`test/gemini_integration_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/gemini_integration_test.dart) | 2 (21 adım) | ✅ GEÇTİ | Profil ekranı API anahtarı yönetimi ve Diyet ekranı AI besin çözücü widget entegrasyonu |
 | [`test/language_switch_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/language_switch_test.dart) | 5 | ✅ GEÇTİ | Türkçe/İngilizce çift dil dinamik geçişi, unvanlar, hedefler ve fallback |
 | [`test/midnight_reset_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/midnight_reset_test.dart) | 2 | ✅ GEÇTİ | Gece yarısı hesaplaşmasında yalnızca değerlendirilen günün sıfırlanması ve Gemini model kalıcılığı |
@@ -36,7 +37,7 @@ Mevcut **7 test paketi ve toplam 28 test senaryosunun tamamı başarıyla geçme
 ### 🔍 Statik Kod Analizi (`dart analyze`)
 - **Hata (Error):** 0
 - **Uyarı (Warning):** 0
-- **Bilgi (Info):** 2 adet kullanılmayan import (`package:flutter/material.dart` ve `dart:typed_data` `system_memory.dart` içinde `foundation.dart` tarafından zaten kapsandığı için).
+- **Durum:** `No issues found!` (Tamamen temiz kod tabanı).
 
 ---
 
@@ -46,7 +47,7 @@ Mevcut **7 test paketi ve toplam 28 test senaryosunun tamamı başarıyla geçme
 - **Dosya:** [`lib/screens/profile_screen.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/lib/screens/profile_screen.dart)
 - **Çözüm:** `_awakeningTestDialog()` metodu modüler [`lib/widgets/awakening_test_dialog.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/lib/widgets/awakening_test_dialog.dart) ile birleştirildi. Kullanıcı Bench Press, Squat, Deadlift veya Calisthenics tekrar sayılarını girdiğinde canlı olarak toplam güç, güç/vücut ağırlığı katsayısı ve atanacak Avcı Rütbesi (E-Rank'ten S-Rank'e) hesaplanmakta, ilk uyanışta bonus +100 EXP ve +3 AP ödülü verilerek SharedPreferences ve Data Vault'a kaydedilmektedir.
 
-### ✅ 1.1. Başlangıç Değerlendirmesi & Periyodik Retest / Rütbe Atlama Sistemi [TAMAMLANDI]
+### ✅ 1.1. Başlangıç Değerlendirmesi, Dövüş Ağırlık Testleri & Odak Bölgeleri [TAMAMLANDI]
 - **Dosyalar:** 
   - [`lib/controllers/system_memory.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/lib/controllers/system_memory.dart)
   - [`lib/screens/setup_screen.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/lib/screens/setup_screen.dart)
@@ -55,14 +56,16 @@ Mevcut **7 test paketi ve toplam 28 test senaryosunun tamamı başarıyla geçme
   - [`lib/widgets/awakening_test_dialog.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/lib/widgets/awakening_test_dialog.dart)
 - **Geliştirilen Özellikler:**
   1. **4 Adımlı RPG Sihirbazı (`SetupScreen`):** Bütün soruların alt alta yığılması engellendi; 4 aşamalı temiz akışa dönüştürüldü:
-     - **Phase 01 (Identity):** Avcı adı, cinsiyet, doğum tarihi, avatar ve Gemini API anahtarı (canlı bağlantı test butonu ile).
-     - **Phase 02 (Body Calibration):** Boy, kilo, hedef, zorluk seviyesi ve **Full Body Tracking (Göğüs, Bel, Kol, Bacak cm)** alanları.
-     - **Phase 03 (Combat & Gear):** **"Dövüş Sporları / Boks Yapıyor Musun?" (Evet/Hayır)** toggle'ı, branş seçimi (Boks, Kickboks, Muay Thai, MMA, Güreş), ekipman türü ve eklem hassasiyeti.
-     - **Phase 04 (Awakening Test):** Dövüş sporcusu için patlayıcı şınav, burpee kondisyonu, plank ve barfiks; salon sporcusu için 1RM ve Calisthenics modu ve canlı rütbe rozeti.
-  2. **Dövüş Sporları & Boksör Motoru:** Boksörlerin maksimal barbell kaldırma zorunluluğu kaldırıldı. 3 dakikalık raund kondisyonu (burpee/sprawl), patlayıcı itiş gücü (plyo şınav), rotasyonel kor ve barfiks formülüyle dövüş rank'i (`hesaplaDovusRank`) ve özel dövüş idman programı oluşturuldu.
-  3. **Dashboard Unvan Uyumsuzluğu Düzeltildi:** `TranslationManager.rankTitle` güncellenerek Dashboard'daki unvan ile gerçek `SystemMemory.hunterRank` senkronize edildi (ör. `C-Rank` atandığında `Knight Hunter (C-Rank)` veya dövüş sporcusu için `Iron Fist Striker (C-Rank)` dinamik gösterilmektedir).
-  4. **Retest Diyalogunda 3. Mod (Combat Stamina):** Profil ekranındaki `AwakeningTestDialog` içine `COMBAT STAMINA` sekmesi eklenerek dövüş sporcularının istedikleri zaman kendi branşlarında seviye testi yapabilmeleri sağlandı.
-  5. **Rütbe Atlama Kotaları & Sayaç:** Avcının seviyesine göre periyodik sınav kotaları tanımlandı (E: 8 idman, D: 12 idman, C: 16 idman, B: 24 idman, A/S: 32 idman). Kota dolduğunda `DashboardScreen`'de altın rengi `[ ⚔️ RANK PROMOTION TRIAL READY ]` görevi açılır.
+     - **Phase 01 (Identity):** Avcı adı, cinsiyet, doğum tarihi, avatar ve Gemini API anahtarı.
+     - **Phase 02 (Body Calibration):** Boy, kilo, hedef, zorluk seviyesi ve **Full Body Scan (Göğüs, Bel, Kol, Bacak cm)** alanları.
+     - **Phase 03 (Combat & Gear):** **"Dövüş Sporları / Boks Yapıyor Musun?"** toggle'ı, **Çoklu Branş Seçimi** (Boks, Kickboks, Muay Thai, MMA, Güreş), **Öncelikli Odak & Yağ Yakım Bölgeleri** (Karın & Göbek, Göğüs vb.), ekipman türü ve eklem koruması.
+     - **Phase 04 (Awakening Test):** Dövüş sporcusu için hem 4 kondisyon metriği hem de **1RM Halter/Kuvvet Egzersizleri (Bench, Squat, Deadlift)**; fitness için 1RM ve Calisthenics modu.
+  2. **Dövüş Sporcusu Kuvvet Entegrasyonu (`hesaplaDovusRank`):** Halter kuvvet oranı (`Big 3 / Kilo`) dövüş skoru ile birleştirilerek yumruk patlayıcılığı ve gövde direnci puanlandı; kaldırılan ağırlıklar profildeki 1RM kartlarına da kaydedildi.
+  3. **Öncelikli Odak Bölgeleri Entegrasyonu:** Karın/göbek ve göğüs yağ yakımı seçildiğinde antrenman günlerinin sonuna `[FOCUS-CORE]` ve `[FOCUS-CHEST]` bitirici protokolleri dinamik eklendi.
+  4. **Sistem Uyanış Yükleme Ekranı:** "AWAKEN THE SYSTEM" tıklandığında API ve ayarları denetleyen Solo Leveling temalı *"LÜTFEN BEKLEYİNİZ"* bildirim modalı eklendi.
+  5. **Dashboard Unvan Uyumsuzluğu Düzeltildi:** `TranslationManager.rankTitle` güncellenerek unvan gerçek `SystemMemory.hunterRank` ile senkronize edildi.
+  6. **Retest Diyalogunda 1RM + Combat Stamina:** `AwakeningTestDialog` içinde dövüşçüler hem kondisyon hem de ağırlık testlerini girerek seviye yükseltebilecek hale getirildi.
+  7. **Rütbe Atlama Kotaları & Sayaç:** Seviyeye göre sınav kotaları tamamlandığında `[ ⚔️ RANK PROMOTION TRIAL READY ]` görevi açılmaktadır.dı (E: 8 idman, D: 12 idman, C: 16 idman, B: 24 idman, A/S: 32 idman). Kota dolduğunda `DashboardScreen`'de altın rengi `[ ⚔️ RANK PROMOTION TRIAL READY ]` görevi açılır.
   6. **Data Vault Koruma:** Dövüş branşı, vücut ölçümleri (göğüs, bel, kol, bacak), test tarihleri ve idman sayaçları yedekleme/geri yükleme (Data Vault) mekanizmasına entegre edildi.
 
 ### 🟡 2. Arka Plan Servisi ve İş Yöneticisi (Background Service / Workmanager)
@@ -243,21 +246,21 @@ Kullanıcıdan toplanan verilere göre sistemin uygulayacağı deterministik kur
 
 ---
 
-### 🤖 Aşama 5: Gemini LLM Destekli Dinamik Güncelleme Motoru (Opsiyonel / Hibrit)
-- Kural motorunun kurduğu matematiksel temeli (RIR, kilo trendi, eklem kısıtları) alan Gemini prompt motoru; avcıya haftalık kişisel analiz raporu ve motive edici Solo Leveling Sistem Mesajı üretir (`[SİSTEM BİLDİRİMİ]: Kas dokusu uyumu %87 seviyesinde. Aşırı yüklenme protokolü devreye sokuldu.`).
+## 5. 🚀 Aktif Yol Haritası ve Sıradaki Geliştirmeler
+
+Kullanıcı ile onaylanan güncel master geliştirme sırası:
+
+### 📌 FAZ 1: Gemini AI Destekli Kişiselleştirilmiş Antrenman Programı (Hibrit Mimari) [ŞU AN BAŞLANIYOR]
+- **Kişiye Özel JSON Üretimi:** Gemini'ye avcının boy, kilo, güncel rank'i (E->S), 1RM kuvvet değerleri, dövüş branşları (Boks/MMA vb.), sakatlık kısıtları (omuz, diz vb.) ve öncelikli yağ yakım odakları (karın/göbek, göğüs) aktarılarak structured 7 günlük antrenman JSON planı oluşturulur.
+- **Fail-Safe Hibrit Altyapı:** API anahtarı veya internet bağlantısı yoksa mevcut yerel algoritmik kural motoru devreye girer; uygulama asla internetsiz kalıp çökmez.
+- **Tek Tuşla Yenileme Butonu:** Antrenman Planlayıcı ekranında `[ 🤖 SİSTEM AI İLE PROGRAMI YENİLE ]` butonu ile antrenman programı anında yapay zekaya revize ettirilebilir.
+
+### 📌 FAZ 2: Diyetisyen Listesi Analizi & Dinamik İdman Yıpranma/Protein Dengeleyicisi [SIRADAKİ]
+- **Diyetisyen Haftalık Listesi Yükleme (Fotoğraf / Metin):** Diyetisyenin verdiği basılı veya dijital listenin fotoğrafı çekilerek veya metni yapıştırılarak Gemini Vision ile taranır ve sisteme haftalık makro/öğün hedefi olarak kaydedilir.
+- **Dinamik İdman Yıpranma Takibi (Workload Compensator):** O gün yapılan boks, kum torbası veya ağır squat/deadlift idmanının süresi ve yoğunluğuna göre harcanan ekstra kalori ve kas yıkımı hesaplanır.
+- **Sistem İkazı & Ek Besin Önerisi:** Yemek ve Ana ekranda:
+  *`[SİSTEM UYARISI: Bugün 90 dk yüksek yoğunluklu boks idmanı tamamlandı. Kas katabolizmasını önlemek için diyetisyen listenize +30g protein ve +450 kcal eklenmesi emredildi.]`* kartı çıkar.
 
 ---
-
-## 6. Önerilen Eylem Planı ve Adım Adım İlerleme Sırası
-
-Kullanıcının talimatlarıyla adım adım uygulanacak sıra:
-
-1. **Adım 1:** Onboarding (SetupScreen) soru akışının tasarlanması ve yeni veri modellerinin (`user_onboarding_model.dart`) hazırlanması.
-2. **Adım 2:** Antrenman içi/sonu RIR ve kardiyo geri bildirim diyaloglarının arayüze eklenmesi.
-3. **Adım 3:** Karar motoru kurallarının (ağırlık artışı, kardiyo artışı, eklem koruma) kodlanması.
-4. **Adım 4:** Kota bazlı "Promotion Trial / Rank Atlama Zindanı" mekaniğinin ve kütüphaneden otomatik program evriminin entegrasyonu.
-5. **Adım 5:** Uçtan uca testler, live Chrome doğrulaması ve dökümantasyon güncellemesi.
-
----
-*Bu doküman projenin kök dizininde [`SISTEM_ANALIZI_VE_DURUM_RAPORU.md`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/SISTEM_ANALIZI_VE_DURUM_RAPORU.md) adıyla güncellenmiştir.*
+*Bu doküman projenin kök dizininde [`SISTEM_ANALIZI_VE_DURUM_RAPORU.md`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/SISTEM_ANALIZI_VE_DURUM_RAPORU.md) adıyla en son sistem durumuna göre güncellenmiştir.*
 

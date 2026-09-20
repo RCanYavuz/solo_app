@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import '../../controllers/system_memory.dart';
+import '../../models/task_model.dart';
 
 /// Solo App Gemini Yapay Zeka Servisi (Clean Architecture - Core Katmanı)
 /// Doğrudan REST API kullanır (deprecated SDK yerine).
@@ -286,6 +287,104 @@ Provide the workout ONLY in the following JSON format in ENGLISH, do not write a
       String json = await _generateContent(model, apiKey, prompt) ?? "";
       json = json.replaceAll(RegExp(r'```json\s*|```'), '').trim();
       return json;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Gemini AI ile avcının tüm parametrelerini kullanarak kişiselleştirilmiş 7 günlük haftalık antrenman programı üretir.
+  static Future<Map<int, List<Gorev>>?> haftalikProgramUret({
+    required double kilo,
+    required double boy,
+    required String rank,
+    required String hedef,
+    required String zorluk,
+    required String ekipman,
+    required int idmanGunu,
+    required bool dovuscuMu,
+    required List<String> dovusBranslari,
+    required List<String> eklemKisitlari,
+    required List<String> odakBolgeleri,
+    double? maxBench,
+    double? maxSquat,
+    double? deadlift,
+    String? ozelTalep,
+  }) async {
+    final apiKey = SystemMemory.geminiApiKey.trim();
+    if (apiKey.isEmpty) return null;
+
+    final model = SystemMemory.geminiActiveModel;
+    final prompt = '''
+Sen Solo Leveling evrenindeki "Sistem"sin (The System). Avcıya kişiselleştirilmiş, disiplinli ve haftalık bir antrenman programı oluşturuyorsun.
+
+AVCI PROFİL VERİLERİ:
+- Rütbe (Rank): $rank
+- Vücut: Kilo: ${kilo.toStringAsFixed(1)} kg, Boy: ${boy.toStringAsFixed(0)} cm
+- Ana Hedef: $hedef, Zorluk Seviyesi: $zorluk
+- Haftalık İdman Günü: $idmanGunu gün (Kalan günler dinlenme / aktif toparlanma)
+- Ekipman: $ekipman
+- Dövüş Sporcusu Mu: ${dovuscuMu ? "EVET, Branşlar: ${dovusBranslari.join(', ')}" : "HAYIR (Fitness / Vücut Geliştirme)"}
+- Eklem Sakatlığı / Hassasiyet Koruması: ${eklemKisitlari.isNotEmpty ? eklemKisitlari.join(', ') : "Yok"} (DİKKAT: Bu eklemleri zorlayacak hareketler KESİNLİKLE YER ALMAMALI, eklem dostu alternatifler kullanılmalı!)
+- Öncelikli Odak & Yağ Yakım Bölgeleri: ${odakBolgeleri.isNotEmpty ? odakBolgeleri.join(', ') : "Dengeli"} (DİKKAT: İdman günlerinin sonuna bu bölgeler için özel bitirici [FOCUS-...] hareketleri ekle!)
+${(maxBench != null && maxBench > 0) ? "- 1RM Bench Press: ${maxBench.toStringAsFixed(0)} kg" : ""}
+${(maxSquat != null && maxSquat > 0) ? "- 1RM Squat: ${maxSquat.toStringAsFixed(0)} kg" : ""}
+${(deadlift != null && deadlift > 0) ? "- 1RM Deadlift: ${deadlift.toStringAsFixed(0)} kg" : ""}
+${(ozelTalep != null && ozelTalep.isNotEmpty) ? "- Avcının Özel Notu / Talebi: $ozelTalep" : ""}
+
+KURALLAR:
+1. Türkçe olarak hazırla.
+2. 1'den 7'ye kadar günleri tanımla (1: Pazartesi, 2: Salı, 3: Çarşamba, 4: Perşembe, 5: Cuma, 6: Cumartesi, 7: Pazar).
+3. Avcının haftalık idman günü $idmanGunu gündür. İdman olmayan günleri boş dizi [] olarak bırak.
+4. Her egzersiz hareketini formatla: "[KATEGORİ] Hareket Adı (Set x Tekrar veya Raund/Süre)".
+   - Dövüş hareketlerinde: "[COMBAT] Boks: Patlayıcı Şınav (4 Set x 8 Tekrar)" veya "[COMBAT] Gölge Boksu (5 Raund x 3 Dk)"
+   - Fitness hareketlerinde: "[PHY] Barbell Bench Press (3 Set x 10 Tekrar - 60 kg)"
+   - Odak bitiricilerinde: "[FOCUS-CORE] Asılı Bacak Kaldırma & Plank (3 Set x Max)"
+5. ÇIKTIYI YALNIZCA AŞAĞIDAKİ JSON FORMATINDA DÖNDÜR, JSON DIŞINDA HİÇBİR AÇIKLAMA YAZMA:
+
+{
+  "1": [
+    {"ad": "[COMBAT] Boks: Patlayıcı Şınav (4 Set x 8)", "tip": "Fiziksel"},
+    {"ad": "[FOCUS-CORE] Asılı Bacak Kaldırma & Plank Finisher", "tip": "Fiziksel"}
+  ],
+  "2": [],
+  "3": [
+    {"ad": "...", "tip": "Fiziksel"}
+  ],
+  "4": [],
+  "5": [
+    {"ad": "...", "tip": "Fiziksel"}
+  ],
+  "6": [],
+  "7": []
+}
+''';
+
+    try {
+      final responseText = await _generateContent(model, apiKey, prompt);
+      if (responseText == null || responseText.isEmpty) return null;
+
+      final cleanJson = responseText.replaceAll(RegExp(r'```json\s*|```'), '').trim();
+      final decoded = jsonDecode(cleanJson);
+      if (decoded is! Map) return null;
+
+      final Map<int, List<Gorev>> plan = {};
+      for (int i = 1; i <= 7; i++) {
+        plan[i] = [];
+        final keyStr = i.toString();
+        if (decoded.containsKey(keyStr) && decoded[keyStr] is List) {
+          final list = decoded[keyStr] as List;
+          for (final item in list) {
+            if (item is Map) {
+              final ad = item['ad']?.toString() ?? item['isim']?.toString() ?? '';
+              final tip = item['tip']?.toString() ?? 'Fiziksel';
+              if (ad.isNotEmpty) {
+                plan[i]!.add(Gorev(ad, false, tip));
+              }
+            }
+          }
+        }
+      }
+      return plan;
     } catch (e) {
       return null;
     }

@@ -7,8 +7,6 @@ import '../models/task_model.dart';
 import '../widgets/hologram_card.dart';
 import '../core/audio_system.dart'; 
 import '../core/sistem_gecisi.dart';
-import '../core/services/gemini_service.dart';
-import 'dart:convert';
 import 'workout_library_screen.dart'; 
 import '../core/translation_manager.dart';
 
@@ -89,95 +87,135 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setDialogState) {
+            final String disciplineInfo = SystemMemory.dovusSporuYapiyorMu 
+                ? "Dövüş: ${SystemMemory.dovusBransi}" 
+                : "Ekipman: ${SystemMemory.ekipmanTuru}";
+            final String focusInfo = SystemMemory.odakBolgeleri.isNotEmpty 
+                ? "Odak: ${SystemMemory.odakBolgeleri.join(', ')}" 
+                : "";
+
             return AlertDialog(
-              backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95),
+              backgroundColor: const Color(0xFF030712).withValues(alpha: 0.96),
               shape: RoundedRectangleBorder(
                 side: const BorderSide(color: mentalPurple, width: 1.5),
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(6),
               ),
               title: Row(
                 children: [
                   const Icon(Icons.psychology, color: mentalPurple, size: 24),
                   const SizedBox(width: 8),
-                  Text(
-                    'AI SMART TRAINER',
-                    style: GoogleFonts.orbitron(color: mentalPurple, fontWeight: FontWeight.bold, fontSize: 16),
+                  Expanded(
+                    child: Text(
+                      'AI SMART TRAINER',
+                      style: GoogleFonts.orbitron(color: mentalPurple, fontWeight: FontWeight.bold, fontSize: 15),
+                    ),
                   ),
                 ],
               ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Current Rank: ${SystemMemory.hunterRank} | Body Class: ${SystemMemory.vucutSinifi}",
-                    style: const TextStyle(color: physicalGold, fontSize: 12, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'The system will generate a workout based on your stats. You can enter a specific request if you want.',
-                    style: TextStyle(color: sysTextMuted, fontSize: 12),
-                  ),
-                  const SizedBox(height: 15),
-                  TextField(
-                    controller: talepCtrl,
-                    maxLines: 3,
-                    style: const TextStyle(color: Colors.white, fontSize: 13),
-                    decoration: InputDecoration(
-                      labelText: 'Hunter Request (Optional)',
-                      labelStyle: const TextStyle(color: sysTextMuted, fontSize: 12),
-                      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: mentalPurple.withValues(alpha: 0.5))),
-                      focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: mentalPurple)),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: mentalPurple.withValues(alpha: 0.1),
+                        border: Border.all(color: mentalPurple.withValues(alpha: 0.3)),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Rank: ${SystemMemory.hunterRank} | $disciplineInfo",
+                            style: const TextStyle(color: physicalGold, fontSize: 11, fontWeight: FontWeight.bold),
+                          ),
+                          if (focusInfo.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              focusInfo,
+                              style: const TextStyle(color: sysBlue, fontSize: 10, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
-                  ),
-                  if (yukleniyor) ...[
-                    const SizedBox(height: 20),
-                    const Center(child: CircularProgressIndicator(color: mentalPurple)),
-                    const SizedBox(height: 10),
-                    const Center(child: Text("System is calculating...", style: TextStyle(color: mentalPurple, fontSize: 12))),
-                  ]
-                ],
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Sistem yapay zekası avcı profilinize, dövüş branşınıza, sakatlık korumanıza ve odak bölgelerinize göre antrenman üretir.',
+                      style: TextStyle(color: sysTextMuted, fontSize: 11, height: 1.4),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: talepCtrl,
+                      maxLines: 2,
+                      style: const TextStyle(color: Colors.white, fontSize: 12),
+                      decoration: InputDecoration(
+                        labelText: 'Özel Not / Talep (Opsiyonel)',
+                        hintText: 'Örn: Bu hafta omzum yorgun, bacaklarıma odaklan...',
+                        hintStyle: const TextStyle(color: Colors.white24, fontSize: 11),
+                        labelStyle: const TextStyle(color: sysTextMuted, fontSize: 11),
+                        filled: true,
+                        fillColor: const Color(0xFF0F172A),
+                        enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: mentalPurple.withValues(alpha: 0.4))),
+                        focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: mentalPurple)),
+                      ),
+                    ),
+                    if (yukleniyor) ...[
+                      const SizedBox(height: 18),
+                      const Center(child: CircularProgressIndicator(color: mentalPurple, strokeWidth: 2.5)),
+                      const SizedBox(height: 8),
+                      const Center(child: Text("Sistem antrenman protokolünü hesaplıyor...", style: TextStyle(color: mentalPurple, fontSize: 11))),
+                    ]
+                  ],
+                ),
               ),
               actions: [
                 TextButton(
                   onPressed: yukleniyor ? null : () => Navigator.pop(context),
-                  child: const Text('CANCEL', style: TextStyle(color: sysTextMuted)),
+                  child: const Text('İPTAL', style: TextStyle(color: sysTextMuted)),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: mentalPurple.withValues(alpha: 0.2),
-                    side: const BorderSide(color: mentalPurple),
+                    backgroundColor: sysBlue.withValues(alpha: 0.2),
+                    side: const BorderSide(color: sysBlue),
                   ),
                   onPressed: yukleniyor ? null : () async {
-                    if (seciliGunler.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("SYSTEM: Please select at least one day first."), backgroundColor: sysRed));
-                      return;
-                    }
                     setDialogState(() => yukleniyor = true);
                     AudioSystem.playTransition();
-                    String? jsonCevap = await GeminiService.akilliAntrenor(
-                      talepCtrl.text.trim(), 
-                      SystemMemory.vucutSinifi, 
-                      SystemMemory.hunterRank, 
-                      SystemMemory.maxBench, 
-                      SystemMemory.maxSquat, 
-                      SystemMemory.maxDeadlift,
-                      SystemMemory.kilo
+
+                    final navigator = Navigator.of(context);
+                    final messenger = ScaffoldMessenger.of(context);
+
+                    final bool basarili = await SystemMemory.aiPrograminiUygula(
+                      ozelTalep: talepCtrl.text.trim(),
                     );
                     setDialogState(() => yukleniyor = false);
 
                     if (!mounted) return;
-                    // ignore: use_build_context_synchronously
-                    Navigator.pop(context); // Dialogu kapat
-                    if (jsonCevap != null && jsonCevap.isNotEmpty) {
-                      // ignore: use_build_context_synchronously
-                      _reviewAndEditDialog(jsonCevap);
+                    navigator.pop();
+                    setState(() {});
+
+                    if (basarili) {
+                      AudioSystem.playLevelUp();
+                      messenger.showSnackBar(
+                        const SnackBar(
+                          content: Text('⚡ SİSTEM: Haftalık antrenman programı Gemini AI tarafından başarıyla yenilendi!'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
                     } else {
-                      // ignore: use_build_context_synchronously
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("SYSTEM: Generation failed, try again."), backgroundColor: sysRed));
+                      AudioSystem.playSuccess();
+                      messenger.showSnackBar(
+                        const SnackBar(
+                          content: Text('⚠️ SİSTEM: Yerel kural motoru devreye alındı (Çevrimdışı/Yedek mod).'),
+                          backgroundColor: physicalGold,
+                        ),
+                      );
                     }
                   },
-                  child: const Text('GENERATE', style: TextStyle(color: mentalPurple, fontWeight: FontWeight.bold)),
+                  child: const Text('TÜM HAFTAYI YENİLE', style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 11)),
                 ),
               ],
             );
@@ -185,125 +223,6 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
         );
       }
     );
-  }
-
-  void _reviewAndEditDialog(String jsonString) {
-    try {
-      final cleanJson = jsonString.replaceAll(RegExp(r'```json\s*|```'), '').trim();
-      final data = jsonDecode(cleanJson);
-      String planAdi = data['planAdi'] ?? "Unknown Plan";
-      String sistemMesaji = data['sistemMesaji'] ?? "";
-      List<dynamic> rawGorevler = data['gorevler'] ?? [];
-      
-      List<Map<String, String>> taslakListesi = [];
-      for (var g in rawGorevler) {
-        taslakListesi.add({
-          "isim": g['isim'].toString(),
-          "set_tekrar": g['set_tekrar'].toString(),
-        });
-      }
-
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) {
-          return StatefulBuilder(
-            builder: (context, setDialogState) {
-              return AlertDialog(
-                backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95),
-                shape: RoundedRectangleBorder(
-                  side: const BorderSide(color: sysBlue, width: 2),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                title: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(planAdi.toUpperCase(), style: GoogleFonts.orbitron(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 16)),
-                    if (sistemMesaji.isNotEmpty) ...[
-                      const SizedBox(height: 5),
-                      Text(sistemMesaji, style: const TextStyle(color: sysTextMuted, fontSize: 10, fontStyle: FontStyle.italic)),
-                    ]
-                  ],
-                ),
-                content: SizedBox(
-                  width: double.maxFinite,
-                  height: MediaQuery.of(context).size.height * 0.5,
-                  child: ListView.builder(
-                    itemCount: taslakListesi.length,
-                    itemBuilder: (context, index) {
-                      final item = taslakListesi[index];
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: sysBlue.withValues(alpha: 0.1),
-                          border: Border.all(color: sysBlue.withValues(alpha: 0.3)),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(item['isim']!, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-                                  const SizedBox(height: 4),
-                                  Text(item['set_tekrar']!, style: const TextStyle(color: physicalGold, fontSize: 11)),
-                                ],
-                              ),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: sysRed, size: 18),
-                              onPressed: () {
-                                setDialogState(() {
-                                  taslakListesi.removeAt(index);
-                                });
-                              },
-                            )
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('DISCARD', style: TextStyle(color: sysRed)),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: sysBlue.withValues(alpha: 0.2),
-                      side: const BorderSide(color: sysBlue),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        for (int gun in seciliGunler) {
-                          for (var task in taslakListesi) {
-                            String finalTitle = "${task['isim']} - ${task['set_tekrar']}";
-                            SystemMemory.haftalikPlan[gun]!.add(Gorev(finalTitle, false, "Fiziksel"));
-                          }
-                        }
-                      });
-                      SystemMemory.kaydet();
-                      AudioSystem.playSuccess();
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text('SYSTEM: $planAdi applied to ${seciliGunler.length} day(s)!'),
-                        backgroundColor: Colors.green
-                      ));
-                    },
-                    child: const Text('CONFIRM & SYNC', style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold)),
-                  ),
-                ],
-              );
-            }
-          );
-        }
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Format Error: $e"), backgroundColor: sysRed));
-    }
   }
 
   // --- YENİ: SİSTEM ŞABLONLARI ---

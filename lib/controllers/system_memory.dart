@@ -10,6 +10,7 @@ import '../core/audio_system.dart';
 import '../models/task_model.dart';
 import '../models/food_model.dart';
 import '../models/inventory_item_model.dart';
+import '../core/services/gemini_service.dart';
 
 class SystemMemory {
   static bool get _isTest {
@@ -1026,6 +1027,71 @@ class SystemMemory {
     haftalikPlan.forEach((key, value) {
       normalHaftalikPlan[key] = value.map((e) => Gorev(e.ad, false, e.tip)).toList();
     });
+  }
+
+  /// Gemini AI ile kişiselleştirilmiş haftalık antrenman planını oluşturur ve haftalık plana aktarır.
+  /// API anahtarı boşsa veya bağlantı başarısız olursa yerel kural motoruna (baslangicPrograminiAta) geri döner (fail-safe).
+  static Future<bool> aiPrograminiUygula({String? ozelTalep, int? idmanGunu}) async {
+    final int gunSayisi = idmanGunu ?? 3;
+    if (geminiApiKey.trim().isEmpty) {
+      baslangicPrograminiAta(
+        ekipman: ekipmanTuru,
+        rank: hunterRank,
+        idmanGunu: gunSayisi,
+        hedef: aktifHedef,
+        eklemKisitlari: eklemKisiti,
+        hedefOdakBolgeleri: odakBolgeleri,
+      );
+      kaydet();
+      return false;
+    }
+
+    try {
+      final aiPlan = await GeminiService.haftalikProgramUret(
+        kilo: kilo > 0 ? kilo : 70.0,
+        boy: boy > 0 ? boy : 175.0,
+        rank: hunterRank,
+        hedef: aktifHedef,
+        zorluk: aktifZorluk,
+        ekipman: ekipmanTuru,
+        idmanGunu: gunSayisi,
+        dovuscuMu: dovusSporuYapiyorMu,
+        dovusBranslari: dovusBranslari.isNotEmpty ? dovusBranslari : [dovusBransi],
+        eklemKisitlari: eklemKisiti,
+        odakBolgeleri: odakBolgeleri,
+        maxBench: maxBench > 0 ? maxBench : null,
+        maxSquat: maxSquat > 0 ? maxSquat : null,
+        deadlift: maxDeadlift > 0 ? maxDeadlift : null,
+        ozelTalep: ozelTalep,
+      );
+
+      if (aiPlan != null && aiPlan.values.any((list) => list.isNotEmpty)) {
+        haftalikPlan.clear();
+        for (int i = 1; i <= 7; i++) {
+          haftalikPlan[i] = aiPlan[i] ?? [];
+        }
+        normalHaftalikPlan.clear();
+        haftalikPlan.forEach((key, value) {
+          normalHaftalikPlan[key] = value.map((e) => Gorev(e.ad, false, e.tip)).toList();
+        });
+        kaydet();
+        return true;
+      }
+    } catch (e) {
+      debugPrint("AI program generation error: $e");
+    }
+
+    // Fail-safe: Yerel algoritmik kural motoru
+    baslangicPrograminiAta(
+      ekipman: ekipmanTuru,
+      rank: hunterRank,
+      idmanGunu: gunSayisi,
+      hedef: aktifHedef,
+      eklemKisitlari: eklemKisiti,
+      hedefOdakBolgeleri: odakBolgeleri,
+    );
+    kaydet();
+    return false;
   }
 
   static String tartiGuncelle(double yeniKilo) {

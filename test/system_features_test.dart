@@ -429,6 +429,44 @@ void main() {
       expect(SystemMemory.retestGerekiyorMu, isFalse);
       expect(SystemMemory.rankIcinGerekliIdmanKotasi, 12); // Next rank quota is 12
     });
+
+    test('Workout routines dynamically adapt to Target Focus Zones, Combat Disciplines and Rank', () {
+      // 1. User with Belly & Chest fat focus
+      SystemMemory.dovusSporuYapiyorMu = true;
+      SystemMemory.dovusBransi = "Boks";
+      SystemMemory.baslangicPrograminiAta(
+        ekipman: "Salon",
+        rank: "C-Rank (Knight)",
+        idmanGunu: 3,
+        hedef: "Kilo Ver (Yağ Yak)",
+        hedefOdakBolgeleri: ["Karın & Göbek", "Göğüs"],
+      );
+
+      final day1Exercises = SystemMemory.haftalikPlan[1]!.map((g) => g.ad).toList();
+      expect(day1Exercises.any((ad) => ad.contains("[FOCUS-CORE]")), isTrue);
+      expect(day1Exercises.any((ad) => ad.contains("[FOCUS-CHEST]")), isTrue);
+      expect(day1Exercises.any((ad) => ad.contains("[FOCUS-ARMS]")), isFalse);
+      expect(day1Exercises.any((ad) => ad.contains("[FOCUS-LEGS]")), isFalse);
+      expect(day1Exercises.any((ad) => ad.contains("Boks")), isTrue);
+      expect(day1Exercises.any((ad) => ad.contains("Knight Hypertrophy")), isTrue);
+
+      // 2. Different user with Arm focus, S-Rank, Kickboks
+      SystemMemory.dovusBransi = "Kickboks";
+      SystemMemory.baslangicPrograminiAta(
+        ekipman: "Salon",
+        rank: "S-Rank (Monarch)",
+        idmanGunu: 3,
+        hedef: "Kas Yap (Hipertrofi)",
+        hedefOdakBolgeleri: ["Kollar"],
+      );
+
+      final day1MonarchExercises = SystemMemory.haftalikPlan[1]!.map((g) => g.ad).toList();
+      expect(day1MonarchExercises.any((ad) => ad.contains("[FOCUS-ARMS]")), isTrue);
+      expect(day1MonarchExercises.any((ad) => ad.contains("[FOCUS-CORE]")), isFalse);
+      expect(day1MonarchExercises.any((ad) => ad.contains("[FOCUS-CHEST]")), isFalse);
+      expect(day1MonarchExercises.any((ad) => ad.contains("Kickboks")), isTrue);
+      expect(day1MonarchExercises.any((ad) => ad.contains("Monarch Overload")), isTrue);
+    });
   });
 }
 

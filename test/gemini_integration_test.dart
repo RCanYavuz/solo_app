@@ -94,5 +94,20 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('API Key missing. Configure in Profile.'), findsOneWidget);
     });
+
+    test('SystemMemory.aiPrograminiUygula falls back safely to local rule engine when API key empty', () async {
+      SystemMemory.geminiApiKey = "";
+      SystemMemory.hunterRank = "C-Rank (Knight)";
+      SystemMemory.dovusSporuYapiyorMu = true;
+      SystemMemory.dovusBransi = "Boks";
+      SystemMemory.odakBolgeleri = ["Karın & Göbek"];
+
+      final result = await SystemMemory.aiPrograminiUygula();
+      // Should return false indicating fallback mode, but successfully populate haftalikPlan!
+      expect(result, isFalse);
+      expect(SystemMemory.haftalikPlan[1]!.isNotEmpty, isTrue);
+      expect(SystemMemory.haftalikPlan[1]!.any((g) => g.ad.contains("[FOCUS-CORE]")), isTrue);
+      expect(SystemMemory.haftalikPlan[1]!.any((g) => g.ad.contains("Boks")), isTrue);
+    });
   });
 }
