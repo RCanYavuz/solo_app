@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../controllers/system_memory.dart';
 import '../models/task_model.dart';
 import '../core/translation_manager.dart';
+import '../core/youtube_helper.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
@@ -312,6 +313,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               child: ListTile(
                                 title: Text(gorev.ad, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
                                 subtitle: Text(gorev.tip == "Fiziksel" ? TranslationManager.get('dash_phy') : TranslationManager.get('dash_mnt'), style: const TextStyle(color: sysTextMuted, fontSize: 10)),
+                                trailing: YoutubeHelper.buildYouTubeButton(gorevAdi: gorev.ad, size: 20),
                               ),
                             );
                           },

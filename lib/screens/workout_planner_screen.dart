@@ -9,6 +9,7 @@ import '../core/audio_system.dart';
 import '../core/sistem_gecisi.dart';
 import 'workout_library_screen.dart'; 
 import '../core/translation_manager.dart';
+import '../core/youtube_helper.dart';
 
 class WorkoutPlannerScreen extends StatefulWidget {
   const WorkoutPlannerScreen({super.key});
@@ -506,7 +507,13 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
                               child: ListTile(
                                 leading: Icon(fizikselMi ? Icons.fitness_center : Icons.psychology, color: fizikselMi ? physicalGold : mentalPurple, size: 20),
                                 title: Text(gorev.ad, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
-                                trailing: IconButton(icon: const Icon(Icons.close, color: sysRed, size: 18), onPressed: () => hareketSil(sGun, gIndex)),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    YoutubeHelper.buildYouTubeButton(gorevAdi: gorev.ad, size: 20),
+                                    IconButton(icon: const Icon(Icons.close, color: sysRed, size: 18), onPressed: () => hareketSil(sGun, gIndex)),
+                                  ],
+                                ),
                               ),
                             );
                           }),

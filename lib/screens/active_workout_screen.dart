@@ -8,6 +8,7 @@ import '../models/task_model.dart';
 import '../core/sistem_gecisi.dart'; 
 import '../core/audio_system.dart'; 
 import 'boxing_timer_screen.dart'; 
+import '../core/youtube_helper.dart'; 
 
 class ActiveWorkoutScreen extends StatefulWidget {
   const ActiveWorkoutScreen({super.key});
@@ -273,6 +274,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                         borderRadius: BorderRadius.circular(4)
                       ),
                       child: CheckboxListTile(
+                        secondary: YoutubeHelper.buildYouTubeButton(gorevAdi: gorev.ad, size: 22),
                         title: Text(gorev.ad, style: TextStyle(color: gorev.yapildiMi ? const Color(0xFF94A3B8) : Colors.white, fontSize: 14, decoration: gorev.yapildiMi ? TextDecoration.lineThrough : null)),
                         subtitle: Text(gorev.tip == "Fiziksel" ? '[PHY]' : '[MNT]', style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 10)),
                         value: gorev.yapildiMi,

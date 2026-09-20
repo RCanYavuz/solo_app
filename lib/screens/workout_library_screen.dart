@@ -8,7 +8,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/workout_model.dart';
@@ -16,6 +15,7 @@ import '../widgets/hologram_card.dart';
 import '../core/audio_system.dart';
 import '../controllers/system_memory.dart';
 import '../models/task_model.dart';
+import '../core/youtube_helper.dart';
 
 // ──────────────────────────────────────────────
 // ANA EKRAN
@@ -110,10 +110,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
 
   // ─── YouTube Aç ───
   Future<void> _youtubeAc(String aramaKelimesi) async {
-    final url = Uri.parse('https://www.youtube.com/results?search_query=${Uri.encodeComponent(aramaKelimesi)}');
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    }
+    await YoutubeHelper.videoAc(aramaKelimesi, context: context);
   }
 
   // ══════════════════════════════════════════════

@@ -21,12 +21,13 @@
 Tüm test paketleri Flutter test altyapısı ve Dart SDK analizi ile çalıştırılarak kontrol edilmiştir.
 
 ### 🧪 Otomatik Test Paketi Sonuçları
-Mevcut **8 test paketi ve toplam 39 test senaryosunun tamamı başarıyla geçmektedir**:
+Mevcut **9 test paketi ve toplam 44 test senaryosunun tamamı başarıyla geçmektedir**:
 
 | Test Dosyası | Test Sayısı | Durum | Kapsam |
 |---|:---:|:---:|---|
 | [`test/assessment_flow_widget_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/assessment_flow_widget_test.dart) | 7 | ✅ GEÇTİ | 4 Adımlı Wizard, çoklu dövüş branşı, 1RM dövüş ağırlık testleri, odak bölgeleri, canlı rank rozeti, Profile ve Dashboard banner senkronizasyonu |
 | [`test/system_features_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/system_features_test.dart) | 17 | ✅ GEÇTİ | Su takibi, çanta/envanter, makrolar, Data Vault JSON yedek/geri yükleme, zindan ödülleri, **hedef odak bölgelerine göre dinamik antrenman uyarlaması**, rank ve dövüş katsayıları |
+| [`test/youtube_helper_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/youtube_helper_test.dart) | 4 | ✅ GEÇTİ | Egzersiz başlık sanitizasyonu, [COMBAT]/[PHY] etiketleri ve set/tekrar ayıklama testleri |
 | [`test/gemini_integration_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/gemini_integration_test.dart) | 2 (21 adım) | ✅ GEÇTİ | Profil ekranı API anahtarı yönetimi ve Diyet ekranı AI besin çözücü widget entegrasyonu |
 | [`test/language_switch_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/language_switch_test.dart) | 5 | ✅ GEÇTİ | Türkçe/İngilizce çift dil dinamik geçişi, unvanlar, hedefler ve fallback |
 | [`test/midnight_reset_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/midnight_reset_test.dart) | 2 | ✅ GEÇTİ | Gece yarısı hesaplaşmasında yalnızca değerlendirilen günün sıfırlanması ve Gemini model kalıcılığı |
@@ -250,10 +251,11 @@ Kullanıcıdan toplanan verilere göre sistemin uygulayacağı deterministik kur
 
 Kullanıcı ile onaylanan güncel master geliştirme sırası:
 
-### 📌 FAZ 1: Gemini AI Destekli Kişiselleştirilmiş Antrenman Programı (Hibrit Mimari) [ŞU AN BAŞLANIYOR]
-- **Kişiye Özel JSON Üretimi:** Gemini'ye avcının boy, kilo, güncel rank'i (E->S), 1RM kuvvet değerleri, dövüş branşları (Boks/MMA vb.), sakatlık kısıtları (omuz, diz vb.) ve öncelikli yağ yakım odakları (karın/göbek, göğüs) aktarılarak structured 7 günlük antrenman JSON planı oluşturulur.
+### 📌 FAZ 1: Gemini AI Destekli Kişiselleştirilmiş Antrenman Programı & YouTube Rehberi [TAMAMLANDI]
+- **Kişiye Özel JSON Üretimi (`GeminiService.haftalikProgramUret`):** Gemini'ye avcının boy, kilo, güncel rank'i (E->S), 1RM kuvvet değerleri, dövüş branşları (Boks/MMA vb.), sakatlık kısıtları (omuz, diz vb.) ve öncelikli yağ yakım odakları (karın/göbek, göğüs) aktarılarak structured 7 günlük antrenman JSON planı oluşturulur.
 - **Fail-Safe Hibrit Altyapı:** API anahtarı veya internet bağlantısı yoksa mevcut yerel algoritmik kural motoru devreye girer; uygulama asla internetsiz kalıp çökmez.
 - **Tek Tuşla Yenileme Butonu:** Antrenman Planlayıcı ekranında `[ 🤖 SİSTEM AI İLE PROGRAMI YENİLE ]` butonu ile antrenman programı anında yapay zekaya revize ettirilebilir.
+- **Tek Dokunuşla YouTube Video Rehberi (`YoutubeHelper`):** Egzersiz adını set/tekrar ve köşeli parantez etiketlerinden akıllıca temizleyen, Dashboard, Takvim, Antrenman Planlayıcı, Aktif İdman ve Kütüphane ekranlarından doğrudan YouTube mobil/web form videosunu açan sistem tamamlandı.
 
 ### 📌 FAZ 2: Diyetisyen Listesi Analizi & Dinamik İdman Yıpranma/Protein Dengeleyicisi [SIRADAKİ]
 - **Diyetisyen Haftalık Listesi Yükleme (Fotoğraf / Metin):** Diyetisyenin verdiği basılı veya dijital listenin fotoğrafı çekilerek veya metni yapıştırılarak Gemini Vision ile taranır ve sisteme haftalık makro/öğün hedefi olarak kaydedilir.

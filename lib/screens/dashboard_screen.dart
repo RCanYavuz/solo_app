@@ -8,6 +8,7 @@ import '../models/task_model.dart';
 import '../widgets/hologram_card.dart';
 import '../widgets/awakening_test_dialog.dart';
 import '../core/sistem_gecisi.dart'; 
+import '../core/youtube_helper.dart';
 import 'shop_screen.dart'; 
 
 class DashboardScreen extends StatefulWidget {
@@ -388,7 +389,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       child: ListTile(
                         leading: Icon(g.yapildiMi ? Icons.check_box : Icons.check_box_outline_blank, color: g.yapildiMi ? sysBlue : sysTextMuted, size: 20),
                         title: Text(g.ad, style: TextStyle(color: g.yapildiMi ? sysTextMuted : Colors.white, fontSize: 14, decoration: g.yapildiMi ? TextDecoration.lineThrough : null)),
-                        trailing: Text(g.tip == 'Fiziksel' ? TranslationManager.get('dash_phy') : TranslationManager.get('dash_mnt'), style: TextStyle(color: sysBlue.withValues(alpha: 0.5), fontSize: 10)),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(g.tip == 'Fiziksel' ? TranslationManager.get('dash_phy') : TranslationManager.get('dash_mnt'), style: TextStyle(color: sysBlue.withValues(alpha: 0.5), fontSize: 10)),
+                            const SizedBox(width: 4),
+                            YoutubeHelper.buildYouTubeButton(gorevAdi: g.ad, size: 18),
+                          ],
+                        ),
                       ),
                     );
                   },

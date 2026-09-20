@@ -164,7 +164,17 @@ lib/
   $$\text{Strength Ratio} = \frac{\text{Bench} + \text{Squat} + \text{Deadlift}}{\text{Vücut Ağırlığı}}$$
 - Dövüş testi kaydedildiğinde `maxBench`, `maxSquat` ve `maxDeadlift` değerleri de profildeki 1RM kartlarına kalıcı işlenir.
 
-### 4. 💧 Su Takibi Sistemi (Hydration Core)
+### 4. 📺 Tek Dokunuşla YouTube Egzersiz Formu Rehberi (Akıllı Sanitize & Video Yönlendirme)
+- **Akıllı Başlık Temizleme (`YoutubeHelper.gorevAdiniTemizle`):** Sistem etiketlerini (`[COMBAT]`, `[PHY]`, `[CORE / ABS]`), set ve tekrar bilgilerini (`(4 Set x 8 Tekrar)`, `(3 Min)`) otomatik temizleyerek optimize edilmiş `"hareket adı egzersizi nasıl yapılır form"` YouTube arama sorgusunu hazırlar.
+- **Tüm Egzersiz Ekranlarında Canlı Buton:**
+  - **Dashboard (Bugünün Görevleri):** Her fiziksel görevin yanında YouTube butonu.
+  - **Takvim (CalendarScreen):** Seçilen günün görevlerinde YouTube butonu.
+  - **Antrenman Planlayıcı (WorkoutPlannerScreen):** Planlanan her egzersizin yanında YouTube butonu.
+  - **Aktif Zindan Baskını (ActiveWorkoutScreen):** İdman esnasında hareketi hatırlamak için anında erişim.
+  - **Antrenman Kütüphanesi (WorkoutLibraryScreen):** Kütüphanedeki tüm hazır hareketlerde tek tıkla video başlatma.
+- **Doğrudan Harici Uygulama Açılışı:** YouTube mobil uygulaması veya tarayıcıda ilgili yapılış/form videosu anında açılır.
+
+### 5. 💧 Su Takibi Sistemi (Hydration Core)
 - **Arayüz (`diet_screen.dart`):** Günlük tüketilen su miktarını ve hedefini (varsayılan 3000 ml) gösteren neon Solo Leveling temalı ilerleme çubuğu.
 - **Hızlı Giriş Aksiyonları:** `+250 ml`, `+500 ml` butonları ve sayacı sıfırlama seçeneği.
 - **Gece Yarısı Ödül & Ceza Entegrasyonu:** Su hedefini tutturan avcıya ekstra **+5 HP** ve **+10 EXP** ödülü verilir ve yeni gün başlangıcında sayaç sıfırlanır.
