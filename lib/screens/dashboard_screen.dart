@@ -6,6 +6,7 @@ import '../controllers/system_memory.dart';
 import '../core/translation_manager.dart'; 
 import '../models/task_model.dart';
 import '../widgets/hologram_card.dart';
+import '../widgets/awakening_test_dialog.dart';
 import '../core/sistem_gecisi.dart'; 
 import 'shop_screen.dart'; 
 
@@ -120,6 +121,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 Text('${SystemMemory.level.value}', style: GoogleFonts.orbitron(color: Colors.white, fontSize: 36, fontWeight: FontWeight.bold, height: 1)),
                                 const SizedBox(width: 8),
                                 Padding(padding: const EdgeInsets.only(bottom: 6), child: Text(TranslationManager.get('dash_level'), style: const TextStyle(color: sysBlue, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2))),
+                                const Spacer(),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFEAB308).withValues(alpha: 0.15),
+                                    border: Border.all(color: const Color(0xFFEAB308).withValues(alpha: 0.6)),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    SystemMemory.hunterRank,
+                                    style: GoogleFonts.orbitron(
+                                      color: const Color(0xFFEAB308),
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
                             const SizedBox(height: 5),
@@ -135,7 +153,66 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ],
                   ),
                 ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 15),
+
+            // --- 1.5. RANK PROMOTION TRIAL QUEST BANNER (IF AVAILABLE) ---
+            if (SystemMemory.retestGerekiyorMu) ...[
+              HologramCard(
+                neonRenk: const Color(0xFFEAB308),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.military_tech, color: Color(0xFFEAB308), size: 30),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '[ ⚔️ RANK PROMOTION TRIAL READY ]',
+                                style: GoogleFonts.orbitron(
+                                  color: const Color(0xFFEAB308),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Training quota fulfilled (${SystemMemory.sonTesttenBeriIdmanSayisi}/${SystemMemory.rankIcinGerekliIdmanKotasi} raids). Enter trial to ascend rank!',
+                                style: const TextStyle(color: sysTextMuted, fontSize: 11),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFEAB308).withValues(alpha: 0.2),
+                          side: const BorderSide(color: Color(0xFFEAB308), width: 1.5),
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                        ),
+                        onPressed: () {
+                          showAwakeningTestDialog(context, onCompleted: () => setState(() {}));
+                        },
+                        icon: const Icon(Icons.flash_on, color: Color(0xFFEAB308), size: 18),
+                        label: const Text(
+                          'ENTER PROMOTION TRIAL NOW',
+                          style: TextStyle(color: Color(0xFFEAB308), fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 12),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 15),
+            ],
 
             // --- 2. DURUM VE ENERJİ ---
             IntrinsicHeight( 

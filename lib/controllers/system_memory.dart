@@ -1,7 +1,5 @@
 // lib/controllers/system_memory.dart
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'dart:typed_data';
 import 'dart:convert';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -99,11 +97,50 @@ class SystemMemory {
   static String aktifHedef = "Bilinmiyor";
   static String aktifZorluk = "Bilinmiyor";
 
-  // --- AWAKENING TEST ---
+  // --- AWAKENING TEST & RETEST SİSTEMİ ---
   static double maxBench = 0.0;
   static double maxSquat = 0.0;
   static double maxDeadlift = 0.0;
   static String hunterRank = "Unranked";
+  static String ekipmanTuru = "Salon"; // 'Salon', 'Ev-Dambil', 'Vucut-Agirligi'
+  static String antrenmanGecmisi = "Başlangıç"; // 'Başlangıç', 'Orta', 'İleri'
+  static List<String> eklemKisiti = [];
+  static String sonTestTarihi = "";
+  static int sonTesttenBeriIdmanSayisi = 0;
+
+  // Dövüş Sporları & Boksör Profili
+  static bool dovusSporuYapiyorMu = false;
+  static String dovusBransi = "Boks"; // 'Boks', 'Kickboks', 'MMA', 'Güreş'
+  static int maxPatlayiciSinav = 0;
+  static int maxBurpeeKondisyon = 0;
+  static int maxPlankSaniye = 0;
+  static int maxBarfiks = 0;
+
+  // Detaylı Vücut Ölçümleri (Full Body Tracking cm)
+  static double gogusCm = 0.0;
+  static double belCm = 0.0;
+  static double kolCm = 0.0;
+  static double bacakCm = 0.0;
+
+  static int get rankIcinGerekliIdmanKotasi {
+    final r = hunterRank.toUpperCase();
+    if (r.startsWith('E')) return 8;
+    if (r.startsWith('D')) return 12;
+    if (r.startsWith('C')) return 16;
+    if (r.startsWith('B')) return 24;
+    if (r.startsWith('A') || r.startsWith('S')) return 32;
+    return 8;
+  }
+
+  static bool get retestGerekiyorMu {
+    if (hunterRank == "Unranked") return false;
+    return sonTesttenBeriIdmanSayisi >= rankIcinGerekliIdmanKotasi;
+  }
+
+  static double get retestIlerlemeYuzdesi {
+    if (rankIcinGerekliIdmanKotasi <= 0) return 1.0;
+    return (sonTesttenBeriIdmanSayisi / rankIcinGerekliIdmanKotasi).clamp(0.0, 1.0);
+  }
 
   static int bugunAlinanKalori = 0;    
   static List<TuketilenYemek> bugununYemekleri = [];
@@ -192,6 +229,22 @@ class SystemMemory {
       maxSquat = prefs.getDouble('maxSquat') ?? 0.0;
       maxDeadlift = prefs.getDouble('maxDeadlift') ?? 0.0;
       hunterRank = prefs.getString('hunterRank') ?? "Unranked";
+      ekipmanTuru = prefs.getString('ekipmanTuru') ?? "Salon";
+      antrenmanGecmisi = prefs.getString('antrenmanGecmisi') ?? "Başlangıç";
+      eklemKisiti = prefs.getStringList('eklemKisiti') ?? [];
+      sonTestTarihi = prefs.getString('sonTestTarihi') ?? "";
+      sonTesttenBeriIdmanSayisi = prefs.getInt('sonTesttenBeriIdmanSayisi') ?? 0;
+
+      dovusSporuYapiyorMu = prefs.getBool('dovusSporuYapiyorMu') ?? false;
+      dovusBransi = prefs.getString('dovusBransi') ?? "Boks";
+      maxPatlayiciSinav = prefs.getInt('maxPatlayiciSinav') ?? 0;
+      maxBurpeeKondisyon = prefs.getInt('maxBurpeeKondisyon') ?? 0;
+      maxPlankSaniye = prefs.getInt('maxPlankSaniye') ?? 0;
+      maxBarfiks = prefs.getInt('maxBarfiks') ?? 0;
+      gogusCm = prefs.getDouble('gogusCm') ?? 0.0;
+      belCm = prefs.getDouble('belCm') ?? 0.0;
+      kolCm = prefs.getDouble('kolCm') ?? 0.0;
+      bacakCm = prefs.getDouble('bacakCm') ?? 0.0;
       
       String dtStr = prefs.getString('dogumTarihi') ?? '';
       if (dtStr.isNotEmpty) dogumTarihi = DateTime.parse(dtStr);
@@ -270,6 +323,21 @@ class SystemMemory {
     prefs.setDouble('maxSquat', maxSquat);
     prefs.setDouble('maxDeadlift', maxDeadlift);
     prefs.setString('hunterRank', hunterRank);
+    prefs.setString('ekipmanTuru', ekipmanTuru);
+    prefs.setString('antrenmanGecmisi', antrenmanGecmisi);
+    prefs.setStringList('eklemKisiti', eklemKisiti);
+    prefs.setString('sonTestTarihi', sonTestTarihi);
+    prefs.setInt('sonTesttenBeriIdmanSayisi', sonTesttenBeriIdmanSayisi);
+    prefs.setBool('dovusSporuYapiyorMu', dovusSporuYapiyorMu);
+    prefs.setString('dovusBransi', dovusBransi);
+    prefs.setInt('maxPatlayiciSinav', maxPatlayiciSinav);
+    prefs.setInt('maxBurpeeKondisyon', maxBurpeeKondisyon);
+    prefs.setInt('maxPlankSaniye', maxPlankSaniye);
+    prefs.setInt('maxBarfiks', maxBarfiks);
+    prefs.setDouble('gogusCm', gogusCm);
+    prefs.setDouble('belCm', belCm);
+    prefs.setDouble('kolCm', kolCm);
+    prefs.setDouble('bacakCm', bacakCm);
     await prefs.setString('oyuncuIsmi', oyuncuIsmi);
     await prefs.setString('appLanguage', appLanguage.value);
     await prefs.setString('gemini_api_key', geminiApiKey);
@@ -414,6 +482,7 @@ class SystemMemory {
     int bitenGorevSayisiSimdi = haftalikPlan[bugun]?.where((g) => g.yapildiMi).length ?? 0;
 
     toplamIdmanDakikasi += dakika;
+    sonTesttenBeriIdmanSayisi++;
     idmanGecmisi.add({
       'tarih': DateTime.now().toIso8601String(),
       'dakika': dakika,
@@ -495,9 +564,12 @@ class SystemMemory {
   // ========================================================
   // YENİ DÜZELTME: KALORİ YEDEKLEME KORUMASI (TARTI)
   // ========================================================
-  static void oyuncuyuAnalizEt(String secilenCinsiyet, DateTime girilenDogumTarihi, double girilenBoy, double girilenKilo, String hedef, String zorluk, Uint8List? foto, [int? idmanGunu]) {
+  static void oyuncuyuAnalizEt(String secilenCinsiyet, DateTime girilenDogumTarihi, double girilenBoy, double girilenKilo, String hedef, String zorluk, Uint8List? foto, [int? idmanGunu, String? ekipman, String? tecrube, List<String>? eklemKisitlari]) {
     cinsiyet = secilenCinsiyet; dogumTarihi = girilenDogumTarihi; boy = girilenBoy; kilo = girilenKilo;
     aktifHedef = hedef; aktifZorluk = zorluk; if (foto != null) profilFotoByte = foto;
+    if (ekipman != null) ekipmanTuru = ekipman;
+    if (tecrube != null) antrenmanGecmisi = tecrube;
+    if (eklemKisitlari != null) eklemKisiti = eklemKisitlari;
 
     if (baslangicKilosu == 0) {
       baslangicKilosu = kilo; kiloGecmisi.add({ 'tarih': DateTime.now().toIso8601String(), 'kilo': kilo, 'kalori': bugunAlinanKalori });
@@ -550,40 +622,327 @@ class SystemMemory {
     }
 
     if (idmanGunu != null && !redGateAktif) {
-      _takvimOlustur(idmanGunu, hedef);
+      baslangicPrograminiAta(
+        ekipman: ekipmanTuru,
+        rank: hunterRank,
+        idmanGunu: idmanGunu,
+        hedef: hedef,
+        eklemKisitlari: eklemKisiti,
+      );
     }
 
     kaydet();
   }
 
-  static void _takvimOlustur(int idmanGunu, String hedef) {
+  static String hesaplaDovusRank({
+    required int patlayiciSinav,
+    required int burpeeKondisyon,
+    required int plankSaniye,
+    required int barfiks,
+  }) {
+    final double score = (patlayiciSinav * 2.0) +
+        (burpeeKondisyon * 3.0) +
+        ((plankSaniye / 10).clamp(0, 18) * 2.0) +
+        (barfiks * 4.0);
+
+    if (score >= 260) return "S-Rank (Monarch)";
+    if (score >= 200) return "A-Rank (National)";
+    if (score >= 150) return "B-Rank (Elite)";
+    if (score >= 100) return "C-Rank (Knight)";
+    if (score >= 60) return "D-Rank (Hunter)";
+    return "E-Rank (Rookie)";
+  }
+
+  static void dovusTestiKaydet({
+    required int patlayiciSinav,
+    required int burpeeKondisyon,
+    required int plankSaniye,
+    required int barfiks,
+    required String rank,
+    String? brans,
+    int? idmanGunu,
+  }) {
+    final bool isFirstAwakening = hunterRank == "Unranked";
+    dovusSporuYapiyorMu = true;
+    if (brans != null && brans.isNotEmpty) dovusBransi = brans;
+    maxPatlayiciSinav = patlayiciSinav;
+    maxBurpeeKondisyon = burpeeKondisyon;
+    maxPlankSaniye = plankSaniye;
+    maxBarfiks = barfiks;
+    hunterRank = rank;
+    sonTestTarihi = DateTime.now().toIso8601String();
+    sonTesttenBeriIdmanSayisi = 0;
+
+    if (isFirstAwakening) {
+      exp.value += 100;
+      ap.value += 3;
+    }
+
+    baslangicPrograminiAta(
+      ekipman: ekipmanTuru,
+      rank: hunterRank,
+      idmanGunu: idmanGunu ?? 3,
+      hedef: aktifHedef,
+      eklemKisitlari: eklemKisiti,
+    );
+
+    kaydet();
+  }
+
+  static void awakeningTestKaydet({
+    required double bench,
+    required double squat,
+    required double deadlift,
+    required String rank,
+    int? idmanGunu,
+  }) {
+    final bool isFirstAwakening = hunterRank == "Unranked";
+    maxBench = bench;
+    maxSquat = squat;
+    maxDeadlift = deadlift;
+    hunterRank = rank;
+    sonTestTarihi = DateTime.now().toIso8601String();
+    sonTesttenBeriIdmanSayisi = 0;
+
+    if (isFirstAwakening) {
+      exp.value += 100;
+      ap.value += 3;
+    }
+
+    // Programı yeni rank'a ve ekipmana göre uyarla
+    baslangicPrograminiAta(
+      ekipman: ekipmanTuru,
+      rank: hunterRank,
+      idmanGunu: idmanGunu ?? 3,
+      hedef: aktifHedef,
+      eklemKisitlari: eklemKisiti,
+    );
+
+    kaydet();
+  }
+
+  static void baslangicPrograminiAta({
+    required String ekipman,
+    required String rank,
+    required int idmanGunu,
+    required String hedef,
+    List<String>? eklemKisitlari,
+  }) {
+    ekipmanTuru = ekipman;
+    List<String> kisitlar = eklemKisitlari ?? eklemKisiti;
+    eklemKisiti = kisitlar;
+
     haftalikPlan.clear();
     for (int i = 1; i <= 7; i++) {
       haftalikPlan[i] = [];
     }
 
-    if (idmanGunu <= 3) {
-      haftalikPlan[1]!.addAll([Gorev("[PHY] Full Body A", false, "Fiziksel"), Gorev("[PHY] Core", false, "Fiziksel")]);
-      haftalikPlan[3]!.addAll([Gorev("[PHY] Full Body B", false, "Fiziksel"), Gorev("[PHY] Cardio", false, "Fiziksel")]);
-      haftalikPlan[5]!.addAll([Gorev("[PHY] Full Body C", false, "Fiziksel"), Gorev("[PHY] Core", false, "Fiziksel")]);
-    } else if (idmanGunu == 4) {
-      haftalikPlan[1]!.addAll([Gorev("[PHY] Upper Body", false, "Fiziksel"), Gorev("[PHY] Core", false, "Fiziksel")]);
-      haftalikPlan[2]!.addAll([Gorev("[PHY] Lower Body", false, "Fiziksel")]);
-      haftalikPlan[4]!.addAll([Gorev("[PHY] Upper Body", false, "Fiziksel"), Gorev("[PHY] Cardio", false, "Fiziksel")]);
-      haftalikPlan[5]!.addAll([Gorev("[PHY] Lower Body", false, "Fiziksel"), Gorev("[PHY] Core", false, "Fiziksel")]);
-    } else if (idmanGunu == 5) {
-      haftalikPlan[1]!.addAll([Gorev("[PHY] Chest & Triceps", false, "Fiziksel")]);
-      haftalikPlan[2]!.addAll([Gorev("[PHY] Back & Biceps", false, "Fiziksel")]);
-      haftalikPlan[3]!.addAll([Gorev("[PHY] Legs", false, "Fiziksel")]);
-      haftalikPlan[4]!.addAll([Gorev("[PHY] Shoulders & Core", false, "Fiziksel")]);
-      haftalikPlan[5]!.addAll([Gorev("[PHY] Weak Point / Arms", false, "Fiziksel")]);
-    } else { 
-      haftalikPlan[1]!.addAll([Gorev("[PHY] Push", false, "Fiziksel")]);
-      haftalikPlan[2]!.addAll([Gorev("[PHY] Pull", false, "Fiziksel")]);
-      haftalikPlan[3]!.addAll([Gorev("[PHY] Legs", false, "Fiziksel")]);
-      haftalikPlan[4]!.addAll([Gorev("[PHY] Push", false, "Fiziksel")]);
-      haftalikPlan[5]!.addAll([Gorev("[PHY] Pull", false, "Fiziksel")]);
-      haftalikPlan[6]!.addAll([Gorev("[PHY] Legs", false, "Fiziksel")]);
+    bool omuzHassas = kisitlar.any((k) => k.toLowerCase().contains('omuz'));
+    bool dizHassas = kisitlar.any((k) => k.toLowerCase().contains('diz'));
+    bool belHassas = kisitlar.any((k) => k.toLowerCase().contains('bel'));
+
+    String setRepLabel;
+    final rUpper = rank.toUpperCase();
+    if (rUpper.startsWith('S') || rUpper.startsWith('A')) {
+      setRepLabel = "4-5 Sets x 5-8 Reps (Monarch Overload)";
+    } else if (rUpper.startsWith('B') || rUpper.startsWith('C')) {
+      setRepLabel = "3-4 Sets x 8-10 Reps (Knight Hypertrophy)";
+    } else {
+      setRepLabel = "3 Sets x 10-12 Reps (Rookie Foundation)";
+    }
+
+    if (dovusSporuYapiyorMu) {
+      String dovusAdi = dovusBransi;
+      if (idmanGunu <= 3) {
+        haftalikPlan[1]!.addAll([
+          Gorev("[COMBAT] $dovusAdi: Patlayıcı İtiş & Plyo Şınav ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[COMBAT] Rotational Punch Press / Landmine ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[COMBAT] Strict Barfiks / Pull-up ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[COMBAT] Boyun & Rotasyonel Core (Plank / Russian Twist)", false, "Fiziksel"),
+        ]);
+        haftalikPlan[3]!.addAll([
+          Gorev("[COMBAT] Gölge Boksu / Striking Drill (5 Raund x 3 Dk)", false, "Fiziksel"),
+          Gorev("[COMBAT] Hızlı İp Atlama / Footwork Drills (15 Dk)", false, "Fiziksel"),
+          Gorev("[COMBAT] Burpee Sprawl Kondisyon (4 Set x Max)", false, "Fiziksel"),
+          Gorev("[COMBAT] Asılı Bacak Kaldırma (Hanging Leg Raise)", false, "Fiziksel"),
+        ]);
+        haftalikPlan[5]!.addAll([
+          Gorev("[COMBAT] Boksör Bacak Patlayıcılığı: Box Jumps / Squat Jump ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[COMBAT] Darbe Dayanıklılığı: Zercher / Goblet Squat ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[COMBAT] Kum Torbası / Pad Work Kombinasyonları (5 Raund)", false, "Fiziksel"),
+          Gorev("[COMBAT] Farmer's Walk & Bilek/Kavrama Gücü (4 Set)", false, "Fiziksel"),
+        ]);
+      } else if (idmanGunu == 4) {
+        haftalikPlan[1]!.addAll([
+          Gorev("[COMBAT] Güç & İtiş: Patlayıcı Şınav & DB Punch Press ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[COMBAT] Barfiks / Çekiş & Face Pull ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[COMBAT] Rotasyonel Core & Russian Twist", false, "Fiziksel"),
+        ]);
+        haftalikPlan[2]!.addAll([
+          Gorev("[COMBAT] Dövüş Kondisyonu: Gölge Boksu (5 Raund x 3 Dk)", false, "Fiziksel"),
+          Gorev("[COMBAT] Hızlı İp Atlama & Ayak Çalışması (15 Dk)", false, "Fiziksel"),
+          Gorev("[COMBAT] Burpee Sprawl & Sıçrama (4 Set x 15)", false, "Fiziksel"),
+        ]);
+        haftalikPlan[4]!.addAll([
+          Gorev("[COMBAT] Alt Gövde & Patlayıcılık: Box Jump & Split Squat ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[COMBAT] Zercher Squat / Hip Thrust ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[COMBAT] Boyun Köprüsü / Direnç Egzersizi & Plank", false, "Fiziksel"),
+        ]);
+        haftalikPlan[5]!.addAll([
+          Gorev("[COMBAT] Ağır Kum Torbası Kombinasyonları (6 Raund x 3 Dk)", false, "Fiziksel"),
+          Gorev("[COMBAT] Interval Sprint / Zone 4 MetCon (15 Dk)", false, "Fiziksel"),
+          Gorev("[COMBAT] Farmer's Walk & Tutuş Dayanıklılığı", false, "Fiziksel"),
+        ]);
+      } else {
+        haftalikPlan[1]!.addAll([
+          Gorev("[COMBAT] Patlayıcı Üst Vücut: Plyo Push-up & Punch Press ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[COMBAT] Ağırlıklı Barfiks / Lat Row ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[COMBAT] Rotasyonel Core & Plank", false, "Fiziksel"),
+        ]);
+        haftalikPlan[2]!.addAll([
+          Gorev("[COMBAT] Gölge Boksu & Reaksiyon Hızı (6 Raund)", false, "Fiziksel"),
+          Gorev("[COMBAT] Hızlı İp Atlama & Çeviklik (20 Dk)", false, "Fiziksel"),
+          Gorev("[COMBAT] Burpee Sprawl Kondisyon", false, "Fiziksel"),
+        ]);
+        haftalikPlan[3]!.addAll([
+          Gorev("[COMBAT] Alt Gövde Gücü: Box Jump & Zercher Squat ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[COMBAT] Bulgarian Split Squat ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[COMBAT] Darbe Dayanıklılığı Core & Asılma", false, "Fiziksel"),
+        ]);
+        haftalikPlan[4]!.addAll([
+          Gorev("[COMBAT] Kum Torbası / Sparring / Pad Work (6 Raund)", false, "Fiziksel"),
+          Gorev("[COMBAT] Slip Bag / Head Movement & Savunma Refleks", false, "Fiziksel"),
+          Gorev("[COMBAT] Boyun Direnci & Trapezius Güçlendirme", false, "Fiziksel"),
+        ]);
+        haftalikPlan[5]!.addAll([
+          Gorev("[COMBAT] Dövüş MetCon: Interval Koşu / Sprint (15 Dk)", false, "Fiziksel"),
+          Gorev("[COMBAT] Farmer's Walk & Grip Strength", false, "Fiziksel"),
+          Gorev("[COMBAT] Dinamik Mobilite & Esneme", false, "Fiziksel"),
+        ]);
+      }
+    } else if (ekipman == 'Salon') {
+      String squatVar = dizHassas ? "Leg Press / Box Squat" : "Barbell Squat";
+      String pressVar = omuzHassas ? "Incline DB Press (Neutral Grip)" : "Barbell Bench Press";
+      String deadliftVar = belHassas ? "Chest Supported T-Bar Row" : "Barbell Deadlift";
+
+      if (idmanGunu <= 3) {
+        haftalikPlan[1]!.addAll([
+          Gorev("[PHY] $pressVar ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[PHY] $squatVar ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[PHY] Lat Pulldown / Cable Row ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[PHY] Core: Hanging Leg Raise", false, "Fiziksel"),
+        ]);
+        haftalikPlan[3]!.addAll([
+          Gorev("[PHY] Overhead Press ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[PHY] $deadliftVar ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[PHY] Leg Curl / Extension ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[PHY] Zone 2 Shadow Cardio (20 Min)", false, "Fiziksel"),
+        ]);
+        haftalikPlan[5]!.addAll([
+          Gorev("[PHY] Incline Dumbbell Press ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[PHY] Romanian Deadlift ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[PHY] Barbell / Dumbbell Curl ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[PHY] Triceps Cable Pushdown ($setRepLabel)", false, "Fiziksel"),
+        ]);
+      } else if (idmanGunu == 4) {
+        haftalikPlan[1]!.addAll([
+          Gorev("[PHY] Upper A: $pressVar ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[PHY] Upper A: Lat Pulldown ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[PHY] Upper A: DB Lateral Raise ($setRepLabel)", false, "Fiziksel"),
+        ]);
+        haftalikPlan[2]!.addAll([
+          Gorev("[PHY] Lower A: $squatVar ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[PHY] Lower A: Romanian Deadlift ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[PHY] Lower A: Calves & Core", false, "Fiziksel"),
+        ]);
+        haftalikPlan[4]!.addAll([
+          Gorev("[PHY] Upper B: Incline DB Press ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[PHY] Upper B: Cable Row ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[PHY] Upper B: Overhead Press ($setRepLabel)", false, "Fiziksel"),
+        ]);
+        haftalikPlan[5]!.addAll([
+          Gorev("[PHY] Lower B: $deadliftVar ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[PHY] Lower B: Leg Press ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[PHY] Lower B: Hamstring Curl & Planks", false, "Fiziksel"),
+        ]);
+      } else {
+        haftalikPlan[1]!.addAll([
+          Gorev("[PHY] Push: $pressVar ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[PHY] Push: Incline DB Press ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[PHY] Push: Lateral Raise ($setRepLabel)", false, "Fiziksel"),
+        ]);
+        haftalikPlan[2]!.addAll([
+          Gorev("[PHY] Pull: $deadliftVar ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[PHY] Pull: Lat Pulldown ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[PHY] Pull: Face Pull & Biceps ($setRepLabel)", false, "Fiziksel"),
+        ]);
+        haftalikPlan[3]!.addAll([
+          Gorev("[PHY] Legs: $squatVar ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[PHY] Legs: Romanian Deadlift ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[PHY] Legs: Calves & Core", false, "Fiziksel"),
+        ]);
+        haftalikPlan[4]!.addAll([
+          Gorev("[PHY] Push 2: Overhead Press ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[PHY] Push 2: Triceps Pushdown ($setRepLabel)", false, "Fiziksel"),
+        ]);
+        haftalikPlan[5]!.addAll([
+          Gorev("[PHY] Pull 2: Barbell/DB Row ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[PHY] Pull 2: Hammer Curls ($setRepLabel)", false, "Fiziksel"),
+        ]);
+        if (idmanGunu >= 6) {
+          haftalikPlan[6]!.addAll([
+            Gorev("[PHY] Legs 2: Bulgarian Split Squat ($setRepLabel)", false, "Fiziksel"),
+            Gorev("[PHY] Legs 2: Leg Extension & Core ($setRepLabel)", false, "Fiziksel"),
+          ]);
+        }
+      }
+    } else if (ekipman == 'Ev-Dambil') {
+      String squatVar = dizHassas ? "Dumbbell Box Squat" : "Goblet Squat";
+      String pressVar = omuzHassas ? "Dumbbell Floor Press (Neutral Grip)" : "Dumbbell Floor/Bench Press";
+      String deadliftVar = belHassas ? "DB Romanian Deadlift (Slow Tempo)" : "Dumbbell Romanian Deadlift";
+
+      haftalikPlan[1]!.addAll([
+        Gorev("[PHY] $pressVar ($setRepLabel)", false, "Fiziksel"),
+        Gorev("[PHY] $squatVar ($setRepLabel)", false, "Fiziksel"),
+        Gorev("[PHY] Two-Arm Dumbbell Row ($setRepLabel)", false, "Fiziksel"),
+        Gorev("[PHY] Core: Floor Crunch & Hollow Body", false, "Fiziksel"),
+      ]);
+      haftalikPlan[3]!.addAll([
+        Gorev("[PHY] Seated DB Shoulder Press ($setRepLabel)", false, "Fiziksel"),
+        Gorev("[PHY] $deadliftVar ($setRepLabel)", false, "Fiziksel"),
+        Gorev("[PHY] Dumbbell Bicep Hammer Curl ($setRepLabel)", false, "Fiziksel"),
+        Gorev("[PHY] Overhead DB Triceps Extension ($setRepLabel)", false, "Fiziksel"),
+      ]);
+      haftalikPlan[5]!.addAll([
+        Gorev("[PHY] Bulgarian Split Squat (Dumbbell) ($setRepLabel)", false, "Fiziksel"),
+        Gorev("[PHY] Dumbbell Push-ups / Floor Fly ($setRepLabel)", false, "Fiziksel"),
+        Gorev("[PHY] Single Arm DB Row ($setRepLabel)", false, "Fiziksel"),
+        Gorev("[PHY] Lateral Raise & Core Plank", false, "Fiziksel"),
+      ]);
+    } else {
+      // Vücut Ağırlığı (Calisthenics)
+      String pushVar = omuzHassas ? "Push-ups (Elevated Hands)" : (rUpper.startsWith('S') || rUpper.startsWith('A') ? "Archer / Decline Push-ups" : "Standard Push-ups");
+      String squatVar = dizHassas ? "Bodyweight Box Squat / Wall Sit" : (rUpper.startsWith('S') || rUpper.startsWith('A') ? "Pistol Squats / Jump Squats" : "Air Squats & Lunges");
+      String pullVar = (rUpper.startsWith('S') || rUpper.startsWith('A')) ? "Strict Pull-ups / Muscle-up Prep" : "Inverted Rows / Band Pulls";
+
+      haftalikPlan[1]!.addAll([
+        Gorev("[PHY] Calisthenics: $pushVar ($setRepLabel)", false, "Fiziksel"),
+        Gorev("[PHY] Calisthenics: $squatVar ($setRepLabel)", false, "Fiziksel"),
+        Gorev("[PHY] Calisthenics: $pullVar ($setRepLabel)", false, "Fiziksel"),
+        Gorev("[PHY] Calisthenics: Hollow Body Hold (3 x 45s)", false, "Fiziksel"),
+      ]);
+      haftalikPlan[3]!.addAll([
+        Gorev("[PHY] Calisthenics: Pike Push-ups ($setRepLabel)", false, "Fiziksel"),
+        Gorev("[PHY] Calisthenics: Walking Lunges ($setRepLabel)", false, "Fiziksel"),
+        Gorev("[PHY] Calisthenics: Chin-ups / Inverted Row ($setRepLabel)", false, "Fiziksel"),
+        Gorev("[PHY] Cardio: Shadow Boxing / Burpees (15 Min)", false, "Fiziksel"),
+      ]);
+      haftalikPlan[5]!.addAll([
+        Gorev("[PHY] Calisthenics: Diamond / Wide Push-ups ($setRepLabel)", false, "Fiziksel"),
+        Gorev("[PHY] Calisthenics: Single Leg Glute Bridges ($setRepLabel)", false, "Fiziksel"),
+        Gorev("[PHY] Calisthenics: Hanging / Lying Leg Raises", false, "Fiziksel"),
+        Gorev("[PHY] Calisthenics: Plank to Push-up Finisher", false, "Fiziksel"),
+      ]);
     }
 
     normalHaftalikPlan.clear();
@@ -1030,6 +1389,21 @@ class SystemMemory {
       'maxSquat': maxSquat,
       'maxDeadlift': maxDeadlift,
       'hunterRank': hunterRank,
+      'ekipmanTuru': ekipmanTuru,
+      'antrenmanGecmisi': antrenmanGecmisi,
+      'eklemKisiti': eklemKisiti,
+      'sonTestTarihi': sonTestTarihi,
+      'sonTesttenBeriIdmanSayisi': sonTesttenBeriIdmanSayisi,
+      'dovusSporuYapiyorMu': dovusSporuYapiyorMu,
+      'dovusBransi': dovusBransi,
+      'maxPatlayiciSinav': maxPatlayiciSinav,
+      'maxBurpeeKondisyon': maxBurpeeKondisyon,
+      'maxPlankSaniye': maxPlankSaniye,
+      'maxBarfiks': maxBarfiks,
+      'gogusCm': gogusCm,
+      'belCm': belCm,
+      'kolCm': kolCm,
+      'bacakCm': bacakCm,
       'kiloGecmisi': kiloGecmisi,
       'idmanGecmisi': idmanGecmisi,
       'yemekGecmisi': yemekGecmisi,
@@ -1095,6 +1469,51 @@ class SystemMemory {
         }
         if (data['hunterRank'] != null) {
           hunterRank = data['hunterRank'].toString();
+        }
+        if (data['ekipmanTuru'] != null) {
+          ekipmanTuru = data['ekipmanTuru'].toString();
+        }
+        if (data['antrenmanGecmisi'] != null) {
+          antrenmanGecmisi = data['antrenmanGecmisi'].toString();
+        }
+        if (data['eklemKisiti'] != null && data['eklemKisiti'] is List) {
+          eklemKisiti = List<String>.from((data['eklemKisiti'] as List).map((e) => e.toString()));
+        }
+        if (data['sonTestTarihi'] != null) {
+          sonTestTarihi = data['sonTestTarihi'].toString();
+        }
+        if (data['sonTesttenBeriIdmanSayisi'] != null) {
+          sonTesttenBeriIdmanSayisi = (data['sonTesttenBeriIdmanSayisi'] as num).toInt();
+        }
+        if (data['dovusSporuYapiyorMu'] != null) {
+          dovusSporuYapiyorMu = data['dovusSporuYapiyorMu'] == true;
+        }
+        if (data['dovusBransi'] != null) {
+          dovusBransi = data['dovusBransi'].toString();
+        }
+        if (data['maxPatlayiciSinav'] != null) {
+          maxPatlayiciSinav = (data['maxPatlayiciSinav'] as num).toInt();
+        }
+        if (data['maxBurpeeKondisyon'] != null) {
+          maxBurpeeKondisyon = (data['maxBurpeeKondisyon'] as num).toInt();
+        }
+        if (data['maxPlankSaniye'] != null) {
+          maxPlankSaniye = (data['maxPlankSaniye'] as num).toInt();
+        }
+        if (data['maxBarfiks'] != null) {
+          maxBarfiks = (data['maxBarfiks'] as num).toInt();
+        }
+        if (data['gogusCm'] != null) {
+          gogusCm = (data['gogusCm'] as num).toDouble();
+        }
+        if (data['belCm'] != null) {
+          belCm = (data['belCm'] as num).toDouble();
+        }
+        if (data['kolCm'] != null) {
+          kolCm = (data['kolCm'] as num).toDouble();
+        }
+        if (data['bacakCm'] != null) {
+          bacakCm = (data['bacakCm'] as num).toDouble();
         }
         if (data['toplamIdmanDakikasi'] != null) {
           toplamIdmanDakikasi = (data['toplamIdmanDakikasi'] as num).toInt();

@@ -522,7 +522,42 @@ class TranslationManager {
 
   static bool get isTurkish => SystemMemory.appLanguage.value == 'tr';
 
-  static String rankTitle(int level) {
+  static String rankTitle(int level, [String? hunterRank, bool? isCombat]) {
+    final rank = hunterRank ?? SystemMemory.hunterRank;
+    final combat = isCombat ?? SystemMemory.dovusSporuYapiyorMu;
+    final rUpper = rank.toUpperCase();
+
+    if (rank != "Unranked") {
+      if (rUpper.startsWith('S')) {
+        return combat 
+            ? (isTurkish ? "Zirve Dövüş Hükümdarı (S-Rank)" : "Apex Combat Monarch (S-Rank)")
+            : (isTurkish ? "Gölge Hükümdarı (S-Rank)" : "Shadow Monarch (S-Rank)");
+      }
+      if (rUpper.startsWith('A')) {
+        return combat 
+            ? (isTurkish ? "Usta Dövüşçü (A-Rank)" : "Master Striker (A-Rank)")
+            : (isTurkish ? "Ulusal Düzey Avcı (A-Rank)" : "National Level Hunter (A-Rank)");
+      }
+      if (rUpper.startsWith('B')) {
+        return combat 
+            ? (isTurkish ? "Seçkin Boksör / Dövüşçü (B-Rank)" : "Elite Combatant (B-Rank)")
+            : (isTurkish ? "Seçkin Avcı (B-Rank)" : "Elite Hunter (B-Rank)");
+      }
+      if (rUpper.startsWith('C')) {
+        return combat 
+            ? (isTurkish ? "Demir Yumruk Dövüşçü (C-Rank)" : "Iron Fist Striker (C-Rank)")
+            : (isTurkish ? "Şövalye Avcı (C-Rank)" : "Knight Hunter (C-Rank)");
+      }
+      if (rUpper.startsWith('D')) {
+        return combat 
+            ? (isTurkish ? "Dövüşçü Avcı (D-Rank)" : "Combatant Hunter (D-Rank)")
+            : (isTurkish ? "Avcı (D-Rank)" : "Hunter (D-Rank)");
+      }
+      if (rUpper.startsWith('E')) {
+        return isTurkish ? "Çaylak Avcı (E-Rank)" : "Rookie Hunter (E-Rank)";
+      }
+    }
+
     if (isTurkish) {
       if (level < 5) return "Çaylak Avcı (E-Seviye)";
       if (level < 10) return "Kıdemli Avcı (C-Seviye)";

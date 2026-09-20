@@ -337,18 +337,97 @@ void main() {
       expect(total, 420.0);
       expect(ratio >= 4.5, isTrue);
 
-      // Simulating rank evaluation
-      String evaluatedRank;
-      if (ratio >= 4.5) {
-        evaluatedRank = "S-Rank (Monarch)";
-      } else if (ratio >= 3.75) {
-        evaluatedRank = "A-Rank (National)";
-      } else {
-        evaluatedRank = "B-Rank (Elite)";
-      }
+      SystemMemory.awakeningTestKaydet(
+        bench: 100.0,
+        squat: 140.0,
+        deadlift: 180.0,
+        rank: "S-Rank (Monarch)",
+      );
 
-      SystemMemory.hunterRank = evaluatedRank;
       expect(SystemMemory.hunterRank, "S-Rank (Monarch)");
+      expect(SystemMemory.sonTesttenBeriIdmanSayisi, 0);
+      expect(SystemMemory.sonTestTarihi.isNotEmpty, isTrue);
+    });
+
+    test('baslangicPrograminiAta generates equipment-tailored programs', () {
+      // Test Gym (Salon)
+      SystemMemory.baslangicPrograminiAta(
+        ekipman: 'Salon',
+        rank: 'E-Rank (Rookie)',
+        idmanGunu: 3,
+        hedef: 'Kilo Ver (Yağ Yak)',
+      );
+      expect(SystemMemory.haftalikPlan[1]!.any((g) => g.ad.contains("Barbell Bench Press")), isTrue);
+
+      // Test Home Dumbbells (Ev-Dambil)
+      SystemMemory.baslangicPrograminiAta(
+        ekipman: 'Ev-Dambil',
+        rank: 'D-Rank (Hunter)',
+        idmanGunu: 3,
+        hedef: 'Kilo Koru (Dengede Kal)',
+      );
+      expect(SystemMemory.haftalikPlan[1]!.any((g) => g.ad.contains("Dumbbell Floor/Bench Press")), isTrue);
+      expect(SystemMemory.haftalikPlan[1]!.any((g) => g.ad.contains("Goblet Squat")), isTrue);
+
+      // Test Calisthenics (Vucut-Agirligi)
+      SystemMemory.baslangicPrograminiAta(
+        ekipman: 'Vucut-Agirligi',
+        rank: 'C-Rank (Knight)',
+        idmanGunu: 3,
+        hedef: 'Kilo Al (Kas İnşa Et)',
+      );
+      expect(SystemMemory.haftalikPlan[1]!.any((g) => g.ad.contains("Calisthenics: Standard Push-ups")), isTrue);
+    });
+
+    test('Joint restrictions substitute exercises safely', () {
+      SystemMemory.baslangicPrograminiAta(
+        ekipman: 'Salon',
+        rank: 'B-Rank (Elite)',
+        idmanGunu: 3,
+        hedef: 'Kilo Al (Kas İnşa Et)',
+        eklemKisitlari: ['Omuz', 'Diz', 'Bel'],
+      );
+
+      // Shoulder safe press
+      expect(SystemMemory.haftalikPlan[1]!.any((g) => g.ad.contains("Incline DB Press (Neutral Grip)")), isTrue);
+      // Knee safe squat
+      expect(SystemMemory.haftalikPlan[1]!.any((g) => g.ad.contains("Leg Press / Box Squat")), isTrue);
+      // Back safe deadlift
+      expect(SystemMemory.haftalikPlan[3]!.any((g) => g.ad.contains("Chest Supported T-Bar Row")), isTrue);
+    });
+
+    test('Retest quota increments with workouts and unlocks retest trigger', () {
+      SystemMemory.hunterRank = "E-Rank (Rookie)";
+      SystemMemory.sonTesttenBeriIdmanSayisi = 0;
+
+      expect(SystemMemory.rankIcinGerekliIdmanKotasi, 8);
+      expect(SystemMemory.retestGerekiyorMu, isFalse);
+
+      // Simulate 7 workouts
+      for (int i = 0; i < 7; i++) {
+        SystemMemory.zindanAkiniBitir(60);
+      }
+      expect(SystemMemory.sonTesttenBeriIdmanSayisi, 7);
+      expect(SystemMemory.retestGerekiyorMu, isFalse);
+
+      // 8th workout fulfills quota
+      SystemMemory.zindanAkiniBitir(60);
+      expect(SystemMemory.sonTesttenBeriIdmanSayisi, 8);
+      expect(SystemMemory.retestGerekiyorMu, isTrue);
+      expect(SystemMemory.retestIlerlemeYuzdesi, 1.0);
+
+      // Taking retest advances rank and resets counter
+      SystemMemory.awakeningTestKaydet(
+        bench: 80,
+        squat: 100,
+        deadlift: 120,
+        rank: "D-Rank (Hunter)",
+      );
+
+      expect(SystemMemory.hunterRank, "D-Rank (Hunter)");
+      expect(SystemMemory.sonTesttenBeriIdmanSayisi, 0);
+      expect(SystemMemory.retestGerekiyorMu, isFalse);
+      expect(SystemMemory.rankIcinGerekliIdmanKotasi, 12); // Next rank quota is 12
     });
   });
 }

@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../controllers/system_memory.dart';
 import '../widgets/hologram_card.dart';
+import '../widgets/awakening_test_dialog.dart';
 import '../core/audio_system.dart'; 
 import '../core/services/gemini_service.dart'; 
 import 'setup_screen.dart';
@@ -1185,305 +1186,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _awakeningTestDialog() {
-    final benchCtrl = TextEditingController(
-      text: SystemMemory.maxBench > 0 ? SystemMemory.maxBench.toStringAsFixed(1).replaceAll('.0', '') : '',
-    );
-    final squatCtrl = TextEditingController(
-      text: SystemMemory.maxSquat > 0 ? SystemMemory.maxSquat.toStringAsFixed(1).replaceAll('.0', '') : '',
-    );
-    final deadliftCtrl = TextEditingController(
-      text: SystemMemory.maxDeadlift > 0 ? SystemMemory.maxDeadlift.toStringAsFixed(1).replaceAll('.0', '') : '',
-    );
-
-    showDialog(
-      context: context,
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (dialogCtx, setDialogState) {
-            double bench = double.tryParse(benchCtrl.text.trim()) ?? 0;
-            double squat = double.tryParse(squatCtrl.text.trim()) ?? 0;
-            double deadlift = double.tryParse(deadliftCtrl.text.trim()) ?? 0;
-            double total = bench + squat + deadlift;
-            double bw = SystemMemory.kilo > 0 ? SystemMemory.kilo : 70.0;
-            double ratio = total / bw;
-
-            String previewRank;
-            if (total == 0) {
-              previewRank = SystemMemory.hunterRank;
-            } else if (ratio >= 4.5) {
-              previewRank = "S-Rank (Monarch)";
-            } else if (ratio >= 3.75) {
-              previewRank = "A-Rank (National)";
-            } else if (ratio >= 3.0) {
-              previewRank = "B-Rank (Elite)";
-            } else if (ratio >= 2.25) {
-              previewRank = "C-Rank (Knight)";
-            } else if (ratio >= 1.5) {
-              previewRank = "D-Rank (Hunter)";
-            } else {
-              previewRank = "E-Rank (Rookie)";
-            }
-
-            return AlertDialog(
-              backgroundColor: const Color(0xFF030712).withValues(alpha: 0.96),
-              shape: RoundedRectangleBorder(
-                side: const BorderSide(color: physicalGold, width: 1.5),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              title: Row(
-                children: [
-                  const Icon(Icons.flash_on, color: physicalGold, size: 22),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'AWAKENING TEST (1RM TRIAL)',
-                      style: GoogleFonts.orbitron(
-                        color: physicalGold,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'The System measures your physical output against your body weight (${SystemMemory.kilo.toStringAsFixed(1)} kg) to assign your official Hunter Rank.',
-                      style: const TextStyle(color: sysTextMuted, fontSize: 11, height: 1.4),
-                    ),
-                    const SizedBox(height: 14),
-
-                    // Inputs for Big 3
-                    _awakeningInputField(
-                      controller: benchCtrl,
-                      label: 'Bench Press 1RM (kg)',
-                      icon: Icons.fitness_center,
-                      onChanged: (_) => setDialogState(() {}),
-                    ),
-                    const SizedBox(height: 10),
-                    _awakeningInputField(
-                      controller: squatCtrl,
-                      label: 'Squat 1RM (kg)',
-                      icon: Icons.airline_seat_legroom_extra,
-                      onChanged: (_) => setDialogState(() {}),
-                    ),
-                    const SizedBox(height: 10),
-                    _awakeningInputField(
-                      controller: deadliftCtrl,
-                      label: 'Deadlift 1RM (kg)',
-                      icon: Icons.arrow_upward,
-                      onChanged: (_) => setDialogState(() {}),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Live Metrics Card
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: physicalGold.withValues(alpha: 0.08),
-                        border: Border.all(color: physicalGold.withValues(alpha: 0.3)),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text('Total Lifted:', style: TextStyle(color: sysTextMuted, fontSize: 11)),
-                              Text('${total.toStringAsFixed(1)} kg', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text('Strength Ratio:', style: TextStyle(color: sysTextMuted, fontSize: 11)),
-                              Text('${ratio.toStringAsFixed(2)}x BW', style: const TextStyle(color: physicalGold, fontWeight: FontWeight.bold, fontSize: 13)),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          const Divider(color: Colors.white12, thickness: 0.5),
-                          const SizedBox(height: 4),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text('Projected Rank:', style: TextStyle(color: sysTextMuted, fontSize: 11)),
-                              Text(
-                                previewRank,
-                                style: GoogleFonts.orbitron(
-                                  color: physicalGold,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  child: const Text('CANCEL', style: TextStyle(color: sysTextMuted)),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: physicalGold.withValues(alpha: 0.2),
-                    side: const BorderSide(color: physicalGold),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                  ),
-                  onPressed: () {
-                    final bVal = double.tryParse(benchCtrl.text.trim()) ?? 0;
-                    final sVal = double.tryParse(squatCtrl.text.trim()) ?? 0;
-                    final dVal = double.tryParse(deadliftCtrl.text.trim()) ?? 0;
-                    final tot = bVal + sVal + dVal;
-
-                    if (tot <= 0) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('⚠️ Please enter valid lifting numbers!'),
-                          backgroundColor: bloodRed,
-                        ),
-                      );
-                      return;
-                    }
-
-                    final bool isFirstAwakening = SystemMemory.hunterRank == "Unranked";
-
-                    setState(() {
-                      SystemMemory.maxBench = bVal;
-                      SystemMemory.maxSquat = sVal;
-                      SystemMemory.maxDeadlift = dVal;
-                      SystemMemory.hunterRank = previewRank;
-
-                      if (isFirstAwakening) {
-                        SystemMemory.exp.value += 100;
-                        SystemMemory.ap.value += 3;
-                      }
-                    });
-
-                    SystemMemory.kaydet();
-                    Navigator.pop(ctx);
-
-                    if (isFirstAwakening) {
-                      AudioSystem.playLevelUp();
-                    } else {
-                      AudioSystem.playSuccess();
-                    }
-
-                    showDialog(
-                      context: context,
-                      builder: (awardCtx) => AlertDialog(
-                        backgroundColor: const Color(0xFF030712).withValues(alpha: 0.96),
-                        shape: RoundedRectangleBorder(
-                          side: const BorderSide(color: physicalGold, width: 2),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        title: Center(
-                          child: Text(
-                            '[ AWAKENING REGISTERED ]',
-                            style: GoogleFonts.orbitron(
-                              color: physicalGold,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                              letterSpacing: 1.5,
-                            ),
-                          ),
-                        ),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.military_tech, color: physicalGold, size: 48),
-                            const SizedBox(height: 12),
-                            Text(
-                              previewRank,
-                              style: GoogleFonts.orbitron(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Total: ${tot.toStringAsFixed(1)} kg | Ratio: ${ratio.toStringAsFixed(2)}x BW',
-                              style: const TextStyle(color: sysTextMuted, fontSize: 12),
-                            ),
-                            if (isFirstAwakening) ...[
-                              const SizedBox(height: 12),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: Colors.green.withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(4),
-                                  border: Border.all(color: Colors.greenAccent),
-                                ),
-                                child: const Text(
-                                  'FIRST AWAKENING BONUS: +100 EXP | +3 AP',
-                                  style: TextStyle(color: Colors.greenAccent, fontSize: 11, fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                        actions: [
-                          Center(
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: physicalGold,
-                                foregroundColor: Colors.black,
-                              ),
-                              onPressed: () => Navigator.pop(awardCtx),
-                              child: const Text('CONFIRM', style: TextStyle(fontWeight: FontWeight.bold)),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                  child: const Text('SAVE & AWAKEN', style: TextStyle(color: physicalGold, fontWeight: FontWeight.bold)),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _awakeningInputField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    required ValueChanged<String> onChanged,
-  }) {
-    return TextField(
-      controller: controller,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      onChanged: onChanged,
-      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(color: sysTextMuted, fontSize: 11),
-        prefixIcon: Icon(icon, color: physicalGold, size: 16),
-        isDense: true,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: physicalGold.withValues(alpha: 0.4)),
-        ),
-        focusedBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: physicalGold),
-        ),
-      ),
-    );
+    showAwakeningTestDialog(context, onCompleted: () => setState(() {}));
   }
 
   @override
@@ -1661,17 +1364,69 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ]
                   ),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text("Equipment Mode:", style: TextStyle(color: sysTextMuted, fontSize: 12)),
+                      Text(
+                        SystemMemory.ekipmanTuru == 'Salon' ? 'Gym (Salon)' : (SystemMemory.ekipmanTuru == 'Ev-Dambil' ? 'Home Dumbbells' : 'Calisthenics'),
+                        style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  if (SystemMemory.hunterRank != 'Unranked') ...[
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          SystemMemory.retestGerekiyorMu ? '⚔️ PROMOTION TRIAL READY' : 'Next Rank Trial Progress:',
+                          style: TextStyle(
+                            color: SystemMemory.retestGerekiyorMu ? physicalGold : sysTextMuted,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '${SystemMemory.sonTesttenBeriIdmanSayisi} / ${SystemMemory.rankIcinGerekliIdmanKotasi} Raids',
+                          style: TextStyle(
+                            color: SystemMemory.retestGerekiyorMu ? physicalGold : Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(2),
+                      child: LinearProgressIndicator(
+                        value: SystemMemory.retestIlerlemeYuzdesi,
+                        backgroundColor: Colors.white10,
+                        valueColor: AlwaysStoppedAnimation<Color>(SystemMemory.retestGerekiyorMu ? physicalGold : sysBlue),
+                        minHeight: 5,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 14),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       onPressed: _awakeningTestDialog,
-                      icon: const Icon(Icons.fitness_center, color: physicalGold, size: 14),
-                      label: Text(TranslationManager.get('profile_take_test'), style: const TextStyle(color: physicalGold, fontWeight: FontWeight.bold, fontSize: 12)),
+                      icon: Icon(
+                        SystemMemory.retestGerekiyorMu ? Icons.military_tech : Icons.fitness_center,
+                        color: physicalGold,
+                        size: 16,
+                      ),
+                      label: Text(
+                        SystemMemory.retestGerekiyorMu ? '⚔️ ENTER PROMOTION TRIAL' : TranslationManager.get('profile_take_test'),
+                        style: const TextStyle(color: physicalGold, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
+                      ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: physicalGold.withValues(alpha: 0.1),
-                        side: const BorderSide(color: physicalGold, width: 1),
-                        padding: const EdgeInsets.symmetric(vertical: 10)
+                        backgroundColor: physicalGold.withValues(alpha: SystemMemory.retestGerekiyorMu ? 0.25 : 0.1),
+                        side: BorderSide(color: physicalGold, width: SystemMemory.retestGerekiyorMu ? 1.5 : 1),
+                        padding: const EdgeInsets.symmetric(vertical: 11),
                       ),
                     ),
                   )
