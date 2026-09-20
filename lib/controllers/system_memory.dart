@@ -105,12 +105,14 @@ class SystemMemory {
   static String ekipmanTuru = "Salon"; // 'Salon', 'Ev-Dambil', 'Vucut-Agirligi'
   static String antrenmanGecmisi = "Başlangıç"; // 'Başlangıç', 'Orta', 'İleri'
   static List<String> eklemKisiti = [];
+  static List<String> odakBolgeleri = []; // Öncelikli Odak & Yağ Yakım Bölgeleri
   static String sonTestTarihi = "";
   static int sonTesttenBeriIdmanSayisi = 0;
 
   // Dövüş Sporları & Boksör Profili
   static bool dovusSporuYapiyorMu = false;
   static String dovusBransi = "Boks"; // 'Boks', 'Kickboks', 'MMA', 'Güreş'
+  static List<String> dovusBranslari = ["Boks"]; // Birden fazla branş desteği
   static int maxPatlayiciSinav = 0;
   static int maxBurpeeKondisyon = 0;
   static int maxPlankSaniye = 0;
@@ -232,11 +234,13 @@ class SystemMemory {
       ekipmanTuru = prefs.getString('ekipmanTuru') ?? "Salon";
       antrenmanGecmisi = prefs.getString('antrenmanGecmisi') ?? "Başlangıç";
       eklemKisiti = prefs.getStringList('eklemKisiti') ?? [];
+      odakBolgeleri = prefs.getStringList('odakBolgeleri') ?? [];
       sonTestTarihi = prefs.getString('sonTestTarihi') ?? "";
       sonTesttenBeriIdmanSayisi = prefs.getInt('sonTesttenBeriIdmanSayisi') ?? 0;
 
       dovusSporuYapiyorMu = prefs.getBool('dovusSporuYapiyorMu') ?? false;
       dovusBransi = prefs.getString('dovusBransi') ?? "Boks";
+      dovusBranslari = prefs.getStringList('dovusBranslari') ?? (dovusBransi.isNotEmpty ? [dovusBransi] : ["Boks"]);
       maxPatlayiciSinav = prefs.getInt('maxPatlayiciSinav') ?? 0;
       maxBurpeeKondisyon = prefs.getInt('maxBurpeeKondisyon') ?? 0;
       maxPlankSaniye = prefs.getInt('maxPlankSaniye') ?? 0;
@@ -326,10 +330,12 @@ class SystemMemory {
     prefs.setString('ekipmanTuru', ekipmanTuru);
     prefs.setString('antrenmanGecmisi', antrenmanGecmisi);
     prefs.setStringList('eklemKisiti', eklemKisiti);
+    prefs.setStringList('odakBolgeleri', odakBolgeleri);
     prefs.setString('sonTestTarihi', sonTestTarihi);
     prefs.setInt('sonTesttenBeriIdmanSayisi', sonTesttenBeriIdmanSayisi);
     prefs.setBool('dovusSporuYapiyorMu', dovusSporuYapiyorMu);
     prefs.setString('dovusBransi', dovusBransi);
+    prefs.setStringList('dovusBranslari', dovusBranslari);
     prefs.setInt('maxPatlayiciSinav', maxPatlayiciSinav);
     prefs.setInt('maxBurpeeKondisyon', maxBurpeeKondisyon);
     prefs.setInt('maxPlankSaniye', maxPlankSaniye);
@@ -564,12 +570,13 @@ class SystemMemory {
   // ========================================================
   // YENİ DÜZELTME: KALORİ YEDEKLEME KORUMASI (TARTI)
   // ========================================================
-  static void oyuncuyuAnalizEt(String secilenCinsiyet, DateTime girilenDogumTarihi, double girilenBoy, double girilenKilo, String hedef, String zorluk, Uint8List? foto, [int? idmanGunu, String? ekipman, String? tecrube, List<String>? eklemKisitlari]) {
+  static void oyuncuyuAnalizEt(String secilenCinsiyet, DateTime girilenDogumTarihi, double girilenBoy, double girilenKilo, String hedef, String zorluk, Uint8List? foto, [int? idmanGunu, String? ekipman, String? tecrube, List<String>? eklemKisitlari, List<String>? hedefOdakBolgeleri]) {
     cinsiyet = secilenCinsiyet; dogumTarihi = girilenDogumTarihi; boy = girilenBoy; kilo = girilenKilo;
     aktifHedef = hedef; aktifZorluk = zorluk; if (foto != null) profilFotoByte = foto;
     if (ekipman != null) ekipmanTuru = ekipman;
     if (tecrube != null) antrenmanGecmisi = tecrube;
     if (eklemKisitlari != null) eklemKisiti = eklemKisitlari;
+    if (hedefOdakBolgeleri != null) odakBolgeleri = hedefOdakBolgeleri;
 
     if (baslangicKilosu == 0) {
       baslangicKilosu = kilo; kiloGecmisi.add({ 'tarih': DateTime.now().toIso8601String(), 'kilo': kilo, 'kalori': bugunAlinanKalori });
@@ -628,6 +635,7 @@ class SystemMemory {
         idmanGunu: idmanGunu,
         hedef: hedef,
         eklemKisitlari: eklemKisiti,
+        hedefOdakBolgeleri: odakBolgeleri,
       );
     }
 
@@ -639,11 +647,26 @@ class SystemMemory {
     required int burpeeKondisyon,
     required int plankSaniye,
     required int barfiks,
+    double? bench,
+    double? squat,
+    double? deadlift,
+    double? kilo,
   }) {
-    final double score = (patlayiciSinav * 2.0) +
+    double score = (patlayiciSinav * 2.0) +
         (burpeeKondisyon * 3.0) +
         ((plankSaniye / 10).clamp(0, 18) * 2.0) +
         (barfiks * 4.0);
+
+    // Ağırlık / 1RM kuvvet katkısı (Combat Strength Bonus)
+    final double b = bench ?? 0.0;
+    final double s = squat ?? 0.0;
+    final double d = deadlift ?? 0.0;
+    final double k = (kilo != null && kilo > 0) ? kilo : 70.0;
+    final double big3 = b + s + d;
+    if (big3 > 0 && k > 0) {
+      final double ratio = big3 / k;
+      score += (ratio * 25.0);
+    }
 
     if (score >= 260) return "S-Rank (Monarch)";
     if (score >= 200) return "A-Rank (National)";
@@ -660,15 +683,28 @@ class SystemMemory {
     required int barfiks,
     required String rank,
     String? brans,
+    List<String>? branslar,
     int? idmanGunu,
+    double? bench,
+    double? squat,
+    double? deadlift,
   }) {
     final bool isFirstAwakening = hunterRank == "Unranked";
     dovusSporuYapiyorMu = true;
-    if (brans != null && brans.isNotEmpty) dovusBransi = brans;
+    if (branslar != null && branslar.isNotEmpty) {
+      dovusBranslari = List<String>.from(branslar);
+      dovusBransi = dovusBranslari.join(', ');
+    } else if (brans != null && brans.isNotEmpty) {
+      dovusBransi = brans;
+      dovusBranslari = [brans];
+    }
     maxPatlayiciSinav = patlayiciSinav;
     maxBurpeeKondisyon = burpeeKondisyon;
     maxPlankSaniye = plankSaniye;
     maxBarfiks = barfiks;
+    if (bench != null && bench > 0) maxBench = bench;
+    if (squat != null && squat > 0) maxSquat = squat;
+    if (deadlift != null && deadlift > 0) maxDeadlift = deadlift;
     hunterRank = rank;
     sonTestTarihi = DateTime.now().toIso8601String();
     sonTesttenBeriIdmanSayisi = 0;
@@ -727,10 +763,13 @@ class SystemMemory {
     required int idmanGunu,
     required String hedef,
     List<String>? eklemKisitlari,
+    List<String>? hedefOdakBolgeleri,
   }) {
     ekipmanTuru = ekipman;
     List<String> kisitlar = eklemKisitlari ?? eklemKisiti;
     eklemKisiti = kisitlar;
+    List<String> odaklar = hedefOdakBolgeleri ?? odakBolgeleri;
+    odakBolgeleri = odaklar;
 
     haftalikPlan.clear();
     for (int i = 1; i <= 7; i++) {
@@ -943,6 +982,44 @@ class SystemMemory {
         Gorev("[PHY] Calisthenics: Hanging / Lying Leg Raises", false, "Fiziksel"),
         Gorev("[PHY] Calisthenics: Plank to Push-up Finisher", false, "Fiziksel"),
       ]);
+    }
+
+    // --- ÖNCELİKLİ ODAK & YAĞ YAKIM PROTOKOLÜ (TARGET FOCUS INJECTION) ---
+    if (odaklar.isNotEmpty) {
+      for (int gun = 1; gun <= 7; gun++) {
+        if (haftalikPlan[gun]!.isNotEmpty) {
+          if (odaklar.any((o) => o.contains('Karın') || o.contains('Göbek') || o.contains('Abs'))) {
+            haftalikPlan[gun]!.add(
+              Gorev("[FOCUS-CORE] Karın & Yağ Yakımı: Asılı Bacak Kaldırma & Plank Finisher", false, "Fiziksel"),
+            );
+          }
+          if (odaklar.any((o) => o.contains('Göğüs') || o.contains('Chest'))) {
+            haftalikPlan[gun]!.add(
+              Gorev("[FOCUS-CHEST] Göğüs Sıkılaştırma: Deficit Push-up / DB Flye Finisher", false, "Fiziksel"),
+            );
+          }
+          if (odaklar.any((o) => o.contains('Kol') || o.contains('Arm'))) {
+            haftalikPlan[gun]!.add(
+              Gorev("[FOCUS-ARMS] Kol Gelişimi: Biceps Curl & Triceps Pushdown", false, "Fiziksel"),
+            );
+          }
+          if (odaklar.any((o) => o.contains('Omuz') || o.contains('Shoulder'))) {
+            haftalikPlan[gun]!.add(
+              Gorev("[FOCUS-SHOULDER] Omuz Genişletme: Lateral Raise & Face Pull", false, "Fiziksel"),
+            );
+          }
+          if (odaklar.any((o) => o.contains('Bacak') || o.contains('Kalça') || o.contains('Leg'))) {
+            haftalikPlan[gun]!.add(
+              Gorev("[FOCUS-LEGS] Bacak & Kalça Sıkılaştırma: Walking Lunges / Split Squat", false, "Fiziksel"),
+            );
+          }
+          if (odaklar.any((o) => o.contains('Sırt') || o.contains('Back'))) {
+            haftalikPlan[gun]!.add(
+              Gorev("[FOCUS-BACK] Sırt & V-Taper: Inverted Row / Pulldown Finisher", false, "Fiziksel"),
+            );
+          }
+        }
+      }
     }
 
     normalHaftalikPlan.clear();
@@ -1392,10 +1469,12 @@ class SystemMemory {
       'ekipmanTuru': ekipmanTuru,
       'antrenmanGecmisi': antrenmanGecmisi,
       'eklemKisiti': eklemKisiti,
+      'odakBolgeleri': odakBolgeleri,
       'sonTestTarihi': sonTestTarihi,
       'sonTesttenBeriIdmanSayisi': sonTesttenBeriIdmanSayisi,
       'dovusSporuYapiyorMu': dovusSporuYapiyorMu,
       'dovusBransi': dovusBransi,
+      'dovusBranslari': dovusBranslari,
       'maxPatlayiciSinav': maxPatlayiciSinav,
       'maxBurpeeKondisyon': maxBurpeeKondisyon,
       'maxPlankSaniye': maxPlankSaniye,
@@ -1479,6 +1558,9 @@ class SystemMemory {
         if (data['eklemKisiti'] != null && data['eklemKisiti'] is List) {
           eklemKisiti = List<String>.from((data['eklemKisiti'] as List).map((e) => e.toString()));
         }
+        if (data['odakBolgeleri'] != null && data['odakBolgeleri'] is List) {
+          odakBolgeleri = List<String>.from((data['odakBolgeleri'] as List).map((e) => e.toString()));
+        }
         if (data['sonTestTarihi'] != null) {
           sonTestTarihi = data['sonTestTarihi'].toString();
         }
@@ -1490,6 +1572,9 @@ class SystemMemory {
         }
         if (data['dovusBransi'] != null) {
           dovusBransi = data['dovusBransi'].toString();
+        }
+        if (data['dovusBranslari'] != null && data['dovusBranslari'] is List) {
+          dovusBranslari = List<String>.from((data['dovusBranslari'] as List).map((e) => e.toString()));
         }
         if (data['maxPatlayiciSinav'] != null) {
           maxPatlayiciSinav = (data['maxPatlayiciSinav'] as num).toInt();

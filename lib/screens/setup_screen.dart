@@ -45,10 +45,11 @@ class _SetupScreenState extends State<SetupScreen> {
 
   // Adım 3: Disiplin & Ekipman
   bool dovusSporuYapiyorMu = false;
-  String secilenDovusBransi = 'Boks';
+  List<String> secilenDovusBranslari = ['Boks'];
   String secilenEkipman = 'Salon';
   String secilenTecrube = 'Başlangıç';
   List<String> secilenEklemKisitlari = [];
+  List<String> secilenOdakBolgeleri = [];
 
   // Adım 4: Uyanış / Güç Testi (Fitness / Gym)
   final TextEditingController benchCtrl = TextEditingController();
@@ -185,7 +186,11 @@ class _SetupScreenState extends State<SetupScreen> {
       int pBurpee = int.tryParse(burpeeCtrl.text.trim()) ?? 0;
       int pPlank = int.tryParse(plankCtrl.text.trim()) ?? 0;
       int pBarfiks = int.tryParse(combatBarfiksCtrl.text.trim()) ?? 0;
-      if (pSinav == 0 && pBurpee == 0 && pPlank == 0 && pBarfiks == 0) {
+      double pBench = double.tryParse(benchCtrl.text.trim()) ?? 0;
+      double pSquat = double.tryParse(squatCtrl.text.trim()) ?? 0;
+      double pDeadlift = double.tryParse(deadliftCtrl.text.trim()) ?? 0;
+
+      if (pSinav == 0 && pBurpee == 0 && pPlank == 0 && pBarfiks == 0 && pBench == 0 && pSquat == 0 && pDeadlift == 0) {
         return "E-Rank (Rookie)";
       }
       return SystemMemory.hesaplaDovusRank(
@@ -193,6 +198,10 @@ class _SetupScreenState extends State<SetupScreen> {
         burpeeKondisyon: pBurpee,
         plankSaniye: pPlank,
         barfiks: pBarfiks,
+        bench: pBench,
+        squat: pSquat,
+        deadlift: pDeadlift,
+        kilo: pKilo,
       );
     } else {
       double pBench = 0, pSquat = 0, pDeadlift = 0;
@@ -287,6 +296,7 @@ class _SetupScreenState extends State<SetupScreen> {
       secilenEkipman,
       secilenTecrube,
       secilenEklemKisitlari,
+      secilenOdakBolgeleri,
     );
 
     // Rank & Antrenman Uyanışı
@@ -295,11 +305,19 @@ class _SetupScreenState extends State<SetupScreen> {
       int pBurpee = int.tryParse(burpeeCtrl.text.trim()) ?? 0;
       int pPlank = int.tryParse(plankCtrl.text.trim()) ?? 0;
       int pBarfiks = int.tryParse(combatBarfiksCtrl.text.trim()) ?? 0;
+      double pBench = double.tryParse(benchCtrl.text.trim()) ?? 0;
+      double pSquat = double.tryParse(squatCtrl.text.trim()) ?? 0;
+      double pDeadlift = double.tryParse(deadliftCtrl.text.trim()) ?? 0;
+
       String combatRank = SystemMemory.hesaplaDovusRank(
         patlayiciSinav: pSinav,
         burpeeKondisyon: pBurpee,
         plankSaniye: pPlank,
         barfiks: pBarfiks,
+        bench: pBench,
+        squat: pSquat,
+        deadlift: pDeadlift,
+        kilo: kilo,
       );
 
       SystemMemory.dovusTestiKaydet(
@@ -308,8 +326,12 @@ class _SetupScreenState extends State<SetupScreen> {
         plankSaniye: pPlank,
         barfiks: pBarfiks,
         rank: combatRank,
-        brans: secilenDovusBransi,
+        brans: secilenDovusBranslari.join(', '),
+        branslar: secilenDovusBranslari,
         idmanGunu: secilenIdmanGunu,
+        bench: pBench,
+        squat: pSquat,
+        deadlift: pDeadlift,
       );
     } else {
       double testBench = 0;
@@ -360,13 +382,63 @@ class _SetupScreenState extends State<SetupScreen> {
       );
     }
 
+    // Yükleme & Doğrulama Modalı (Solo Leveling Temalı)
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (loadingCtx) => PopScope(
+        canPop: false,
+        child: AlertDialog(
+          backgroundColor: sysDarkBg.withValues(alpha: 0.96),
+          shape: RoundedRectangleBorder(
+            side: const BorderSide(color: sysBlue, width: 1.5),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(
+                width: 44,
+                height: 44,
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                  valueColor: AlwaysStoppedAnimation<Color>(sysBlue),
+                ),
+              ),
+              const SizedBox(height: 18),
+              Text(
+                'LÜTFEN BEKLEYİNİZ',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.orbitron(
+                  color: sysBlue,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.5,
+                ),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'Yükleniyor...\nAPI Key ve ayarlar kontrol ediliyor.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: sysTextMuted,
+                  fontSize: 12,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
     if (SystemMemory.geminiApiKey.isNotEmpty) {
-      setState(() => _isTestingApi = true);
       final sonuc = await GeminiService.testBaglantisi(
         hunterName: SystemMemory.oyuncuIsmi,
       );
       if (!mounted) return;
-      setState(() => _isTestingApi = false);
+      Navigator.of(context, rootNavigator: true).pop(); // Loading modalını kapat
 
       final basarili = sonuc['basarili'] == true;
       final mesaj = sonuc['mesaj'] ?? '';
@@ -374,6 +446,10 @@ class _SetupScreenState extends State<SetupScreen> {
 
       await _sistemUyanisDialoguGoster(basarili, mesaj, model);
       if (!mounted) return;
+    } else {
+      await Future.delayed(const Duration(milliseconds: 300));
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop(); // Loading modalını kapat
     }
 
     AudioSystem.playLevelUp();
@@ -1001,23 +1077,57 @@ class _SetupScreenState extends State<SetupScreen> {
                 ],
               ),
               if (dovusSporuYapiyorMu) ...[
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  initialValue: secilenDovusBransi,
-                  dropdownColor: const Color(0xFF1E0A0A),
-                  decoration: InputDecoration(
-                    labelText: 'Dövüş Branşı / Combat Style',
-                    labelStyle: const TextStyle(color: sysRed),
-                    filled: true,
-                    fillColor: const Color(0xFF1E0A0A),
-                    enabledBorder: OutlineInputBorder(borderSide: const BorderSide(color: sysRed), borderRadius: BorderRadius.circular(4)),
-                    focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: sysRed, width: 2), borderRadius: BorderRadius.circular(4)),
+                const SizedBox(height: 14),
+                Text(
+                  'Uğraştığınız Branşlar (Birden fazla seçebilirsiniz):',
+                  style: TextStyle(
+                    color: sysRed.withValues(alpha: 0.9),
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
                   ),
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                  items: ['Boks', 'Kickboks', 'Muay Thai', 'MMA', 'Güreş / BJJ'].map((String c) {
-                    return DropdownMenuItem(value: c, child: Text(c));
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    'Boks',
+                    'Kickboks',
+                    'Muay Thai',
+                    'MMA',
+                    'Güreş / BJJ',
+                    'Judo',
+                    'Tekvando',
+                  ].map((brans) {
+                    final bool secili = secilenDovusBranslari.contains(brans);
+                    return FilterChip(
+                      label: Text(brans),
+                      selected: secili,
+                      selectedColor: sysRed.withValues(alpha: 0.25),
+                      checkmarkColor: sysRed,
+                      backgroundColor: const Color(0xFF1A0A0A),
+                      side: BorderSide(
+                        color: secili ? sysRed : Colors.white24,
+                        width: secili ? 1.5 : 1.0,
+                      ),
+                      labelStyle: TextStyle(
+                        color: secili ? Colors.white : sysTextMuted,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      onSelected: (bool sel) {
+                        setState(() {
+                          if (sel) {
+                            secilenDovusBranslari.add(brans);
+                          } else {
+                            if (secilenDovusBranslari.length > 1) {
+                              secilenDovusBranslari.remove(brans);
+                            }
+                          }
+                        });
+                      },
+                    );
                   }).toList(),
-                  onChanged: (val) => setState(() => secilenDovusBransi = val!),
                 ),
               ],
             ],
@@ -1058,40 +1168,163 @@ class _SetupScreenState extends State<SetupScreen> {
         ),
         const SizedBox(height: 14),
 
-        Text(
-          'Joint Sensitivity / Hassasiyet (Opsiyonel):',
-          style: TextStyle(color: sysTextMuted.withValues(alpha: 0.8), fontSize: 11, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 6),
-        Row(
-          children: ['Omuz', 'Diz', 'Bel'].map((kisit) {
-            bool secili = secilenEklemKisitlari.contains(kisit);
-            return Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: FilterChip(
-                label: Text(kisit == 'Omuz' ? 'Shoulder' : (kisit == 'Diz' ? 'Knee' : 'Lower Back')),
-                selected: secili,
-                selectedColor: sysBlue.withValues(alpha: 0.25),
-                checkmarkColor: sysBlue,
-                backgroundColor: const Color(0xFF0F172A),
-                side: BorderSide(color: secili ? sysBlue : Colors.white24),
-                labelStyle: TextStyle(
-                  color: secili ? sysBlue : sysTextMuted,
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                ),
-                onSelected: (bool sel) {
-                  setState(() {
-                    if (sel) {
-                      secilenEklemKisitlari.add(kisit);
-                    } else {
-                      secilenEklemKisitlari.remove(kisit);
-                    }
-                  });
-                },
+        // --- TARGET FOCUS & PRIORITY FAT-BURN ZONES ---
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0F172A),
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(color: sysBlue.withValues(alpha: 0.3)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.fitness_center, color: sysBlue, size: 16),
+                  const SizedBox(width: 8),
+                  Text(
+                    'ÖNCELİKLİ ODAK & YAĞ YAKIM BÖLGELERİ',
+                    style: GoogleFonts.orbitron(
+                      color: sysBlue,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ],
               ),
-            );
-          }).toList(),
+              const SizedBox(height: 4),
+              const Text(
+                'Yağ toplanan veya öncelikli sıkılaşmasını/büyümesini istediğiniz bölgeleri seçin. Programınıza bu kas grupları için ekstra setler ve özel yakım protokolleri eklenecektir.',
+                style: TextStyle(color: sysTextMuted, fontSize: 11, height: 1.3),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  'Karın & Göbek',
+                  'Göğüs',
+                  'Kollar',
+                  'Omuzlar',
+                  'Sırt',
+                  'Bacak & Kalça',
+                ].map((odak) {
+                  final bool secili = secilenOdakBolgeleri.contains(odak);
+                  return FilterChip(
+                    label: Text(odak),
+                    selected: secili,
+                    selectedColor: sysBlue.withValues(alpha: 0.25),
+                    checkmarkColor: sysBlue,
+                    backgroundColor: const Color(0xFF070B14),
+                    side: BorderSide(
+                      color: secili ? sysBlue : Colors.white24,
+                      width: secili ? 1.5 : 1.0,
+                    ),
+                    labelStyle: TextStyle(
+                      color: secili ? sysBlue : sysTextMuted,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    onSelected: (bool sel) {
+                      setState(() {
+                        if (sel) {
+                          secilenOdakBolgeleri.add(odak);
+                        } else {
+                          secilenOdakBolgeleri.remove(odak);
+                        }
+                      });
+                    },
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
+
+        // --- JOINT SENSITIVITIES & INJURY PROTECTION ---
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0F172A),
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(color: Colors.white12),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.healing, color: Colors.orangeAccent, size: 16),
+                  const SizedBox(width: 8),
+                  Text(
+                    'EKLEM HASSASİYETLERİ & SAKATLIK KORUMASI',
+                    style: GoogleFonts.orbitron(
+                      color: Colors.orangeAccent,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                'Hassasiyet olan eklemleriniz otomatik korunur; omurga veya ekleme aşırı yük bindiren hareketler yerine eklem dostu varyasyonlar atanır.',
+                style: TextStyle(color: sysTextMuted, fontSize: 11, height: 1.3),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  'Omuz',
+                  'Diz',
+                  'Bel',
+                  'Bilek',
+                  'Boyun',
+                  'Dirsek',
+                ].map((kisit) {
+                  final bool secili = secilenEklemKisitlari.contains(kisit);
+                  String etiket = kisit;
+                  if (kisit == 'Omuz') etiket = 'Omuz (Shoulder)';
+                  if (kisit == 'Diz') etiket = 'Diz (Knee)';
+                  if (kisit == 'Bel') etiket = 'Bel (Lower Back)';
+                  if (kisit == 'Bilek') etiket = 'Bilek (Wrist)';
+                  if (kisit == 'Boyun') etiket = 'Boyun (Neck)';
+                  if (kisit == 'Dirsek') etiket = 'Dirsek (Elbow)';
+
+                  return FilterChip(
+                    label: Text(etiket),
+                    selected: secili,
+                    selectedColor: Colors.orangeAccent.withValues(alpha: 0.25),
+                    checkmarkColor: Colors.orangeAccent,
+                    backgroundColor: const Color(0xFF070B14),
+                    side: BorderSide(
+                      color: secili ? Colors.orangeAccent : Colors.white24,
+                      width: secili ? 1.5 : 1.0,
+                    ),
+                    labelStyle: TextStyle(
+                      color: secili ? Colors.orangeAccent : sysTextMuted,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    onSelected: (bool sel) {
+                      setState(() {
+                        if (sel) {
+                          secilenEklemKisitlari.add(kisit);
+                        } else {
+                          secilenEklemKisitlari.remove(kisit);
+                        }
+                      });
+                    },
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -1183,6 +1416,64 @@ class _SetupScreenState extends State<SetupScreen> {
                         keyboardType: TextInputType.number,
                         style: const TextStyle(color: Colors.white, fontSize: 13),
                         decoration: _inputStili('Max Barfiks (Pull-up)'),
+                        onChanged: (_) => setState(() {}),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                // Dövüş Kuvvet & Ağırlık Testi (1RM)
+                Row(
+                  children: [
+                    const Icon(Icons.fitness_center, color: physicalGold, size: 16),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        'DÖVÜŞ KUVVET & AĞIRLIK TESTİ (1RM - OPSİYONEL)',
+                        style: GoogleFonts.orbitron(
+                          color: physicalGold,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Boks ve dövüş sporcularında maksimal itiş ve bacak kuvveti yumruk patlayıcılığını ve gövde direncini artırır. Varsa 1RM ağırlıklarınızı girin.',
+                  style: TextStyle(color: sysTextMuted, fontSize: 10),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: benchCtrl,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        style: const TextStyle(color: Colors.white, fontSize: 13),
+                        decoration: _inputStili('Bench 1RM (kg)'),
+                        onChanged: (_) => setState(() {}),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        controller: squatCtrl,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        style: const TextStyle(color: Colors.white, fontSize: 13),
+                        decoration: _inputStili('Squat 1RM (kg)'),
+                        onChanged: (_) => setState(() {}),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        controller: deadliftCtrl,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        style: const TextStyle(color: Colors.white, fontSize: 13),
+                        decoration: _inputStili('Deadlift (kg)'),
                         onChanged: (_) => setState(() {}),
                       ),
                     ),

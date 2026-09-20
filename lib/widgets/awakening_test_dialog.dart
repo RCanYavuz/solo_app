@@ -69,13 +69,16 @@ void showAwakeningTestDialog(BuildContext context, {VoidCallback? onCompleted}) 
             pBurpee = int.tryParse(burpeeCtrl.text.trim()) ?? 0;
             pPlank = int.tryParse(plankCtrl.text.trim()) ?? 0;
             pBarfiks = int.tryParse(combatBarfiksCtrl.text.trim()) ?? 0;
+            bench = double.tryParse(benchCtrl.text.trim()) ?? 0;
+            squat = double.tryParse(squatCtrl.text.trim()) ?? 0;
+            deadlift = double.tryParse(deadliftCtrl.text.trim()) ?? 0;
 
             combatScore = (pSinav * 2.0) +
                 (pBurpee * 3.0) +
                 ((pPlank / 10).clamp(0, 18) * 2.0) +
                 (pBarfiks * 4.0);
 
-            if (pSinav == 0 && pBurpee == 0 && pPlank == 0 && pBarfiks == 0) {
+            if (pSinav == 0 && pBurpee == 0 && pPlank == 0 && pBarfiks == 0 && bench == 0 && squat == 0 && deadlift == 0) {
               previewRank = SystemMemory.hunterRank;
             } else {
               previewRank = SystemMemory.hesaplaDovusRank(
@@ -83,6 +86,10 @@ void showAwakeningTestDialog(BuildContext context, {VoidCallback? onCompleted}) 
                 burpeeKondisyon: pBurpee,
                 plankSaniye: pPlank,
                 barfiks: pBarfiks,
+                bench: bench > 0 ? bench : null,
+                squat: squat > 0 ? squat : null,
+                deadlift: deadlift > 0 ? deadlift : null,
+                kilo: bw,
               );
             }
           } else if (testMode == 1) {
@@ -329,6 +336,45 @@ void showAwakeningTestDialog(BuildContext context, {VoidCallback? onCompleted}) 
                       icon: Icons.arrow_upward,
                       onChanged: (_) => setDialogState(() {}),
                     ),
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        const Icon(Icons.fitness_center, color: physicalGold, size: 14),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            'KUVVET & AĞIRLIK TESTİ (1RM - OPSİYONEL)',
+                            style: const TextStyle(
+                              color: physicalGold,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.0,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    _inputField(
+                      controller: benchCtrl,
+                      label: 'Bench Press 1RM (kg - Opsiyonel)',
+                      icon: Icons.fitness_center,
+                      onChanged: (_) => setDialogState(() {}),
+                    ),
+                    const SizedBox(height: 10),
+                    _inputField(
+                      controller: squatCtrl,
+                      label: 'Squat 1RM (kg - Opsiyonel)',
+                      icon: Icons.airline_seat_legroom_extra,
+                      onChanged: (_) => setDialogState(() {}),
+                    ),
+                    const SizedBox(height: 10),
+                    _inputField(
+                      controller: deadliftCtrl,
+                      label: 'Deadlift 1RM (kg - Opsiyonel)',
+                      icon: Icons.arrow_upward,
+                      onChanged: (_) => setDialogState(() {}),
+                    ),
                   ],
                   const SizedBox(height: 16),
 
@@ -359,6 +405,16 @@ void showAwakeningTestDialog(BuildContext context, {VoidCallback? onCompleted}) 
                               Text(SystemMemory.dovusBransi, style: const TextStyle(color: physicalGold, fontWeight: FontWeight.bold, fontSize: 12)),
                             ],
                           ),
+                          if (total > 0) ...[
+                            const SizedBox(height: 4),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text('Bonus 1RM Strength:', style: TextStyle(color: sysTextMuted, fontSize: 11)),
+                                Text('${total.toStringAsFixed(0)} kg (${ratio.toStringAsFixed(2)}x BW)', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                              ],
+                            ),
+                          ],
                         ] else ...[
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -413,7 +469,8 @@ void showAwakeningTestDialog(BuildContext context, {VoidCallback? onCompleted}) 
                 onPressed: () {
                   if (testMode == 2) {
                     final int sumCombat = pSinav + pBurpee + pPlank + pBarfiks;
-                    if (sumCombat <= 0) {
+                    final double sumWeights = bench + squat + deadlift;
+                    if (sumCombat <= 0 && sumWeights <= 0) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('⚠️ Please enter valid performance numbers!'),
@@ -429,6 +486,9 @@ void showAwakeningTestDialog(BuildContext context, {VoidCallback? onCompleted}) 
                       burpeeKondisyon: pBurpee,
                       plankSaniye: pPlank,
                       barfiks: pBarfiks,
+                      bench: bench > 0 ? bench : null,
+                      squat: squat > 0 ? squat : null,
+                      deadlift: deadlift > 0 ? deadlift : null,
                       rank: previewRank,
                     );
 
@@ -441,7 +501,8 @@ void showAwakeningTestDialog(BuildContext context, {VoidCallback? onCompleted}) 
 
                     if (onCompleted != null) onCompleted();
 
-                    _showRewardModal(context, previewRank, isFirstAwakening, 'Combat Stamina Score: ${combatScore.toStringAsFixed(1)} pts');
+                    final String weightSummary = sumWeights > 0 ? ' + ${sumWeights.toStringAsFixed(0)}kg Big3' : '';
+                    _showRewardModal(context, previewRank, isFirstAwakening, 'Combat Stamina Score: ${combatScore.toStringAsFixed(1)} pts$weightSummary');
                   } else {
                     final tot = bench + squat + deadlift;
                     if (tot <= 0) {

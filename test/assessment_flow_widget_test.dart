@@ -157,15 +157,21 @@ void main() {
       // Enter combat metrics (30 plyo pushups, 40 burpees, 90s plank, 18 pullups)
       // Score: 30*2 + 40*3 + (9*2) + 18*4 = 60 + 120 + 18 + 72 = 270 -> S-Rank (Monarch)
       final textFields = find.byType(TextField);
-      expect(textFields, findsNWidgets(4));
+      expect(textFields, findsNWidgets(7)); // 4 combat stamina + 3 1RM strength
 
       await tester.enterText(textFields.at(0), '30');
       await tester.enterText(textFields.at(1), '40');
       await tester.enterText(textFields.at(2), '90');
       await tester.enterText(textFields.at(3), '18');
+
+      // Also enter 1RM weights (Bench: 80, Squat: 100, Deadlift: 120 = 300 kg)
+      await tester.enterText(textFields.at(4), '80');
+      await tester.enterText(textFields.at(5), '100');
+      await tester.enterText(textFields.at(6), '120');
       await tester.pumpAndSettle();
 
       expect(find.text('270.0 pts'), findsOneWidget);
+      expect(find.text('300 kg (4.00x BW)'), findsOneWidget);
       expect(find.text('S-Rank (Monarch)'), findsOneWidget);
 
       await tester.tap(find.text('SUBMIT DATA'));
@@ -175,6 +181,9 @@ void main() {
       expect(SystemMemory.hunterRank, 'S-Rank (Monarch)');
       expect(SystemMemory.maxPatlayiciSinav, 30);
       expect(SystemMemory.maxBurpeeKondisyon, 40);
+      expect(SystemMemory.maxBench, 80.0);
+      expect(SystemMemory.maxSquat, 100.0);
+      expect(SystemMemory.maxDeadlift, 120.0);
     });
 
     testWidgets('TranslationManager.rankTitle stays synchronized with C-Rank and combat titles', (WidgetTester tester) async {
@@ -300,16 +309,48 @@ void main() {
       // Toggle combat on
       await tester.tap(find.byType(Switch));
       await tester.pumpAndSettle();
-      expect(find.text('Dövüş Branşı / Combat Style'), findsOneWidget);
+      expect(find.text('Uğraştığınız Branşlar (Birden fazla seçebilirsiniz):'), findsOneWidget);
+      expect(find.text('Boks'), findsOneWidget);
+      expect(find.text('Kickboks'), findsOneWidget);
+      expect(find.text('MMA'), findsOneWidget);
+
+      // Select Kickboks as well
+      await tester.tap(find.text('Kickboks'));
+      await tester.pumpAndSettle();
+
+      // Verify Target Focus Zones exist and select 'Karın & Göbek' and 'Göğüs'
+      final focusTitle = find.text('ÖNCELİKLİ ODAK & YAĞ YAKIM BÖLGELERİ');
+      await tester.ensureVisible(focusTitle);
+      expect(focusTitle, findsOneWidget);
+
+      final karinChip = find.text('Karın & Göbek');
+      await tester.ensureVisible(karinChip);
+      await tester.tap(karinChip);
+
+      final gogusChip = find.text('Göğüs');
+      await tester.ensureVisible(gogusChip);
+      await tester.tap(gogusChip);
+      await tester.pumpAndSettle();
+
+      // Verify Joint Sensitivities exist
+      final jointTitle = find.text('EKLEM HASSASİYETLERİ & SAKATLIK KORUMASI');
+      await tester.ensureVisible(jointTitle);
+      expect(jointTitle, findsOneWidget);
+      expect(find.text('Omuz (Shoulder)'), findsOneWidget);
+      expect(find.text('Diz (Knee)'), findsOneWidget);
+      expect(find.text('Bel (Lower Back)'), findsOneWidget);
 
       // Proceed to Step 3
-      await tester.tap(find.text('NEXT PHASE ->'));
+      final nextBtn = find.text('NEXT PHASE ->');
+      await tester.ensureVisible(nextBtn);
+      await tester.tap(nextBtn);
       await tester.pumpAndSettle();
 
       // Step 3: Awakening Test
       expect(find.text('PHASE 04: AWAKENING TEST'), findsOneWidget);
       expect(find.text('4 / 4'), findsOneWidget);
       expect(find.text('COMBAT STAMINA & POWER TEST'), findsOneWidget);
+      expect(find.text('DÖVÜŞ KUVVET & AĞIRLIK TESTİ (1RM - OPSİYONEL)'), findsOneWidget);
       expect(find.text('AWAKEN THE SYSTEM'), findsOneWidget);
     });
   });
