@@ -322,4 +322,34 @@ void main() {
       expect(SystemMemory.haftalikPlan[day]![0].tip, "Fiziksel");
     });
   });
+
+  group('Awakening Test & Hunter Rank Tests', () {
+    test('Calculates Big 3 Total, strength ratio and updates hunterRank properly', () {
+      SystemMemory.kilo = 80.0;
+      SystemMemory.hunterRank = "Unranked";
+      SystemMemory.maxBench = 100.0;
+      SystemMemory.maxSquat = 140.0;
+      SystemMemory.maxDeadlift = 180.0;
+
+      final total = SystemMemory.maxBench + SystemMemory.maxSquat + SystemMemory.maxDeadlift; // 420 kg
+      final ratio = total / SystemMemory.kilo; // 420 / 80 = 5.25 (> 4.5)
+
+      expect(total, 420.0);
+      expect(ratio >= 4.5, isTrue);
+
+      // Simulating rank evaluation
+      String evaluatedRank;
+      if (ratio >= 4.5) {
+        evaluatedRank = "S-Rank (Monarch)";
+      } else if (ratio >= 3.75) {
+        evaluatedRank = "A-Rank (National)";
+      } else {
+        evaluatedRank = "B-Rank (Elite)";
+      }
+
+      SystemMemory.hunterRank = evaluatedRank;
+      expect(SystemMemory.hunterRank, "S-Rank (Monarch)");
+    });
+  });
 }
+

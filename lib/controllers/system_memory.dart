@@ -1,5 +1,6 @@
 // lib/controllers/system_memory.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'dart:typed_data';
 import 'dart:convert';
 import 'dart:io';
@@ -14,6 +15,7 @@ import '../models/inventory_item_model.dart';
 
 class SystemMemory {
   static bool get _isTest {
+    if (kIsWeb) return false;
     try {
       return Platform.environment.containsKey('FLUTTER_TEST');
     } catch (_) {
