@@ -197,17 +197,36 @@ lib/
 - **Hızlı Giriş Aksiyonları:** `+250 ml`, `+500 ml` butonları ve sayacı sıfırlama seçeneği.
 - **Gece Yarısı Ödül & Ceza Entegrasyonu:** Su hedefini tutturan avcıya ekstra **+5 HP** ve **+10 EXP** ödülü verilir ve yeni gün başlangıcında sayaç sıfırlanır.
 
-### 5. 🎒 Avcı Çantası & Eşya Kullanımı (Hunter's Bag / Inventory)
+### 9. 🎒 Avcı Çantası & Eşya Kullanımı (Hunter's Bag / Inventory)
 - **Çanta Modalı (`shop_screen.dart`):** Satın alınan tüm eşyaların adetleriyle listelendiği modal pencere.
 - **Canlı Eşya Kullanımı ("USE"):** `hp_full` (tam can doldurma), `stat_reset` (AP iadesi), `cheat_meal` (kalori affı), `sloth_day` (görev muafiyeti).
 
-### 6. 🥩 Yemek Makro Takibi & Kalıcı Veri Modeli (P / C / F)
+### 10. 🥩 Yemek Makro Takibi & Kalıcı Veri Modeli (P / C / F)
 - `TuketilenYemek` sınıfında kalori haricinde `protein`, `karbonhidrat` ve `yag` takibi.
 - Canlı döküm: `P: Xg | C: Yg | F: Zg` ve `SystemMemory.bugunProtein`, `bugunKarb`, `bugunYag` toplamları.
 
-### 7. 💾 Veri Kasası / JSON Yedekleme & Geri Yükleme (Data Vault)
+### 11. 💾 Veri Kasası / JSON Yedekleme & Geri Yükleme (Data Vault)
 - **Arşiv Dışa Aktarma (Export):** Tek tuşla tüm oyuncu profili, statlar, seviye, envanter, antrenman ve kilo geçmişini şifrelenmiş JSON olarak panoya kopyalar.
 - **Arşiv İçe Aktarma (Restore):** Yapıştırılan yedek JSON metnini doğrulayarak (`importBackupJson`) oyuncunun tüm profilini eksiksiz geri yükler.
+
+---
+
+## 🎯 Faz 1 Geliştirmeleri & Sırada Eklenecekler (Workouts & Planning Backlog)
+
+### ✅ Faz 1 Kapsamında Tamamlanan Sistemler:
+1. **Gemini AI Destekli Kişiselleştirilmiş Antrenman:** Avcının boy, kilo, rank, sakatlık kısıtı ve odak bölgelerine göre haftalık 7 günlük plan üretimi & fail-safe yerel kural motoru.
+2. **Tek Dokunuşla YouTube Video Rehberi:** Dashboard, Takvim, Antrenman Planlayıcı, Aktif İdman ve Kütüphanedeki tüm hareketlerde canlı YouTube arama ve form videosu açma.
+3. **Solo Leveling Avcı Taktik Kartı & Akıllı Alternatif Değiştirici (Smart Swap):** Egzersize dokunulduğunda açılan hedef kas, dövüş faydası, 3 altın kural ve salondaki yoğunluk/ağrı durumunda 3 muadil hareket önerisi ve tek tıkla swap.
+4. **Set, Ağırlık ve Tekrar Takip Kaydedicisi:** Aktif zindan idmanında set bazlı kg/tekrar loglama (`SetKaydi`).
+5. **Set Arası Dinlenme Sayacı (Rest Timer):** 30-120sn sesli ve görsel Solo Leveling geri sayım sayacı.
+
+### ⏳ Faz 1 Kapsamında Sırada Eklenecekler:
+1. **Daha Kapsamlı & Dolu Antrenman Hacmi (Antrenmanları Uzatma & Çeşitlendirme):**
+   - *Sorun / Tespit:* Mevcut antrenman seansları çok kısa kalmakta, gün başına düşen hareket sayısı ve set çeşitliliği az gelmektedir.
+   - *Planlanan Çözüm:* Gemini AI prompt motoru ve yerel kural şablonları güncellenerek; gün başına **1-2 Ana Bileşik Hareket (Compound)** + **2-3 İzolasyon & Destek Hareketi** + **1-2 Dövüş/Kondisyon/Core Bitirici Protokolü (Finisher)** şeklinde **seans başına 5-7 doyurucu hareket** içeren zengin program hacmi standardı getirilecektir.
+2. **Antrenman Ekleme Ekranının Yeniden Düzenlenmesi (Gelişmiş Egzersiz Ekleme Modalı):**
+   - *Sorun / Tespit:* Kullanıcı haftalık plana veya aktif antrenmana kendi istediği hareketleri eklemek istediğinde mevcut tek satırlık ekleme alanı yetersiz ve kullanışsız kalmaktadır.
+   - *Planlanan Çözüm:* 875+ hareketlik kütüphane ile entegre modern bir **"Egzersiz Ekleme Modalı"** tasarlanacaktır. Kas grubuna göre filtreleme (Göğüs, Sırt, Bacak, Omuz, Kol, Karın, Boks/Dövüş), hızlı arama çubuğu, set sayısı, hedef tekrar ve hedef ağırlık girişleri, YouTube önizlemesi ve tek dokunuşla programa ekleme özelliği sunulacaktır.
 
 ---
 
@@ -228,12 +247,15 @@ lib/
 
 ## 🧪 Otomatik Test Paketi
 
-Proje güvenilirliği için **8 test paketi ve toplam 40 test senaryosu** hazırlanmıştır (%100 Başarılı):
+Proje güvenilirliği için **11 test paketi ve toplam 54 test senaryosu** hazırlanmıştır (%100 Başarılı):
 
 | Test Dosyası | Kapsam |
 |--------------|--------|
 | [`test/assessment_flow_widget_test.dart`](test/assessment_flow_widget_test.dart) | 4 Adımlı Wizard, çoklu dövüş branşı, 1RM dövüş ağırlık testleri, odak bölgeleri, unvan senkronizasyonu |
 | [`test/system_features_test.dart`](test/system_features_test.dart) | Su takibi, çanta, makrolar, Data Vault, odak bölgelerine göre dinamik antrenman uyarlaması |
+| [`test/exercise_coach_test.dart`](test/exercise_coach_test.dart) | Avcı Taktik Kartı, Akıllı Alternatif Değiştirici (Smart Swap), SetKaydi serileştirmesi, RestTimer ve Detail Modal |
+| [`test/workout_experience_flow_test.dart`](test/workout_experience_flow_test.dart) | Dashboard taktik kartı ve swap akışı, Aktif İdman Set Logger & Rest Timer diyaloğu, Workout Planner butonları |
+| [`test/youtube_helper_test.dart`](test/youtube_helper_test.dart) | Egzersiz başlık sanitizasyonu, [COMBAT]/[PHY] etiketleri ve set/tekrar ayıklama testleri |
 | [`test/gemini_integration_test.dart`](test/gemini_integration_test.dart) | Profil API anahtarı, AI besin çözücü ve **AI haftalık antrenman fail-safe fallback testi** |
 | [`test/language_switch_test.dart`](test/language_switch_test.dart) | Türkçe/İngilizce çift dil geçişi, unvanlar, hedefler ve dil fallback |
 | [`test/midnight_reset_test.dart`](test/midnight_reset_test.dart) | Gece yarısı tek gün sıfırlama ve aktif model kalıcılık testi |
