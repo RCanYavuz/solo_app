@@ -33,9 +33,17 @@ class Gorev {
   bool yapildiMi; 
   String tip;
   List<SetKaydi> setler;
+  int? rirDegeri;
+  double? hedefKilo;
   
-  Gorev(this.ad, this.yapildiMi, this.tip, [List<SetKaydi>? setler])
-      : setler = setler ?? [];
+  Gorev(
+    this.ad, 
+    this.yapildiMi, 
+    this.tip, [
+    List<SetKaydi>? setler,
+    this.rirDegeri,
+    this.hedefKilo,
+  ]) : setler = setler ?? [];
 
   // Hafızaya yazmak için Metne (JSON) çevir
   Map<String, dynamic> toJson() => {
@@ -43,6 +51,8 @@ class Gorev {
     'yapildiMi': yapildiMi, 
     'tip': tip,
     'setler': setler.map((s) => s.toJson()).toList(),
+    if (rirDegeri != null) 'rirDegeri': rirDegeri,
+    if (hedefKilo != null) 'hedefKilo': hedefKilo,
   };
   
   // Hafızadan okumak için Metinden (JSON) Objeye çevir
@@ -60,6 +70,8 @@ class Gorev {
       json['yapildiMi'], 
       json['tip'],
       setList,
+      json['rirDegeri'] as int?,
+      (json['hedefKilo'] as num?)?.toDouble(),
     );
   }
 }

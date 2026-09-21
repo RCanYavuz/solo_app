@@ -286,18 +286,30 @@ Kullanıcıdan toplanan verilere göre sistemin uygulayacağı deterministik kur
 
 ---
 
-### 🚀 FAZ 3: Sıradaki Master Geliştirme Seçenekleri (Yol Haritası)
+### 🏋️‍♂️ FAZ 3: Akıllı Antrenman Zekası & Progresif Aşırı Yükleme Motoru [TAMAMLANDI]
+- **📈 Çift Progresyon (Double Progression) Kural Motoru (`ProgressiveOverloadEngine`):**
+  - **RIR 4+ (Çok Kolay):** Ağırlık otomatik olarak üst gövdede $+2.5$ kg, bacak egzersizlerinde $+5.0$ kg (vücut ağırlığı egzersizlerinde $+2$ tekrar) artırılır.
+  - **RIR 2-3 (Optimum Hipertrofi):** Ağırlık korunur, bir sonraki seans için $+1$ tekrar hedefi konur. 12 tekrar barajı aşıldığında ağırlık artırılıp tekrar 8'e dengelenir.
+  - **RIR 0-1 (Tükeniş / Limit):** Ağırlık ve tekrar korunur, kas toparlanması ve uyku emredilir.
+- **🛡️ Eklem Koruma Protokolü & Akıllı İkame:**
+  - Egzersiz esnasında omuz, diz, bel veya dirsekte batma/ağrı bildirildiğinde sistem `ExerciseCoach` üzerinden anında eklem dostu alternatif hareket (örn: Dumbbell Floor Press, Trap Bar Deadlift, Goblet Squat) önerir.
+- **⚡ Solo Leveling Holografik Bildirim Penceresi (`RirFeedbackModal`):**
+  - Egzersiz onaylandığında veya tüm setler bittiğinde açılan 1 dokunuşluk Sistem Bildirimi. Avcı dilerse dilediği an kart üzerindeki hız simgesiyle manuel de bildirebilir.
+- **💾 Kalıcı Aşırı Yükleme Hafızası (`SystemMemory.overloadGecmisi`):**
+  - Avcının her hareketteki son ağırlığı, tekrarı, RIR puanı ve sistem direktifleri şifrelenmiş veri kasasında saklanır; `ActiveWorkoutScreen` içinde egzersiz kartının altında canlı sistem hedefi çipi olarak gösterilir.
+- **🧪 Test Durumu:** 16 test paketi, 86/86 test yeşil (%100 başarı).
+
+---
+
+### 🚀 FAZ 4: Sıradaki Master Geliştirme Seçenekleri (Yol Haritası)
 
 Aşağıdaki maddeler sistemin sıradaki doğal gelişim basamaklarıdır:
 
-1. **Seans İçi (RIR / RPE) ve Seans Sonu Geri Bildirim & Dinamik Aşırı Yükleme (Progressive Overload):**
-   - Egzersiz tamamlandığında hızlı 1 dokunuşluk mikro soru: *"Tükenişe kaç tekrar vardı? (RIR 0-1, 2-3, 4+)"*
-   - Egzersiz çok kolaysa bir sonraki seans ağırlık/tekrarı otomatik artıran veya eklem ağrısında hareketi ikame eden kural motoru.
-2. **Doğrudan Canlı Kamera Vizörü (Live Camera OCR & Lens):**
+1. **Doğrudan Canlı Kamera Vizörü (Live Camera OCR & Lens):**
    - Diyet ekranında sadece galeri değil, kamerayla anında tabak veya diyetisyen listesi fotoğrafı çekme (`ImageSource.camera`).
-3. **Arka Plan Antrenman Servisi & Bildirim Çubuğu Kronometresi (Background Service):**
+2. **Arka Plan Antrenman Servisi & Bildirim Çubuğu Kronometresi (Background Service):**
    - Ekran kilitlendiğinde veya başka uygulamaya geçildiğinde telefonun bildirim alanında canlı sayaç (`04:35 - Set Dinlenmesi Devam Ediyor`) gösterimi.
-4. **Haftalık Zindan Bossu Faz Mekanikleri & RPG Çeşitlendirmesi:**
+3. **Haftalık Zindan Bossu Faz Mekanikleri & RPG Çeşitlendirmesi:**
    - Haftalık Boss savaşlarında avcının tamamladığı boks raundları ve antrenman hacmine göre boss'a kritik vuruş (Critical Strike) animasyonları ve zindan ganimetleri.
 
 ---

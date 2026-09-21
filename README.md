@@ -234,9 +234,6 @@ lib/
 12. **Dungeon & Boks Sayacı Mutlak Duvar Saati (Wall-Clock) Senkronizasyonu & Canlı Raid HUD:** Zindan sayacı `_dungeonBaslangicZamani` mutlak duvar saatine bağlandı. Combat Sim açıldığında en üstte canlı `[ ⚔️ ACTIVE RAID IN PROGRESS | HH:MM:SS ]` HUD banner'ı eklendi. Boks bitişinde zindanın erkenden sonlandırılması engellendi; savaş exp ve stat ödülü verilip zindana kesintisiz dönüş sağlandı.
 13. **Antrenman Ekleme Ekranının Yeniden Düzenlenmesi (`AdvancedExerciseSelectorModal`):** 875+ egzersiz kütüphanesiyle tam entegre, anlık filtrelemeli canlı arama çubuğu (`TextField`), kategori filtre çipleri (Göğüs, Sırt, Omuz/Kol, Bacak, Karın, Dövüş, Kardiyo, Calisthenics), YouTube video formu önizleme butonu, dinamik set/tekrar/dakika seçicileri ve tek dokunuşla ekleme modalı hem `ActiveWorkoutScreen` hem de `WorkoutPlannerScreen`'e entegre edildi.
 
-> [!TIP]
-> **🎉 FAZ 1 & FAZ 2 RESMEN %100 TAMAMLANMIŞTIR!**
-
 ---
 
 ### 🧬 Faz 2: Bilimsel Metabolik Motor, Diyetisyen Analizi & Hedef Kilo Entegrasyonu (%100 TAMAMLANDI)
@@ -268,6 +265,21 @@ lib/
 
 ---
 
+### 🏋️‍♂️ Faz 3: Akıllı Antrenman Zekası & Progresif Aşırı Yükleme Motoru (%100 TAMAMLANDI)
+
+1. **📈 Çift Progresyon Kural Motoru (`ProgressiveOverloadEngine`):**
+   - **RIR 4+ (Çok Kolay / Hafif Yük):** Avcının gücü uyandığında ağırlık otomatik olarak üst gövdede **+2.5 kg**, bacakta **+5.0 kg** (vücut ağırlığı egzersizlerinde **+2 tekrar**) artırılır.
+   - **RIR 2-3 (Optimum Hipertrofi):** Ağırlık korunur, bir sonraki seans için **+1 tekrar** hedefi konur. 12 tekrar barajına ulaşıldığında ağırlık artırılıp tekrar 8'e dengelenir.
+   - **RIR 0-1 (Tükeniş / Limit):** Ağırlık ve tekrar korunur, toparlanma ve protein alımı emredilir.
+2. **⚠️ Eklem Koruma Protokolü & Güvenli İkame:**
+   - Egzersiz esnasında omuz, diz, bel veya dirsekte batma/ağrı bildirildiğinde sistem `ExerciseCoach` üzerinden anında eklem dostu alternatif hareket (örn: Dumbbell Floor Press, Trap Bar Deadlift, Goblet Squat) atar.
+3. **⚡ Holografik Sistem Penceresi (`RirFeedbackModal`):**
+   - Egzersiz onaylandığında veya tüm setler bittiğinde açılan 1 dokunuşluk Solo Leveling Sistem Bildirimi. Avcı dilerse dilediği an kart üzerindeki hız simgesiyle manuel de bildirebilir.
+4. **💾 Kalıcı Aşırı Yükleme Hafızası (`SystemMemory.overloadGecmisi`):**
+   - Avcının her hareketteki son ağırlığı, tekrarı, RIR puanı ve sistem direktifleri şifrelenmiş veri kasasında saklanır; `ActiveWorkoutScreen` içinde egzersiz kartının altında canlı sistem hedefi çipi olarak gösterilir.
+
+---
+
 ## 📊 Sistem Analiz ve Durum Raporu (System Diagnostic Status)
 
 | Modül / Özellik | Durum | Kapsam & Gerçekleştirilen Fonksiyonlar |
@@ -278,6 +290,7 @@ lib/
 | **YouTube Form Rehberi** | ✅ **YAPILDI** | Akıllı başlık sanitizasyonu, tüm ekranlarda tek tıkla video başlatma |
 | **Avcı Taktik Kartı & Swap** | ✅ **YAPILDI** | Hedef kas, dövüş katkısı, 3 altın kural ve anlık 3 alternatif hareket değişimi |
 | **Set Logger & Rest Timer** | ✅ **YAPILDI** | Set/kg/tekrar loglama, 30-120sn sesli geri sayım sayacı |
+| **Progresif Aşırı Yükleme (RIR)** | ✅ **YAPILDI** | `ProgressiveOverloadEngine`, Double Progression, RIR 0-1/2-3/4+, Eklem Koruma, `RirFeedbackModal` |
 | **Dinamik Zindan Genişletme** | ✅ **YAPILDI** | Zindana anında ek hareket ekleme/kaldırma, 875+ kütüphane entegrasyonu |
 | **Uzatılmış İdman & Kardiyo** | ✅ **YAPILDI** | 6-8 hareket standardı, zorunlu kardiyo katmanı, Hacim & Raund seçicileri |
 | **Gölge Boksu & Dövüş Sim** | ✅ **YAPILDI** | Branşa özel 5 raundluk gölge boksu stilleri ve kombinasyonları |
@@ -314,10 +327,11 @@ lib/
 
 ## 🧪 Otomatik Test Paketi
 
-Proje güvenilirliği için **15 test paketi ve toplam 76 test senaryosu** hazırlanmıştır (%100 Başarılı / Yeşil):
+Proje güvenilirliği için **16 test paketi ve toplam 86 test senaryosu** hazırlanmıştır (%100 Başarılı / Yeşil):
 
 | Test Dosyası | Kapsam |
 |--------------|--------|
+| [`test/progressive_overload_engine_test.dart`](test/progressive_overload_engine_test.dart) | Çift progresyon (Double Progression), RIR 4+ (+2.5kg/+5kg), RIR 2-3 (+1 rep), RIR 0-1 (toparlanma), eklem koruma ikamesi, `OverloadKaydi` JSON ve `RirFeedbackModal` widget testleri |
 | [`test/advanced_metabolic_engine_test.dart`](test/advanced_metabolic_engine_test.dart) | US Navy vücut yağı, LBM, Katch-McArdle BMR, TDEE, MET yıpranması, hedef kilo projeksiyonu ve sisteme entegrasyon testleri |
 | [`test/dietitian_scanner_widget_test.dart`](test/dietitian_scanner_widget_test.dart) | Diyetisyen tarayıcı modalı, form alanları ve Makro Lab US Navy biyometrik kart render testleri |
 | [`test/assessment_flow_widget_test.dart`](test/assessment_flow_widget_test.dart) | 4 Adımlı Wizard, çoklu dövüş branşı, 1RM dövüş ağırlık testleri, odak bölgeleri, unvan senkronizasyonu |

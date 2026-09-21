@@ -12,6 +12,7 @@ import '../models/food_model.dart';
 import '../models/inventory_item_model.dart';
 import '../core/services/gemini_service.dart';
 import '../core/advanced_metabolic_engine.dart';
+import '../core/progressive_overload_engine.dart';
 
 class SystemMemory {
   static bool get _isTest {
@@ -281,6 +282,7 @@ class SystemMemory {
   static int uyunanSaat = 0;           
 
   static Map<int, List<Gorev>> haftalikPlan = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] };
+  static Map<String, OverloadKaydi> overloadGecmisi = {};
 
   static ValueNotifier<int> bossHP = ValueNotifier(0);
   static int bossMaxHP = 0;
@@ -431,6 +433,12 @@ class SystemMemory {
         diyetisyenOgunleri = doList.map((e) => Map<String, dynamic>.from(e as Map)).toList();
       } catch (_) {}
 
+      String overloadJson = prefs.getString('overloadGecmisi') ?? '{}';
+      try {
+        Map<String, dynamic> oMap = jsonDecode(overloadJson);
+        overloadGecmisi = oMap.map((key, value) => MapEntry(key, OverloadKaydi.fromJson(value)));
+      } catch (_) {}
+
       bossGuncelle();
     }
   }
@@ -534,8 +542,29 @@ class SystemMemory {
     Map<String, dynamic> nPlanKayit = {};
     normalHaftalikPlan.forEach((key, value) { nPlanKayit[key.toString()] = value.map((e) => e.toJson()).toList(); });
     prefs.setString('normalHaftalikPlan', jsonEncode(nPlanKayit));
+    prefs.setString('overloadGecmisi', jsonEncode(
+      overloadGecmisi.map((key, value) => MapEntry(key, value.toJson())),
+    ));
 
     bossGuncelle();
+  }
+
+  static void overloadKaydiEkle(OverloadKaydi kayit) {
+    overloadGecmisi[kayit.egzersizAdi] = kayit;
+    kaydet();
+  }
+
+  static OverloadKaydi? getOverloadOneri(String egzersizAdi) {
+    if (overloadGecmisi.containsKey(egzersizAdi)) {
+      return overloadGecmisi[egzersizAdi];
+    }
+    for (var entry in overloadGecmisi.entries) {
+      if (entry.key.toLowerCase().contains(egzersizAdi.toLowerCase()) ||
+          egzersizAdi.toLowerCase().contains(entry.key.toLowerCase())) {
+        return entry.value;
+      }
+    }
+    return null;
   }
 
   static void kirmiziGecideGir(int secilenGun, int hedefKalori, String secilenPlan) {
@@ -1789,6 +1818,7 @@ class SystemMemory {
     for(int i=1; i<=7; i++) {
       normalHaftalikPlan[i] = [];
     }
+    overloadGecmisi.clear();
     level.value = 1;
     exp.value = 0;
     hp.value = 100;

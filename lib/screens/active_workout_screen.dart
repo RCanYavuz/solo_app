@@ -12,6 +12,8 @@ import '../core/youtube_helper.dart';
 import '../widgets/exercise_detail_modal.dart';
 import '../widgets/rest_timer_dialog.dart'; 
 import '../widgets/advanced_exercise_selector_modal.dart';
+import '../widgets/rir_feedback_modal.dart';
+import '../core/progressive_overload_engine.dart';
 
 class ActiveWorkoutScreen extends StatefulWidget {
   final DateTime Function()? nowProvider;
@@ -626,9 +628,31 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
     );
   }
 
+  void _rirGeriBildirimTetikle(Gorev gorev) {
+    double sonKilo = 0.0;
+    int sonTekrar = 10;
+    if (gorev.setler.isNotEmpty) {
+      final tamamlananlar = gorev.setler.where((s) => s.tamamlandi).toList();
+      final sonSet = tamamlananlar.isNotEmpty ? tamamlananlar.last : gorev.setler.last;
+      sonKilo = sonSet.kilo;
+      sonTekrar = sonSet.tekrar;
+    }
+
+    RirFeedbackModal.goster(
+      context,
+      egzersizAdi: gorev.ad,
+      sonKilo: sonKilo,
+      sonTekrar: sonTekrar,
+      onTamamlandi: () {
+        if (mounted) setState(() {});
+      },
+    );
+  }
+
   Widget _buildQuestCard(Gorev gorev, int index) {
     final bool acik = _acikSetler.contains(index);
     final bool fiziksel = gorev.tip == "Fiziksel";
+    final OverloadKaydi? overloadOneri = SystemMemory.getOverloadOneri(gorev.ad);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -656,6 +680,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                 if (val == true) {
                   AudioSystem.playTransition();
                   RestTimerDialog.show(context, exerciseName: gorev.ad);
+                  _rirGeriBildirimTetikle(gorev);
                 }
               },
             ),
@@ -677,33 +702,90 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                 ),
               ),
             ),
-            subtitle: GestureDetector(
-              onTap: () => ExerciseDetailModal.show(
-                context,
-                gorevAdi: gorev.ad,
-                gun: bugunIndex,
-                index: index,
-                onSwapped: () => setState(() {}),
-              ),
-              child: Row(
-                children: [
-                  Text(
-                    fiziksel ? '[PHY]' : '[MNT]',
-                    style: TextStyle(
-                      color: fiziksel ? sysBlue.withValues(alpha: 0.7) : mentalPurple,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GestureDetector(
+                  onTap: () => ExerciseDetailModal.show(
+                    context,
+                    gorevAdi: gorev.ad,
+                    gun: bugunIndex,
+                    index: index,
+                    onSwapped: () => setState(() {}),
+                  ),
+                  child: Row(
+                    children: [
+                      Text(
+                        fiziksel ? '[PHY]' : '[MNT]',
+                        style: TextStyle(
+                          color: fiziksel ? sysBlue.withValues(alpha: 0.7) : mentalPurple,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      const Text('• Dokun: Taktik / Alternatif', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 10)),
+                    ],
+                  ),
+                ),
+                if (fiziksel && overloadOneri != null) ...[
+                  const SizedBox(height: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: overloadOneri.agriBildirildiMi
+                          ? sysRed.withValues(alpha: 0.15)
+                          : sysBlue.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(
+                        color: overloadOneri.agriBildirildiMi
+                            ? sysRed.withValues(alpha: 0.5)
+                            : sysBlue.withValues(alpha: 0.4),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          overloadOneri.agriBildirildiMi ? Icons.warning_amber : Icons.bolt,
+                          color: overloadOneri.agriBildirildiMi ? sysRed : sysBlue,
+                          size: 11,
+                        ),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            overloadOneri.agriBildirildiMi
+                                ? 'İkame: ${overloadOneri.onerilenAlternatif ?? "Alternatif Önerildi"}'
+                                : 'Sistem Hedefi: ${overloadOneri.onerilenKilo > 0 ? "${overloadOneri.onerilenKilo.toStringAsFixed(1)} kg" : "BW"} x ${overloadOneri.onerilenTekrar} (RIR ${overloadOneri.sonRir})',
+                            style: TextStyle(
+                              color: overloadOneri.agriBildirildiMi ? sysRed : sysBlue,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 5),
-                  const Text('• Dokun: Taktik / Alternatif', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 10)),
                 ],
-              ),
+              ],
             ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (fiziksel)
+                if (fiziksel) ...[
+                  IconButton(
+                    icon: Icon(
+                      Icons.speed,
+                      color: overloadOneri != null ? sysBlue : const Color(0xFF94A3B8),
+                      size: 18,
+                    ),
+                    tooltip: 'RIR / Efor Bildir',
+                    padding: const EdgeInsets.all(4),
+                    constraints: const BoxConstraints(),
+                    onPressed: () => _rirGeriBildirimTetikle(gorev),
+                  ),
                   IconButton(
                     icon: Icon(
                       acik ? Icons.expand_less : Icons.playlist_add_check,
@@ -723,6 +805,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                       });
                     },
                   ),
+                ],
                 YoutubeHelper.buildYouTubeButton(gorevAdi: gorev.ad, size: 20),
                 IconButton(
                   icon: const Icon(Icons.close, color: Colors.white30, size: 18),
@@ -854,6 +937,9 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                         if (s.tamamlandi) {
                           AudioSystem.playTransition();
                           RestTimerDialog.show(context, exerciseName: '${gorev.ad} (Set ${s.setNo})');
+                          if (gorev.setler.every((setItem) => setItem.tamamlandi)) {
+                            _rirGeriBildirimTetikle(gorev);
+                          }
                         }
                       },
                     ),
