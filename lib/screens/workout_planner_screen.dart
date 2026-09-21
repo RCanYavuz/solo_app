@@ -10,6 +10,7 @@ import '../core/sistem_gecisi.dart';
 import 'workout_library_screen.dart'; 
 import '../core/translation_manager.dart';
 import '../widgets/exercise_detail_modal.dart';
+import '../widgets/advanced_exercise_selector_modal.dart';
 
 class WorkoutPlannerScreen extends StatefulWidget {
   const WorkoutPlannerScreen({super.key});
@@ -684,7 +685,41 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
                               )
                             )
                           ),
-                          const SizedBox(width: 10),
+                          const SizedBox(width: 8),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: sysBlue.withValues(alpha: 0.15),
+                              border: Border.all(color: sysBlue),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: IconButton(
+                              icon: const Icon(Icons.manage_search, color: sysBlue),
+                              tooltip: 'Kütüphaneden Ara & Ekle',
+                              onPressed: () {
+                                AdvancedExerciseSelectorModal.show(
+                                  context,
+                                  baslik: 'PLANA EGZERSİZ ENJEKTE ET',
+                                  onayButonMetni: 'SEÇİLİ GÜNLERE EKLE',
+                                  onEklendi: (gorev) {
+                                    setState(() {
+                                      for (int gun in seciliGunler) {
+                                        SystemMemory.haftalikPlan[gun]!.add(Gorev(gorev.ad, false, gorev.tip));
+                                      }
+                                    });
+                                    SystemMemory.kaydet();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('SİSTEM: "${gorev.ad}" seçili günlere eklendi!'),
+                                        backgroundColor: const Color(0xFF22C55E),
+                                        duration: const Duration(seconds: 2),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 8),
                           Container(
                             decoration: BoxDecoration(color: secilenTip == 'Fiziksel' ? physicalGold.withValues(alpha: 0.15) : mentalPurple.withValues(alpha: 0.15), border: Border.all(color: secilenTip == 'Fiziksel' ? physicalGold : mentalPurple), borderRadius: BorderRadius.circular(4)), 
                             child: IconButton(icon: Icon(Icons.add, color: secilenTip == 'Fiziksel' ? physicalGold : mentalPurple), onPressed: hareketEkle)

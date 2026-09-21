@@ -11,9 +11,11 @@ import 'boxing_timer_screen.dart';
 import '../core/youtube_helper.dart'; 
 import '../widgets/exercise_detail_modal.dart';
 import '../widgets/rest_timer_dialog.dart'; 
+import '../widgets/advanced_exercise_selector_modal.dart';
 
 class ActiveWorkoutScreen extends StatefulWidget {
-  const ActiveWorkoutScreen({super.key});
+  final DateTime Function()? nowProvider;
+  const ActiveWorkoutScreen({super.key, this.nowProvider});
 
   @override
   State<ActiveWorkoutScreen> createState() => _ActiveWorkoutScreenState();
@@ -28,48 +30,43 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
   static const Color mentalPurple = Color(0xFFA060E0); 
 
   int gecenSaniye = 0;
+  late final DateTime _dungeonBaslangicZamani;
   Timer? _kronometre;
   int bugunIndex = DateTime.now().weekday;
   final Set<int> _acikSetler = {};
 
-  // 2. YENİ: Arka plana düşüş zamanını kaydedeceğimiz değişken
-  DateTime? _arkaPlanaGidisZamani;
+  DateTime get _now => widget.nowProvider != null ? widget.nowProvider!() : DateTime.now();
 
   @override
   void initState() {
     super.initState();
-    // 3. YENİ: Gözlemciyi başlat
     WidgetsBinding.instance.addObserver(this);
+    _dungeonBaslangicZamani = _now;
     
     _kronometre = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        gecenSaniye++;
-      });
+      if (mounted) {
+        setState(() {
+          gecenSaniye = _now.difference(_dungeonBaslangicZamani).inSeconds;
+        });
+      }
     });
   }
 
   @override
   void dispose() {
-    // 4. YENİ: Gözlemciyi yok et
     WidgetsBinding.instance.removeObserver(this);
     _kronometre?.cancel();
     super.dispose();
   }
 
-  // 5. YENİ: ZAMAN FARKI HESAPLAYICI (Ekran kilitlendiğinde veya alta alındığında çalışır)
+  // ZAMAN FARKI HESAPLAYICI (Ekran kilitlendiğinde, alta alındığında veya geri dönüldüğünde)
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused) {
-      // Uygulama arka plana atıldı veya ekran kilitlendi
-      _arkaPlanaGidisZamani = DateTime.now();
-    } else if (state == AppLifecycleState.resumed) {
-      // Uygulamaya geri dönüldü
-      if (_arkaPlanaGidisZamani != null) {
-        final fark = DateTime.now().difference(_arkaPlanaGidisZamani!).inSeconds;
+    if (state == AppLifecycleState.resumed) {
+      if (mounted) {
         setState(() {
-          gecenSaniye += fark; // Aradan geçen kayıp saniyeleri sayaca ekle
+          gecenSaniye = _now.difference(_dungeonBaslangicZamani).inSeconds;
         });
-        _arkaPlanaGidisZamani = null;
       }
     }
   }
@@ -438,519 +435,21 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
   }
 
   void _ekHareketEkleDialog() {
-    AudioSystem.playTransition();
-    final TextEditingController hareketCtrl = TextEditingController();
-    String secilenKategori = 'Tümü';
-    String secilenTip = 'Fiziksel';
-    int secilenSetSayisi = 5;
-    int secilenTekrarSayisi = 12;
-    String secilenHareketAdi = '';
-
-    final Map<String, List<String>> kategorikHareketler = {
-      'Dövüş/Gölge': [
-        'Peek-a-boo: Bob & Weave + 1-2-Roll-3',
-        'Out-Boxer: Double Jab + Cross + Sol Pivot',
-        'İç Dövüş: 1-2 + Karaciğer Kroşesi + Aparkat',
-        'Dutch Kickboks: 1-2-Sol Kroşe-Sağ Low Kick',
-        'Muay Thai: Teep + 1-2 + Yatay Dirsek + Diz',
-        'MMA: 1-2 + Takedown Sahtesi + Overhand + Sprawl',
-        'Güreş: Pummeling & Seviye Değişimi Drilli',
-        'Ağır Kum Torbası Kombinasyonları',
-        'Hızlı İp Atlama & Ayak Çevikliği',
-        'Burpee Sprawl & Darbe Direnci',
-      ],
-      'Göğüs': [
-        'Incline Dumbbell Press',
-        'Barbell Bench Press',
-        'Dumbbell Fly',
-        'Dips / Sehpada İtiş',
-        'Kablo Göğüs İtiş',
-        'Şınav (Push-up)',
-      ],
-      'Sırt': [
-        'Barfiks (Pull-up)',
-        'Lat Pulldown',
-        'Dumbbell Row',
-        'Face Pull',
-        'T-Bar Row',
-      ],
-      'Omuz/Kol': [
-        'Overhead DB Press',
-        'Lateral Raise',
-        'Biceps Barbell Curl',
-        'Hammer Curl',
-        'Triceps Rope Pushdown',
-      ],
-      'Bacak': [
-        'Barbell Squat',
-        'Leg Press',
-        'Romanian Deadlift',
-        'Leg Extension',
-        'Lunge / Adımlama',
-        'Box Jump / Sıçrama',
-      ],
-      'Karın': [
-        'Hanging Leg Raise',
-        'Plank',
-        'Kablo Crunch',
-        'Russian Twist',
-        'Ab Wheel Rollout',
-      ],
-      'Kardiyo': [
-        '5 KM Avcı Koşusu (Hunter Run)',
-        '10 KM Maraton Koşusu',
-        '20 Dk Eğimli Yürüyüş Bandı (Incline Treadmill)',
-        '15 Dk Yüksek Yoğunluklu İp Atlama (HIIT)',
-        '20 Dk Zone 2 Dayanıklılık Koşusu',
-        '15 Dk İnterval Sprint (Zone 4 Tabata)',
-        '20 Dk Kondisyon Bisikleti / Spinning',
-        '15 Dk Concept 2 Kürek Ergometresi',
-        'Dövüş Kondisyonu: Burpee Sprawl & Sıçrama',
-        'Merdiven Tırmanma (Stairmaster)',
-      ],
-    };
-
-    void metniGuncelle(void Function(void Function()) setDialogState) {
-      if (secilenHareketAdi.isEmpty) return;
-      final har = secilenHareketAdi;
-      final isRaund = har.toLowerCase().contains('raund') ||
-          har.toLowerCase().contains('peek') ||
-          har.toLowerCase().contains('boks') ||
-          har.toLowerCase().contains('dutch') ||
-          har.toLowerCase().contains('muay') ||
-          har.toLowerCase().contains('mma') ||
-          har.toLowerCase().contains('gölge') ||
-          har.toLowerCase().contains('torba') ||
-          har.toLowerCase().contains('güreş');
-      final isCardio = har.toLowerCase().contains('koşu') ||
-          har.toLowerCase().contains('yürüyüş') ||
-          har.toLowerCase().contains('ip atlama') ||
-          har.toLowerCase().contains('kürek') ||
-          har.toLowerCase().contains('bisiklet') ||
-          har.toLowerCase().contains('kardiyo') ||
-          har.toLowerCase().contains('cardio') ||
-          har.toLowerCase().contains('stairmaster') ||
-          har.toLowerCase().contains('tabata');
-
-      if (har.contains('5 KM') || har.contains('10 KM')) {
-        hareketCtrl.text = '[CARDIO] $har';
-      } else if (isRaund) {
-        hareketCtrl.text = '$har ($secilenSetSayisi Raund x 3 Dk)';
-      } else if (har.toLowerCase().contains('plank')) {
-        hareketCtrl.text = '$har ($secilenSetSayisi Set x 60sn)';
-      } else if (isCardio) {
-        hareketCtrl.text = '[CARDIO] $har (${secilenSetSayisi * 4} Dk)';
-      } else {
-        hareketCtrl.text = '$har ($secilenSetSayisi Set x $secilenTekrarSayisi Tekrar)';
-      }
-      setDialogState(() {});
-    }
-
-    showDialog(
-      context: context,
-      builder: (dialogCtx) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            List<String> gosterilecekHareketler = [];
-            if (secilenKategori == 'Tümü') {
-              kategorikHareketler.forEach((_, list) => gosterilecekHareketler.addAll(list));
-            } else {
-              gosterilecekHareketler = kategorikHareketler[secilenKategori] ?? [];
-            }
-
-            return AlertDialog(
-              backgroundColor: const Color(0xFF030712).withValues(alpha: 0.98),
-              shape: RoundedRectangleBorder(
-                side: const BorderSide(color: Color(0xFF22C55E), width: 1.5),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              titlePadding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-              contentPadding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-              title: Row(
-                children: [
-                  const Icon(Icons.add_circle_outline, color: Color(0xFF22C55E), size: 22),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'ZİNDANA EK HAREKET ENJEKTE ET',
-                      style: GoogleFonts.orbitron(
-                        color: const Color(0xFF22C55E),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              content: SizedBox(
-                width: double.maxFinite,
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'İdman süresini ve hacmini artırmak için set/raund sayısını belirleyin.',
-                        style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
-                      ),
-                      const SizedBox(height: 12),
-
-                      // GÖREV TİPİ & HACİM KADEMELERİ
-                      Row(
-                        children: [
-                          ChoiceChip(
-                            label: const Text('Fiziksel'),
-                            selected: secilenTip == 'Fiziksel',
-                            selectedColor: physicalGold.withValues(alpha: 0.25),
-                            labelStyle: TextStyle(
-                              color: secilenTip == 'Fiziksel' ? physicalGold : const Color(0xFF94A3B8),
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            backgroundColor: const Color(0xFF0F172A),
-                            side: BorderSide(
-                              color: secilenTip == 'Fiziksel' ? physicalGold : Colors.white12,
-                            ),
-                            onSelected: (_) => setDialogState(() => secilenTip = 'Fiziksel'),
-                          ),
-                          const SizedBox(width: 8),
-                          ChoiceChip(
-                            label: const Text('Zihinsel'),
-                            selected: secilenTip == 'Zihinsel',
-                            selectedColor: mentalPurple.withValues(alpha: 0.25),
-                            labelStyle: TextStyle(
-                              color: secilenTip == 'Zihinsel' ? mentalPurple : const Color(0xFF94A3B8),
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            backgroundColor: const Color(0xFF0F172A),
-                            side: BorderSide(
-                              color: secilenTip == 'Zihinsel' ? mentalPurple : Colors.white12,
-                            ),
-                            onSelected: (_) => setDialogState(() => secilenTip = 'Zihinsel'),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-
-                      // İDMANI UZATMA: HIZLI HACİM SEVİYELERİ
-                      Text(
-                        'HACİM & UZATMA SEVİYESİ:',
-                        style: GoogleFonts.orbitron(
-                          color: const Color(0xFF22C55E),
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Wrap(
-                        spacing: 6,
-                        children: [
-                          ActionChip(
-                            label: const Text('⚡ Standart (4 Set/Raund)'),
-                            backgroundColor: secilenSetSayisi == 4 ? const Color(0xFF22C55E).withValues(alpha: 0.2) : const Color(0xFF0F172A),
-                            side: BorderSide(color: secilenSetSayisi == 4 ? const Color(0xFF22C55E) : Colors.white12),
-                            labelStyle: TextStyle(color: secilenSetSayisi == 4 ? const Color(0xFF22C55E) : Colors.white70, fontSize: 10),
-                            onPressed: () {
-                              setDialogState(() {
-                                secilenSetSayisi = 4;
-                                secilenTekrarSayisi = 10;
-                                metniGuncelle(setDialogState);
-                              });
-                            },
-                          ),
-                          ActionChip(
-                            label: const Text('⚔️ Uzatılmış (6 Set/Raund)'),
-                            backgroundColor: secilenSetSayisi == 6 ? const Color(0xFF38BDF8).withValues(alpha: 0.2) : const Color(0xFF0F172A),
-                            side: BorderSide(color: secilenSetSayisi == 6 ? const Color(0xFF38BDF8) : Colors.white12),
-                            labelStyle: TextStyle(color: secilenSetSayisi == 6 ? const Color(0xFF38BDF8) : Colors.white70, fontSize: 10),
-                            onPressed: () {
-                              setDialogState(() {
-                                secilenSetSayisi = 6;
-                                secilenTekrarSayisi = 12;
-                                metniGuncelle(setDialogState);
-                              });
-                            },
-                          ),
-                          ActionChip(
-                            label: const Text('👑 Şampiyon (8 Set/Raund)'),
-                            backgroundColor: secilenSetSayisi == 8 ? const Color(0xFFA855F7).withValues(alpha: 0.2) : const Color(0xFF0F172A),
-                            side: BorderSide(color: secilenSetSayisi == 8 ? const Color(0xFFA855F7) : Colors.white12),
-                            labelStyle: TextStyle(color: secilenSetSayisi == 8 ? const Color(0xFFA855F7) : Colors.white70, fontSize: 10),
-                            onPressed: () {
-                              setDialogState(() {
-                                secilenSetSayisi = 8;
-                                secilenTekrarSayisi = 15;
-                                metniGuncelle(setDialogState);
-                              });
-                            },
-                          ),
-                          ActionChip(
-                            label: const Text('🔥 Ekstrem (10 Set/Raund)'),
-                            backgroundColor: secilenSetSayisi >= 10 ? const Color(0xFFEF4444).withValues(alpha: 0.2) : const Color(0xFF0F172A),
-                            side: BorderSide(color: secilenSetSayisi >= 10 ? const Color(0xFFEF4444) : Colors.white12),
-                            labelStyle: TextStyle(color: secilenSetSayisi >= 10 ? const Color(0xFFEF4444) : Colors.white70, fontSize: 10),
-                            onPressed: () {
-                              setDialogState(() {
-                                secilenSetSayisi = 10;
-                                secilenTekrarSayisi = 20;
-                                metniGuncelle(setDialogState);
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-
-                      // MANUEL SAYAÇLAR
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF070B14),
-                                border: Border.all(color: Colors.white12),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('Set/Raund: $secilenSetSayisi', style: const TextStyle(color: Colors.white, fontSize: 11)),
-                                  Row(
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(Icons.remove, size: 14, color: Colors.white70),
-                                        padding: EdgeInsets.zero,
-                                        constraints: const BoxConstraints(),
-                                        onPressed: () {
-                                          if (secilenSetSayisi > 1) {
-                                            setDialogState(() {
-                                              secilenSetSayisi--;
-                                              metniGuncelle(setDialogState);
-                                            });
-                                          }
-                                        },
-                                      ),
-                                      const SizedBox(width: 6),
-                                      IconButton(
-                                        icon: const Icon(Icons.add, size: 14, color: Color(0xFF22C55E)),
-                                        padding: EdgeInsets.zero,
-                                        constraints: const BoxConstraints(),
-                                        onPressed: () {
-                                          if (secilenSetSayisi < 15) {
-                                            setDialogState(() {
-                                              secilenSetSayisi++;
-                                              metniGuncelle(setDialogState);
-                                            });
-                                          }
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF070B14),
-                                border: Border.all(color: Colors.white12),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('Tekrar: $secilenTekrarSayisi', style: const TextStyle(color: Colors.white, fontSize: 11)),
-                                  Row(
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(Icons.remove, size: 14, color: Colors.white70),
-                                        padding: EdgeInsets.zero,
-                                        constraints: const BoxConstraints(),
-                                        onPressed: () {
-                                          if (secilenTekrarSayisi > 4) {
-                                            setDialogState(() {
-                                              secilenTekrarSayisi -= 2;
-                                              metniGuncelle(setDialogState);
-                                            });
-                                          }
-                                        },
-                                      ),
-                                      const SizedBox(width: 6),
-                                      IconButton(
-                                        icon: const Icon(Icons.add, size: 14, color: Color(0xFF22C55E)),
-                                        padding: EdgeInsets.zero,
-                                        constraints: const BoxConstraints(),
-                                        onPressed: () {
-                                          if (secilenTekrarSayisi < 50) {
-                                            setDialogState(() {
-                                              secilenTekrarSayisi += 2;
-                                              metniGuncelle(setDialogState);
-                                            });
-                                          }
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-
-                      TextField(
-                        controller: hareketCtrl,
-                        style: const TextStyle(color: Colors.white, fontSize: 13),
-                        decoration: InputDecoration(
-                          labelText: 'Hareket Adı & Set / Tekrar',
-                          labelStyle: const TextStyle(color: Color(0xFF22C55E), fontSize: 11),
-                          hintText: 'Örn: Incline DB Press (5 Set x 12 Tekrar)',
-                          hintStyle: const TextStyle(color: Colors.white24, fontSize: 11),
-                          filled: true,
-                          fillColor: const Color(0xFF070B14),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: const Color(0xFF22C55E).withValues(alpha: 0.3)),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Color(0xFF22C55E)),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          suffixIcon: IconButton(
-                            icon: const Icon(Icons.clear, color: Colors.white30, size: 16),
-                            onPressed: () => hareketCtrl.clear(),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-
-                      Text(
-                        'HIZLI SEÇENEKLER (DOKUN VE DOLDUR):',
-                        style: GoogleFonts.orbitron(
-                          color: const Color(0xFF94A3B8),
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: ['Tümü', ...kategorikHareketler.keys].map((kat) {
-                            final bool aktif = secilenKategori == kat;
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 6.0),
-                              child: FilterChip(
-                                label: Text(kat),
-                                selected: aktif,
-                                selectedColor: sysBlue.withValues(alpha: 0.25),
-                                labelStyle: TextStyle(
-                                  color: aktif ? sysBlue : const Color(0xFF94A3B8),
-                                  fontSize: 10,
-                                  fontWeight: aktif ? FontWeight.bold : FontWeight.normal,
-                                ),
-                                backgroundColor: const Color(0xFF0F172A),
-                                side: BorderSide(
-                                  color: aktif ? sysBlue : Colors.white10,
-                                ),
-                                onSelected: (_) => setDialogState(() => secilenKategori = kat),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxHeight: 140),
-                        child: SingleChildScrollView(
-                          child: Wrap(
-                            spacing: 6,
-                            runSpacing: 6,
-                            children: gosterilecekHareketler.map((har) {
-                              return ActionChip(
-                                label: Text(har),
-                                backgroundColor: const Color(0xFF0F172A),
-                                side: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
-                                labelStyle: const TextStyle(color: Colors.white, fontSize: 10),
-                                onPressed: () {
-                                  secilenHareketAdi = har;
-                                  metniGuncelle(setDialogState);
-                                },
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(dialogCtx),
-                  child: const Text('İPTAL', style: TextStyle(color: Color(0xFF94A3B8))),
-                ),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    final text = hareketCtrl.text.trim();
-                    if (text.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Lütfen bir hareket adı girin veya chip seçin!'),
-                          backgroundColor: sysRed,
-                          duration: Duration(seconds: 1),
-                        ),
-                      );
-                      return;
-                    }
-
-                    String formatliAd = text;
-                    if (!formatliAd.startsWith('[')) {
-                      formatliAd = secilenTip == 'Fiziksel' ? '[EXTRA] $text' : '[MNT] $text';
-                    }
-
-                    final yeniGorev = Gorev(formatliAd, false, secilenTip);
-                    setState(() {
-                      SystemMemory.haftalikPlan[bugunIndex]!.add(yeniGorev);
-                    });
-                    SystemMemory.kaydet();
-                    AudioSystem.playSuccess();
-                    Navigator.pop(dialogCtx);
-
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('SİSTEM: "$formatliAd" zindana başarıyla eklendi!'),
-                        backgroundColor: const Color(0xFF22C55E),
-                        duration: const Duration(seconds: 2),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.add, color: Colors.black, size: 16),
-                  label: const Text(
-                    'ZİNDANA EKLE',
-                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 11),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF22C55E),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                  ),
-                ),
-              ],
-            );
-          },
+    AdvancedExerciseSelectorModal.show(
+      context,
+      baslik: 'ZİNDANA EK HAREKET ENJEKTE ET',
+      onayButonMetni: 'ZİNDANA EKLE',
+      onEklendi: (yeniGorev) {
+        setState(() {
+          SystemMemory.haftalikPlan[bugunIndex]!.add(yeniGorev);
+        });
+        SystemMemory.kaydet();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('SİSTEM: "${yeniGorev.ad}" zindana başarıyla eklendi!'),
+            backgroundColor: const Color(0xFF22C55E),
+            duration: const Duration(seconds: 2),
+          ),
         );
       },
     );
@@ -982,7 +481,23 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                     child: IconButton(
                       icon: const Icon(Icons.sports_mma, color: sysRed, size: 28),
                       tooltip: 'Combat Sim',
-                      onPressed: () => Navigator.push(context, SistemGecisi(sayfa: const BoxingTimerScreen())),
+                      onPressed: () async {
+                        await Navigator.push(
+                          context,
+                          SistemGecisi(
+                            sayfa: BoxingTimerScreen(
+                              isInsideDungeonRaid: true,
+                              dungeonBaslangicZamani: _dungeonBaslangicZamani,
+                              nowProvider: widget.nowProvider,
+                            ),
+                          ),
+                        );
+                        if (mounted) {
+                          setState(() {
+                            gecenSaniye = _now.difference(_dungeonBaslangicZamani).inSeconds;
+                          });
+                        }
+                      },
                     ),
                   ),
 

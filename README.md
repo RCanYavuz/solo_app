@@ -225,10 +225,17 @@ lib/
 9. **Kişiye Özel Yapay Zeka Bitirici (`🤖 AI AVCI ÖZEL BOOSTER`):** Avcının rütbesi, dövüş branşı ve hedef odak bölgelerine göre 4-5 hareketlik yoğun bitirici seansını (kardiyo dahil) tek tuşla idmana ekleyen Gemini REST ve akıllı yerel algoritma motoru kuruldu.
 10. **Dövüş Sporlarına Göre 5-6 Raundluk Gölge Boksu Stilleri & Kombinasyonları:** Boks (Peek-a-boo & Out-boxer), Kickboks (Dutch Volume & Low Kick), Muay Thai (8 Uzuv Teep/Dirsek), MMA (Seviye Değişimi & Sprawl) ve Güreş için her raundu ayrı kombinasyon ve stil içeren profesyonel dövüş simülasyonu.
 11. **İdmanı Uzatma, Dinamik Hacim Kademeleri & Kardiyo Kategori Seçicisi:** Zindana hareket eklerken sabit `3x10` kaldırıldı; kullanıcıya `Standart (4 Set)`, `Uzatılmış (6 Set)`, `Şampiyon (8 Set)` ve `Ekstrem (10 Set)` hızlı seviyeleri, 15 sete ve 50 tekrara kadar sayaçlar, bağımsız **`Kardiyo`** kategorisi ve akıllı süre/mesafe formatlayıcısı sunuldu.
+12. **Dungeon & Boks Sayacı Mutlak Duvar Saati (Wall-Clock) Senkronizasyonu & Canlı Raid HUD:** Zindan sayacı `_dungeonBaslangicZamani` mutlak duvar saatine bağlandı. Combat Sim açıldığında en üstte canlı `[ ⚔️ ACTIVE RAID IN PROGRESS | HH:MM:SS ]` HUD banner'ı eklendi. Boks bitişinde zindanın erkenden sonlandırılması engellendi; savaş exp ve stat ödülü verilip zindana kesintisiz dönüş sağlandı.
+13. **Antrenman Ekleme Ekranının Yeniden Düzenlenmesi (`AdvancedExerciseSelectorModal`):** 875+ egzersiz kütüphanesiyle tam entegre, anlık filtrelemeli canlı arama çubuğu (`TextField`), kategori filtre çipleri (Göğüs, Sırt, Omuz/Kol, Bacak, Karın, Dövüş, Kardiyo, Calisthenics), YouTube video formu önizleme butonu, dinamik set/tekrar/dakika seçicileri ve tek dokunuşla ekleme modalı hem `ActiveWorkoutScreen` hem de `WorkoutPlannerScreen`'e entegre edildi.
 
-### ⏳ Faz 1 Kapsamında Sırada Eklenecekler:
-1. **Antrenman Ekleme Ekranının Yeniden Düzenlenmesi (Gelişmiş Egzersiz Ekleme Modalı):**
-   - 875+ hareketlik kütüphane ile tam entegre, arama çubuğu, kategori filtreleri ve set/tekrar seçicisi olan gelişmiş modal.
+> [!TIP]
+> **🎉 FAZ 1 RESMEN %100 TAMAMLANMIŞTIR!**
+
+### 📌 Faz 2: Diyetisyen Listesi Analizi & Dinamik İdman Yıpranma/Protein Dengeleyicisi (Sıradaki Master Faz)
+1. **Diyetisyen Haftalık Listesi Yükleme (Fotoğraf / Metin):** Diyetisyenin verdiği basılı veya dijital listenin fotoğrafı çekilerek veya metni yapıştırılarak Gemini Vision ile taranır ve sisteme haftalık makro/öğün hedefi olarak kaydedilir.
+2. **Dinamik İdman Yıpranma Takibi (Workload Compensator):** O gün yapılan boks, kum torbası veya ağır squat/deadlift idmanının süresi ve yoğunluğuna göre harcanan ekstra kalori ve kas yıkımı hesaplanır.
+3. **Sistem İkazı & Ek Besin Önerisi:** Yemek ve Ana ekranda:
+   *`[SİSTEM UYARISI: Bugün 90 dk yüksek yoğunluklu boks idmanı tamamlandı. Kas katabolizmasını önlemek için diyetisyen listenize +30g protein ve +450 kcal eklenmesi emredildi.]`* kartı çıkar.
 
 ---
 
@@ -249,7 +256,7 @@ lib/
 
 ## 🧪 Otomatik Test Paketi
 
-Proje güvenilirliği için **11 test paketi ve toplam 61 test senaryosu** hazırlanmıştır (%100 Başarılı):
+Proje güvenilirliği için **13 test paketi ve toplam 66 test senaryosu** hazırlanmıştır (%100 Başarılı):
 
 | Test Dosyası | Kapsam |
 |--------------|--------|
@@ -257,6 +264,8 @@ Proje güvenilirliği için **11 test paketi ve toplam 61 test senaryosu** hazı
 | [`test/system_features_test.dart`](test/system_features_test.dart) | Su takibi, çanta, makrolar, Data Vault, odak bölgelerine göre dinamik antrenman uyarlaması |
 | [`test/exercise_coach_test.dart`](test/exercise_coach_test.dart) | Avcı Taktik Kartı, Akıllı Alternatif Değiştirici (Smart Swap), SetKaydi serileştirmesi, RestTimer ve Detail Modal |
 | [`test/workout_experience_flow_test.dart`](test/workout_experience_flow_test.dart) | Dashboard taktik kartı ve swap akışı, Aktif İdman Set Logger & Rest Timer, **Zindana Ek Hareket Enjekte Etme ve Silme**, Workout Planner butonları |
+| [`test/dungeon_boxing_sync_test.dart`](test/dungeon_boxing_sync_test.dart) | Zindan & Combat Sim sayaç senkronizasyonu, canlı raid HUD banner'ı ve zindanın erken kapanmasını önleme testleri |
+| [`test/advanced_exercise_selector_modal_test.dart`](test/advanced_exercise_selector_modal_test.dart) | 875+ kütüphaneden canlı arama, kategori filtreleri, set/tekrar ve kardiyo dakika seçicileri ile plana/zindana enjeksiyon |
 | [`test/youtube_helper_test.dart`](test/youtube_helper_test.dart) | Egzersiz başlık sanitizasyonu, [COMBAT]/[PHY] etiketleri ve set/tekrar ayıklama testleri |
 | [`test/gemini_integration_test.dart`](test/gemini_integration_test.dart) | Profil API anahtarı, AI besin çözücü ve **AI haftalık antrenman fail-safe fallback testi** |
 | [`test/language_switch_test.dart`](test/language_switch_test.dart) | Türkçe/İngilizce çift dil geçişi, unvanlar, hedefler ve dil fallback |

@@ -14,13 +14,25 @@ class EgitimFazi {
 }
 
 class BoxingTimerScreen extends StatefulWidget {
-  const BoxingTimerScreen({super.key});
+  final bool isInsideDungeonRaid;
+  final DateTime? dungeonBaslangicZamani;
+  final DateTime Function()? nowProvider;
+
+  const BoxingTimerScreen({
+    super.key,
+    this.isInsideDungeonRaid = false,
+    this.dungeonBaslangicZamani,
+    this.nowProvider,
+  });
+
   @override
   State<BoxingTimerScreen> createState() => _BoxingTimerScreenState();
 }
 
 // 1. YENİ: "with WidgetsBindingObserver" EKLENDİ (Sistemi Dinlemek İçin)
 class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindingObserver {
+  DateTime get _now => widget.nowProvider != null ? widget.nowProvider!() : DateTime.now();
+
   static const Color systemBlue = Color(0xFF38BDF8); 
   static const Color physicalGold = Color(0xFFB08D57); 
   static const Color deepBlack = Color(0xFF030712); 
@@ -49,6 +61,7 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
   int kalanSaniye = 0; 
   bool calisiyor = false;
   Timer? _timer;
+  Timer? _zindanCanliTimer;
 
   // 2. YENİ: Arka plana düşüş zamanını kaydedeceğimiz değişken
   DateTime? _arkaPlanaGidisZamani;
@@ -59,6 +72,11 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
     // 3. YENİ: Gözlemciyi başlat
     WidgetsBinding.instance.addObserver(this);
     _parkuruOlustur(); 
+    if (widget.isInsideDungeonRaid && widget.dungeonBaslangicZamani != null) {
+      _zindanCanliTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (mounted) setState(() {});
+      });
+    }
   }
 
   @override
@@ -66,6 +84,7 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
     // 4. YENİ: Gözlemciyi yok et
     WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel(); 
+    _zindanCanliTimer?.cancel();
     super.dispose(); 
   }
 
@@ -238,10 +257,66 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
     }
   }
 
+  void antrenmaniBitir() => _antrenmanBittiDialog();
+
   void _sifirla() { _timer?.cancel(); setState(() { calisiyor = false; _parkuruOlustur(); }); }
 
   void _antrenmanBittiDialog() {
     int toplamSaniye = parkur.fold<int>(0, (sum, f) => sum + f.sureSaniye);
+
+    if (widget.isInsideDungeonRaid) {
+      // Zindan akını içindeyken ana zindan kapatılmaz! Bonus savaş tecrübesi verilir.
+      int kazanilanExp = (toplamSaniye ~/ 10).clamp(30, 200);
+      SystemMemory.expKazan(kazanilanExp);
+      SystemMemory.str.value += 1;
+      SystemMemory.agi.value += 1;
+      SystemMemory.kaydet();
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          backgroundColor: deepBlack,
+          shape: RoundedRectangleBorder(side: const BorderSide(color: systemRed), borderRadius: BorderRadius.circular(4)),
+          title: Text('[ COMBAT PROTOCOL COMPLETE ]', style: GoogleFonts.orbitron(color: systemRed, fontWeight: FontWeight.bold, fontSize: 16)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Combat simulation completed successfully.\nCombat performance has been recorded to your active raid session.",
+                style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: systemRed.withValues(alpha: 0.1),
+                  border: Border.all(color: systemRed.withValues(alpha: 0.4)),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  "+$kazanilanExp EXP EARNED\n+1 STRENGTH | +1 AGILITY\nACTIVE RAID TIMER CONTINUES",
+                  style: GoogleFonts.orbitron(color: systemRed, fontSize: 12, height: 1.5, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: systemRed.withValues(alpha: 0.2), side: const BorderSide(color: systemRed)),
+              onPressed: () {
+                Navigator.pop(context); // Diyaloğu kapat
+                Navigator.pop(context); // Zindana geri dön
+              },
+              child: const Text('RETURN TO ACTIVE RAID', style: TextStyle(color: systemRed, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
     String odulRaporu = SystemMemory.zindanAkiniBitir(toplamSaniye);
 
     showDialog(
@@ -312,13 +387,73 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
     EgitimFazi? siradakiFaz = (parkur.isNotEmpty && aktifFazIndex + 1 < parkur.length) ? parkur[aktifFazIndex + 1] : null;
     Color fazRengi = aktifFaz?.renk ?? systemBlue;
 
+    final int zindanGecenSaniye = (widget.dungeonBaslangicZamani != null)
+        ? _now.difference(widget.dungeonBaslangicZamani!).inSeconds
+        : 0;
+
     return Scaffold(
       backgroundColor: deepBlack,
-      appBar: AppBar(title: Text('C O M B A T   S I M', style: GoogleFonts.rajdhani(color: systemRed, fontWeight: FontWeight.bold, fontSize: 24, letterSpacing: 4.0)), backgroundColor: Colors.transparent, elevation: 0, centerTitle: true, iconTheme: const IconThemeData(color: systemRed)),
+      appBar: AppBar(
+        title: Text('C O M B A T   S I M', style: GoogleFonts.rajdhani(color: systemRed, fontWeight: FontWeight.bold, fontSize: 24, letterSpacing: 4.0)), 
+        backgroundColor: Colors.transparent, 
+        elevation: 0, 
+        centerTitle: true, 
+        iconTheme: const IconThemeData(color: systemRed),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
+              if (widget.isInsideDungeonRaid)
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: systemRed.withValues(alpha: 0.15),
+                    border: Border.all(color: systemRed, width: 1.5),
+                    borderRadius: BorderRadius.circular(4),
+                    boxShadow: [
+                      BoxShadow(
+                        color: systemRed.withValues(alpha: 0.2),
+                        blurRadius: 10,
+                        spreadRadius: 1,
+                      )
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.fireplace, color: systemRed, size: 22),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '⚔️ ACTIVE RAID IN PROGRESS',
+                              style: GoogleFonts.orbitron(color: systemRed, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5),
+                            ),
+                            const Text(
+                              'Dungeon clock keeps ticking in real-time.',
+                              style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 11),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF030712),
+                          border: Border.all(color: systemRed.withValues(alpha: 0.6)),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          _sureFormatla(zindanGecenSaniye),
+                          style: GoogleFonts.orbitron(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               if (!calisiyor)
                 Container(
                   margin: const EdgeInsets.all(15), padding: const EdgeInsets.all(15),
