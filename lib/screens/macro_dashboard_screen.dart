@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../core/diyet_motoru.dart';
+import '../core/advanced_metabolic_engine.dart';
 import '../controllers/system_memory.dart';
 import '../widgets/hologram_card.dart';
 import '../core/translation_manager.dart';
@@ -38,8 +39,13 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
 
   // ─── State ───
   double _kilo = 75.0;
+  double _boy = 178.0;
+  double _belCm = 82.0;
+  String _cinsiyet = 'erkek';
+  int _idmanGunu = 4;
   String _secilenHedef = "yag_yakma";
   Map<String, int>? _sonuc;
+  BodyCompositionResult? _kompozisyon;
 
   late AnimationController _animCtrl;
   late Animation<double> _animDeger;
@@ -48,6 +54,11 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
   void initState() {
     super.initState();
     _kilo = SystemMemory.kilo > 0 ? SystemMemory.kilo : 75.0;
+    _boy = SystemMemory.boy > 0 ? SystemMemory.boy : 178.0;
+    _belCm = SystemMemory.belCm > 0 ? SystemMemory.belCm : 82.0;
+    _cinsiyet = SystemMemory.cinsiyet.isNotEmpty ? SystemMemory.cinsiyet : 'erkek';
+    _idmanGunu = SystemMemory.haftalikIdmanGunuSayisi;
+
     if (SystemMemory.aktifHedef.contains("Kilo Al") || SystemMemory.aktifHedef.contains("Kas")) {
       _secilenHedef = "kilo_alma";
     } else {
@@ -72,7 +83,22 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
 
   void _hesapla() {
     setState(() {
-      _sonuc = DiyetMotoru.makroHesapla(_kilo, _secilenHedef);
+      _kompozisyon = AdvancedMetabolicEngine.hesaplaVucutKompozisyonu(
+        kiloKg: _kilo,
+        boyCm: _boy,
+        belCm: _belCm,
+        cinsiyet: _cinsiyet,
+        haftalikIdmanSayisi: _idmanGunu,
+        dovuscuMu: SystemMemory.dovuscuMu,
+      );
+      _sonuc = DiyetMotoru.makroHesapla(
+        _kilo,
+        _secilenHedef,
+        boy: _boy,
+        belCm: _belCm,
+        cinsiyet: _cinsiyet,
+        idmanGunuHaftalik: _idmanGunu,
+      );
     });
     _animCtrl.forward(from: 0);
   }
@@ -272,7 +298,57 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
                           onChanged: (v) => setState(() => _kilo = double.parse(v.toStringAsFixed(1))),
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 12),
+
+                      // Boy & Bel Çevresi (Biyometrik Kompozisyon Girdileri)
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text('BOY', style: GoogleFonts.rajdhani(color: _sysText, fontSize: 13, fontWeight: FontWeight.bold)),
+                                    Text('${_boy.round()} CM', style: GoogleFonts.orbitron(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                                  ],
+                                ),
+                                Slider(
+                                  value: _boy.clamp(120, 220),
+                                  min: 120,
+                                  max: 220,
+                                  activeColor: _sysBlue,
+                                  onChanged: (v) => setState(() => _boy = v),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text('BEL ÇEVRESİ', style: GoogleFonts.rajdhani(color: _sysText, fontSize: 13, fontWeight: FontWeight.bold)),
+                                    Text('${_belCm.round()} CM', style: GoogleFonts.orbitron(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                                  ],
+                                ),
+                                Slider(
+                                  value: _belCm.clamp(50, 150),
+                                  min: 50,
+                                  max: 150,
+                                  activeColor: _sysGold,
+                                  onChanged: (v) => setState(() => _belCm = v),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
 
                       // Objective Selection
                       Text(TranslationManager.get('profile_main_objective'), style: GoogleFonts.rajdhani(color: _sysText, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1)),
@@ -310,6 +386,11 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
                 // 2. SONUÇ PANELİ (Animasyonlu)
                 // ──────────────────────────────────
                 if (_sonuc != null) ...[
+                  if (_kompozisyon != null) ...[
+                    _vucutKompozisyonuKarti(_kompozisyon!),
+                    const SizedBox(height: 20),
+                  ],
+
                   // Toplam Kalori Göstergesi
                   AnimatedBuilder(
                     animation: _animDeger,
@@ -461,6 +542,105 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
   // ══════════════════════════════════════════════
   // YARDIMCI WİDGET'LAR
   // ══════════════════════════════════════════════
+
+  Widget _vucutKompozisyonuKarti(BodyCompositionResult comp) {
+    return HologramCard(
+      neonRenk: _sysGold,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.biotech, color: _sysGold, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                '🧬 AVCI METABOLİK RAPORU (US NAVY)',
+                style: GoogleFonts.orbitron(
+                  color: _sysGold,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: _metabolikMetrik(
+                  'YAĞ ORANI',
+                  '%${comp.yagOrani.toStringAsFixed(1)}',
+                  comp.yagSinifi,
+                  _sysRed,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _metabolikMetrik(
+                  'YAĞSIZ KÜTLE (LBM)',
+                  '${comp.yagsizKutleKg.toStringAsFixed(1)} KG',
+                  'Aktif Kas Dokusu',
+                  _sysGreen,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: _metabolikMetrik(
+                  'BAZAL METABOLİZMA',
+                  '${comp.bmr.round()} KCAL',
+                  comp.hesaplamaYontemi.contains('Katch') ? 'Katch-McArdle' : 'Mifflin-St Jeor',
+                  _sysBlue,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _metabolikMetrik(
+                  'GÜNLÜK HARCAMA (TDEE)',
+                  '${comp.tdee.round()} KCAL',
+                  '$_idmanGunu Gün İdman/Hafta',
+                  _sysPurple,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _metabolikMetrik(String baslik, String deger, String altBaslik, Color renk) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F172A),
+        border: Border.all(color: renk.withValues(alpha: 0.3)),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(baslik, style: GoogleFonts.orbitron(color: _sysText, fontSize: 8, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          Text(
+            deger,
+            style: GoogleFonts.orbitron(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            altBaslik,
+            style: TextStyle(color: renk, fontSize: 10, fontWeight: FontWeight.bold),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
 
   // ─── Hedef Seçim Chip'i ───
   Widget _hedefChip(String hedefKey, String baslik, String altBaslik, IconData ikon, Color renk) {

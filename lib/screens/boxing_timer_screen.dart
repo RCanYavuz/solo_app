@@ -270,6 +270,10 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
       SystemMemory.expKazan(kazanilanExp);
       SystemMemory.str.value += 1;
       SystemMemory.agi.value += 1;
+      final yipranma = SystemMemory.idmanYipranmasiIsle(
+        dakika: (toplamSaniye ~/ 60).clamp(1, 180),
+        idmanTuru: 'Boks / Combat',
+      );
       SystemMemory.kaydet();
 
       showDialog(
@@ -284,7 +288,7 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Combat simulation completed successfully.\nCombat performance has been recorded to your active raid session.",
+                "Combat simulation completed successfully.\nCombat performance and metabolic wear have been recorded.",
                 style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 12),
@@ -296,8 +300,8 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  "+$kazanilanExp EXP EARNED\n+1 STRENGTH | +1 AGILITY\nACTIVE RAID TIMER CONTINUES",
-                  style: GoogleFonts.orbitron(color: systemRed, fontSize: 12, height: 1.5, fontWeight: FontWeight.bold),
+                  "+$kazanilanExp EXP EARNED\n+1 STRENGTH | +1 AGILITY\nYAKILAN: ~${yipranma.yakilanKalori} kcal | TELAFİ: +${yipranma.telafiProteini}g Protein\nACTIVE RAID TIMER CONTINUES",
+                  style: GoogleFonts.orbitron(color: systemRed, fontSize: 11, height: 1.5, fontWeight: FontWeight.bold),
                 ),
               ),
             ],

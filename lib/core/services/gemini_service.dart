@@ -217,6 +217,59 @@ EĞER FOTOĞRAFTA YEMEK YOKSA ŞU ŞEKİLDE DÖNDÜR:
     }
   }
 
+  /// Diyetisyenin hazırladığı diyet listesini (fotoğraf veya metin) analiz eder,
+  /// toplam kalori ve makroları çıkarıp öğün bazında yapılandırır.
+  static Future<Map<String, dynamic>?> diyetisyenMenusuAnalizEt(String metin, {Uint8List? imageBytes}) async {
+    final apiKey = SystemMemory.geminiApiKey.trim();
+    if (apiKey.isEmpty) return null;
+
+    final model = SystemMemory.geminiActiveModel;
+    String? base64Image;
+    if (imageBytes != null) {
+      base64Image = base64Encode(imageBytes);
+    }
+
+    try {
+      final prompt = '''
+Sen klinik beslenme uzmanı ve diyetisyen verilerini inceleyen "Sistem" metabolik analiz ünitesisin.
+Avcı sana diyetisyeninin hazırladığı beslenme listesini/menüsünü gönderdi.
+\${metin.isNotEmpty ? 'METİN NOTLARI: "$metin"' : ''}
+\${imageBytes != null ? 'Görsel olarak diyet listesi fotoğrafı/belgesi iliştirildi. Belgedeki tüm öğünleri, porsiyonları ve besinleri dikkatle oku.' : ''}
+
+GÖREVİN:
+1. Bu diyetisyen programının günlük TOPLAM KALORİ, PROTEİN (g), KARBONHİDRAT (g) ve YAĞ (g) hedeflerini kesin/tahmini olarak hesapla.
+2. Öğünleri (Sabah, Ara Öğün, Öğle, Akşam vb.) listele.
+3. Çıktıyı SADECE geçerli bir JSON objesi olarak döndür:
+{
+  "toplamKalori": 2100,
+  "toplamProtein": 150,
+  "toplamKarb": 220,
+  "toplamYag": 65,
+  "notlar": "Diyetisyen yüksek proteinli, dengeli toparlanma planı hazırlamış.",
+  "ogunler": [
+    {"ad": "Kahvaltı", "detay": "3 yumurta, 50g lor, 2 dilim tam buğday ekmeği, yeşillik", "kalori": 450},
+    {"ad": "Öğle Yemeği", "detay": "150g ızgara tavuk göğsü, 150g basmati pirinç, yeşil salata", "kalori": 550},
+    {"ad": "Ara Öğün", "detay": "1 porsiyon meyve, 10 adet çiğ badem", "kalori": 200},
+    {"ad": "Akşam Yemeği", "detay": "160g fırın somon, haşlanmış brokoli, 1 dilim siyez ekmeği", "kalori": 600}
+  ]
+}
+''';
+
+      final res = await _generateContent(model, apiKey, prompt, base64Image: base64Image);
+      if (res == null || res.isEmpty) return null;
+
+      final cleanJson = res.replaceAll(RegExp(r'```json\s*|```'), '').trim();
+      final decoded = jsonDecode(cleanJson);
+      if (decoded is Map<String, dynamic>) {
+        return decoded;
+      }
+      return null;
+    } catch (e) {
+      debugPrint("Diyetisyen menü analizi hatası: $e");
+      return null;
+    }
+  }
+
   /// Fotoğrafı analiz edip Avatar için çok detaylı bir İngilizce prompt oluşturur.
   static Future<String?> avatarIcinPromptUret(Uint8List fotoBytes) async {
     final apiKey = SystemMemory.geminiApiKey.trim();

@@ -11,6 +11,7 @@ import '../models/task_model.dart';
 import '../models/food_model.dart';
 import '../models/inventory_item_model.dart';
 import '../core/services/gemini_service.dart';
+import '../core/advanced_metabolic_engine.dart';
 
 class SystemMemory {
   static bool get _isTest {
@@ -124,6 +125,106 @@ class SystemMemory {
   static double belCm = 0.0;
   static double kolCm = 0.0;
   static double bacakCm = 0.0;
+
+  // ==========================================
+  // FAZ 2: DİYETİSYEN LİSTESİ & DİNAMİK İDMAN YIPRANMA TELAFİSİ
+  // ==========================================
+  static bool diyetisyenListesiAktif = false;
+  static int diyetisyenBazKalori = 0;
+  static int diyetisyenBazProtein = 0;
+  static int diyetisyenBazKarb = 0;
+  static int diyetisyenBazYag = 0;
+  static List<Map<String, dynamic>> diyetisyenOgunleri = [];
+  static bool get dovuscuMu => dovusSporuYapiyorMu;
+  static set dovuscuMu(bool val) => dovusSporuYapiyorMu = val;
+
+  static int get haftalikIdmanGunuSayisi {
+    int count = haftalikPlan.values.where((list) => list.isNotEmpty).length;
+    return count > 0 ? count : 4;
+  }
+
+  // Günlük İdman Yıpranma & Telafi Havuzu
+  static int bugunYakilanIdmanKalorisi = 0;
+  static int bugunTelafiProteini = 0;
+  static int bugunTelafiKarbonhidrati = 0;
+  static Map<String, dynamic>? sonIdmanYipranmaRaporu;
+
+  static BodyCompositionResult get guncelVucutKompozisyonu =>
+      AdvancedMetabolicEngine.hesaplaVucutKompozisyonu(
+        boyCm: boy > 0 ? boy : 178.0,
+        kiloKg: kilo > 0 ? kilo : 75.0,
+        cinsiyet: cinsiyet.isNotEmpty ? cinsiyet : 'erkek',
+        belCm: belCm > 0 ? belCm : 82.0,
+        haftalikIdmanSayisi: haftalikIdmanGunuSayisi,
+        dovuscuMu: dovusSporuYapiyorMu,
+      );
+
+  static WorkloadImpactResult idmanYipranmasiIsle({
+    required int dakika,
+    required String idmanTuru,
+    int rpeZorluk = 8,
+  }) {
+    if (dakika <= 0) {
+      return const WorkloadImpactResult(
+        yakilanKalori: 0,
+        telafiProteiniGram: 0,
+        telafiKarbonhidratiGram: 0,
+        katabolizmaSeviyesi: 'Düşük',
+        sistemUyarisi: '',
+      );
+    }
+    final sonuc = AdvancedMetabolicEngine.hesaplaIdmanYipranmasi(
+      sureDakika: dakika,
+      kiloKg: kilo > 0 ? kilo : 70.0,
+      idmanTuru: idmanTuru,
+      rpeZorluk: rpeZorluk,
+    );
+
+    bugunYakilanIdmanKalorisi += sonuc.yakilanKalori;
+    bugunTelafiProteini += sonuc.telafiProteiniGram;
+    bugunTelafiKarbonhidrati += sonuc.telafiKarbonhidratiGram;
+    sonIdmanYipranmaRaporu = {
+      'idmanTuru': idmanTuru,
+      'dakika': dakika,
+      'yakilanKalori': sonuc.yakilanKalori,
+      'telafiProteini': sonuc.telafiProteiniGram,
+      'telafiKarbonhidrati': sonuc.telafiKarbonhidratiGram,
+      'katabolizmaRiski': sonuc.katabolizmaSeviyesi,
+      'sistemUyarisi': sonuc.sistemUyarisi,
+      'tarih': DateTime.now().toIso8601String(),
+    };
+    kaydet();
+    return sonuc;
+  }
+
+  static void diyetisyenListesiniKaydet({
+    required int kalori,
+    required int protein,
+    required int karb,
+    required int yag,
+    List<Map<String, dynamic>> ogunler = const [],
+  }) {
+    diyetisyenListesiAktif = true;
+    diyetisyenBazKalori = kalori;
+    diyetisyenBazProtein = protein;
+    diyetisyenBazKarb = karb;
+    diyetisyenBazYag = yag;
+    diyetisyenOgunleri = List<Map<String, dynamic>>.from(ogunler);
+
+    gunlukHedefKalori = kalori;
+    kaydet();
+  }
+
+  static void diyetisyenListesiniSifirla() {
+    diyetisyenListesiAktif = false;
+    diyetisyenBazKalori = 0;
+    diyetisyenBazProtein = 0;
+    diyetisyenBazKarb = 0;
+    diyetisyenBazYag = 0;
+    diyetisyenOgunleri = [];
+    protokolGuncelle(aktifHedef, aktifZorluk);
+    kaydet();
+  }
 
   static int get rankIcinGerekliIdmanKotasi {
     final r = hunterRank.toUpperCase();
@@ -520,6 +621,12 @@ class SystemMemory {
       'dakika': dakika,
       'gorevSayisi': bitenGorevSayisiSimdi
     });
+
+    // İdman Yıpranma ve Kalori/Katabolizma Telafisini Tetikle
+    idmanYipranmasiIsle(
+      dakika: dakika,
+      idmanTuru: dovusSporuYapiyorMu ? 'Dövüş & Zindan' : 'Ağırlık & Zindan',
+    );
 
     int kazanilanAltin = dakika * (redGateAktif ? 10 : 2); 
     altin.value += kazanilanAltin;

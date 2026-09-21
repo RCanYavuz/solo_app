@@ -11,6 +11,7 @@ import '../core/sistem_gecisi.dart';
 import '../core/services/gemini_service.dart';
 import 'macro_dashboard_screen.dart';
 import '../core/translation_manager.dart';
+import '../widgets/dietitian_scanner_modal.dart';
 
 class YemekEkrani extends StatefulWidget {
   const YemekEkrani({super.key});
@@ -24,6 +25,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
   static const Color sysDarkBg = Color(0xFF030712); 
   static const Color sysRed = Color(0xFFEF4444); 
   static const Color sysTextMuted = Color(0xFF94A3B8); 
+  static const Color sysGold = Color(0xFFB08D57); 
 
   final TextEditingController _yemekAdiCtrl = TextEditingController();
   final TextEditingController _kaloriCtrl = TextEditingController();
@@ -425,6 +427,30 @@ class _YemekEkraniState extends State<YemekEkrani> {
     SystemMemory.kaydet();
   }
 
+  void _diyetisyenModaliAc() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => const DietitianScannerModal(),
+    ).then((_) => setState(() {}));
+  }
+
+  Widget _telafiBadge(String metin, Color renk) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: renk.withValues(alpha: 0.15),
+        border: Border.all(color: renk.withValues(alpha: 0.5)),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        metin,
+        style: GoogleFonts.orbitron(color: renk, fontSize: 10, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
   // ==========================================================
   // GEÇMİŞ GÜNLERİN YEMEKLERİNİ GÖSTEREN ARŞİV MOTORU
   // ==========================================================
@@ -522,6 +548,15 @@ class _YemekEkraniState extends State<YemekEkrani> {
             centerTitle: true,
         actions: [
           IconButton(
+            icon: Icon(
+              Icons.assignment_outlined,
+              color: SystemMemory.diyetisyenListesiAktif ? sysGold : sysBlue,
+              size: 26,
+            ),
+            tooltip: 'Diyetisyen Menüsü / Taraması',
+            onPressed: _diyetisyenModaliAc,
+          ),
+          IconButton(
             icon: const Icon(Icons.analytics_outlined, color: sysBlue, size: 26),
             tooltip: TranslationManager.get('diet_macro_lab_tooltip'),
             onPressed: () => Navigator.push(
@@ -579,32 +614,138 @@ class _YemekEkraniState extends State<YemekEkrani> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(TranslationManager.get('diet_daily_limit'), style: const TextStyle(color: sysTextMuted, fontSize: 14)),
+                      Text(
+                        SystemMemory.diyetisyenListesiAktif ? 'Diyetisyen Taban Limiti' : TranslationManager.get('diet_daily_limit'),
+                        style: const TextStyle(color: sysTextMuted, fontSize: 14),
+                      ),
                       Text("${SystemMemory.gunlukHedefKalori} Kcal", style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold))
                     ],
                   )
                 ],
               ),
             ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () => Navigator.push(
-                  context,
-                  SistemGecisi(sayfa: const MacroDashboardScreen()),
-                ).then((_) => setState(() {})),
-                icon: const Icon(Icons.science_outlined, color: sysBlue, size: 18),
-                label: Text(
-                  TranslationManager.get('diet_access_macro_lab'),
-                  style: const TextStyle(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1.5),
+
+            // SİSTEM YIPRANMA VE KATABOLİZMA DENGELEYİCİSİ HUD
+            if (SystemMemory.bugunYakilanIdmanKalorisi > 0 || SystemMemory.bugunTelafiProteini > 0) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0F172A),
+                  border: Border.all(color: sysRed.withValues(alpha: 0.8), width: 1.5),
+                  borderRadius: BorderRadius.circular(6),
+                  boxShadow: [
+                    BoxShadow(
+                      color: sysRed.withValues(alpha: 0.15),
+                      blurRadius: 10,
+                      spreadRadius: 1,
+                    )
+                  ],
                 ),
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: sysBlue.withValues(alpha: 0.4)),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.shield_outlined, color: sysRed, size: 18),
+                        const SizedBox(width: 8),
+                        Text(
+                          '⚖️ SİSTEM İDMAN VE KAS KORUMA',
+                          style: GoogleFonts.orbitron(
+                            color: sysRed,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: sysRed.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            'KATABOLİZMA: ${SystemMemory.sonIdmanYipranmaRaporu?['katabolizmaRiski'] ?? 'YÜKSEK'}',
+                            style: const TextStyle(color: sysRed, fontSize: 9, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Bugünkü ağır idman harcamanız: ~${SystemMemory.bugunYakilanIdmanKalorisi} kcal.\nKas yıkımını önlemek ve glikojeni yenilemek için sisteme eklenen dinamik takviye:',
+                      style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 11, height: 1.4),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        _telafiBadge('+${SystemMemory.bugunTelafiProteini}g Protein', sysBlue),
+                        const SizedBox(width: 8),
+                        _telafiBadge('+${SystemMemory.bugunTelafiKarbonhidrati}g Karbonhidrat', Colors.orangeAccent),
+                      ],
+                    ),
+                    if (SystemMemory.diyetisyenListesiAktif) ...[
+                      const SizedBox(height: 6),
+                      const Text(
+                        '📋 Diyetisyen taban reçetesi korunmaktadır; idman eforu dinamik olarak telafi edilmiştir.',
+                        style: TextStyle(color: sysGold, fontSize: 10, fontStyle: FontStyle.italic),
+                      ),
+                    ],
+                  ],
                 ),
               ),
+            ],
+
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => Navigator.push(
+                      context,
+                      SistemGecisi(sayfa: const MacroDashboardScreen()),
+                    ).then((_) => setState(() {})),
+                    icon: const Icon(Icons.science_outlined, color: sysBlue, size: 16),
+                    label: Text(
+                      TranslationManager.get('diet_access_macro_lab'),
+                      style: const TextStyle(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 11, letterSpacing: 1),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: sysBlue.withValues(alpha: 0.4)),
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _diyetisyenModaliAc,
+                    icon: Icon(
+                      Icons.assignment_turned_in,
+                      color: SystemMemory.diyetisyenListesiAktif ? sysGold : sysBlue,
+                      size: 16,
+                    ),
+                    label: Text(
+                      SystemMemory.diyetisyenListesiAktif ? 'DİYETİSYEN [ON]' : 'DİYETİSYEN',
+                      style: TextStyle(
+                        color: SystemMemory.diyetisyenListesiAktif ? sysGold : sysBlue,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 11,
+                        letterSpacing: 1,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: (SystemMemory.diyetisyenListesiAktif ? sysGold : sysBlue).withValues(alpha: 0.4)),
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 25),
 
