@@ -17,6 +17,11 @@ subprojects {
 }
 subprojects {
     project.evaluationDependsOn(":app")
+    afterEvaluate {
+        dependencies {
+            add("implementation", "org.jetbrains.kotlin:kotlin-stdlib:2.2.20")
+        }
+    }
 }
 
 tasks.register<Delete>("clean") {
