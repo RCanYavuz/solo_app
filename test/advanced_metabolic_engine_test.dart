@@ -143,5 +143,32 @@ void main() {
       expect(SystemMemory.diyetisyenListesiAktif, isFalse);
       expect(SystemMemory.diyetisyenOgunleri.isEmpty, isTrue);
     });
+
+    test('hedefKiloProjeksiyonu ve hedefleriSistemeEntegreEt dogru calisir', () {
+      final proj = AdvancedMetabolicEngine.hedefKiloProjeksiyonu(
+        mevcutKilo: 80.0,
+        hedefKilo: 75.0,
+        tdee: 2400.0,
+      );
+
+      expect(proj['fark'], equals(-5.0));
+      expect(proj['kiloVerme'], isTrue);
+      expect(proj['haftalikPace'], equals(0.5));
+      expect(proj['tahminiHafta'], equals(10));
+      expect(proj['gunlukKaloriFarki'], equals(-550));
+      expect(proj['onerilenHedefKalori'], equals(1850));
+
+      // Sisteme entegre et
+      SystemMemory.hedefleriSistemeEntegreEt(
+        yeniHedefKilo: 75.0,
+        yeniKalori: 1850,
+        not: 'Haftada 0.5 kg verip kas korumak istiyorum.',
+      );
+
+      expect(SystemMemory.hedefKilo, equals(75.0));
+      expect(SystemMemory.gunlukHedefKalori, equals(1850));
+      expect(SystemMemory.normalGunlukHedefKalori, equals(1850));
+      expect(SystemMemory.avciDiyetNotu, equals('Haftada 0.5 kg verip kas korumak istiyorum.'));
+    });
   });
 }

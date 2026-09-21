@@ -11,10 +11,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../core/diyet_motoru.dart';
+import '../core/diyet_motoru.dart';
 import '../core/advanced_metabolic_engine.dart';
 import '../controllers/system_memory.dart';
 import '../widgets/hologram_card.dart';
 import '../core/translation_manager.dart';
+import '../core/services/gemini_service.dart';
+import '../core/audio_system.dart';
 
 // ──────────────────────────────────────────────
 // ANA EKRAN
@@ -39,6 +42,7 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
 
   // ─── State ───
   double _kilo = 75.0;
+  double _hedefKilo = 70.0;
   double _boy = 178.0;
   double _belCm = 82.0;
   String _cinsiyet = 'erkek';
@@ -46,6 +50,8 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
   String _secilenHedef = "yag_yakma";
   Map<String, int>? _sonuc;
   BodyCompositionResult? _kompozisyon;
+  bool _aiYukleniyor = false;
+  final TextEditingController _kullaniciFikriCtrl = TextEditingController();
 
   late AnimationController _animCtrl;
   late Animation<double> _animDeger;
@@ -65,6 +71,11 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
       _secilenHedef = "yag_yakma";
     }
 
+    _hedefKilo = SystemMemory.hedefKilo > 0
+        ? SystemMemory.hedefKilo
+        : (_secilenHedef == "kilo_alma" ? _kilo + 4.0 : _kilo - 4.0);
+    _kullaniciFikriCtrl.text = SystemMemory.avciDiyetNotu;
+
     _animCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1400),
@@ -77,6 +88,7 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
 
   @override
   void dispose() {
+    _kullaniciFikriCtrl.dispose();
     _animCtrl.dispose();
     super.dispose();
   }
@@ -300,6 +312,46 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
                       ),
                       const SizedBox(height: 12),
 
+                      // Hedef Kilo Slider
+                      Row(
+                        children: [
+                          const Icon(Icons.flag_outlined, color: _sysGreen, size: 22),
+                          const SizedBox(width: 10),
+                          Text('HEDEF KİLO', style: GoogleFonts.rajdhani(color: _sysText, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                          const Spacer(),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: _sysGreen.withValues(alpha: 0.1),
+                              border: Border.all(color: _sysGreen.withValues(alpha: 0.4)),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              '${_hedefKilo.toStringAsFixed(1)} KG (${(_hedefKilo - _kilo) >= 0 ? "+" : ""}${(_hedefKilo - _kilo).toStringAsFixed(1)} KG)',
+                              style: GoogleFonts.orbitron(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      SliderTheme(
+                        data: SliderTheme.of(context).copyWith(
+                          activeTrackColor: _sysGreen,
+                          inactiveTrackColor: _sysGreen.withValues(alpha: 0.15),
+                          thumbColor: _sysGreen,
+                          overlayColor: _sysGreen.withValues(alpha: 0.1),
+                          trackHeight: 4,
+                          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+                        ),
+                        child: Slider(
+                          value: _hedefKilo.clamp(30, 200),
+                          min: 30,
+                          max: 200,
+                          onChanged: (v) => setState(() => _hedefKilo = double.parse(v.toStringAsFixed(1))),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
                       // Boy & Bel Çevresi (Biyometrik Kompozisyon Girdileri)
                       Row(
                         children: [
@@ -360,22 +412,75 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
                           Expanded(child: _hedefChip("kilo_alma", TranslationManager.get('macro_build_muscle'), "BULK", Icons.fitness_center, _sysGreen)),
                         ],
                       ),
-                      const SizedBox(height: 25),
+                      const SizedBox(height: 16),
 
-                      // Calculate Button
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: _hesapla,
-                          icon: const Icon(Icons.bolt, color: _sysBlue, size: 22),
-                          label: Text(TranslationManager.get('macro_analyze'), style: GoogleFonts.orbitron(color: _sysBlue, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 2)),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _sysBlue.withValues(alpha: 0.08),
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            side: const BorderSide(color: _sysBlue, width: 1.5),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                      // Avcının Özel Beslenme Vizyonu & Fikri (Freeform Input)
+                      Text(
+                        'AVCININ BESLENME VİZYONU & NOTU',
+                        style: GoogleFonts.rajdhani(color: _sysText, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 1),
+                      ),
+                      const SizedBox(height: 6),
+                      TextField(
+                        controller: _kullaniciFikriCtrl,
+                        maxLines: 2,
+                        style: const TextStyle(color: Colors.white, fontSize: 13),
+                        decoration: InputDecoration(
+                          hintText: 'Örn: Haftada 0.5 kg vereyim, karbonhidratı idman sonrasına saklayalım, dövüş kondisyonu düşmesin...',
+                          hintStyle: TextStyle(color: _sysText.withValues(alpha: 0.4), fontSize: 12),
+                          filled: true,
+                          fillColor: const Color(0xFF0F172A),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(4),
+                            borderSide: BorderSide(color: _sysBlue.withValues(alpha: 0.3)),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(4),
+                            borderSide: BorderSide(color: _sysBlue.withValues(alpha: 0.3)),
+                          ),
+                          focusedBorder: const OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(4)),
+                            borderSide: BorderSide(color: _sysBlue),
                           ),
                         ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Eylem Butonları: Hesapla & AI ile Harmanla
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: _hesapla,
+                              icon: const Icon(Icons.bolt, color: _sysBlue, size: 20),
+                              label: Text('HESAPLA', style: GoogleFonts.orbitron(color: _sysBlue, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: _sysBlue.withValues(alpha: 0.08),
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                side: const BorderSide(color: _sysBlue, width: 1.5),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: _aiYukleniyor ? null : _aiIleHarmanlaVeAnalizEt,
+                              icon: _aiYukleniyor
+                                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: _sysPurple))
+                                  : const Icon(Icons.auto_awesome, color: _sysPurple, size: 20),
+                              label: Text(
+                                _aiYukleniyor ? 'İŞLENİYOR' : 'AI İLE HARMANLA',
+                                style: GoogleFonts.orbitron(color: _sysPurple, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: _sysPurple.withValues(alpha: 0.12),
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                side: const BorderSide(color: _sysPurple, width: 1.5),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -386,6 +491,9 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
                 // 2. SONUÇ PANELİ (Animasyonlu)
                 // ──────────────────────────────────
                 if (_sonuc != null) ...[
+                  _hedefKiloProjeksiyonKarti(),
+                  const SizedBox(height: 20),
+
                   if (_kompozisyon != null) ...[
                     _vucutKompozisyonuKarti(_kompozisyon!),
                     const SizedBox(height: 20),
@@ -438,6 +546,70 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
                         ),
                       );
                     },
+                  ),
+                  const SizedBox(height: 20),
+
+                  // ─── SİSTEM PROTOKOLÜ ENTEGRASYONU HERO KARTI ───
+                  HologramCard(
+                    neonRenk: _sysGreen,
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.sync_alt, color: _sysGreen, size: 22),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'SİSTEM PROTOKOLÜ ENTEGRASYONU',
+                                style: GoogleFonts.orbitron(
+                                  color: _sysGreen,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: _sysGreen.withValues(alpha: 0.1),
+                                border: Border.all(color: _sysGreen.withValues(alpha: 0.4)),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                '${_hedefKilo.toStringAsFixed(1)} KG / $topKalori KCAL',
+                                style: GoogleFonts.orbitron(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Bu laboratuvarda hesaplanan (veya AI ile harmanlanan) hedef kilo ve kalori limitini tek tıkla aktif avcı sistemine ve diyet ekranına bağlayın.',
+                          style: TextStyle(color: _sysText, fontSize: 12),
+                        ),
+                        const SizedBox(height: 14),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () => _sistemeEntegreEt(topKalori),
+                            icon: const Icon(Icons.bolt, color: Colors.black, size: 22),
+                            label: Text(
+                              '⚡ BU HEDEFLERİ SİSTEME ENTEGRE ET',
+                              style: GoogleFonts.orbitron(color: Colors.black, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _sysGreen,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                              elevation: 6,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 20),
 
@@ -540,8 +712,346 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
   }
 
   // ══════════════════════════════════════════════
-  // YARDIMCI WİDGET'LAR
+  // YARDIMCI METODLAR & WİDGET'LAR
   // ══════════════════════════════════════════════
+
+  void _sistemeEntegreEt(int kalori) {
+    SystemMemory.hedefleriSistemeEntegreEt(
+      yeniHedefKilo: _hedefKilo,
+      yeniKalori: kalori,
+      not: _kullaniciFikriCtrl.text.trim(),
+      makrolar: _sonuc,
+    );
+    AudioSystem.playSuccess();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: const Color(0xFF0F172A),
+        content: Row(
+          children: [
+            const Icon(Icons.bolt, color: _sysGreen, size: 20),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                '⚡ [SİSTEM BİLDİRİMİ]\nHedef: ${_hedefKilo.toStringAsFixed(1)} kg | $kalori kcal günlük takip sistemine entegre edildi!',
+                style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+        duration: const Duration(seconds: 4),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(color: _sysGreen, width: 1.5),
+          borderRadius: BorderRadius.circular(6),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _aiIleHarmanlaVeAnalizEt() async {
+    if (SystemMemory.geminiApiKey.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('⚠️ AI Analizi için önce Profil > Core Ayarlarından Gemini API Key giriniz.'),
+          backgroundColor: _sysRed,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _aiYukleniyor = true);
+
+    try {
+      final double yagOrani = _kompozisyon?.yagOrani ?? 18.0;
+      final int gunlukKalori = _sonuc?["Kalori"] ?? 2000;
+      final int protein = _sonuc?["Protein"] ?? 150;
+      final int karb = _sonuc?["Karbonhidrat"] ?? 200;
+      final int yag = _sonuc?["Yag"] ?? 60;
+
+      final res = await GeminiService.aiHedefKiloVeDiyetAnalizi(
+        mevcutKilo: _kilo,
+        hedefKilo: _hedefKilo,
+        boy: _boy,
+        yagOrani: yagOrani,
+        gunlukKalori: gunlukKalori,
+        protein: protein,
+        karb: karb,
+        yag: yag,
+        haftalikIdmanGunu: _idmanGunu,
+        dovuscuMu: SystemMemory.dovuscuMu,
+        kullaniciFikri: _kullaniciFikriCtrl.text.trim(),
+      );
+
+      if (!mounted) return;
+      setState(() => _aiYukleniyor = false);
+
+      if (res == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Sistem Core yanıt vermedi. Lütfen internet bağlantınızı veya API anahtarınızı kontrol edin.'),
+            backgroundColor: _sysRed,
+          ),
+        );
+        return;
+      }
+
+      _aiSonucDialogGoster(res);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _aiYukleniyor = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('AI Analiz Hatası: $e'), backgroundColor: _sysRed),
+      );
+    }
+  }
+
+  void _aiSonucDialogGoster(Map<String, dynamic> aiVeri) {
+    final String direktif = aiVeri['stratejikDirektif'] ?? 'Hedef kilo stratejiniz hazırlandı.';
+    final num pace = aiVeri['haftalikPaceKg'] ?? 0.5;
+    final num hafta = aiVeri['tahminiHafta'] ?? 8;
+    final int revizeKal = aiVeri['revizeHedefKalori'] ?? (_sonuc?['Kalori'] ?? 2000);
+    final int revizeP = aiVeri['revizeProtein'] ?? (_sonuc?['Protein'] ?? 150);
+    final int revizeC = aiVeri['revizeKarb'] ?? (_sonuc?['Karbonhidrat'] ?? 200);
+    final int revizeF = aiVeri['revizeYag'] ?? (_sonuc?['Yag'] ?? 60);
+    final String taktik = aiVeri['taktikOzet'] ?? '';
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF070B14),
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(color: _sysPurple, width: 1.5),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        title: Row(
+          children: [
+            const Icon(Icons.auto_awesome, color: _sysPurple, size: 22),
+            const SizedBox(width: 8),
+            Text(
+              'SİSTEM AI STRATEJİK DİREKTİFİ',
+              style: GoogleFonts.orbitron(color: _sysPurple, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 1),
+            ),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0F172A),
+                  border: Border.all(color: _sysPurple.withValues(alpha: 0.3)),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  direktif,
+                  style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 13, height: 1.4),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: _metabolikMetrik('HAFTALIK TEMPO', '${pace.toStringAsFixed(2)} KG/Hf', 'Planlanan Hız', _sysBlue),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _metabolikMetrik('TAHMİNİ SÜRE', '$hafta HAFTA', 'Ulaşma Süresi', _sysGreen),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: _sysPurple.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: _sysPurple.withValues(alpha: 0.3)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('ÖNERİLEN REVİZE MAKRO DEĞERLERİ:', style: GoogleFonts.orbitron(color: _sysPurple, fontSize: 10, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 6),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('$revizeKal kcal', style: GoogleFonts.orbitron(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                        Text('P: ${revizeP}g | C: ${revizeC}g | F: ${revizeF}g', style: GoogleFonts.rajdhani(color: _sysText, fontSize: 13, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                    if (taktik.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text('Taktik: $taktik', style: const TextStyle(color: _sysGold, fontSize: 11, fontStyle: FontStyle.italic)),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('KAPAT', style: TextStyle(color: _sysText)),
+          ),
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _sysPurple.withValues(alpha: 0.2),
+              side: const BorderSide(color: _sysPurple),
+            ),
+            onPressed: () {
+              setState(() {
+                _sonuc = {
+                  'Kalori': revizeKal,
+                  'Protein': revizeP,
+                  'Karbonhidrat': revizeC,
+                  'Yag': revizeF,
+                };
+              });
+              Navigator.pop(ctx);
+              _animCtrl.forward(from: 0);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('AI Revizyonu laboratuvar paneline uygulandı. "SİSTEME ENTEGRE ET" butonuyla kalıcı kılabilirsiniz.'),
+                  backgroundColor: _sysPurple,
+                ),
+              );
+            },
+            icon: const Icon(Icons.check, color: _sysPurple, size: 18),
+            label: const Text('UYGULA & GRAFİĞE AL', style: TextStyle(color: _sysPurple, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _hedefKiloProjeksiyonKarti() {
+    final tdeeVal = _kompozisyon?.tdee ?? 2200.0;
+    final proj = AdvancedMetabolicEngine.hedefKiloProjeksiyonu(
+      mevcutKilo: _kilo,
+      hedefKilo: _hedefKilo,
+      tdee: tdeeVal,
+    );
+
+    final double fark = proj['fark'] as double;
+    final bool kiloVerme = proj['kiloVerme'] as bool;
+    final double absFark = proj['absFark'] as double;
+    final double pace = proj['haftalikPace'] as double;
+    final int hafta = proj['tahminiHafta'] as int;
+    final int kaloriFarki = proj['gunlukKaloriFarki'] as int;
+    final Color temaRenk = fark == 0 ? _sysBlue : (kiloVerme ? _sysRed : _sysGreen);
+
+    return HologramCard(
+      neonRenk: temaRenk,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.track_changes, color: temaRenk, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  '🎯 HEDEF KİLO & METABOLİK PROJEKSİYON',
+                  style: GoogleFonts.orbitron(color: temaRenk, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: temaRenk.withValues(alpha: 0.1),
+                  border: Border.all(color: temaRenk.withValues(alpha: 0.4)),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  fark == 0
+                      ? 'DENGEDE'
+                      : (kiloVerme ? 'DEFİNASYON (-${absFark.toStringAsFixed(1)} KG)' : 'KAS İNŞASI (+${absFark.toStringAsFixed(1)} KG)'),
+                  style: GoogleFonts.rajdhani(color: temaRenk, fontSize: 11, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: _metabolikMetrik(
+                  'HEDEF FARK',
+                  '${fark > 0 ? "+" : ""}${fark.toStringAsFixed(1)} KG',
+                  'Mevcut: ${_kilo.toStringAsFixed(1)} ➔ Hedef: ${_hedefKilo.toStringAsFixed(1)}',
+                  temaRenk,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _metabolikMetrik(
+                  'ÖNERİLEN TEMPO',
+                  '${pace.toStringAsFixed(2)} KG/Hafta',
+                  'Sağlıklı & Güvenli Aralık',
+                  _sysBlue,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: _metabolikMetrik(
+                  'TAHMİNİ SÜRE',
+                  '$hafta HAFTA',
+                  'Disiplinli Ulaşma Süresi',
+                  _sysGold,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _metabolikMetrik(
+                  'GÜNLÜK KALORİ DENGESİ',
+                  '${kaloriFarki >= 0 ? "+" : ""}$kaloriFarki KCAL',
+                  kiloVerme ? 'Günlük Kalori Açığı' : 'Günlük Kalori Fazlası',
+                  kiloVerme ? _sysRed : _sysGreen,
+                ),
+              ),
+            ],
+          ),
+          if (_kullaniciFikriCtrl.text.trim().isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0F172A),
+                border: Border.all(color: _sysText.withValues(alpha: 0.2)),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.psychology, color: _sysPurple, size: 16),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Avcı Vizyonu: "${_kullaniciFikriCtrl.text.trim()}"',
+                      style: GoogleFonts.rajdhani(color: _sysText, fontSize: 12, fontStyle: FontStyle.italic),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
 
   Widget _vucutKompozisyonuKarti(BodyCompositionResult comp) {
     return HologramCard(

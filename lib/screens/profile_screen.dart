@@ -357,6 +357,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _kiloGuncelleDialog() {
     TextEditingController boyCtrl = TextEditingController(text: SystemMemory.boy.toInt().toString());
     TextEditingController kiloCtrl = TextEditingController(text: SystemMemory.kilo.toString());
+    TextEditingController hedefKiloCtrl = TextEditingController(text: SystemMemory.hedefKilo > 0 ? SystemMemory.hedefKilo.toString() : "");
     TextEditingController yasCtrl = TextEditingController(text: SystemMemory.yas.toString());
     
     showDialog(
@@ -384,7 +385,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 20),
                 _profilGirdiAlani("HEIGHT (cm)", boyCtrl),
                 const SizedBox(height: 10),
-                _profilGirdiAlani("WEIGHT (kg)", kiloCtrl),
+                _profilGirdiAlani("CURRENT WEIGHT (kg)", kiloCtrl),
+                const SizedBox(height: 10),
+                _profilGirdiAlani("TARGET WEIGHT (kg)", hedefKiloCtrl),
                 const SizedBox(height: 10),
                 _profilGirdiAlani("AGE", yasCtrl),
               ]
@@ -404,6 +407,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 if(kiloCtrl.text.isNotEmpty) {
                   setState(() {
                     if (boyCtrl.text.isNotEmpty) SystemMemory.boy = double.tryParse(boyCtrl.text) ?? SystemMemory.boy;
+                    if (hedefKiloCtrl.text.isNotEmpty) SystemMemory.hedefKilo = double.tryParse(hedefKiloCtrl.text) ?? SystemMemory.hedefKilo;
                     if (yasCtrl.text.isNotEmpty) {
                       int yeniYas = int.tryParse(yasCtrl.text) ?? SystemMemory.yas;
                       SystemMemory.dogumTarihi = DateTime(DateTime.now().year - yeniYas, 1, 1);

@@ -26,6 +26,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
   static const Color sysRed = Color(0xFFEF4444); 
   static const Color sysTextMuted = Color(0xFF94A3B8); 
   static const Color sysGold = Color(0xFFB08D57); 
+  static const Color sysGreen = Color(0xFF22C55E); 
 
   final TextEditingController _yemekAdiCtrl = TextEditingController();
   final TextEditingController _kaloriCtrl = TextEditingController();
@@ -624,6 +625,58 @@ class _YemekEkraniState extends State<YemekEkrani> {
                 ],
               ),
             ),
+
+            // HEDEF KİLO & STRATEJİ BANNERI
+            if (SystemMemory.hedefKilo > 0) ...[
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF070B14),
+                  border: Border.all(color: sysBlue.withValues(alpha: 0.4)),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.track_changes, color: sysBlue, size: 20),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '🎯 HEDEF KİLO: ${SystemMemory.hedefKilo.toStringAsFixed(1)} KG',
+                                style: GoogleFonts.orbitron(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                '${(SystemMemory.hedefKilo - SystemMemory.kilo) >= 0 ? "+" : ""}${(SystemMemory.hedefKilo - SystemMemory.kilo).toStringAsFixed(1)} KG',
+                                style: GoogleFonts.rajdhani(
+                                  color: (SystemMemory.hedefKilo - SystemMemory.kilo).abs() <= 0.5 ? sysGreen : sysBlue,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (SystemMemory.avciDiyetNotu.isNotEmpty) ...[
+                            const SizedBox(height: 3),
+                            Text(
+                              'Vizyon: "${SystemMemory.avciDiyetNotu}"',
+                              style: const TextStyle(color: sysTextMuted, fontSize: 10, fontStyle: FontStyle.italic),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
 
             // SİSTEM YIPRANMA VE KATABOLİZMA DENGELEYİCİSİ HUD
             if (SystemMemory.bugunYakilanIdmanKalorisi > 0 || SystemMemory.bugunTelafiProteini > 0) ...[

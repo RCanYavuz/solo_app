@@ -33,6 +33,7 @@ class _SetupScreenState extends State<SetupScreen> {
   // Adım 2: Fiziksel Tarama & Hedef
   final TextEditingController boyCtrl = TextEditingController();
   final TextEditingController kiloCtrl = TextEditingController();
+  final TextEditingController hedefKiloCtrl = TextEditingController();
   String secilenHedef = 'Kilo Ver (Yağ Yak)';
   String secilenZorluk = 'Normal';
   int secilenIdmanGunu = 3;
@@ -272,6 +273,9 @@ class _SetupScreenState extends State<SetupScreen> {
 
     double boy = double.tryParse(boyCtrl.text.replaceAll(',', '.')) ?? 175.0;
     double kilo = double.tryParse(kiloCtrl.text.replaceAll(',', '.')) ?? 70.0;
+    double hedefKiloVal = double.tryParse(hedefKiloCtrl.text.replaceAll(',', '.')) ??
+        (secilenHedef.contains('Kilo Al') ? kilo + 4.0 : (secilenHedef.contains('Koru') ? kilo : kilo - 4.0));
+    SystemMemory.hedefKilo = hedefKiloVal;
 
     // Detaylı Vücut Ölçümleri
     SystemMemory.gogusCm = double.tryParse(gogusCtrl.text.replaceAll(',', '.')) ?? 0.0;
@@ -880,6 +884,14 @@ class _SetupScreenState extends State<SetupScreen> {
               ),
             ),
           ],
+        ),
+        const SizedBox(height: 14),
+        TextField(
+          controller: hedefKiloCtrl,
+          keyboardType: TextInputType.number,
+          style: const TextStyle(color: sysBlue, fontWeight: FontWeight.bold),
+          decoration: _inputStili('Hedef Kilo / Target Weight (kg)'),
+          onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: 14),
         DropdownButtonFormField<String>(

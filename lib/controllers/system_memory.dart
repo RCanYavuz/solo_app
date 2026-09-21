@@ -226,6 +226,36 @@ class SystemMemory {
     kaydet();
   }
 
+  // ==========================================
+  // HEDEF KİLO & KULLANICI STRATEJİ ENTEGRASYONU
+  // ==========================================
+  static double hedefKilo = 0.0;
+  static String avciDiyetNotu = "";
+  static String sonAiHedefKiloYorumu = "";
+
+  static double get hedefKiloIlerlemeYuzdesi {
+    if (baslangicKilosu == 0 || hedefKilo == 0 || baslangicKilosu == hedefKilo) return 0.0;
+    double toplamHedeflenenFark = (baslangicKilosu - hedefKilo).abs();
+    double suAnaKadarVerilenFark = (baslangicKilosu - kilo).abs();
+    if (toplamHedeflenenFark <= 0) return 0.0;
+    return (suAnaKadarVerilenFark / toplamHedeflenenFark).clamp(0.0, 1.0);
+  }
+
+  static void hedefleriSistemeEntegreEt({
+    required double yeniHedefKilo,
+    required int yeniKalori,
+    String? not,
+    Map<String, int>? makrolar,
+  }) {
+    hedefKilo = yeniHedefKilo;
+    gunlukHedefKalori = yeniKalori;
+    normalGunlukHedefKalori = yeniKalori;
+    if (not != null && not.trim().isNotEmpty) {
+      avciDiyetNotu = not.trim();
+    }
+    kaydet();
+  }
+
   static int get rankIcinGerekliIdmanKotasi {
     final r = hunterRank.toUpperCase();
     if (r.startsWith('E')) return 8;
@@ -387,6 +417,20 @@ class SystemMemory {
       List<dynamic> cList = jsonDecode(cantaJson);
       canta = cList.map((e) => InventoryItem.fromJson(e)).toList();
 
+      hedefKilo = prefs.getDouble('hedefKilo') ?? (kilo > 0 ? (aktifHedef.contains('Kilo Al') ? kilo + 4 : kilo - 5) : 70.0);
+      avciDiyetNotu = prefs.getString('avciDiyetNotu') ?? "";
+      sonAiHedefKiloYorumu = prefs.getString('sonAiHedefKiloYorumu') ?? "";
+      diyetisyenListesiAktif = prefs.getBool('diyetisyenListesiAktif') ?? false;
+      diyetisyenBazKalori = prefs.getInt('diyetisyenBazKalori') ?? 0;
+      diyetisyenBazProtein = prefs.getInt('diyetisyenBazProtein') ?? 0;
+      diyetisyenBazKarb = prefs.getInt('diyetisyenBazKarb') ?? 0;
+      diyetisyenBazYag = prefs.getInt('diyetisyenBazYag') ?? 0;
+      String dOgunlerJson = prefs.getString('diyetisyenOgunleri') ?? '[]';
+      try {
+        List<dynamic> doList = jsonDecode(dOgunlerJson);
+        diyetisyenOgunleri = doList.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+      } catch (_) {}
+
       bossGuncelle();
     }
   }
@@ -411,6 +455,15 @@ class SystemMemory {
     prefs.setString('sonGirisTarihi', sonGirisTarihi);
 
     prefs.setString('cinsiyet', cinsiyet); prefs.setDouble('boy', boy); prefs.setDouble('kilo', kilo);
+    prefs.setDouble('hedefKilo', hedefKilo);
+    prefs.setString('avciDiyetNotu', avciDiyetNotu);
+    prefs.setString('sonAiHedefKiloYorumu', sonAiHedefKiloYorumu);
+    prefs.setBool('diyetisyenListesiAktif', diyetisyenListesiAktif);
+    prefs.setInt('diyetisyenBazKalori', diyetisyenBazKalori);
+    prefs.setInt('diyetisyenBazProtein', diyetisyenBazProtein);
+    prefs.setInt('diyetisyenBazKarb', diyetisyenBazKarb);
+    prefs.setInt('diyetisyenBazYag', diyetisyenBazYag);
+    prefs.setString('diyetisyenOgunleri', jsonEncode(diyetisyenOgunleri));
     
     prefs.setDouble('baslangicKilosu', baslangicKilosu);
     prefs.setInt('streakGunSayisi', streakGunSayisi);
@@ -1848,6 +1901,8 @@ class SystemMemory {
       'per': per.value,
       'boy': boy,
       'kilo': kilo,
+      'hedefKilo': hedefKilo,
+      'avciDiyetNotu': avciDiyetNotu,
       'baslangicKilosu': baslangicKilosu,
       'streakGunSayisi': streakGunSayisi,
       'bitenGorevSayisi': bitenGorevSayisi,
@@ -1912,6 +1967,12 @@ class SystemMemory {
         per.value = (data['per'] as num?)?.toInt() ?? per.value;
         boy = (data['boy'] as num?)?.toDouble() ?? boy;
         kilo = (data['kilo'] as num?)?.toDouble() ?? kilo;
+        if (data['hedefKilo'] != null) {
+          hedefKilo = (data['hedefKilo'] as num).toDouble();
+        }
+        if (data['avciDiyetNotu'] != null) {
+          avciDiyetNotu = data['avciDiyetNotu'].toString();
+        }
         baslangicKilosu = (data['baslangicKilosu'] as num?)?.toDouble() ?? baslangicKilosu;
         streakGunSayisi = (data['streakGunSayisi'] as num?)?.toInt() ?? streakGunSayisi;
         bitenGorevSayisi = (data['bitenGorevSayisi'] as num?)?.toInt() ?? bitenGorevSayisi;

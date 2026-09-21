@@ -270,6 +270,72 @@ GÖREVİN:
     }
   }
 
+  /// Avcının mevcut kilosu, hedef kilosu, vücut kompozisyonu, beslenme planı
+  /// ve kendi özel fikir/taleplerini harmanlayarak stratejik koçluk direktifi üretir.
+  static Future<Map<String, dynamic>?> aiHedefKiloVeDiyetAnalizi({
+    required double mevcutKilo,
+    required double hedefKilo,
+    required double boy,
+    required double yagOrani,
+    required int gunlukKalori,
+    required int protein,
+    required int karb,
+    required int yag,
+    required int haftalikIdmanGunu,
+    required bool dovuscuMu,
+    String? kullaniciFikri,
+  }) async {
+    final apiKey = SystemMemory.geminiApiKey.trim();
+    if (apiKey.isEmpty) return null;
+
+    final model = SystemMemory.geminiActiveModel;
+    final double kiloFarki = hedefKilo - mevcutKilo;
+
+    final prompt = '''
+Sen Solo Leveling evrenindeki "SİSTEM"sin (The System). Avcının hedeflenen kilosuna ulaşması için diyet, kalori ve beslenme stratejisini analiz ediyorsun.
+
+AVCI METABOLİK VERİLERİ:
+- Mevcut Kilo: ${mevcutKilo.toStringAsFixed(1)} kg | Hedef Kilo: ${hedefKilo.toStringAsFixed(1)} kg (Fark: ${kiloFarki.toStringAsFixed(1)} kg)
+- Boy: ${boy.toStringAsFixed(0)} cm | Vücut Yağ Oranı: %${yagOrani.toStringAsFixed(1)}
+- Mevcut Kalori Hedefi: $gunlukKalori kcal
+- Makrolar: P: ${protein}g | C: ${karb}g | F: ${yag}g
+- Haftalık İdman: $haftalikIdmanGunu gün (${dovuscuMu ? "Dövüş Sporcusu / Combat" : "Fitness / Hipertrofi"})
+${(kullaniciFikri != null && kullaniciFikri.isNotEmpty) ? '- AVCININ KENDİ GÖRÜŞÜ / ÖZEL BESLENME TALEBİ: "$kullaniciFikri"' : ''}
+
+GÖREVİN:
+1. Avcının kendi fikrini/talebini ve biyometrik verilerini harmanla.
+2. Hedefe sağlıklı ve disiplinli ulaşması için haftalık tempo (kg/hafta) ve tahmini hedef tamamlama süresini (hafta) hesapla.
+3. Gerekirse kalori ve makrolarda kullanıcının hedefine uygun ince ayarlar öner (revizeHedefKalori, revizeProtein, revizeKarb, revizeYag).
+4. Avcıya hitaben motive edici, otoriter ve RPG sistem tonunda bir stratejik direktif yaz.
+5. Yalnızca geçerli bir JSON objesi döndür:
+{
+  "stratejikDirektif": "Avcı, hedeflenen forma ulaşman için protokol hazırlandı...",
+  "haftalikPaceKg": 0.5,
+  "tahminiHafta": 16,
+  "revizeHedefKalori": $gunlukKalori,
+  "revizeProtein": $protein,
+  "revizeKarb": $karb,
+  "revizeYag": $yag,
+  "taktikOzet": "Yüksek protein ve idman sonrası glikojen toparlanması."
+}
+''';
+
+    try {
+      final res = await _generateContent(model, apiKey, prompt);
+      if (res == null || res.isEmpty) return null;
+
+      final cleanJson = res.replaceAll(RegExp(r'```json\s*|```'), '').trim();
+      final decoded = jsonDecode(cleanJson);
+      if (decoded is Map<String, dynamic>) {
+        return decoded;
+      }
+      return null;
+    } catch (e) {
+      debugPrint("Hedef kilo AI analizi hatası: $e");
+      return null;
+    }
+  }
+
   /// Fotoğrafı analiz edip Avatar için çok detaylı bir İngilizce prompt oluşturur.
   static Future<String?> avatarIcinPromptUret(Uint8List fotoBytes) async {
     final apiKey = SystemMemory.geminiApiKey.trim();

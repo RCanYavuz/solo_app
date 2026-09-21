@@ -298,6 +298,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Proceed to Step 2
+      await tester.ensureVisible(find.text('NEXT PHASE ->'));
       await tester.tap(find.text('NEXT PHASE ->'));
       await tester.pumpAndSettle();
 

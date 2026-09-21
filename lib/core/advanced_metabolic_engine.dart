@@ -313,4 +313,32 @@ class AdvancedMetabolicEngine {
       'Karbonhidrat': karbGram,
     };
   }
+
+  /// Hedef kiloya ulaşmak için delta, haftalık önerilen tempo, tahmini süre ve kalori projeksiyonu
+  static Map<String, dynamic> hedefKiloProjeksiyonu({
+    required double mevcutKilo,
+    required double hedefKilo,
+    required double tdee,
+  }) {
+    final double fark = double.parse((hedefKilo - mevcutKilo).toStringAsFixed(1));
+    final bool kiloVerme = fark < 0;
+    final double absFark = fark.abs();
+
+    // Sağlıklı tempo: haftalık 0.5 kg verme veya 0.35 kg kas inşası
+    final double haftalikPace = kiloVerme ? 0.5 : 0.35;
+    final int tahminiHafta = absFark == 0 ? 0 : (absFark / haftalikPace).ceil();
+    // 0.5 kg yağ dokusu ~ 3850 kcal / 7 gün = 550 kcal / gün açık
+    final int gunlukKaloriFarki = absFark == 0 ? 0 : (kiloVerme ? -550 : 350);
+    final int onerilenHedefKalori = ((tdee + gunlukKaloriFarki).round()).clamp(1200, 4500);
+
+    return {
+      'fark': fark,
+      'kiloVerme': kiloVerme,
+      'absFark': absFark,
+      'haftalikPace': haftalikPace,
+      'tahminiHafta': tahminiHafta,
+      'gunlukKaloriFarki': gunlukKaloriFarki,
+      'onerilenHedefKalori': onerilenHedefKalori,
+    };
+  }
 }
