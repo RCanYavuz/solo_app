@@ -21,14 +21,14 @@
 Tüm test paketleri Flutter test altyapısı ve Dart SDK analizi ile çalıştırılarak kontrol edilmiştir.
 
 ### 🧪 Otomatik Test Paketi Sonuçları
-Mevcut **11 test paketi ve toplam 54 test senaryosunun tamamı başarıyla geçmektedir**:
+Mevcut **11 test paketi ve toplam 55 test senaryosunun tamamı başarıyla geçmektedir**:
 
 | Test Dosyası | Test Sayısı | Durum | Kapsam |
 |---|:---:|:---:|---|
 | [`test/assessment_flow_widget_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/assessment_flow_widget_test.dart) | 7 | ✅ GEÇTİ | 4 Adımlı Wizard, çoklu dövüş branşı, 1RM dövüş ağırlık testleri, odak bölgeleri, canlı rank rozeti, Profile ve Dashboard banner senkronizasyonu |
 | [`test/system_features_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/system_features_test.dart) | 17 | ✅ GEÇTİ | Su takibi, çanta/envanter, makrolar, Data Vault JSON yedek/geri yükleme, zindan ödülleri, **hedef odak bölgelerine göre dinamik antrenman uyarlaması**, rank ve dövüş katsayıları |
 | [`test/exercise_coach_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/exercise_coach_test.dart) | 7 | ✅ GEÇTİ | Avcı Taktik Kartı, Akıllı Alternatif Değiştirici (Smart Swap), SetKaydi serileştirmesi, RestTimer ve Detail Modal widget testleri |
-| [`test/workout_experience_flow_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/workout_experience_flow_test.dart) | 3 | ✅ GEÇTİ | Dashboard taktik kartı ve swap akışı, Aktif İdman Set Logger & Rest Timer diyaloğu, Workout Planner taktik butonları |
+| [`test/workout_experience_flow_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/workout_experience_flow_test.dart) | 4 | ✅ GEÇTİ | Dashboard taktik kartı ve swap akışı, Aktif İdman Set Logger & Rest Timer, **Zindana Ek Hareket Enjekte Etme ve Silme Akışı**, Workout Planner taktik butonları |
 | [`test/youtube_helper_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/youtube_helper_test.dart) | 4 | ✅ GEÇTİ | Egzersiz başlık sanitizasyonu, [COMBAT]/[PHY] etiketleri ve set/tekrar ayıklama testleri |
 | [`test/gemini_integration_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/gemini_integration_test.dart) | 2 (21 adım) | ✅ GEÇTİ | Profil ekranı API anahtarı yönetimi ve Diyet ekranı AI besin çözücü widget entegrasyonu |
 | [`test/language_switch_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/language_switch_test.dart) | 5 | ✅ GEÇTİ | Türkçe/İngilizce çift dil dinamik geçişi, unvanlar, hedefler ve fallback |
@@ -262,6 +262,7 @@ Kullanıcı ile onaylanan güncel master geliştirme sırası:
 - **Tek Dokunuşla YouTube Video Rehberi (`YoutubeHelper`):** Egzersiz adını set/tekrar ve köşeli parantez etiketlerinden akıllıca temizleyen, Dashboard, Takvim, Antrenman Planlayıcı, Aktif İdman ve Kütüphane ekranlarından doğrudan YouTube mobil/web form videosunu açan sistem tamamlandı.
 - **Solo Leveling Avcı Taktik Kartı & Akıllı Alternatif Değiştirici (Smart Swap):** Egzersize dokunulduğunda hedef kas, dövüş faydası, 3 altın kural ve dolu makine/ağrı durumunda 3 muadil hareket önerisi ve tek tuşla değiştirme.
 - **Set, Ağırlık, Tekrar Takibi & Dinlenme Sayacı (Rest Timer):** Aktif idmanda set bazlı kg/tekrar loglama (`SetKaydi`) ve 30-120sn sesli Solo Leveling dinlenme sayacı.
+- **Zindana Dinamik Ek Hareket Enjekte Etme & Kaldırma:** Aktif raid esnasında üst çubuktan (`+ EKLE`) ve liste sonundan (`+ EK HAREKET ENJEKTE ET`) kategorilere göre filtrelenen hızlı hareket seçim penceresi ve tek tıkla zindandan görev kaldırma.
 
 #### ⏳ FAZ 1 İÇİN EKLENECEKLER & GELİŞTİRİLECEKLER (Sırada Bekleyenler):
 1. **Daha Kapsamlı & Dolu Antrenman Hacmi (Antrenmanları Uzatma & Çeşitlendirme):**

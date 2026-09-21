@@ -219,6 +219,7 @@ lib/
 3. **Solo Leveling Avcı Taktik Kartı & Akıllı Alternatif Değiştirici (Smart Swap):** Egzersize dokunulduğunda açılan hedef kas, dövüş faydası, 3 altın kural ve salondaki yoğunluk/ağrı durumunda 3 muadil hareket önerisi ve tek tıkla swap.
 4. **Set, Ağırlık ve Tekrar Takip Kaydedicisi:** Aktif zindan idmanında set bazlı kg/tekrar loglama (`SetKaydi`).
 5. **Set Arası Dinlenme Sayacı (Rest Timer):** 30-120sn sesli ve görsel Solo Leveling geri sayım sayacı.
+6. **Zindana Dinamik Ek Hareket Enjekte Etme & Kaldırma:** Aktif Zindan Baskını ekranında üst bardaki `+ EKLE` butonu ve listenin altındaki `+ EK HAREKET ENJEKTE ET` butonuyla kategorilere göre (Göğüs, Sırt, Omuz/Kol, Bacak, Karın, Dövüş/Boks) filtrelenen hazır hareketleri veya serbest görevleri seansa anında dahil edebilme ve görev kartından kaldırma desteği.
 
 ### ⏳ Faz 1 Kapsamında Sırada Eklenecekler:
 1. **Daha Kapsamlı & Dolu Antrenman Hacmi (Antrenmanları Uzatma & Çeşitlendirme):**
@@ -247,14 +248,14 @@ lib/
 
 ## 🧪 Otomatik Test Paketi
 
-Proje güvenilirliği için **11 test paketi ve toplam 54 test senaryosu** hazırlanmıştır (%100 Başarılı):
+Proje güvenilirliği için **11 test paketi ve toplam 55 test senaryosu** hazırlanmıştır (%100 Başarılı):
 
 | Test Dosyası | Kapsam |
 |--------------|--------|
 | [`test/assessment_flow_widget_test.dart`](test/assessment_flow_widget_test.dart) | 4 Adımlı Wizard, çoklu dövüş branşı, 1RM dövüş ağırlık testleri, odak bölgeleri, unvan senkronizasyonu |
 | [`test/system_features_test.dart`](test/system_features_test.dart) | Su takibi, çanta, makrolar, Data Vault, odak bölgelerine göre dinamik antrenman uyarlaması |
 | [`test/exercise_coach_test.dart`](test/exercise_coach_test.dart) | Avcı Taktik Kartı, Akıllı Alternatif Değiştirici (Smart Swap), SetKaydi serileştirmesi, RestTimer ve Detail Modal |
-| [`test/workout_experience_flow_test.dart`](test/workout_experience_flow_test.dart) | Dashboard taktik kartı ve swap akışı, Aktif İdman Set Logger & Rest Timer diyaloğu, Workout Planner butonları |
+| [`test/workout_experience_flow_test.dart`](test/workout_experience_flow_test.dart) | Dashboard taktik kartı ve swap akışı, Aktif İdman Set Logger & Rest Timer, **Zindana Ek Hareket Enjekte Etme ve Silme**, Workout Planner butonları |
 | [`test/youtube_helper_test.dart`](test/youtube_helper_test.dart) | Egzersiz başlık sanitizasyonu, [COMBAT]/[PHY] etiketleri ve set/tekrar ayıklama testleri |
 | [`test/gemini_integration_test.dart`](test/gemini_integration_test.dart) | Profil API anahtarı, AI besin çözücü ve **AI haftalık antrenman fail-safe fallback testi** |
 | [`test/language_switch_test.dart`](test/language_switch_test.dart) | Türkçe/İngilizce çift dil geçişi, unvanlar, hedefler ve dil fallback |
