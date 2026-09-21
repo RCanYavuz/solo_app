@@ -13,6 +13,7 @@ import '../models/inventory_item_model.dart';
 import '../core/services/gemini_service.dart';
 import '../core/advanced_metabolic_engine.dart';
 import '../core/progressive_overload_engine.dart';
+import '../core/supplement_engine.dart';
 
 class SystemMemory {
   static bool get _isTest {
@@ -283,6 +284,8 @@ class SystemMemory {
 
   static Map<int, List<Gorev>> haftalikPlan = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] };
   static Map<String, OverloadKaydi> overloadGecmisi = {};
+  static List<String> kusanilanSuplementler = [];
+  static ValueNotifier<bool> sesliKocAktif = ValueNotifier(true);
 
   static ValueNotifier<int> bossHP = ValueNotifier(0);
   static int bossMaxHP = 0;
@@ -439,6 +442,10 @@ class SystemMemory {
         overloadGecmisi = oMap.map((key, value) => MapEntry(key, OverloadKaydi.fromJson(value)));
       } catch (_) {}
 
+      kusanilanSuplementler = prefs.getStringList('kusanilanSuplementler') ?? [];
+      sesliKocAktif.value = prefs.getBool('sesliKocAktif') ?? true;
+      suHedefiGuncelle();
+
       bossGuncelle();
     }
   }
@@ -545,8 +552,36 @@ class SystemMemory {
     prefs.setString('overloadGecmisi', jsonEncode(
       overloadGecmisi.map((key, value) => MapEntry(key, value.toJson())),
     ));
+    prefs.setStringList('kusanilanSuplementler', kusanilanSuplementler);
+    prefs.setBool('sesliKocAktif', sesliKocAktif.value);
 
     bossGuncelle();
+  }
+
+  static void suplementKusan(String id) {
+    if (!kusanilanSuplementler.contains(id)) {
+      kusanilanSuplementler.add(id);
+      suHedefiGuncelle();
+      kaydet();
+    }
+  }
+
+  static void suplementCikar(String id) {
+    if (kusanilanSuplementler.contains(id)) {
+      kusanilanSuplementler.remove(id);
+      suHedefiGuncelle();
+      kaydet();
+    }
+  }
+
+  static bool suplementKusanildiMi(String id) {
+    return kusanilanSuplementler.contains(id);
+  }
+
+  static void suHedefiGuncelle() {
+    int bazSu = 3000;
+    int ekSu = SupplementEngine.hesaplaToplamSuArtisi(kusanilanSuplementler);
+    suHedefiMl = bazSu + ekSu;
   }
 
   static void overloadKaydiEkle(OverloadKaydi kayit) {

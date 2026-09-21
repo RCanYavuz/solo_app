@@ -115,14 +115,14 @@ class _YemekEkraniState extends State<YemekEkrani> {
                           ),
                           const SizedBox(height: 8),
                           
-                          // Fotoğraf Yükleme Butonu
+                          // Fotoğraf Yükleme ve Canlı Kamera Butonları
                           Row(
                             children: [
                               Expanded(
                                 child: ElevatedButton.icon(
                                   onPressed: aiYukleniyor ? null : () async {
                                     final ImagePicker picker = ImagePicker();
-                                    final XFile? image = await picker.pickImage(source: ImageSource.gallery, maxWidth: 800, maxHeight: 800);
+                                    final XFile? image = await picker.pickImage(source: ImageSource.camera, maxWidth: 1024, maxHeight: 1024);
                                     if (image != null) {
                                       final bytes = await image.readAsBytes();
                                       setDialogState(() {
@@ -131,9 +131,35 @@ class _YemekEkraniState extends State<YemekEkrani> {
                                       });
                                     }
                                   },
-                                  icon: const Icon(Icons.add_a_photo, color: sysBlue, size: 14),
+                                  icon: const Icon(Icons.camera_alt, color: Colors.greenAccent, size: 14),
+                                  label: const Text(
+                                    'KAMERA',
+                                    style: TextStyle(color: Colors.greenAccent, fontSize: 10, fontWeight: FontWeight.bold),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.greenAccent.withValues(alpha: 0.1),
+                                    side: BorderSide(color: Colors.greenAccent.withValues(alpha: 0.5)),
+                                    padding: const EdgeInsets.symmetric(vertical: 8),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  onPressed: aiYukleniyor ? null : () async {
+                                    final ImagePicker picker = ImagePicker();
+                                    final XFile? image = await picker.pickImage(source: ImageSource.gallery, maxWidth: 1024, maxHeight: 1024);
+                                    if (image != null) {
+                                      final bytes = await image.readAsBytes();
+                                      setDialogState(() {
+                                        secilenFoto = bytes;
+                                        aiHata = null;
+                                      });
+                                    }
+                                  },
+                                  icon: const Icon(Icons.photo_library, color: sysBlue, size: 14),
                                   label: Text(
-                                    secilenFoto != null ? TranslationManager.get('diet_photo_attached') : TranslationManager.get('diet_attach_photo'),
+                                    secilenFoto != null ? 'FOTO YÜKLENDİ' : 'GALERİ',
                                     style: const TextStyle(color: sysBlue, fontSize: 10, fontWeight: FontWeight.bold),
                                   ),
                                   style: ElevatedButton.styleFrom(
@@ -144,7 +170,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
                                 ),
                               ),
                               if (secilenFoto != null) ...[
-                                const SizedBox(width: 8),
+                                const SizedBox(width: 6),
                                 IconButton(
                                   icon: const Icon(Icons.close, color: sysRed, size: 16),
                                   onPressed: () {

@@ -20,7 +20,7 @@ void main() {
 
   group('Gemini Profile and Diet Integration Tests', () {
     testWidgets('ProfileScreen renders AI Core card and allows updating API Key', (WidgetTester tester) async {
-      await tester.binding.setSurfaceSize(const Size(800, 1400));
+      await tester.binding.setSurfaceSize(const Size(800, 2200));
       addTearDown(() => tester.binding.setSurfaceSize(null));
 
       await tester.pumpWidget(
@@ -37,6 +37,8 @@ void main() {
       expect(find.text('DIAGNOSTIC'), findsOneWidget);
 
       // Tap 'SET KEY'
+      await tester.ensureVisible(find.text('SET KEY'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('SET KEY'));
       await tester.pumpAndSettle();
 

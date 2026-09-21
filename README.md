@@ -10,9 +10,12 @@
 lib/
 ├── main.dart                       # Uygulama giriş noktası ve akıllı kayıt yönlendirmesi
 ├── controllers/
-│   └── system_memory.dart          # Tüm oyun state'i, persistence, RPG mekanikleri, görev döngüsü
+│   └── system_memory.dart          # Tüm oyun state'i, persistence, RPG mekanikleri, görev döngüsü, suplement hafızası
 ├── core/
 │   ├── advanced_metabolic_engine.dart # Bilimsel US Navy, LBM, BMR, TDEE, MET yıpranma & projeksiyon motoru
+│   ├── supplement_engine.dart      # Suplement kuşanma, dinamik su artışı (+500ml) & metabolik sinerji motoru
+│   ├── voice_coach_system.dart     # Dinlenme sayacı & aşırı yükleme yapay zeka sesli koç sistemi
+│   ├── progressive_overload_engine.dart # Çift progresyon (Double Progression) & RIR motoru
 │   ├── audio_system.dart           # Ses efektleri yönetimi (mixWithOthers desteği)
 │   ├── diyet_motoru.dart           # Makro besin (Protein/Karb/Yağ) ve kalori hesaplama motoru
 │   ├── exercise_coach.dart         # Avcı Taktik Kartı ve Akıllı Egzersiz Değiştirici (Smart Swap)
@@ -31,20 +34,24 @@ lib/
 │   ├── dashboard_screen.dart       # Dashboard — Level, Stat, Başarımlar, Haftalık Boss
 │   ├── status_screen.dart          # Stat dağıtımı, HP/MP barları & Antrenman Kütüphanesi köprüsü
 │   ├── calendar_screen.dart        # Haftalık görev takvimi (Quest Log & Streak)
-│   ├── diet_screen.dart            # Kalori, su, katabolizma dengeleyicisi + Gemini AI & Diyetisyen Tarayıcı
+│   ├── diet_screen.dart            # Kalori, su, katabolizma dengeleyicisi + Canlı Kamera, Gemini AI & Diyetisyen Tarayıcı
 │   ├── macro_dashboard_screen.dart # Görsel Makro Laboratuvarı (Hedef kilo, vizyon girişi, AI harmanlama & Entegre Et)
-│   ├── profile_screen.dart         # Profil, vücut verileri, hedef kilo + Gemini API Key Yönetimi & Tanılama
+│   ├── profile_screen.dart         # Profil, Biyometrik Radar Grafiği, Suplement Kuşanma + Gemini API Key Yönetimi & Tanılama
 │   ├── setup_screen.dart           # 4 Adımlı Kurulum Sihirbazı (Hedef kilo, vücut ölçümleri, dövüş testleri)
 │   ├── welcome_screen.dart         # Sistem uyanış ve karşılama ekranı
 │   ├── instruction_screen.dart     # Sistem kuralları ve avcı el kitabı
-│   ├── active_workout_screen.dart  # Aktif antrenman modu (Dungeon kronometresi, set logger & dinlenme sayacı)
+│   ├── active_workout_screen.dart  # Aktif antrenman modu (Dungeon kronometresi, set logger, dinlenme sayacı & RIR çipleri)
 │   ├── workout_planner_screen.dart # Haftalık antrenman planlayıcı & kütüphane bağlantısı
 │   ├── workout_library_screen.dart # YouTube destekli hazır antrenman kütüphanesi (875+ egzersiz)
 │   ├── boxing_timer_screen.dart    # Boks ve aralıklı antrenman zamanlayıcısı (Raid senkronizasyonlu)
 │   └── shop_screen.dart            # Sistem Mağazası (İksirler, Kaçamak Hakları, Eşyalar)
 └── widgets/
+    ├── supplement_loadout_modal.dart # Suplement kuşanma ve dinamik sinerji yönetim modalı
+    ├── hunter_radar_chart.dart     # 5-stat STR/AGI/VIT/INT/PER pentagon radar grafiği & sınıf belirleyici
+    ├── rir_feedback_modal.dart     # Progresif aşırı yükleme RIR bildirim modalı
     ├── dietitian_scanner_modal.dart # Diyetisyen menüsü OCR tarama ve onay modalı
     ├── advanced_exercise_selector_modal.dart # Canlı filtreli gelişmiş egzersiz enjeksiyon modalı
+    ├── rest_timer_dialog.dart      # Sesli koç entegrasyonlu ve ses anahtarlı dinlenme sayacı
     ├── hologram_card.dart          # Neon parlamalı hologram kart widget'ı
     └── stat_bar.dart               # HP/MP/EXP ilerleme çubuğu widget'ı
 ```
@@ -303,6 +310,10 @@ lib/
 | **Kullanıcı Vizyonu & Not Girişi** | ✅ **YAPILDI** | Kör otomasyonu önleyen serbest metin diyet stratejisi alanı |
 | **AI Harmanlama & Direktif** | ✅ **YAPILDI** | Kullanıcı fikri + biyometrik matematiğin senteziyle RPG Sistem Direktifi |
 | **Sisteme Entegre Et Butonu** | ✅ **YAPILDI** | Hesaplanan hedefleri tek tıkla aktif takip sistemine bağlama aksiyonu |
+| **Suplement Kuşanma (Loadout)** | ✅ **YAPILDI** | 4 ekipman yuvası, metabolik sinerji, dinamik su artışı (+500ml) & tolerans |
+| **Yapay Zeka Sesli Koç (Voice)** | ✅ **YAPILDI** | Dinlenme sayacı başlama, 3-2-1 geri sayım, zafer uyarıları & overload direktifleri |
+| **Canlı Kamera Vizörü (Lens)** | ✅ **YAPILDI** | Cihaz kamerası ile doğrudan tabak fotoğrafı çekme ve OCR tarama |
+| **Biyometrik Radar Grafiği** | ✅ **YAPILDI** | 5-stat STR/AGI/VIT/INT/PER pentagon siber radar poligonu ve sınıf tayini |
 | **Su Takibi (Hydration)** | ✅ **YAPILDI** | Günlük su sayacı, hızlı giriş butonları ve gece yarısı ödül/ceza |
 | **Avcı Çantası & Envanter** | ✅ **YAPILDI** | Eşya satın alma, çantadan canlı eşya kullanımı (`hp_full`, `cheat_meal` vb.) |
 | **Veri Kasası (Data Vault)** | ✅ **YAPILDI** | Şifrelenmiş JSON arşiv dışa/içe aktarma ile tam veri yedekleme |
@@ -327,10 +338,11 @@ lib/
 
 ## 🧪 Otomatik Test Paketi
 
-Proje güvenilirliği için **16 test paketi ve toplam 86 test senaryosu** hazırlanmıştır (%100 Başarılı / Yeşil):
+Proje güvenilirliği için **17 test paketi ve toplam 94 test senaryosu** hazırlanmıştır (%100 Başarılı / Yeşil):
 
 | Test Dosyası | Kapsam |
 |--------------|--------|
+| [`test/supplement_and_radar_test.dart`](test/supplement_and_radar_test.dart) | Suplement kuşanma/çıkarma, dinamik su artışı (+500ml), tolerans bonusları, akıllı öneriler, sesli koç sinyalleri/sessize alma ve 5-stat biyometrik radar çizimi |
 | [`test/progressive_overload_engine_test.dart`](test/progressive_overload_engine_test.dart) | Çift progresyon (Double Progression), RIR 4+ (+2.5kg/+5kg), RIR 2-3 (+1 rep), RIR 0-1 (toparlanma), eklem koruma ikamesi, `OverloadKaydi` JSON ve `RirFeedbackModal` widget testleri |
 | [`test/advanced_metabolic_engine_test.dart`](test/advanced_metabolic_engine_test.dart) | US Navy vücut yağı, LBM, Katch-McArdle BMR, TDEE, MET yıpranması, hedef kilo projeksiyonu ve sisteme entegrasyon testleri |
 | [`test/dietitian_scanner_widget_test.dart`](test/dietitian_scanner_widget_test.dart) | Diyetisyen tarayıcı modalı, form alanları ve Makro Lab US Navy biyometrik kart render testleri |

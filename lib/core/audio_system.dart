@@ -1,24 +1,35 @@
-// lib/core/audio_system.dart
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 class AudioSystem {
   static final AudioPlayer _player = AudioPlayer();
   static final AudioPlayer _transitionPlayer = AudioPlayer(); 
 
+  static bool get _isTest {
+    if (kIsWeb) return false;
+    try {
+      return Platform.environment.containsKey('FLUTTER_TEST');
+    } catch (_) {
+      return false;
+    }
+  }
+
   // ===================================================
   // YENİ VERSİYON: ARKA PLAN MÜZİĞİNİ KESMEME AYARI
   // ===================================================
   static Future<void> init() async {
-    // Yeni audioplayers paketinde doğrudan Config kullanılır.
-    // mixWithOthers: iOS'ta diğer müziklerle karıştırır, Android'de "AudioFocus" (odak) almaz.
-    final audioContext = AudioContextConfig(
-      focus: AudioContextConfigFocus.mixWithOthers,
-    ).build();
-    
-    await AudioPlayer.global.setAudioContext(audioContext);
+    if (_isTest) return;
+    try {
+      final audioContext = AudioContextConfig(
+        focus: AudioContextConfigFocus.mixWithOthers,
+      ).build();
+      await AudioPlayer.global.setAudioContext(audioContext);
+    } catch (_) {}
   }
 
   static Future<void> playSuccess() async {
+    if (_isTest) return;
     try {
       await _player.stop();
       await _player.play(AssetSource('audio/success.mp3'));
@@ -26,6 +37,7 @@ class AudioSystem {
   }
 
   static Future<void> playLevelUp() async {
+    if (_isTest) return;
     try {
       await _player.stop();
       await _player.play(AssetSource('audio/level_up.mp3'));
@@ -33,24 +45,23 @@ class AudioSystem {
   }
 
   static Future<void> playBell() async {
+    if (_isTest) return;
     try {
       await _player.stop();
       await _player.play(AssetSource('audio/bell.mp3'));
     } catch (_) {}
   }
 
-  // ===================================================
-  // KUSURSUZ SAYFA VE MENÜ GEÇİŞ SESİ
-  // ===================================================
   static Future<void> playTransition() async {
+    if (_isTest) return;
     try {
-      // Sesi anında durdurur ve süreyi (00:00) konumuna zorla geri sarar.
       await _transitionPlayer.stop();
       await _transitionPlayer.play(AssetSource('audio/transition.mp3'));
     } catch (_) {}
   }
 
   static Future<void> playStartup() async {
+    if (_isTest) return;
     try {
       final AudioPlayer startupPlayer = AudioPlayer();
       await startupPlayer.play(AssetSource('audio/startup.mp3'));

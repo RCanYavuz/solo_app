@@ -9,6 +9,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/audio_system.dart';
+import '../core/voice_coach_system.dart';
+import '../controllers/system_memory.dart';
 
 class RestTimerDialog extends StatefulWidget {
   final int initialSeconds;
@@ -60,6 +62,7 @@ class _RestTimerDialogState extends State<RestTimerDialog> {
     super.initState();
     _kalanSaniye = widget.initialSeconds;
     _toplamSaniye = widget.initialSeconds;
+    VoiceCoachSystem.dinlenmeBasladi(_kalanSaniye, egzersizAdi: widget.exerciseName);
     _startTimer();
   }
 
@@ -68,13 +71,16 @@ class _RestTimerDialogState extends State<RestTimerDialog> {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_kalanSaniye > 1) {
         setState(() => _kalanSaniye--);
+        if (_kalanSaniye <= 3) {
+          VoiceCoachSystem.dinlenmeGeriSayim(_kalanSaniye);
+        }
       } else {
         _timer?.cancel();
         setState(() {
           _kalanSaniye = 0;
           _bitti = true;
         });
-        AudioSystem.playBell();
+        VoiceCoachSystem.dinlenmeBitti(egzersizAdi: widget.exerciseName);
         widget.onComplete?.call();
       }
     });
@@ -136,15 +142,38 @@ class _RestTimerDialogState extends State<RestTimerDialog> {
           ),
           const SizedBox(height: 15),
 
-          // Başlık
-          Text(
-            _bitti ? 'MP RECOVERY COMPLETE!' : 'MP RECOVERY (REST TIMER)',
-            style: GoogleFonts.orbitron(
-              color: _bitti ? _sysGold : _sysBlue,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 2,
-            ),
+          // Başlık ve Sesli Koç Anahtarı
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                _bitti ? 'MP RECOVERY COMPLETE!' : 'MP RECOVERY (REST TIMER)',
+                style: GoogleFonts.orbitron(
+                  color: _bitti ? _sysGold : _sysBlue,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2,
+                ),
+              ),
+              const SizedBox(width: 8),
+              ValueListenableBuilder<bool>(
+                valueListenable: SystemMemory.sesliKocAktif,
+                builder: (ctx, aktif, _) => IconButton(
+                  icon: Icon(
+                    aktif ? Icons.record_voice_over : Icons.voice_over_off,
+                    color: aktif ? _sysBlue : _sysTextMuted,
+                    size: 18,
+                  ),
+                  tooltip: aktif ? 'Sesli Koç Aktif' : 'Sesli Koç Sessiz',
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  onPressed: () {
+                    SystemMemory.sesliKocAktif.value = !aktif;
+                    SystemMemory.kaydet();
+                  },
+                ),
+              ),
+            ],
           ),
           if (widget.exerciseName != null) ...[
             const SizedBox(height: 4),

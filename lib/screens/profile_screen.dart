@@ -11,6 +11,8 @@ import '../core/audio_system.dart';
 import '../core/services/gemini_service.dart'; 
 import 'setup_screen.dart';
 import '../core/translation_manager.dart';
+import '../widgets/hunter_radar_chart.dart';
+import '../widgets/supplement_loadout_modal.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -1309,7 +1311,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
               TranslationManager.rankTitle(SystemMemory.level.value), 
               style: const TextStyle(color: sysTextMuted, fontSize: 14, letterSpacing: 1, fontWeight: FontWeight.bold)
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
+
+            // 5 Biyometrik Stat Radar Grafiği (Pentagon)
+            HunterRadarChart(
+              str: SystemMemory.str.value,
+              agi: SystemMemory.agi.value,
+              vit: SystemMemory.vit.value,
+              intStat: SystemMemory.intStat.value,
+              per: SystemMemory.per.value,
+            ),
+            const SizedBox(height: 12),
+
+            // Suplement Kuşanma & Sinerji Butonu
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  SupplementLoadoutModal.goster(context).then((_) {
+                    if (mounted) setState(() {});
+                  });
+                },
+                icon: const Icon(Icons.shield, color: sysBlue, size: 18),
+                label: Text(
+                  '💊 SUPLEMENT KUŞANMA & SİNERJİ (${SystemMemory.kusanilanSuplementler.length}/4)',
+                  style: GoogleFonts.orbitron(
+                    color: sysBlue,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: sysBlue.withValues(alpha: 0.15),
+                  side: const BorderSide(color: sysBlue),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
 
             HologramCard(
               child: Column(
