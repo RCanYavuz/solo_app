@@ -758,6 +758,54 @@ class SystemMemory {
     kaydet();
   }
 
+  /// Dövüş sporuna özel 5 raundluk uzatılmış gölge boksu ve kombinasyon protokolü üretir
+  static List<Gorev> dovusGolgeBoksuKombinasyonlari({String? brans, int raundSayisi = 5}) {
+    final seciliBrans = (brans ?? dovusBransi).toLowerCase();
+
+    if (seciliBrans.contains('kick')) {
+      return [
+        Gorev("[COMBAT-SHADOW] Kickboks R1: Dutch Volume 1-2 + Sol Kroşe + Sağ Low Kick (3 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT-SHADOW] Kickboks R2: Mesafe Kontrolü Teep + Cross + Sol High Kick (3 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT-SHADOW] Kickboks R3: Savunma Blok + Sağ Karaciğer Vuruşu + Low Kick (3 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT-SHADOW] Kickboks R4: Açı Baskısı Sol Hook + Sağ Düz + Step Middle Kick (3 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT-SHADOW] Kickboks R5: Hacim Burnout 4 Yumruk + Çift Low Kick (3 Dk)", false, "Fiziksel"),
+      ];
+    } else if (seciliBrans.contains('muay') || seciliBrans.contains('thai')) {
+      return [
+        Gorev("[COMBAT-SHADOW] Muay Thai R1: Muay Mat Teep + 1-2 + Yatay Dirsek + Sol Diz (3 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT-SHADOW] Muay Thai R2: Clinch Kontrolü Hayali Çekiş + Dönerek Diz + Dirsek (3 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT-SHADOW] Muay Thai R3: Denge Bozma Sol Teep + Sağ Low Kick + Sol Hook (3 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT-SHADOW] Muay Thai R4: Shin Check Blok + Sağ Middle Kick + Düz Dirsek (3 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT-SHADOW] Muay Thai R5: Muay Finisher Seri Dizler + Çift Teep & Dirsek (3 Dk)", false, "Fiziksel"),
+      ];
+    } else if (seciliBrans.contains('mma')) {
+      return [
+        Gorev("[COMBAT-SHADOW] MMA R1: Striking to Grapple 1-2 + Takedown Sahtesi + Overhand (3 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT-SHADOW] MMA R2: Savunma Reaksiyonu Jab-Cross + Ani Sprawl + Kalkış (3 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT-SHADOW] MMA R3: Kafes Baskısı Duvara İtme + Clinch Dizleri (3 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT-SHADOW] MMA R4: Seviye Değişimi Düşük Sahte + Karaciğer Kroşe + Sağ Diz (3 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT-SHADOW] MMA R5: Şampiyonluk Raundu Tüm Vuruşlar, Sprawl & Kalkış (3 Dk)", false, "Fiziksel"),
+      ];
+    } else if (seciliBrans.contains('güreş') || seciliBrans.contains('gures') || seciliBrans.contains('bjj') || seciliBrans.contains('judo')) {
+      return [
+        Gorev("[COMBAT-SHADOW] Güreş R1: Pummeling & Seviye Değişimi Drilli (3 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT-SHADOW] Güreş R2: Snapdown + Ani Sprawl + Bacak Yakalama (3 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT-SHADOW] Güreş R3: Takedown Sahtesi + Arm Drag + Arkaya Geçiş (3 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT-SHADOW] Güreş R4: Yerden Patlayıcı Kalkış & Sprawl Reaksiyonu (3 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT-SHADOW] Güreş R5: Aralıksız Tempo Pummeling & Sprawl Maratonu (3 Dk)", false, "Fiziksel"),
+      ];
+    } else {
+      // Varsayılan Boks (Peek-a-boo & Out-boxer)
+      return [
+        Gorev("[COMBAT-SHADOW] Boks R1: Out-Boxer Double Jab + Cross + Sol Pivot (3 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT-SHADOW] Boks R2: Peek-a-boo Bob & Weave + 1-2-Roll-3-2 (3 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT-SHADOW] Boks R3: İç Dövüş 1-2 + Sol Karaciğer Kroşesi + Aparkat (3 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT-SHADOW] Boks R4: Step-around + Check Hook + Sağ Direkt (3 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT-SHADOW] Boks R5: Şampiyonluk Raundu Burnout (Sürekli 1-2 & Hız) (3 Dk)", false, "Fiziksel"),
+      ];
+    }
+  }
+
   static void baslangicPrograminiAta({
     required String ekipman,
     required String rank,
@@ -784,15 +832,16 @@ class SystemMemory {
     String setRepLabel;
     final rUpper = rank.toUpperCase();
     if (rUpper.startsWith('S') || rUpper.startsWith('A')) {
-      setRepLabel = "4-5 Sets x 5-8 Reps (Monarch Overload)";
+      setRepLabel = "4-5 Sets x 8-12 Reps (Monarch Overload & Volume)";
     } else if (rUpper.startsWith('B') || rUpper.startsWith('C')) {
-      setRepLabel = "3-4 Sets x 8-10 Reps (Knight Hypertrophy)";
+      setRepLabel = "4 Sets x 10-12 Reps (Knight Hypertrophy & Volume)";
     } else {
-      setRepLabel = "3 Sets x 10-12 Reps (Rookie Foundation)";
+      setRepLabel = "4 Sets x 12-15 Reps (Extended Foundation)";
     }
 
     if (dovusSporuYapiyorMu) {
       String dovusAdi = dovusBransi;
+      final combShadows = dovusGolgeBoksuKombinasyonlari(brans: dovusBransi);
       if (idmanGunu <= 3) {
         haftalikPlan[1]!.addAll([
           Gorev("[COMBAT] $dovusAdi: Patlayıcı İtiş & Plyo Şınav ($setRepLabel)", false, "Fiziksel"),
@@ -803,20 +852,21 @@ class SystemMemory {
           Gorev("[CARDIO] 15 Dk Hızlı İp Atlama & Ayak Çalışması", false, "Fiziksel"),
         ]);
         haftalikPlan[3]!.addAll([
-          Gorev("[COMBAT] Gölge Boksu / Striking Drill (5 Raund x 3 Dk)", false, "Fiziksel"),
+          ...combShadows.take(3),
           Gorev("[COMBAT] Hızlı İp Atlama / Footwork Drills (15 Dk)", false, "Fiziksel"),
           Gorev("[COMBAT] Burpee Sprawl Kondisyon (4 Set x 15)", false, "Fiziksel"),
-          Gorev("[COMBAT] Ağır Kum Torbası Kombinasyonları (4 Raund)", false, "Fiziksel"),
-          Gorev("[COMBAT] Asılı Bacak Kaldırma (Hanging Leg Raise)", false, "Fiziksel"),
-          Gorev("[CARDIO] 10 Dk Interval Sprint Koşusu (Zone 4)", false, "Fiziksel"),
+          Gorev("[COMBAT] Ağır Kum Torbası Kombinasyonları (5 Raund)", false, "Fiziksel"),
+          Gorev("[COMBAT] Asılı Bacak Kaldırma (Hanging Leg Raise) (4 Set x 15)", false, "Fiziksel"),
+          Gorev("[CARDIO] 15 Dk Interval Sprint Koşusu (Zone 4)", false, "Fiziksel"),
         ]);
         haftalikPlan[5]!.addAll([
+          ...combShadows.skip(3).take(2),
           Gorev("[COMBAT] Boksör Bacak Patlayıcılığı: Box Jumps / Squat Jump ($setRepLabel)", false, "Fiziksel"),
           Gorev("[COMBAT] Darbe Dayanıklılığı: Zercher / Goblet Squat ($setRepLabel)", false, "Fiziksel"),
           Gorev("[COMBAT] Bulgarian Split Squat ($setRepLabel)", false, "Fiziksel"),
           Gorev("[COMBAT] Kum Torbası / Pad Work Kombinasyonları (5 Raund)", false, "Fiziksel"),
           Gorev("[COMBAT] Farmer's Walk & Bilek/Kavrama Gücü (4 Set)", false, "Fiziksel"),
-          Gorev("[COMBAT] Karın & Hollow Body Plank Dayanıklılığı (3 Set)", false, "Fiziksel"),
+          Gorev("[COMBAT] Karın & Hollow Body Plank Dayanıklılığı (4 Set)", false, "Fiziksel"),
         ]);
       } else if (idmanGunu == 4) {
         haftalikPlan[1]!.addAll([
@@ -1198,10 +1248,11 @@ class SystemMemory {
     if (boosterGorevler == null || boosterGorevler.isEmpty) {
       boosterGorevler = [];
       if (dovusSporuYapiyorMu) {
+        final shadows = dovusGolgeBoksuKombinasyonlari(brans: dovusBransi);
         boosterGorevler.addAll([
-          Gorev("[COMBAT] $dovusBransi: Patlayıcı Şınav & Yumruk Torku (4 Set x 8)", false, "Fiziksel"),
-          Gorev("[COMBAT-CARDIO] 4 Raund x 3 Dk Gölge Boksu & Ayak Çevikliği", false, "Fiziksel"),
-          Gorev("[COMBAT] Burpee Sprawl & Darbe Direnci Core (3 Set x 15)", false, "Fiziksel"),
+          Gorev("[COMBAT] $dovusBransi: Patlayıcı Şınav & Yumruk Torku (4 Set x 10)", false, "Fiziksel"),
+          ...shadows.take(2),
+          Gorev("[COMBAT] Burpee Sprawl & Darbe Direnci Core (4 Set x 15)", false, "Fiziksel"),
           Gorev("[CARDIO] 15 Dk Yüksek Yoğunluklu İp Atlama HIIT", false, "Fiziksel"),
         ]);
       } else if (odakBolgeleri.any((o) => o.contains('Karın') || o.contains('Göbek'))) {

@@ -336,16 +336,16 @@ KURALLAR:
 2. 1'den 7'ye kadar günleri tanımla (1: Pazartesi, 2: Salı, 3: Çarşamba, 4: Perşembe, 5: Cuma, 6: Cumartesi, 7: Pazar).
 3. Avcının haftalık idman günü $idmanGunu gündür. İdman olmayan günleri boş dizi [] olarak bırak.
 4. Her egzersiz hareketini formatla: "[KATEGORİ] Hareket Adı (Set x Tekrar veya Raund/Süre)".
-   - Dövüş hareketlerinde: "[COMBAT] Boks: Patlayıcı Şınav (4 Set x 8 Tekrar)" veya "[COMBAT] Gölge Boksu (5 Raund x 3 Dk)"
-   - Fitness hareketlerinde: "[PHY] Barbell Bench Press (3 Set x 10 Tekrar - 60 kg)"
-   - Odak bitiricilerinde: "[FOCUS-CORE] Asılı Bacak Kaldırma & Plank (3 Set x Max)"
-   - Kardiyo protokollerinde: "[CARDIO] 20 Dk Zone 2 Efor Koşusu / Yürüyüşü" veya "[COMBAT-CARDIO] 5 Raund Gölge Boksu & İp Atlama"
-5. DOLU VE KAPSAMLI HACİM KURALI: Her idman günü için KESİNLİKLE 5 İLE 7 HAREKET DİZ. Asla 2-3 hareketle bırakma!
+   - Dövüş hareketlerinde branşa özel gölge boksu stilleri ve kombinasyonları yaz: Örn: "[COMBAT-SHADOW] Boks: Peek-a-boo Bob & Weave + 1-2-Roll-3 (5 Raund x 3 Dk)" veya "[COMBAT-SHADOW] Kickboks: Dutch 1-2-Sol Kroşe-Sağ Low Kick (5 Raund x 3 Dk)"
+   - Fitness hareketlerinde yüksek hacim kullan: "[PHY] Barbell Bench Press (4-5 Set x 8-12 Tekrar)" veya "[PHY] Incline Dumbbell Press (4 Set x 12 Tekrar)"
+   - Odak bitiricilerinde: "[FOCUS-CORE] Asılı Bacak Kaldırma & Plank (4 Set x 15 Tekrar)"
+   - Kardiyo protokollerinde: "[CARDIO] 20 Dk Zone 2 Efor Koşusu / Yürüyüşü" veya "[COMBAT-CARDIO] 15 Dk Hızlı İp Atlama & Burpee Sprawl"
+5. DOLU VE YÜKSEK HACİM KURALI: Her idman günü için KESİNLİKLE 5 İLE 7 HAREKET DİZ. Hareketler 4-5 set ve 10-15 tekrar olmalı, dövüş drilleri 5 raund x 3 dk olmalıdır. Asla kısa bırakma!
    Her idman gününde şu 4 katman eksiksiz bulunmalıdır:
-   - 1-2 Ana Bileşik Kuvvet Hareketi (Compound: Bench Press, Squat, Barfiks, Overhead Press vb.)
-   - 2-3 İzolasyon & Destek Hareketi (Incline DB, Row, Dips, Lateral Raise, Biceps/Triceps vb.)
-   - 1 Core / Karın Protokolü ([CORE / ABS] veya [FOCUS-CORE])
-   - 1 Kardiyo / Dövüş Kondisyonu Protokolü ([CARDIO] veya [COMBAT-CARDIO])
+   - 1-2 Ana Bileşik Kuvvet Hareketi (Compound: Bench Press, Squat, Barfiks, Overhead Press vb. - 4-5 Set)
+   - 2-3 İzolasyon & Destek Hareketi (Incline DB, Row, Dips, Lateral Raise, Biceps/Triceps vb. - 4 Set)
+   - 1 Core / Karın Protokolü ([CORE / ABS] veya [FOCUS-CORE] - 4 Set)
+   - 1 Kardiyo veya Branşa Özel Gölge Boksu / Dövüş Kondisyonu Protokolü ([CARDIO] veya [COMBAT-SHADOW] - 5 Raund x 3 Dk)
 6. ÇIKTIYI YALNIZCA AŞAĞIDAKİ JSON FORMATINDA DÖNDÜR, JSON DIŞINDA HİÇBİR AÇIKLAMA YAZMA:
 
 {

@@ -163,6 +163,74 @@ class ExerciseCoach {
         'Plyometrik Burpee Drill (4x12)',
       ],
     ),
+
+    'peek_a_boo': const ExerciseTactics(
+      ad: 'Peek-a-boo Basınç & Baş Hareketi (Mike Tyson Stili)',
+      bolge: 'Boks & Çeviklik',
+      hedefKaslar: 'Boyun, Omuzlar, Oblikler, Kuadriseps & Kalça',
+      dovusKatkisi: 'Sürekli kafa hareketiyle vuruşlardan kaçma, içeri sızma ve yıkıcı karaciğer/aparkat patlayıcılığı.',
+      formKurallari: [
+        'Eller elmacık kemiklerine yapışık olsun, çene göğse gömülü kalsın.',
+        'Sarkaç (Bob & Weave) yaparken belden değil dizleri kırarak çömel.',
+        '1-2-Roll-3 kombinasyonunda eğilip kalkışın momentumuyla sol kroşeyi patlat.',
+      ],
+      alternatifler: [
+        'Slip Bag (Sallanan İp/Torba) Kafa Hareketi Drilli (4 Raund)',
+        'Boks: Out-Boxer Mesafe Kontrolü (3 Raund)',
+        'Dambıl Punch & Roll Drilli (3 Raund)',
+      ],
+    ),
+
+    'dutch_kickboks': const ExerciseTactics(
+      ad: 'Dutch Kickboxing Kombinasyonları & Low Kick',
+      bolge: 'Kickboks & Ayak Vuruşları',
+      hedefKaslar: 'Kuadriseps, Kalça, Rotasyonel Karın, Omuzlar',
+      dovusKatkisi: 'Üst gövde yumruk baskısıyla gardı yukarı çekip bacakları yıpratan ağır low kick bitirişleri.',
+      formKurallari: [
+        '1-2-Sol Kroşe atarken sağ ayağı 45 derece dışarı açarak açıyı al.',
+        'Low kick atarken kalçayı tamamen devir ve kaval kemiğiyle hedefe vur.',
+        'Vuruş anında sol elini yüzünde koruyucu siper olarak tut.',
+      ],
+      alternatifler: [
+        'Kum Torbası Seri Low Kick Drilli (5 Raund x 3 Dk)',
+        'Muay Thai 8 Uzuv Teep & Dirsek Kombosu (4 Raund)',
+        'Direnç Lastiği ile Tekme Hızı Çalışması (4 Set)',
+      ],
+    ),
+
+    'muay_thai': const ExerciseTactics(
+      ad: 'Muay Thai: 8 Uzuv & Clinch Dirsek-Diz Kombosu',
+      bolge: 'Muay Thai & Yakın Dövüş',
+      hedefKaslar: 'Latissimus, Boyun, Kalça Fleksörleri, Core, Kaval',
+      dovusKatkisi: 'Mesafe kontrolünde teep (push kick), yakın mesafede clinch kontrolü, kesici dirsek ve diz darbeleri.',
+      formKurallari: [
+        'Teep atarken kalçayı ileri iterek rakibin dengesini tamamen boz.',
+        'Clinch çekerken rakibin ensesini iki elle kilitle ve göğsüne yapıştır.',
+        'Yatay dirsek vururken omzu kulağa kaldırarak çeneni koru.',
+      ],
+      alternatifler: [
+        'Torba Clinch & Aralıksız Diz Vuruşları (5 Raund x 3 Dk)',
+        'Kickboks Dutch Kombinasyonları (4 Raund)',
+        'Gölge Boksu Dambıl Dirsek Drilli (3 Raund)',
+      ],
+    ),
+
+    'mma_combo': const ExerciseTactics(
+      ad: 'MMA: Seviye Değişimi, Sprawl & Grappling Drilli',
+      bolge: 'MMA & Hibrit Dövüş',
+      hedefKaslar: 'Tüm Vücut, Kalça Ekstansörleri, Bel, Omuzlar, Core',
+      dovusKatkisi: 'Ayakta vuruş ile güreş takedown sahtelerini harmanlama ve ani bacak kapma girişimlerini sprawl ile durdurma.',
+      formKurallari: [
+        'Jab-Cross sonrası kalçayı aniden indirerek seviye değiştir, rakibi takedown beklet.',
+        'Overhand sağ vururken arkadaki ayağı sağlam bas ve başını yana kaçır.',
+        'Sprawl esnasında kalçanı anında yere vurarak ağırlığını rakibin boynuna bindir.',
+      ],
+      alternatifler: [
+        'Burpee Sprawl to Explosive Push-up (4 Set x 15)',
+        'Güreş Pummeling & Snapdown Drilli (4 Raund x 3 Dk)',
+        'Kafes Baskısı Duvar İtişi & Kalkış Drilli (4 Raund)',
+      ],
+    ),
   };
 
   /// Bilinen hareketler için anahtar kelime haritası
@@ -173,6 +241,10 @@ class ExerciseCoach {
     ['deadlift', 'yerden kesme', 'romanian']: _bilgiTabani['deadlift']!,
     ['pull up', 'pull-up', 'chin up', 'chin-up', 'barfiks', 'row', 'çekiş', 'cekis']: _bilgiTabani['pull up']!,
     ['plank', 'core', 'karın', 'karin', 'mekik', 'sit-up', 'abs']: _bilgiTabani['plank']!,
+    ['peek-a-boo', 'peek a boo', 'bob & weave', 'tyson', 'sarkaç']: _bilgiTabani['peek_a_boo']!,
+    ['dutch', 'kickboks', 'kickboxing', 'low kick', 'high kick']: _bilgiTabani['dutch_kickboks']!,
+    ['muay thai', 'muay thai', 'muay', 'dirsek', 'teep', 'clinch', '8 uzuv']: _bilgiTabani['muay_thai']!,
+    ['mma', 'sprawl', 'seviye değişimi', 'takedown', 'grapple', 'kafes']: _bilgiTabani['mma_combo']!,
     ['boks', 'boxing', 'striking', 'gölge boksu', 'golge boksu', 'torba', 'combat']: _bilgiTabani['boks']!,
   };
 

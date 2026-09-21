@@ -122,8 +122,10 @@ void main() {
       expect(find.text('ZİNDANA EKLE'), findsOneWidget);
 
       // Hızlı chip seçeneklerinden birine tıkla
-      final chipFinder = find.text('Incline Dumbbell Press (3x10)');
+      final chipFinder = find.text('Incline Dumbbell Press');
       if (chipFinder.evaluate().isNotEmpty) {
+        await tester.ensureVisible(chipFinder);
+        await tester.pumpAndSettle();
         await tester.tap(chipFinder);
         await tester.pumpAndSettle();
       }
@@ -132,23 +134,27 @@ void main() {
       await tester.tap(find.text('ZİNDANA EKLE'));
       await tester.pumpAndSettle();
 
-      // Dialog kapandı ve yeni hareket zindana eklendi
+      // Dialog kapandı
       expect(find.text('ZİNDANA EK HAREKET ENJEKTE ET'), findsNothing);
-      expect(find.text('[EXTRA] Incline Dumbbell Press (3x10)'), findsOneWidget);
 
       // SnackBar süresini bekle
       await tester.pump(const Duration(seconds: 3));
       await tester.pumpAndSettle();
+
+      // Yeni hareket zindana eklendi
+      expect(find.textContaining('[EXTRA] Incline Dumbbell Press'), findsOneWidget);
 
       // Görevi silme butonuna bas (ekranda görünür kıl)
       final deleteBtnFinder = find.byTooltip('Görevi Kaldır').last;
       await tester.ensureVisible(deleteBtnFinder);
       await tester.pumpAndSettle();
       await tester.tap(deleteBtnFinder);
+      await tester.pump(const Duration(seconds: 3));
       await tester.pumpAndSettle();
 
       // Silinen hareket zindandan çıktı
-      expect(find.text('[EXTRA] Incline Dumbbell Press (3x10)'), findsNothing);
+      final bugun = DateTime.now().weekday;
+      expect(SystemMemory.haftalikPlan[bugun]!.any((g) => g.ad.contains('Incline Dumbbell Press')), isFalse);
     });
 
     testWidgets('WorkoutPlannerScreen üzerinde taktik ve silme butonları düzgün çalışır', (tester) async {
@@ -217,6 +223,41 @@ void main() {
       expect(find.text('🔄 SIFIRLA VE KUR'), findsWidgets);
       expect(find.text('Cardio & MetCon Burn'), findsOneWidget);
       expect(find.text('🤖 AI AVCI ÖZEL BOOSTER'), findsOneWidget);
+      expect(find.text('Gölge Boksu & Kombinasyonlar (5 Raund)'), findsOneWidget);
+    });
+
+    test('dovusGolgeBoksuKombinasyonlari branşa göre 5 uzatılmış raundluk kombinasyon döner', () {
+      final boksRaundlar = SystemMemory.dovusGolgeBoksuKombinasyonlari(brans: 'Boks');
+      expect(boksRaundlar.length, 5);
+      expect(boksRaundlar.any((r) => r.ad.contains('Peek-a-boo')), isTrue);
+      expect(boksRaundlar.any((r) => r.ad.contains('Karaciğer')), isTrue);
+
+      final kickRaundlar = SystemMemory.dovusGolgeBoksuKombinasyonlari(brans: 'Kickboks');
+      expect(kickRaundlar.length, 5);
+      expect(kickRaundlar.any((r) => r.ad.contains('Dutch Volume')), isTrue);
+      expect(kickRaundlar.any((r) => r.ad.contains('Low Kick')), isTrue);
+
+      final mmaRaundlar = SystemMemory.dovusGolgeBoksuKombinasyonlari(brans: 'MMA');
+      expect(mmaRaundlar.length, 5);
+      expect(mmaRaundlar.any((r) => r.ad.contains('Sprawl')), isTrue);
+      expect(mmaRaundlar.any((r) => r.ad.contains('Grapple')), isTrue);
+    });
+
+    testWidgets('ActiveWorkoutScreen içindeki ek hareket diyaloğunda Hacim & Uzatma Seçicileri bulunur', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: ActiveWorkoutScreen(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('+ EKLE'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('HACİM & UZATMA SEVİYESİ:'), findsOneWidget);
+      expect(find.text('⚔️ Uzatılmış (5 Set/Raund)'), findsOneWidget);
+      expect(find.text('👑 Şampiyon (7 Set/Raund)'), findsOneWidget);
+      expect(find.textContaining('Set/Raund:'), findsOneWidget);
     });
   });
 }

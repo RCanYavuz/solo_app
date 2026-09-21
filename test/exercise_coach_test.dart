@@ -50,6 +50,24 @@ void main() {
       expect(sonuc, isTrue);
       expect(SystemMemory.haftalikPlan[1]![0].ad, 'Dumbbell Floor Press (Omuz Dostu) (4x10)');
     });
+
+    test('Peek-a-boo, Dutch Kickboks, Muay Thai ve MMA için özel dövüş taktikleri döner', () {
+      final tyson = ExerciseCoach.getTactics('[COMBAT-SHADOW] Peek-a-boo Bob & Weave (3 Raund)');
+      expect(tyson.ad.contains('Peek-a-boo'), isTrue);
+      expect(tyson.dovusKatkisi.contains('kafa hareketi'), isTrue);
+
+      final dutch = ExerciseCoach.getTactics('[COMBAT-SHADOW] Dutch Kickboks: 1-2-Low Kick (4 Raund)');
+      expect(dutch.ad.contains('Dutch'), isTrue);
+      expect(dutch.hedefKaslar.contains('Kuadriseps'), isTrue);
+
+      final muay = ExerciseCoach.getTactics('[COMBAT-SHADOW] Muay Thai 8 Uzuv Teep & Dirsek (4 Raund)');
+      expect(muay.ad.contains('Muay Thai'), isTrue);
+      expect(muay.formKurallari.any((k) => k.contains('Teep')), isTrue);
+
+      final mma = ExerciseCoach.getTactics('[COMBAT-SHADOW] MMA Seviye Değişimi & Sprawl (4 Raund)');
+      expect(mma.ad.contains('MMA'), isTrue);
+      expect(mma.formKurallari.any((k) => k.contains('Sprawl')), isTrue);
+    });
   });
 
   group('Set & Ağırlık Takip Modeli Testleri', () {

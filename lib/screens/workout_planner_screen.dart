@@ -261,11 +261,14 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
     else if (sablonAdi == 'Combat Striker Finisher') {
       gorevler = [
         Gorev("[COMBAT] Gölge Boksu / Striking Drill (5 Raund x 3 Dk)", false, "Fiziksel"),
-        Gorev("[COMBAT] Ağır Kum Torbası Kombinasyonları (4 Raund)", false, "Fiziksel"),
+        Gorev("[COMBAT] Ağır Kum Torbası Kombinasyonları (5 Raund)", false, "Fiziksel"),
         Gorev("[COMBAT] Hızlı İp Atlama & Ayak Çalışması (15 Dk)", false, "Fiziksel"),
         Gorev("[COMBAT] Rotasyonel Core: Russian Twist & Plank (4 Set)", false, "Fiziksel"),
-        Gorev("[COMBAT] Darbe Dayanıklılığı & Boyun Güçlendirme", false, "Fiziksel"),
+        Gorev("[COMBAT] Darbe Dayanıklılığı & Boyun Güçlendirme (4 Set)", false, "Fiziksel"),
       ];
+    }
+    else if (sablonAdi == 'Combat Shadow & Combos') {
+      gorevler = SystemMemory.dovusGolgeBoksuKombinasyonlari(brans: SystemMemory.dovusBransi);
     }
     else if (sablonAdi == 'Monarch Mind') {
       gorevler = [
@@ -396,9 +399,16 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
                   ),
                   _sablonKarti(
                     ad: 'Combat Striker Finisher',
-                    aciklama: '5 Raund Gölge Boksu, 4 Raund Kum Torbası, İp Atlama & Rotasyonel Core.',
+                    aciklama: '5 Raund Gölge Boksu, 5 Raund Kum Torbası, İp Atlama & Rotasyonel Core.',
                     renk: sysRed,
                     iconText: '🥊',
+                  ),
+                  _sablonKarti(
+                    ad: 'Gölge Boksu & Kombinasyonlar (5 Raund)',
+                    sablonKodu: 'Combat Shadow & Combos',
+                    aciklama: 'Seçili branşa (${SystemMemory.dovusBransi}) özel 5 Raund x 3 Dk şampiyonluk kombinasyonları (Peek-a-boo, Dutch, Muay Thai veya MMA).',
+                    renk: const Color(0xFFEF4444),
+                    iconText: '🥋',
                   ),
                   _sablonKarti(
                     ad: 'Monarch Mind',

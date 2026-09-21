@@ -148,11 +148,14 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
     else if (sablonAdi == 'Combat Striker Finisher') {
       gorevler = [
         Gorev("[COMBAT] Gölge Boksu / Striking Drill (5 Raund x 3 Dk)", false, "Fiziksel"),
-        Gorev("[COMBAT] Ağır Kum Torbası Kombinasyonları (4 Raund)", false, "Fiziksel"),
+        Gorev("[COMBAT] Ağır Kum Torbası Kombinasyonları (5 Raund)", false, "Fiziksel"),
         Gorev("[COMBAT] Hızlı İp Atlama & Ayak Çalışması (15 Dk)", false, "Fiziksel"),
         Gorev("[COMBAT] Rotasyonel Core: Russian Twist & Plank (4 Set)", false, "Fiziksel"),
-        Gorev("[COMBAT] Darbe Dayanıklılığı & Boyun Güçlendirme", false, "Fiziksel"),
+        Gorev("[COMBAT] Darbe Dayanıklılığı & Boyun Güçlendirme (4 Set)", false, "Fiziksel"),
       ];
+    }
+    else if (sablonAdi == 'Combat Shadow & Combos') {
+      gorevler = SystemMemory.dovusGolgeBoksuKombinasyonlari(brans: SystemMemory.dovusBransi);
     }
     else if (sablonAdi == 'Monarch Mind') {
       gorevler = [
@@ -278,9 +281,16 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                   ),
                   _sablonKarti(
                     ad: 'Combat Striker Finisher',
-                    aciklama: '5 Raund Gölge Boksu, 4 Raund Kum Torbası, İp Atlama & Rotasyonel Core.',
+                    aciklama: '5 Raund Gölge Boksu, 5 Raund Kum Torbası, İp Atlama & Rotasyonel Core.',
                     renk: sysRed,
                     iconText: '🥊',
+                  ),
+                  _sablonKarti(
+                    ad: 'Gölge Boksu & Kombinasyonlar (5 Raund)',
+                    sablonKodu: 'Combat Shadow & Combos',
+                    aciklama: 'Seçili branşa (${SystemMemory.dovusBransi}) özel 5 Raund x 3 Dk şampiyonluk kombinasyonları (Peek-a-boo, Dutch, Muay Thai veya MMA).',
+                    renk: const Color(0xFFEF4444),
+                    iconText: '🥋',
                   ),
                   _sablonKarti(
                     ad: 'Monarch Mind',
@@ -397,51 +407,86 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
     final TextEditingController hareketCtrl = TextEditingController();
     String secilenKategori = 'Tümü';
     String secilenTip = 'Fiziksel';
+    int secilenSetSayisi = 5;
+    int secilenTekrarSayisi = 12;
+    String secilenHareketAdi = '';
 
     final Map<String, List<String>> kategorikHareketler = {
+      'Dövüş/Gölge': [
+        'Peek-a-boo: Bob & Weave + 1-2-Roll-3',
+        'Out-Boxer: Double Jab + Cross + Sol Pivot',
+        'İç Dövüş: 1-2 + Karaciğer Kroşesi + Aparkat',
+        'Dutch Kickboks: 1-2-Sol Kroşe-Sağ Low Kick',
+        'Muay Thai: Teep + 1-2 + Yatay Dirsek + Diz',
+        'MMA: 1-2 + Takedown Sahtesi + Overhand + Sprawl',
+        'Güreş: Pummeling & Seviye Değişimi Drilli',
+        'Ağır Kum Torbası Kombinasyonları',
+        'Hızlı İp Atlama & Ayak Çevikliği',
+        'Burpee Sprawl & Darbe Direnci',
+      ],
       'Göğüs': [
-        'Incline Dumbbell Press (3x10)',
-        'Dumbbell Fly (3x12)',
-        'Dips / Sehpada İtiş (3x10)',
-        'Kablo Göğüs İtiş (3x12)',
-        'Şınav (Push-up) (4x15)',
+        'Incline Dumbbell Press',
+        'Barbell Bench Press',
+        'Dumbbell Fly',
+        'Dips / Sehpada İtiş',
+        'Kablo Göğüs İtiş',
+        'Şınav (Push-up)',
       ],
       'Sırt': [
-        'Barfiks (Pull-up) (3xMax)',
-        'Lat Pulldown (4x10)',
-        'Dumbbell Row (3x10)',
-        'Face Pull (4x15)',
-        'T-Bar Row (3x10)',
+        'Barfiks (Pull-up)',
+        'Lat Pulldown',
+        'Dumbbell Row',
+        'Face Pull',
+        'T-Bar Row',
       ],
       'Omuz/Kol': [
-        'Overhead DB Press (3x10)',
-        'Lateral Raise (4x12)',
-        'Biceps Barbell Curl (3x10)',
-        'Hammer Curl (3x12)',
-        'Triceps Rope Pushdown (3x12)',
+        'Overhead DB Press',
+        'Lateral Raise',
+        'Biceps Barbell Curl',
+        'Hammer Curl',
+        'Triceps Rope Pushdown',
       ],
       'Bacak': [
-        'Barbell Squat (4x8)',
-        'Leg Press (4x10)',
-        'Romanian Deadlift (3x10)',
-        'Leg Extension (3x12)',
-        'Lunge / Adımlama (3x10)',
+        'Barbell Squat',
+        'Leg Press',
+        'Romanian Deadlift',
+        'Leg Extension',
+        'Lunge / Adımlama',
+        'Box Jump / Sıçrama',
       ],
       'Karın': [
-        'Hanging Leg Raise (3x15)',
-        'Plank (3x60sn)',
-        'Kablo Crunch (3x15)',
-        'Russian Twist (3x20)',
-        'Ab Wheel Rollout (3x10)',
-      ],
-      'Dövüş/Boks': [
-        'Gölge Boksu (Shadow Boxing) (3 Raund x 3 Dk)',
-        'Ağır Kum Torbası Kombinasyon (4 Raund)',
-        'İp Atlama (10 Dk)',
-        'Burpee & Sprawl (4x12)',
-        'Plyo Patlayıcı Şınav (4x8)',
+        'Hanging Leg Raise',
+        'Plank',
+        'Kablo Crunch',
+        'Russian Twist',
+        'Ab Wheel Rollout',
       ],
     };
+
+    void metniGuncelle(void Function(void Function()) setDialogState) {
+      if (secilenHareketAdi.isEmpty) return;
+      final har = secilenHareketAdi;
+      final isRaund = har.toLowerCase().contains('raund') ||
+          har.toLowerCase().contains('peek') ||
+          har.toLowerCase().contains('boks') ||
+          har.toLowerCase().contains('dutch') ||
+          har.toLowerCase().contains('muay') ||
+          har.toLowerCase().contains('mma') ||
+          har.toLowerCase().contains('gölge') ||
+          har.toLowerCase().contains('torba') ||
+          har.toLowerCase().contains('güreş');
+
+      if (isRaund) {
+        hareketCtrl.text = '$har ($secilenSetSayisi Raund x 3 Dk)';
+      } else if (har.toLowerCase().contains('plank')) {
+        hareketCtrl.text = '$har ($secilenSetSayisi Set x 60sn)';
+      } else if (har.toLowerCase().contains('ip atlama') || har.toLowerCase().contains('koşu')) {
+        hareketCtrl.text = '$har (${secilenSetSayisi * 3} Dk)';
+      } else {
+        hareketCtrl.text = '$har ($secilenSetSayisi Set x $secilenTekrarSayisi Tekrar)';
+      }
+      setDialogState(() {});
+    }
 
     showDialog(
       context: context,
@@ -488,11 +533,12 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Mevcut idman akışını bozmadan bu seansa dilediğiniz ek görevi ekleyin.',
+                        'İdman süresini ve hacmini artırmak için set/raund sayısını belirleyin.',
                         style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
                       ),
                       const SizedBox(height: 12),
 
+                      // GÖREV TİPİ & HACİM KADEMELERİ
                       Row(
                         children: [
                           ChoiceChip(
@@ -528,7 +574,166 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
+
+                      // İDMANI UZATMA: HIZLI HACİM SEVİYELERİ
+                      Text(
+                        'HACİM & UZATMA SEVİYESİ:',
+                        style: GoogleFonts.orbitron(
+                          color: const Color(0xFF22C55E),
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Wrap(
+                        spacing: 6,
+                        children: [
+                          ActionChip(
+                            label: const Text('⚡ Standart (3 Set/Raund)'),
+                            backgroundColor: secilenSetSayisi == 3 ? const Color(0xFF22C55E).withValues(alpha: 0.2) : const Color(0xFF0F172A),
+                            side: BorderSide(color: secilenSetSayisi == 3 ? const Color(0xFF22C55E) : Colors.white12),
+                            labelStyle: TextStyle(color: secilenSetSayisi == 3 ? const Color(0xFF22C55E) : Colors.white70, fontSize: 10),
+                            onPressed: () {
+                              setDialogState(() {
+                                secilenSetSayisi = 3;
+                                secilenTekrarSayisi = 10;
+                                metniGuncelle(setDialogState);
+                              });
+                            },
+                          ),
+                          ActionChip(
+                            label: const Text('⚔️ Uzatılmış (5 Set/Raund)'),
+                            backgroundColor: secilenSetSayisi == 5 ? const Color(0xFF38BDF8).withValues(alpha: 0.2) : const Color(0xFF0F172A),
+                            side: BorderSide(color: secilenSetSayisi == 5 ? const Color(0xFF38BDF8) : Colors.white12),
+                            labelStyle: TextStyle(color: secilenSetSayisi == 5 ? const Color(0xFF38BDF8) : Colors.white70, fontSize: 10),
+                            onPressed: () {
+                              setDialogState(() {
+                                secilenSetSayisi = 5;
+                                secilenTekrarSayisi = 12;
+                                metniGuncelle(setDialogState);
+                              });
+                            },
+                          ),
+                          ActionChip(
+                            label: const Text('👑 Şampiyon (7 Set/Raund)'),
+                            backgroundColor: secilenSetSayisi >= 7 ? const Color(0xFFA855F7).withValues(alpha: 0.2) : const Color(0xFF0F172A),
+                            side: BorderSide(color: secilenSetSayisi >= 7 ? const Color(0xFFA855F7) : Colors.white12),
+                            labelStyle: TextStyle(color: secilenSetSayisi >= 7 ? const Color(0xFFA855F7) : Colors.white70, fontSize: 10),
+                            onPressed: () {
+                              setDialogState(() {
+                                secilenSetSayisi = 7;
+                                secilenTekrarSayisi = 15;
+                                metniGuncelle(setDialogState);
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+
+                      // MANUEL SAYAÇLAR
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF070B14),
+                                border: Border.all(color: Colors.white12),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('Set/Raund: $secilenSetSayisi', style: const TextStyle(color: Colors.white, fontSize: 11)),
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.remove, size: 14, color: Colors.white70),
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                        onPressed: () {
+                                          if (secilenSetSayisi > 1) {
+                                            setDialogState(() {
+                                              secilenSetSayisi--;
+                                              metniGuncelle(setDialogState);
+                                            });
+                                          }
+                                        },
+                                      ),
+                                      const SizedBox(width: 6),
+                                      IconButton(
+                                        icon: const Icon(Icons.add, size: 14, color: Color(0xFF22C55E)),
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                        onPressed: () {
+                                          if (secilenSetSayisi < 10) {
+                                            setDialogState(() {
+                                              secilenSetSayisi++;
+                                              metniGuncelle(setDialogState);
+                                            });
+                                          }
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF070B14),
+                                border: Border.all(color: Colors.white12),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('Tekrar: $secilenTekrarSayisi', style: const TextStyle(color: Colors.white, fontSize: 11)),
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.remove, size: 14, color: Colors.white70),
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                        onPressed: () {
+                                          if (secilenTekrarSayisi > 4) {
+                                            setDialogState(() {
+                                              secilenTekrarSayisi -= 2;
+                                              metniGuncelle(setDialogState);
+                                            });
+                                          }
+                                        },
+                                      ),
+                                      const SizedBox(width: 6),
+                                      IconButton(
+                                        icon: const Icon(Icons.add, size: 14, color: Color(0xFF22C55E)),
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                        onPressed: () {
+                                          if (secilenTekrarSayisi < 30) {
+                                            setDialogState(() {
+                                              secilenTekrarSayisi += 2;
+                                              metniGuncelle(setDialogState);
+                                            });
+                                          }
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
 
                       TextField(
                         controller: hareketCtrl,
@@ -536,7 +741,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                         decoration: InputDecoration(
                           labelText: 'Hareket Adı & Set / Tekrar',
                           labelStyle: const TextStyle(color: Color(0xFF22C55E), fontSize: 11),
-                          hintText: 'Örn: Incline DB Press (3x10)',
+                          hintText: 'Örn: Incline DB Press (5 Set x 12 Tekrar)',
                           hintStyle: const TextStyle(color: Colors.white24, fontSize: 11),
                           filled: true,
                           fillColor: const Color(0xFF070B14),
@@ -609,8 +814,8 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                                 side: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
                                 labelStyle: const TextStyle(color: Colors.white, fontSize: 10),
                                 onPressed: () {
-                                  hareketCtrl.text = har;
-                                  setDialogState(() {});
+                                  secilenHareketAdi = har;
+                                  metniGuncelle(setDialogState);
                                 },
                               );
                             }).toList(),
