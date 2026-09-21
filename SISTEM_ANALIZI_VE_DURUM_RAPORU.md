@@ -21,16 +21,20 @@
 Tüm test paketleri Flutter test altyapısı ve Dart SDK analizi ile çalıştırılarak kontrol edilmiştir.
 
 ### 🧪 Otomatik Test Paketi Sonuçları
-Mevcut **11 test paketi ve toplam 61 test senaryosunun tamamı başarıyla geçmektedir**:
+Mevcut **15 test paketi ve toplam 76 test senaryosunun tamamı başarıyla geçmektedir**:
 
 | Test Dosyası | Test Sayısı | Durum | Kapsam |
 |---|:---:|:---:|---|
+| [`test/advanced_metabolic_engine_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/advanced_metabolic_engine_test.dart) | 8 | ✅ GEÇTİ | US Navy yağ %, LBM, Katch-McArdle BMR, MET yıpranması, hedef kilo projeksiyonu ve sisteme entegrasyon |
+| [`test/dietitian_scanner_widget_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/dietitian_scanner_widget_test.dart) | 2 | ✅ GEÇTİ | Diyetisyen OCR modalı form alanları ve Makro Lab US Navy biyometrik kart render testleri |
 | [`test/assessment_flow_widget_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/assessment_flow_widget_test.dart) | 7 | ✅ GEÇTİ | 4 Adımlı Wizard, çoklu dövüş branşı, 1RM dövüş ağırlık testleri, odak bölgeleri, canlı rank rozeti, Profile ve Dashboard banner senkronizasyonu |
 | [`test/system_features_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/system_features_test.dart) | 17 | ✅ GEÇTİ | Su takibi, çanta/envanter, makrolar, Data Vault JSON yedek/geri yükleme, zindan ödülleri, **hedef odak bölgelerine göre dinamik antrenman uyarlaması**, rank ve dövüş katsayıları |
 | [`test/exercise_coach_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/exercise_coach_test.dart) | 8 | ✅ GEÇTİ | Avcı Taktik Kartı, Akıllı Alternatif Değiştirici (Smart Swap), SetKaydi serileştirmesi, RestTimer, Detail Modal ve **Gölge Boksu Stilleri (Peek-a-boo, Dutch, Muay Thai, MMA)** |
 | [`test/workout_experience_flow_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/workout_experience_flow_test.dart) | 9 | ✅ GEÇTİ | Dashboard taktik kartı, Aktif İdman Set Logger & Rest Timer, **5-7 Hareket Standardı & Kardiyo Katmanı**, **Zindana Ek Hareket Enjekte/Kaldırma**, **Şablonlarda "+ Ekle" & "🔄 Sıfırla" Akışı**, **Gölge Boksu 5 Raund Kombinasyonları**, **Hacim & Sayaç Seçicisi** |
+| [`test/advanced_exercise_selector_modal_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/advanced_exercise_selector_modal_test.dart) | 5 | ✅ GEÇTİ | 875+ kütüphaneden canlı arama, kategori filtreleri, set/tekrar ve kardiyo dakika seçicileri ile plana/zindana enjeksiyon |
+| [`test/dungeon_boxing_sync_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/dungeon_boxing_sync_test.dart) | 3 | ✅ GEÇTİ | Zindan & Combat Sim sayaç senkronizasyonu, canlı raid HUD banner'ı ve zindanın erken kapanmasını önleme testleri |
 | [`test/youtube_helper_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/youtube_helper_test.dart) | 4 | ✅ GEÇTİ | Egzersiz başlık sanitizasyonu, [COMBAT]/[PHY] etiketleri ve set/tekrar ayıklama testleri |
-| [`test/gemini_integration_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/gemini_integration_test.dart) | 2 (21 adım) | ✅ GEÇTİ | Profil ekranı API anahtarı yönetimi ve Diyet ekranı AI besin çözücü widget entegrasyonu |
+| [`test/gemini_integration_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/gemini_integration_test.dart) | 3 | ✅ GEÇTİ | Profil ekranı API anahtarı yönetimi, AI besin çözücü ve **AI haftalık antrenman fail-safe fallback testi** |
 | [`test/language_switch_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/language_switch_test.dart) | 5 | ✅ GEÇTİ | Türkçe/İngilizce çift dil dinamik geçişi, unvanlar, hedefler ve fallback |
 | [`test/midnight_reset_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/midnight_reset_test.dart) | 2 | ✅ GEÇTİ | Gece yarısı hesaplaşmasında yalnızca değerlendirilen günün sıfırlanması ve Gemini model kalıcılığı |
 | [`test/macro_lab_navigation_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/macro_lab_navigation_test.dart) | 2 | ✅ GEÇTİ | Diyet ekranından Makro Laboratuvarı geçişi ve geçersiz kalori girişinde çökme koruması |
@@ -245,25 +249,7 @@ Kullanıcıdan toplanan verilere göre sistemin uygulayacağı deterministik kur
   - *C $\rightarrow$ B Rank:* 16 Başarılı İdman
   - *B $\rightarrow$ A Rank:* 24 Başarılı İdman
   - *A $\rightarrow$ S-Rank:* Ulusal Güç Sınavı (Big 3 Total $\ge 4.5\times$ BW)
-- **Terfi Zindanı (Promotion Trial):** Kota dolduğunda Dashboard'da `[ RANK PROMOTION TRIAL READY ]` bildirimi yanar. Avcı teste girer. Testi geçtiğinde rank yükselir, kütüphaneden daha zorlu bileşik hareketler ve süpersetler programa enjekte edilir, devasa AP ve unvan ödülü verilir.
-
----
-
-## 5. 🚀 Aktif Yol Haritası ve Sıradaki Geliştirmeler
-
-Kullanıcı ile onaylanan güncel master geliştirme sırası:
-
-### 📌 FAZ 1: Gemini AI Destekli Kişiselleştirilmiş Antrenman Programı & YouTube Rehberi
-
-#### ✅ Tamamlanan Temel Sistemler:
-- **Kişiye Özel JSON Üretimi (`GeminiService.haftalikProgramUret`):** Gemini'ye avcının boy, kilo, güncel rank'i (E->S), 1RM kuvvet değerleri, dövüş branşları (Boks/MMA vb.), sakatlık kısıtları (omuz, diz vb.) ve öncelikli yağ yakım odakları (karın/göbek, göğüs) aktarılarak structured 7 günlük antrenman JSON planı oluşturulur.
-- **Fail-Safe Hibrit Altyapı:** API anahtarı veya internet bağlantısı yoksa mevcut yerel algoritmik kural motoru devreye girer; uygulama asla internetsiz kalıp çökmez.
-- **Tek Tuşla Yenileme Butonu:** Antrenman Planlayıcı ekranında `[ 🤖 SİSTEM AI İLE PROGRAMI YENİLE ]` butonu ile antrenman programı anında yapay zekaya revize ettirilebilir.
-- **Tek Dokunuşla YouTube Video Rehberi (`YoutubeHelper`):** Egzersiz adını set/tekrar ve köşeli parantez etiketlerinden akıllıca temizleyen, Dashboard, Takvim, Antrenman Planlayıcı, Aktif İdman ve Kütüphane ekranlarından doğrudan YouTube mobil/web form videosunu açan sistem tamamlandı.
-- **Solo Leveling Avcı Taktik Kartı & Akıllı Alternatif Değiştirici (Smart Swap):** Egzersize dokunulduğunda hedef kas, dövüş faydası, 3 altın kural ve dolu makine/ağrı durumunda 3 muadil hareket önerisi ve tek tuşla değiştirme.
-- **Set, Ağırlık, Tekrar Takibi & Dinlenme Sayacı (Rest Timer):** Aktif idmanda set bazlı kg/tekrar loglama (`SetKaydi`) ve 30-120sn sesli Solo Leveling dinlenme sayacı.
-- **Zindana Dinamik Ek Hareket Enjekte Etme & Kaldırma:** Aktif raid esnasında üst çubuktan (`+ EKLE`) ve liste sonundan (`+ EK HAREKET ENJEKTE ET`) kategorilere göre filtrelenen hızlı hareket seçim penceresi ve tek tıkla zindandan görev kaldırma.
-- **5-8 Hareket Uzatılmış İdman Standardı & Zorunlu Kardiyo Katmanı [TAMAMLANDI]:** Tüm varsayılan (Salon, Ev-Dambıl, Calisthenics, Combat), Kırmızı Geçit (PPL) ve Gemini tarafından üretilen programlar 4-5 set ve 6-8 hareketlik uzatılmış hacme geçirildi. Her idman gününün sonuna kesintisiz ve net bir `[CARDIO]` misyonu (20 Dk Eğimli Koşu Bandı, 20 Dk İp Atlama HIIT, 5 KM Avcı Koşusu vb.) yerleştirildi.
+- **Terfi Zindanı (Promotion Trial):** Kota dolduğunda Dashboard'da `[ RANK PROMOTION TRIAL READY ]` - **5-8 Hareket Uzatılmış İdman Standardı & Zorunlu Kardiyo Katmanı [TAMAMLANDI]:** Tüm varsayılan (Salon, Ev-Dambıl, Calisthenics, Combat), Kırmızı Geçit (PPL) ve Gemini tarafından üretilen programlar 4-5 set ve 6-8 hareketlik uzatılmış hacme geçirildi. Her idman gününün sonuna kesintisiz ve net bir `[CARDIO]` misyonu (20 Dk Eğimli Koşu Bandı, 20 Dk İp Atlama HIIT, 5 KM Avcı Koşusu vb.) yerleştirildi.
 - **Çift Seçenekli Şablon Yükleme (+ İdmana Ekle / 🔄 Sıfırla ve Kur) & Yeni Kardiyo Şablonları [TAMAMLANDI]:** Saitama, Full Body, Cardio & MetCon Burn, Combat Striker Finisher şablonlarının yanı sıra **`🏃 Avcı 5K/10K Koşu & HIIT`** ve **`⚡ Tabata & MetCon Extreme Burn`** şablonları eklendi. Tüm şablonlar hem mevcut idmanın üzerine ekleme (`+ Append`) hem de tek başına o idmanı yapma (`🔄 Replace`) modlarıyla donatıldı.
 - **Kişiye Özel Yapay Zeka Bitirici (`🤖 AI AVCI ÖZEL BOOSTER`) [TAMAMLANDI]:** Avcının rütbesi, dövüş branşı ve hedef odak bölgelerine göre 4-5 hareketlik yoğun bitirici seansını (garantili kardiyo/kondisyon bitiricisiyle) tek tuşla idmana ekleyen Gemini REST ve akıllı yerel algoritma motoru kuruldu.
 - **Dövüş Sporlarına Özel 5-6 Raundluk Gölge Boksu Stilleri & Kombinasyonları [TAMAMLANDI]:** Boks (Peek-a-boo & Out-boxer), Kickboks (Dutch Volume & Low Kick), Muay Thai (8 Uzuv, Teep, Dirsek, Clinch), MMA (Seviye Değişimi & Sprawl) ve Güreş için her raundu ayrı kombinasyon içeren şampiyonluk kampları eklendi.
@@ -272,16 +258,47 @@ Kullanıcı ile onaylanan güncel master geliştirme sırası:
 - **Antrenman Ekleme Ekranının Yeniden Düzenlenmesi (`AdvancedExerciseSelectorModal`) [TAMAMLANDI]:** 875+ egzersiz kütüphanesiyle tam entegre, anlık filtrelemeli canlı arama çubuğu (`TextField`), kategori filtre çipleri (Göğüs, Sırt, Omuz/Kol, Bacak, Karın, Dövüş, Kardiyo, Calisthenics), YouTube video formu önizleme butonu, dinamik set/tekrar/dakika seçicileri ve tek dokunuşla ekleme modalı hem `ActiveWorkoutScreen` hem de `WorkoutPlannerScreen`'e entegre edildi.
 
 > [!TIP]
-> **🎉 FAZ 1 RESMEN %100 TAMAMLANMIŞTIR!** Tüm 66 birim/widget testi yeşil yanmaktadır.
+> **🎉 FAZ 1 & FAZ 2 RESMEN %100 TAMAMLANMIŞTIR!** Tüm 76 birim ve widget testi eksiksiz yeşil yanmaktadır.
 
 ---
 
-### 📌 FAZ 2: Diyetisyen Listesi Analizi & Dinamik İdman Yıpranma/Protein Dengeleyicisi [SIRADAKİ MASTER FAZ]
-- **Diyetisyen Haftalık Listesi Yükleme (Fotoğraf / Metin):** Diyetisyenin verdiği basılı veya dijital listenin fotoğrafı çekilerek veya metni yapıştırılarak Gemini Vision ile taranır ve sisteme haftalık makro/öğün hedefi olarak kaydedilir.
-- **Dinamik İdman Yıpranma Takibi (Workload Compensator):** O gün yapılan boks, kum torbası veya ağır squat/deadlift idmanının süresi ve yoğunluğuna göre harcanan ekstra kalori ve kas yıkımı hesaplanır.
-- **Sistem İkazı & Ek Besin Önerisi:** Yemek ve Ana ekranda:
-  *`[SİSTEM UYARISI: Bugün 90 dk yüksek yoğunluklu boks idmanı tamamlandı. Kas katabolizmasını önlemek için diyetisyen listenize +30g protein ve +450 kcal eklenmesi emredildi.]`* kartı çıkar.
+### 📌 FAZ 2: Bilimsel Metabolik Motor, Diyetisyen Analizi & Hedef Kilo Entegrasyonu [✅ %100 TAMAMLANDI]
+- **🔬 US Navy Vücut Kompozisyonu & Hibrit BMR (`AdvancedMetabolicEngine`):**
+  - Boy, kilo, bel çevresi ve cinsiyete göre logaritmik yağ oranı hesabı.
+  - Yağsız kas dokusu (**LBM**) ve Katch-McArdle ($BMR = 370 + 21.6 \times LBM$) formülüyle gerçek bazal tüketim.
+  - Dinamik TDEE aktivite çarpanı ($1.20 - 1.85$).
+- **🥊 MET Bazlı İdman Yıpranması & Katabolizma Koruması (`hesaplaIdmanYipranmasi`):**
+  - Boks/MMA ($10.5$ MET), Güreş/BJJ ($11.5$ MET), Kardiyo ($9.5$ MET) için formülize kalori tüketimi.
+  - İdman sonrası kas kaybını engelleyici dinamik $+15$g ile $+45$g arası telafi proteini ve glikojen doldurucu karbonhidrat önerisi.
+  - Zindan ve boks sayacı bittiğinde otomatik hafızaya işlenme ve Diyet ekranında canlı dengeleme HUD'ı.
+- **📋 Diyetisyen Listesi Tarayıcısı & Reçete Kilidi (`DietitianScannerModal`):**
+  - Fotoğraf veya serbest metinden Gemini OCR ile kalori, makro ve öğün ayrıştırma.
+  - Ayrıştırılan değerleri `SystemMemory.gunlukHedefKalori` taban limiti olarak sisteme kilitleme.
+- **🎯 Hedef Kilo Projeksiyonu & Metabolik Tempo Hesabı:**
+  - Kilo farkı (delta), haftalık sağlıklı hız ($0.50$ kg/hf) ve disiplinli süre (hafta) hesabı.
+  - Günlük kalori açığı ($-550$ kcal) veya kas inşası fazlalığı ($+350$ kcal) projeksiyonu.
+- **🧠 Avcının Beslenme Vizyonu & Serbest Metin Fikir Girişi (`_kullaniciFikriCtrl`):**
+  - Kullanıcının kendi özel stratejisini, diyet kısıtını veya müsabaka hedefini aktarabildiği serbest metin alanı.
+- **🔮 Gemini AI ile Harmanlama & Sistem Stratejik Direktifi:**
+  - Kullanıcı vizyonu ile metabolik formülleri birleştirip RPG Sistem Direktifi ve revize makrolar üretme.
+- **⚡ "BU HEDEFLERİ SİSTEME ENTEGRE ET" Butonu:**
+  - Laboratuvardaki veya AI önerisindeki değerleri tek tıkla aktif avcı sistemine, diyet ekranına ve veri kasasına bağlama.
+
+---
+
+### 🚀 FAZ 3: Sıradaki Master Geliştirme Seçenekleri (Yol Haritası)
+
+Aşağıdaki maddeler sistemin sıradaki doğal gelişim basamaklarıdır:
+
+1. **Seans İçi (RIR / RPE) ve Seans Sonu Geri Bildirim & Dinamik Aşırı Yükleme (Progressive Overload):**
+   - Egzersiz tamamlandığında hızlı 1 dokunuşluk mikro soru: *"Tükenişe kaç tekrar vardı? (RIR 0-1, 2-3, 4+)"*
+   - Egzersiz çok kolaysa bir sonraki seans ağırlık/tekrarı otomatik artıran veya eklem ağrısında hareketi ikame eden kural motoru.
+2. **Doğrudan Canlı Kamera Vizörü (Live Camera OCR & Lens):**
+   - Diyet ekranında sadece galeri değil, kamerayla anında tabak veya diyetisyen listesi fotoğrafı çekme (`ImageSource.camera`).
+3. **Arka Plan Antrenman Servisi & Bildirim Çubuğu Kronometresi (Background Service):**
+   - Ekran kilitlendiğinde veya başka uygulamaya geçildiğinde telefonun bildirim alanında canlı sayaç (`04:35 - Set Dinlenmesi Devam Ediyor`) gösterimi.
+4. **Haftalık Zindan Bossu Faz Mekanikleri & RPG Çeşitlendirmesi:**
+   - Haftalık Boss savaşlarında avcının tamamladığı boks raundları ve antrenman hacmine göre boss'a kritik vuruş (Critical Strike) animasyonları ve zindan ganimetleri.
 
 ---
 *Bu doküman projenin kök dizininde [`SISTEM_ANALIZI_VE_DURUM_RAPORU.md`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/SISTEM_ANALIZI_VE_DURUM_RAPORU.md) adıyla en son sistem durumuna göre güncellenmiştir.*
-
