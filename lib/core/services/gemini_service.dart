@@ -1,7 +1,7 @@
 // lib/core/services/gemini_service.dart
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../../controllers/system_memory.dart';
 import '../../models/task_model.dart';
@@ -339,12 +339,23 @@ KURALLAR:
    - Dövüş hareketlerinde: "[COMBAT] Boks: Patlayıcı Şınav (4 Set x 8 Tekrar)" veya "[COMBAT] Gölge Boksu (5 Raund x 3 Dk)"
    - Fitness hareketlerinde: "[PHY] Barbell Bench Press (3 Set x 10 Tekrar - 60 kg)"
    - Odak bitiricilerinde: "[FOCUS-CORE] Asılı Bacak Kaldırma & Plank (3 Set x Max)"
-5. ÇIKTIYI YALNIZCA AŞAĞIDAKİ JSON FORMATINDA DÖNDÜR, JSON DIŞINDA HİÇBİR AÇIKLAMA YAZMA:
+   - Kardiyo protokollerinde: "[CARDIO] 20 Dk Zone 2 Efor Koşusu / Yürüyüşü" veya "[COMBAT-CARDIO] 5 Raund Gölge Boksu & İp Atlama"
+5. DOLU VE KAPSAMLI HACİM KURALI: Her idman günü için KESİNLİKLE 5 İLE 7 HAREKET DİZ. Asla 2-3 hareketle bırakma!
+   Her idman gününde şu 4 katman eksiksiz bulunmalıdır:
+   - 1-2 Ana Bileşik Kuvvet Hareketi (Compound: Bench Press, Squat, Barfiks, Overhead Press vb.)
+   - 2-3 İzolasyon & Destek Hareketi (Incline DB, Row, Dips, Lateral Raise, Biceps/Triceps vb.)
+   - 1 Core / Karın Protokolü ([CORE / ABS] veya [FOCUS-CORE])
+   - 1 Kardiyo / Dövüş Kondisyonu Protokolü ([CARDIO] veya [COMBAT-CARDIO])
+6. ÇIKTIYI YALNIZCA AŞAĞIDAKİ JSON FORMATINDA DÖNDÜR, JSON DIŞINDA HİÇBİR AÇIKLAMA YAZMA:
 
 {
   "1": [
-    {"ad": "[COMBAT] Boks: Patlayıcı Şınav (4 Set x 8)", "tip": "Fiziksel"},
-    {"ad": "[FOCUS-CORE] Asılı Bacak Kaldırma & Plank Finisher", "tip": "Fiziksel"}
+    {"ad": "[PHY] Barbell Bench Press (4 Set x 8 Tekrar)", "tip": "Fiziksel"},
+    {"ad": "[PHY] Incline Dumbbell Press (3 Set x 10 Tekrar)", "tip": "Fiziksel"},
+    {"ad": "[PHY] Dips / Göğüs İtiş (3 Set x 10 Tekrar)", "tip": "Fiziksel"},
+    {"ad": "[PHY] Lateral Raise (4 Set x 12 Tekrar)", "tip": "Fiziksel"},
+    {"ad": "[CORE / ABS] Asılı Bacak Kaldırma (3 Set x 15 Tekrar)", "tip": "Fiziksel"},
+    {"ad": "[CARDIO] 20 Dk Zone 2 Efor Yürüyüşü / Koşusu", "tip": "Fiziksel"}
   ],
   "2": [],
   "3": [
@@ -386,6 +397,63 @@ KURALLAR:
       }
       return plan;
     } catch (e) {
+      debugPrint("Haftalık program JSON decode hatası: $e");
+      return null;
+    }
+  }
+
+  /// Avcının rütbe, odak bölgesi ve dövüş durumuna göre 3-4 hareketlik kişiye özel "Ek İdman / Finisher Booster" üretir.
+  static Future<List<Gorev>?> aiEkIdmanUret({
+    required String rank,
+    required bool dovuscuMu,
+    required List<String> dovusBranslari,
+    required List<String> odakBolgeleri,
+    required List<String> eklemKisitlari,
+  }) async {
+    final apiKey = SystemMemory.geminiApiKey.trim();
+    if (apiKey.isEmpty) return null;
+
+    final model = SystemMemory.geminiActiveModel;
+    final prompt = '''
+Sen Solo Leveling evrenindeki "Sistem"sin. Avcı için seans sonuna veya mevcut idmanına eklenecek 3-4 hareketlik yüksek etkili bir "AI ÖZEL EK İDMAN / FINISHER BOOSTER" oluştur.
+AVCI:
+- Rütbe: $rank
+- Dövüş Sporcusu Mu: ${dovuscuMu ? "EVET, ${dovusBranslari.join(', ')}" : "HAYIR"}
+- Öncelikli Odak: ${odakBolgeleri.isNotEmpty ? odakBolgeleri.join(', ') : "Karın & Kardiyo"}
+- Sakatlık Koruması: ${eklemKisitlari.isNotEmpty ? eklemKisitlari.join(', ') : "Yok"}
+
+KURALLAR:
+1. Türkçe olarak 3 veya 4 hareket hazırla.
+2. Format: "[KATEGORİ] Hareket Adı (Set x Tekrar veya Süre)"
+3. ÇIKTIYI YALNIZCA AŞAĞIDAKİ JSON DİZİSİ OLARAK DÖNDÜR, BAŞKA HİÇBİR ŞEY YAZMA:
+[
+  {"ad": "[FOCUS-CORE] Asılı Bacak Kaldırma & Plank (3 Set x Max)", "tip": "Fiziksel"},
+  {"ad": "[CARDIO] 15 Dk Yüksek Yoğunluklu İp Atlama HIIT", "tip": "Fiziksel"},
+  {"ad": "[COMBAT] Gölge Boksu Patlayıcı Kombinasyon (3 Raund x 3 Dk)", "tip": "Fiziksel"}
+]
+''';
+
+    try {
+      final responseText = await _generateContent(model, apiKey, prompt);
+      if (responseText == null || responseText.isEmpty) return null;
+
+      final cleanJson = responseText.replaceAll(RegExp(r'```json\s*|```'), '').trim();
+      final decoded = jsonDecode(cleanJson);
+      if (decoded is! List) return null;
+
+      final List<Gorev> gorevler = [];
+      for (final item in decoded) {
+        if (item is Map) {
+          final ad = item['ad']?.toString() ?? item['isim']?.toString() ?? '';
+          final tip = item['tip']?.toString() ?? 'Fiziksel';
+          if (ad.isNotEmpty) {
+            gorevler.add(Gorev(ad, false, tip));
+          }
+        }
+      }
+      return gorevler.isNotEmpty ? gorevler : null;
+    } catch (e) {
+      debugPrint("AI booster generation error: $e");
       return null;
     }
   }

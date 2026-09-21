@@ -163,5 +163,61 @@ void main() {
       expect(find.byIcon(Icons.info_outline), findsWidgets);
       expect(find.byIcon(Icons.play_circle_fill), findsWidgets);
     });
+
+    test('baslangicPrograminiAta 5-7 hareket standardına ve kardiyo katmanına sahiptir', () {
+      SystemMemory.baslangicPrograminiAta(
+        ekipman: 'salon',
+        rank: 'E',
+        idmanGunu: 3,
+        hedef: 'combat',
+      );
+      // Pazartesi (1), Çarşamba (3), Cuma (5) günlerinde 5-7 hareket olmalı
+      final pzt = SystemMemory.haftalikPlan[1]!;
+      expect(pzt.length, greaterThanOrEqualTo(5));
+      expect(pzt.length, lessThanOrEqualTo(7));
+      // Kardiyo/kondisyon veya core katmanı içeriyor mu
+      final kardiyoVar = pzt.any((g) => g.ad.contains('Koşu') || g.ad.contains('İp Atlama') || g.ad.contains('Sprawl') || g.ad.contains('Cardio'));
+      expect(kardiyoVar, isTrue);
+    });
+
+    test('aiEkIdmanBoosterUret fonksiyonu hem append hem replace modunda çalışır', () async {
+      final bugun = DateTime.now().weekday;
+      SystemMemory.haftalikPlan[bugun] = [
+        Gorev('Mevcut Hareket 1', false, 'Fiziksel'),
+      ];
+
+      // Append modu
+      final eklenenler = await SystemMemory.aiEkIdmanBoosterUret(gun: bugun, sadeceBunuYap: false);
+      expect(eklenenler.length, greaterThanOrEqualTo(3));
+      expect(SystemMemory.haftalikPlan[bugun]!.length, greaterThanOrEqualTo(4));
+      expect(SystemMemory.haftalikPlan[bugun]!.first.ad, 'Mevcut Hareket 1');
+
+      // Replace modu
+      await SystemMemory.aiEkIdmanBoosterUret(gun: bugun, sadeceBunuYap: true);
+      expect(SystemMemory.haftalikPlan[bugun]!.any((g) => g.ad == 'Mevcut Hareket 1'), isFalse);
+    });
+
+    testWidgets('WorkoutPlannerScreen içindeki şablon diyaloğunda Ekle ve Sıfırla seçenekleri bulunur', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: WorkoutPlannerScreen(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Icons.auto_awesome butonuna tıkla
+      final sablonBtn = find.byIcon(Icons.auto_awesome);
+      expect(sablonBtn, findsOneWidget);
+      await tester.tap(sablonBtn);
+      await tester.pumpAndSettle();
+
+      // Dialog başlığı ve butonları kontrol et
+      expect(find.text('SYSTEM WORKOUT TEMPLATES'), findsOneWidget);
+      expect(find.text('+ GÜNLERE EKLE'), findsWidgets);
+      expect(find.text('🔄 SIFIRLA VE KUR'), findsWidgets);
+      expect(find.text('Cardio & MetCon Burn'), findsOneWidget);
+      expect(find.text('🤖 AI AVCI ÖZEL BOOSTER'), findsOneWidget);
+    });
   });
 }
+

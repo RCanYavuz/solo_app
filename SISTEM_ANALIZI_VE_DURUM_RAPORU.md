@@ -3,7 +3,7 @@
 **Tarih:** 2026-09-21  
 **Proje:** Solo Leveling Gamification & Fitness App  
 **Platform:** Flutter / Dart  
-**Rapor Kapsamı:** Kod tabanı analizi, otomatik test doğrulamaları (39/39 test), dövüş sporcusu ağırlık & odak bölgeleri entegrasyonu, sistem uyanış bekleme modalı, Gemini AI antrenman üretimi ve Diyetisyen listesi entegrasyon yol haritası.
+**Rapor Kapsamı:** Kod tabanı analizi, otomatik test doğrulamaları (58/58 test), dövüş sporcusu ağırlık & odak bölgeleri, 5-7 hareket standardı, kardiyo & metcon entegrasyonu, çift seçenekli şablon sistemi (+ Ekle / Sıfırla), yapay zeka Avcı Booster ve Diyetisyen listesi entegrasyon yol haritası.
 
 ---
 
@@ -21,14 +21,14 @@
 Tüm test paketleri Flutter test altyapısı ve Dart SDK analizi ile çalıştırılarak kontrol edilmiştir.
 
 ### 🧪 Otomatik Test Paketi Sonuçları
-Mevcut **11 test paketi ve toplam 55 test senaryosunun tamamı başarıyla geçmektedir**:
+Mevcut **11 test paketi ve toplam 58 test senaryosunun tamamı başarıyla geçmektedir**:
 
 | Test Dosyası | Test Sayısı | Durum | Kapsam |
 |---|:---:|:---:|---|
 | [`test/assessment_flow_widget_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/assessment_flow_widget_test.dart) | 7 | ✅ GEÇTİ | 4 Adımlı Wizard, çoklu dövüş branşı, 1RM dövüş ağırlık testleri, odak bölgeleri, canlı rank rozeti, Profile ve Dashboard banner senkronizasyonu |
 | [`test/system_features_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/system_features_test.dart) | 17 | ✅ GEÇTİ | Su takibi, çanta/envanter, makrolar, Data Vault JSON yedek/geri yükleme, zindan ödülleri, **hedef odak bölgelerine göre dinamik antrenman uyarlaması**, rank ve dövüş katsayıları |
 | [`test/exercise_coach_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/exercise_coach_test.dart) | 7 | ✅ GEÇTİ | Avcı Taktik Kartı, Akıllı Alternatif Değiştirici (Smart Swap), SetKaydi serileştirmesi, RestTimer ve Detail Modal widget testleri |
-| [`test/workout_experience_flow_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/workout_experience_flow_test.dart) | 4 | ✅ GEÇTİ | Dashboard taktik kartı ve swap akışı, Aktif İdman Set Logger & Rest Timer, **Zindana Ek Hareket Enjekte Etme ve Silme Akışı**, Workout Planner taktik butonları |
+| [`test/workout_experience_flow_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/workout_experience_flow_test.dart) | 7 | ✅ GEÇTİ | Dashboard taktik kartı, Aktif İdman Set Logger & Rest Timer, **5-7 Hareket Standardı & Kardiyo Katmanı**, **Zindana Ek Hareket Enjekte/Kaldırma**, **Şablonlarda "+ Ekle" & "🔄 Sıfırla" Akışı**, **AI Avcı Booster** |
 | [`test/youtube_helper_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/youtube_helper_test.dart) | 4 | ✅ GEÇTİ | Egzersiz başlık sanitizasyonu, [COMBAT]/[PHY] etiketleri ve set/tekrar ayıklama testleri |
 | [`test/gemini_integration_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/gemini_integration_test.dart) | 2 (21 adım) | ✅ GEÇTİ | Profil ekranı API anahtarı yönetimi ve Diyet ekranı AI besin çözücü widget entegrasyonu |
 | [`test/language_switch_test.dart`](file:///c:/Users/R%C4%B1za%20Can%20Yavuz/Desktop/%C4%B0%C5%9Fler%20Projeler/%C3%96zel%20olan%20i%C5%9Fler/solo_app/test/language_switch_test.dart) | 5 | ✅ GEÇTİ | Türkçe/İngilizce çift dil dinamik geçişi, unvanlar, hedefler ve fallback |
@@ -263,20 +263,13 @@ Kullanıcı ile onaylanan güncel master geliştirme sırası:
 - **Solo Leveling Avcı Taktik Kartı & Akıllı Alternatif Değiştirici (Smart Swap):** Egzersize dokunulduğunda hedef kas, dövüş faydası, 3 altın kural ve dolu makine/ağrı durumunda 3 muadil hareket önerisi ve tek tuşla değiştirme.
 - **Set, Ağırlık, Tekrar Takibi & Dinlenme Sayacı (Rest Timer):** Aktif idmanda set bazlı kg/tekrar loglama (`SetKaydi`) ve 30-120sn sesli Solo Leveling dinlenme sayacı.
 - **Zindana Dinamik Ek Hareket Enjekte Etme & Kaldırma:** Aktif raid esnasında üst çubuktan (`+ EKLE`) ve liste sonundan (`+ EK HAREKET ENJEKTE ET`) kategorilere göre filtrelenen hızlı hareket seçim penceresi ve tek tıkla zindandan görev kaldırma.
+- **5-7 Hareket Dolu İdman Standardı & Kardiyo Entegrasyonu [TAMAMLANDI]:** Tüm varsayılan ve Gemini tarafından üretilen programlar 4 katmanlı (1-2 Bileşik + 2-3 İzolasyon/Aksesuar + 1 Core + 1 Kardiyo/MetCon bitirici) mimariye geçirildi.
+- **Çift Seçenekli Şablon Yükleme (+ İdmana Ekle / 🔄 Sıfırla ve Kur) [TAMAMLANDI]:** Saitama, Full Body, Cardio & MetCon Burn, Combat Striker Finisher şablonları hem mevcut idmanı silmeden üzerine ekleme (`+ Append`) hem de tek başına o idmanı yapma (`🔄 Replace`) modlarıyla donatıldı.
+- **Kişiye Özel Yapay Zeka Bitirici (`🤖 AI AVCI ÖZEL BOOSTER`) [TAMAMLANDI]:** Avcının rütbesi, dövüş branşı ve hedef odak bölgelerine göre 3-4 hareketlik yoğun bitirici seansını tek tuşla idmana ekleyen Gemini REST ve akıllı yerel algoritma motoru kuruldu.
 
-#### ⏳ FAZ 1 İÇİN EKLENECEKLER & GELİŞTİRİLECEKLER (Sırada Bekleyenler):
-1. **Daha Kapsamlı & Dolu Antrenman Hacmi (Antrenmanları Uzatma & Çeşitlendirme):**
-   - *Sorun / Tespit:* Mevcut antrenman seansları çok kısa kalmakta, gün başına düşen hareket sayısı ve varyasyon az gelmektedir.
-   - *Çözüm Planı:* 
-     - Gemini AI prompt şablonu ve yerel kural motoru güncellenecek.
-     - Gün başına standart 3-4 hareket yerine; **1-2 Ana Bileşik Hareket (Compound)** + **2-3 İzolasyon/Aksesuar Hareketi** + **1-2 Dövüş/Kondisyon/Core Bitirici Protokolü (Finisher)** şeklinde seans başına **5-7 doyurucu hareket** içeren zengin program hacmi standardı getirilecek.
-2. **Antrenman Ekleme Ekranının Yeniden Düzenlenmesi (Gelişmiş Egzersiz Ekleme Modalı):**
-   - *Sorun / Tespit:* Antrenmana kullanıcı manuel hareket eklemek istediğinde mevcut ekleme arayüzü kısıtlı ve pratik değildir.
-   - *Çözüm Planı:*
-     - Basit tek satırlı dialog yerine, 875+ hareketlik kütüphane ile entegre modern bir **"Egzersiz Ekleme Paneli"** tasarlanacak.
-     - Kas grubuna göre (Göğüs, Sırt, Bacak, Omuz, Kol, Karın, Boks/Dövüş) hızlı filtreleme ve anında arama çubuğu.
-     - Set sayısı, hedef tekrar ve opsiyonel hedef ağırlık belirleme alanları.
-     - Seçilen hareketin YouTube önizlemesi ve taktik kartıyla birlikte tek dokunuşla ilgili güne enjekte edilmesi.
+#### ⏳ FAZ 1 İÇİN SIRADA BEKLEYENLER:
+1. **Antrenman Ekleme Ekranının Yeniden Düzenlenmesi (Gelişmiş Egzersiz Ekleme Modalı):**
+   - 875+ hareketlik kütüphane ile tam entegre, arama çubuğu ve set/tekrar seçicisi olan gelişmiş modal.
 
 ---
 

@@ -220,14 +220,13 @@ lib/
 4. **Set, Ağırlık ve Tekrar Takip Kaydedicisi:** Aktif zindan idmanında set bazlı kg/tekrar loglama (`SetKaydi`).
 5. **Set Arası Dinlenme Sayacı (Rest Timer):** 30-120sn sesli ve görsel Solo Leveling geri sayım sayacı.
 6. **Zindana Dinamik Ek Hareket Enjekte Etme & Kaldırma:** Aktif Zindan Baskını ekranında üst bardaki `+ EKLE` butonu ve listenin altındaki `+ EK HAREKET ENJEKTE ET` butonuyla kategorilere göre (Göğüs, Sırt, Omuz/Kol, Bacak, Karın, Dövüş/Boks) filtrelenen hazır hareketleri veya serbest görevleri seansa anında dahil edebilme ve görev kartından kaldırma desteği.
+7. **5-7 Hareket Standardı & Kardiyo / MetCon Entegrasyonu:** Tüm varsayılan ve Gemini tarafından üretilen programlar 4 katmanlı (1-2 Compound + 2-3 İzolasyon/Aksesuar + 1 Core + 1 Kardiyo/MetCon) mimariye geçirildi.
+8. **Çift Seçenekli Şablon Yükleme (+ İdmana Ekle / 🔄 Sıfırla ve Kur):** Saitama, Full Body, Cardio & MetCon Burn, Combat Striker Finisher şablonları hem mevcut idmanı silmeden üzerine ekleme (`+ Append`) hem de tek başına o idmanı yapma (`🔄 Replace`) modlarıyla donatıldı.
+9. **Kişiye Özel Yapay Zeka Bitirici (`🤖 AI AVCI ÖZEL BOOSTER`):** Avcının rütbesi, dövüş branşı ve hedef odak bölgelerine göre 3-4 hareketlik yoğun bitirici seansını tek tuşla idmana ekleyen Gemini REST ve akıllı yerel algoritma motoru kuruldu.
 
 ### ⏳ Faz 1 Kapsamında Sırada Eklenecekler:
-1. **Daha Kapsamlı & Dolu Antrenman Hacmi (Antrenmanları Uzatma & Çeşitlendirme):**
-   - *Sorun / Tespit:* Mevcut antrenman seansları çok kısa kalmakta, gün başına düşen hareket sayısı ve set çeşitliliği az gelmektedir.
-   - *Planlanan Çözüm:* Gemini AI prompt motoru ve yerel kural şablonları güncellenerek; gün başına **1-2 Ana Bileşik Hareket (Compound)** + **2-3 İzolasyon & Destek Hareketi** + **1-2 Dövüş/Kondisyon/Core Bitirici Protokolü (Finisher)** şeklinde **seans başına 5-7 doyurucu hareket** içeren zengin program hacmi standardı getirilecektir.
-2. **Antrenman Ekleme Ekranının Yeniden Düzenlenmesi (Gelişmiş Egzersiz Ekleme Modalı):**
-   - *Sorun / Tespit:* Kullanıcı haftalık plana veya aktif antrenmana kendi istediği hareketleri eklemek istediğinde mevcut tek satırlık ekleme alanı yetersiz ve kullanışsız kalmaktadır.
-   - *Planlanan Çözüm:* 875+ hareketlik kütüphane ile entegre modern bir **"Egzersiz Ekleme Modalı"** tasarlanacaktır. Kas grubuna göre filtreleme (Göğüs, Sırt, Bacak, Omuz, Kol, Karın, Boks/Dövüş), hızlı arama çubuğu, set sayısı, hedef tekrar ve hedef ağırlık girişleri, YouTube önizlemesi ve tek dokunuşla programa ekleme özelliği sunulacaktır.
+1. **Antrenman Ekleme Ekranının Yeniden Düzenlenmesi (Gelişmiş Egzersiz Ekleme Modalı):**
+   - 875+ hareketlik kütüphane ile tam entegre, arama çubuğu, kategori filtreleri ve set/tekrar seçicisi olan gelişmiş modal.
 
 ---
 

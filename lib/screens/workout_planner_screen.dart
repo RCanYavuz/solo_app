@@ -227,49 +227,112 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
   }
 
   // --- YENİ: SİSTEM ŞABLONLARI ---
-  void _sablonUygula(String sablonAdi) {
-    setState(() {
-      if (sablonAdi == 'Saitama (S-Rank)') {
-        for (int i = 1; i <= 7; i++) {
-          SystemMemory.haftalikPlan[i]!.clear(); // Eski programı sil
-          SystemMemory.haftalikPlan[i]!.addAll([
-            Gorev("[CHEST] 100 Push-ups", false, "Fiziksel"),
-            Gorev("[CORE / ABS] 100 Sit-ups", false, "Fiziksel"),
-            Gorev("[QUADS] 100 Squats", false, "Fiziksel"),
-            Gorev("[CARDIO] 10 KM Run", false, "Fiziksel"),
-          ]);
-        }
-      } 
-      else if (sablonAdi == 'Full Body (B-Rank)') {
-        for (int i = 1; i <= 7; i++) {
-          SystemMemory.haftalikPlan[i]!.clear();
-        }
-        List<int> gunler = [1, 3, 5]; // Pzt, Çarş, Cuma
-        for (int g in gunler) {
-          SystemMemory.haftalikPlan[g]!.addAll([
-            Gorev("[CHEST] Bench / Push-ups", false, "Fiziksel"),
-            Gorev("[BACK] Pull-ups / Rows", false, "Fiziksel"),
-            Gorev("[QUADS] Squats", false, "Fiziksel"),
-            Gorev("[CORE / ABS] Plank (3 Min)", false, "Fiziksel"),
-          ]);
-        }
+  Future<void> _sablonUygula(String sablonAdi, {required bool ekleModu}) async {
+    List<Gorev> gorevler = [];
+
+    if (sablonAdi == 'Saitama (S-Rank)') {
+      gorevler = [
+        Gorev("[CHEST] 100 Push-ups", false, "Fiziksel"),
+        Gorev("[CORE / ABS] 100 Sit-ups", false, "Fiziksel"),
+        Gorev("[QUADS] 100 Squats", false, "Fiziksel"),
+        Gorev("[CARDIO] 10 KM Run", false, "Fiziksel"),
+      ];
+    } 
+    else if (sablonAdi == 'Full Body & Hypertrophy (B-Rank)') {
+      gorevler = [
+        Gorev("[PHY] Barbell Bench Press (4x10)", false, "Fiziksel"),
+        Gorev("[PHY] Lat Pulldown / Pull-ups (4x10)", false, "Fiziksel"),
+        Gorev("[PHY] Barbell Squat (4x8)", false, "Fiziksel"),
+        Gorev("[PHY] Overhead Shoulder Press (3x10)", false, "Fiziksel"),
+        Gorev("[PHY] Barbell Bicep Curl & Triceps (3x12)", false, "Fiziksel"),
+        Gorev("[CORE / ABS] Plank (3x60sn)", false, "Fiziksel"),
+        Gorev("[CARDIO] 15 Dk Zone 2 Efor Koşusu", false, "Fiziksel"),
+      ];
+    }
+    else if (sablonAdi == 'Cardio & MetCon Burn') {
+      gorevler = [
+        Gorev("[CARDIO] 30 Dk Zone 2 Efor Koşusu / Eğimli Yürüyüş", false, "Fiziksel"),
+        Gorev("[CARDIO] 15 Dk Yüksek Yoğunluklu İp Atlama (HIIT)", false, "Fiziksel"),
+        Gorev("[COMBAT-CARDIO] Burpee & Sprawl Kondisyon (4 Set x 15)", false, "Fiziksel"),
+        Gorev("[CORE / ABS] Plank to Push-up & Hollow Body (3 Set)", false, "Fiziksel"),
+        Gorev("[CARDIO] 10 Dk Kürek / Bisiklet Sprint Soğuma", false, "Fiziksel"),
+      ];
+    }
+    else if (sablonAdi == 'Combat Striker Finisher') {
+      gorevler = [
+        Gorev("[COMBAT] Gölge Boksu / Striking Drill (5 Raund x 3 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT] Ağır Kum Torbası Kombinasyonları (4 Raund)", false, "Fiziksel"),
+        Gorev("[COMBAT] Hızlı İp Atlama & Ayak Çalışması (15 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT] Rotasyonel Core: Russian Twist & Plank (4 Set)", false, "Fiziksel"),
+        Gorev("[COMBAT] Darbe Dayanıklılığı & Boyun Güçlendirme", false, "Fiziksel"),
+      ];
+    }
+    else if (sablonAdi == 'Monarch Mind') {
+      gorevler = [
+        Gorev("[MEDITATION] 30 Mins Focus", false, "Zihinsel"),
+        Gorev("[READING] 20 Pages Book", false, "Zihinsel"),
+        Gorev("[STRATEGY] Planning / Journal", false, "Zihinsel"),
+      ];
+    }
+    else if (sablonAdi == 'AI Booster') {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('SİSTEM: AI Avcı Booster hesaplanıyor...'),
+          backgroundColor: Color(0xFFA855F7),
+          duration: Duration(seconds: 1),
+        ),
+      );
+
+      for (int gun in seciliGunler) {
+        await SystemMemory.aiEkIdmanBoosterUret(
+          gun: gun,
+          sadeceBunuYap: !ekleModu,
+        );
       }
-      else if (sablonAdi == 'Monarch Mind') {
-        for (int i = 1; i <= 7; i++) {
-          SystemMemory.haftalikPlan[i]!.clear();
-          SystemMemory.haftalikPlan[i]!.addAll([
-            Gorev("[MEDITATION] 30 Mins Focus", false, "Zihinsel"),
-            Gorev("[READING] 20 Pages Book", false, "Zihinsel"),
-            Gorev("[STRATEGY] Planning / Journal", false, "Zihinsel"),
-          ]);
+
+      setState(() {});
+      AudioSystem.playSuccess();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            ekleModu
+                ? 'SİSTEM: AI Booster seçili günlere eklendi!'
+                : 'SİSTEM: AI Booster seçili günlere kuruldu!',
+          ),
+          backgroundColor: const Color(0xFF22C55E),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      for (int gun in seciliGunler) {
+        if (!ekleModu) {
+          SystemMemory.haftalikPlan[gun]!.clear();
         }
+        SystemMemory.haftalikPlan[gun]!.addAll(
+          gorevler.map((e) => Gorev(e.ad, false, e.tip)).toList(),
+        );
       }
     });
-    
+
     SystemMemory.kaydet();
     AudioSystem.playSuccess();
-    Navigator.pop(context); // Dialogu kapat
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('SYSTEM: $sablonAdi template applied to all week!'), backgroundColor: Colors.green));
+    Navigator.pop(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          ekleModu
+              ? 'SİSTEM: "$sablonAdi" seçili günlerinize eklendi!'
+              : 'SİSTEM: "$sablonAdi" seçili günlere kuruldu!',
+        ),
+        backgroundColor: const Color(0xFF22C55E),
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   void _sablonSecimDialog() {
@@ -278,41 +341,151 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95),
-          shape: RoundedRectangleBorder(side: const BorderSide(color: sysBlue, width: 1), borderRadius: BorderRadius.circular(4)),
-          title: Text('SYSTEM TEMPLATES', style: GoogleFonts.orbitron(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 16)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
+          backgroundColor: const Color(0xFF030712).withValues(alpha: 0.98),
+          shape: RoundedRectangleBorder(side: const BorderSide(color: sysBlue, width: 1), borderRadius: BorderRadius.circular(6)),
+          titlePadding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+          contentPadding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+          title: Row(
             children: [
-              const Text("WARNING: Applying a template will OVERWRITE your current weekly quests for the related days.", style: TextStyle(color: sysRed, fontSize: 12, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 20),
-              _sablonButonu('Saitama (S-Rank)', 'Everyday: 100 Push-ups, Squats, Sit-ups, 10km Run', physicalGold),
-              const SizedBox(height: 10),
-              _sablonButonu('Full Body (B-Rank)', 'Mon/Wed/Fri: Chest, Back, Legs, Core', physicalGold),
-              const SizedBox(height: 10),
-              _sablonButonu('Monarch Mind', 'Everyday: Meditation, Reading, Strategy', mentalPurple),
+              const Icon(Icons.auto_awesome, color: sysBlue, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'SYSTEM WORKOUT TEMPLATES',
+                  style: GoogleFonts.orbitron(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 1.2),
+                ),
+              ),
             ],
           ),
-          actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL', style: TextStyle(color: sysTextMuted)))],
+          content: SizedBox(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Seçili günlerinize şablonu ekleyebilir (+ Append) veya tamamen üzerine yazabilirsiniz (🔄 Reset).',
+                    style: TextStyle(color: sysTextMuted, fontSize: 11),
+                  ),
+                  const SizedBox(height: 14),
+                  _sablonKarti(
+                    ad: '🤖 AI AVCI ÖZEL BOOSTER',
+                    aciklama: 'Rank, branş ve odak bölgene özel anlık 3-4 hareketlik akıllı finisher/takviye.',
+                    renk: const Color(0xFFA855F7),
+                    iconText: '🤖',
+                    sablonKodu: 'AI Booster',
+                  ),
+                  _sablonKarti(
+                    ad: 'Saitama (S-Rank)',
+                    aciklama: '100 Push-ups, 100 Squats, 100 Sit-ups, 10 KM Run.',
+                    renk: physicalGold,
+                    iconText: '👊',
+                  ),
+                  _sablonKarti(
+                    ad: 'Full Body & Hypertrophy (B-Rank)',
+                    aciklama: 'Bench Press, Lat Pulldown, Squat, Shoulder Press, Arms, Plank & Kardiyo (7 Hareket).',
+                    renk: const Color(0xFF38BDF8),
+                    iconText: '⚔️',
+                  ),
+                  _sablonKarti(
+                    ad: 'Cardio & MetCon Burn',
+                    aciklama: '30 Dk Zone 2 Koşu, 15 Dk İp Atlama HIIT, Burpee Sprawl & Plank Soğuma (5 Hareket).',
+                    renk: const Color(0xFF22C55E),
+                    iconText: '🔥',
+                  ),
+                  _sablonKarti(
+                    ad: 'Combat Striker Finisher',
+                    aciklama: '5 Raund Gölge Boksu, 4 Raund Kum Torbası, İp Atlama & Rotasyonel Core.',
+                    renk: sysRed,
+                    iconText: '🥊',
+                  ),
+                  _sablonKarti(
+                    ad: 'Monarch Mind',
+                    aciklama: 'Meditation, Reading, Strategy Journal.',
+                    renk: mentalPurple,
+                    iconText: '🧠',
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('KAPAT', style: TextStyle(color: sysTextMuted)),
+            ),
+          ],
         );
-      }
+      },
     );
   }
 
-  Widget _sablonButonu(String ad, String aciklama, Color renk) {
-    return InkWell(
-      onTap: () => _sablonUygula(ad),
-      child: Container(
-        width: double.infinity, padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: renk.withValues(alpha: 0.1), border: Border.all(color: renk.withValues(alpha: 0.5)), borderRadius: BorderRadius.circular(4)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(ad, style: GoogleFonts.orbitron(color: renk, fontSize: 14, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 4),
-            Text(aciklama, style: const TextStyle(color: Colors.white70, fontSize: 10)),
-          ],
-        ),
+  Widget _sablonKarti({
+    required String ad,
+    required String aciklama,
+    required Color renk,
+    required String iconText,
+    String? sablonKodu,
+  }) {
+    final kod = sablonKodu ?? ad;
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: renk.withValues(alpha: 0.08),
+        border: Border.all(color: renk.withValues(alpha: 0.4)),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(iconText, style: const TextStyle(fontSize: 16)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  ad,
+                  style: GoogleFonts.orbitron(color: renk, fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(aciklama, style: const TextStyle(color: Colors.white70, fontSize: 10)),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => _sablonUygula(kod, ekleModu: true),
+                  icon: const Icon(Icons.add, size: 12, color: Color(0xFF22C55E)),
+                  label: const Text('+ GÜNLERE EKLE', style: TextStyle(color: Color(0xFF22C55E), fontSize: 9, fontWeight: FontWeight.bold)),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: const Color(0xFF22C55E).withValues(alpha: 0.6)),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => _sablonUygula(kod, ekleModu: false),
+                  icon: const Icon(Icons.sync, size: 12, color: sysRed),
+                  label: const Text('🔄 SIFIRLA VE KUR', style: TextStyle(color: sysRed, fontSize: 9, fontWeight: FontWeight.bold)),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: sysRed.withValues(alpha: 0.6)),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
