@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../core/diyet_motoru.dart';
-import '../core/diyet_motoru.dart';
 import '../core/advanced_metabolic_engine.dart';
 import '../controllers/system_memory.dart';
 import '../widgets/hologram_card.dart';

@@ -248,7 +248,7 @@ class AdvancedMetabolicEngine {
       katabolizmaSeviyesi = 'Kritik';
       telafiProteini = (kiloKg * 0.4).round().clamp(25, 45); // +30-40g protein
       telafiKarb = (yakilanKalori * 0.4 / 4.0).round().clamp(40, 80); // Glikojen telafisi
-      sistemUyarisi = '[SİSTEM UYARISI: $sureDakika dk yoğun $idmanTuru idmanında $yakilanKalori kcal yakıldı. Kas katabolizmasını önlemek için +${telafiProteini}g protein ve +${yakilanKalori} kcal telafi protokolü aktif!]';
+      sistemUyarisi = '[SİSTEM UYARISI: $sureDakika dk yoğun $idmanTuru idmanında $yakilanKalori kcal yakıldı. Kas katabolizmasını önlemek için +${telafiProteini}g protein ve +$yakilanKalori kcal telafi protokolü aktif!]';
     } else if (sureDakika >= 35 || yakilanKalori >= 300) {
       katabolizmaSeviyesi = 'Yüksek';
       telafiProteini = (kiloKg * 0.25).round().clamp(15, 30);

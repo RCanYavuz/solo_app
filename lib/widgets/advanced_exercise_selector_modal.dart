@@ -72,7 +72,7 @@ class _AdvancedExerciseSelectorModalState
   final TextEditingController _ozelGorevCtrl = TextEditingController();
 
   String _secilenKategori = 'Tümü';
-  String _secilenTip = 'Fiziksel';
+  final String _secilenTip = 'Fiziksel';
   int _secilenSet = 4;
   int _secilenTekrar = 10;
   int _secilenKardiyoDk = 20;
