@@ -12,33 +12,39 @@ lib/
 ├── controllers/
 │   └── system_memory.dart          # Tüm oyun state'i, persistence, RPG mekanikleri, görev döngüsü
 ├── core/
+│   ├── advanced_metabolic_engine.dart # Bilimsel US Navy, LBM, BMR, TDEE, MET yıpranma & projeksiyon motoru
 │   ├── audio_system.dart           # Ses efektleri yönetimi (mixWithOthers desteği)
 │   ├── diyet_motoru.dart           # Makro besin (Protein/Karb/Yağ) ve kalori hesaplama motoru
+│   ├── exercise_coach.dart         # Avcı Taktik Kartı ve Akıllı Egzersiz Değiştirici (Smart Swap)
 │   ├── sistem_gecisi.dart          # Hologram sayfa geçiş animasyonu
+│   ├── translation_manager.dart    # Çift dil (TR/EN) yerelleştirme yöneticisi
+│   ├── youtube_helper.dart         # YouTube egzersiz formu arama ve video yönlendirme
 │   └── services/
-│       └── gemini_service.dart     # Google Gemini AI servisi (Doğal dil besin analizi & Sistem sesi)
+│       └── gemini_service.dart     # Google Gemini AI servisi (Doğal dil besin analizi, diyetisyen OCR & Sistem sesi)
 ├── models/
 │   ├── task_model.dart             # Görev (Gorev) veri modeli
 │   ├── food_model.dart             # Tüketilen yemek (TuketilenYemek) veri modeli
-│   ├── workout_model.dart          # Egzersiz şablonu (EgzersizSablonu) veri modeli
+│   ├── workout_model.dart          # Egzersiz şablonu (EgzersizSablonu & SetKaydi) veri modeli
 │   └── inventory_item_model.dart   # Avcı çantası eşya (InventoryItem) modeli
 ├── screens/
 │   ├── ana_ekran.dart              # Ana navigasyon kabuğu (Bottom Navigation)
 │   ├── dashboard_screen.dart       # Dashboard — Level, Stat, Başarımlar, Haftalık Boss
 │   ├── status_screen.dart          # Stat dağıtımı, HP/MP barları & Antrenman Kütüphanesi köprüsü
 │   ├── calendar_screen.dart        # Haftalık görev takvimi (Quest Log & Streak)
-│   ├── diet_screen.dart            # Kalori & yemek envanteri + Gemini AI Besin Çözücü
-│   ├── macro_dashboard_screen.dart # Görsel Makro Laboratuvarı (Besin oranları, öneriler)
-│   ├── profile_screen.dart         # Profil, vücut verileri + Gemini API Key Yönetimi & Tanılama
-│   ├── setup_screen.dart           # İlk kurulum (Hunter adı, boy, kilo, hedef, opsiyonel API Key)
+│   ├── diet_screen.dart            # Kalori, su, katabolizma dengeleyicisi + Gemini AI & Diyetisyen Tarayıcı
+│   ├── macro_dashboard_screen.dart # Görsel Makro Laboratuvarı (Hedef kilo, vizyon girişi, AI harmanlama & Entegre Et)
+│   ├── profile_screen.dart         # Profil, vücut verileri, hedef kilo + Gemini API Key Yönetimi & Tanılama
+│   ├── setup_screen.dart           # 4 Adımlı Kurulum Sihirbazı (Hedef kilo, vücut ölçümleri, dövüş testleri)
 │   ├── welcome_screen.dart         # Sistem uyanış ve karşılama ekranı
 │   ├── instruction_screen.dart     # Sistem kuralları ve avcı el kitabı
-│   ├── active_workout_screen.dart  # Aktif antrenman modu (Dungeon Raid kronometresi)
+│   ├── active_workout_screen.dart  # Aktif antrenman modu (Dungeon kronometresi, set logger & dinlenme sayacı)
 │   ├── workout_planner_screen.dart # Haftalık antrenman planlayıcı & kütüphane bağlantısı
-│   ├── workout_library_screen.dart # YouTube destekli hazır antrenman kütüphanesi
-│   ├── boxing_timer_screen.dart    # Boks ve aralıklı antrenman zamanlayıcısı
+│   ├── workout_library_screen.dart # YouTube destekli hazır antrenman kütüphanesi (875+ egzersiz)
+│   ├── boxing_timer_screen.dart    # Boks ve aralıklı antrenman zamanlayıcısı (Raid senkronizasyonlu)
 │   └── shop_screen.dart            # Sistem Mağazası (İksirler, Kaçamak Hakları, Eşyalar)
 └── widgets/
+    ├── dietitian_scanner_modal.dart # Diyetisyen menüsü OCR tarama ve onay modalı
+    ├── advanced_exercise_selector_modal.dart # Canlı filtreli gelişmiş egzersiz enjeksiyon modalı
     ├── hologram_card.dart          # Neon parlamalı hologram kart widget'ı
     └── stat_bar.dart               # HP/MP/EXP ilerleme çubuğu widget'ı
 ```
@@ -47,12 +53,12 @@ lib/
 
 | Katman | Bileşenler | Rol |
 |--------|------------|-----|
-| **Controllers** | `system_memory.dart` | Oyun durumu, kalıcılık (SharedPreferences), RPG formülleri, gece yarısı hesaplaşması |
-| **Core & Services** | `gemini_service.dart`, `diyet_motoru.dart`, `audio_system.dart`, `sistem_gecisi.dart` | Yapay zeka servisleri, beslenme algoritmaları, ses efektleri, görsel geçişler |
-| **Models** | `task_model.dart`, `food_model.dart`, `workout_model.dart` | Tip güvenli veri modelleri ve JSON serileştirme |
+| **Controllers** | `system_memory.dart` | Oyun durumu, kalıcılık (SharedPreferences), RPG formülleri, hedef kilo & diyetisyen reçeteleri, gece yarısı hesaplaşması |
+| **Core & Services** | `advanced_metabolic_engine.dart`, `gemini_service.dart`, `diyet_motoru.dart`, `audio_system.dart`, `exercise_coach.dart`, `youtube_helper.dart` | US Navy & Katch-McArdle metabolik formülleri, MET idman yıpranması, yapay zeka servisleri, akıllı egzersiz koçluğu, video sanitizasyonu |
+| **Models** | `task_model.dart`, `food_model.dart`, `workout_model.dart`, `inventory_item_model.dart` | Tip güvenli veri modelleri ve JSON serileştirme |
 | **Screens** | 15 ekran | Kullanıcı arayüzü ve navigasyon akışları |
-| **Widgets** | `hologram_card.dart`, `stat_bar.dart` | Tema uyumlu, yeniden kullanılabilir UI bileşenleri |
-| **Tests** | 5 test paketi (`test/`) | Yönlendirme, navigasyon, runtime koruma, AI ve mantık testleri |
+| **Widgets** | `dietitian_scanner_modal.dart`, `advanced_exercise_selector_modal.dart`, `hologram_card.dart`, `stat_bar.dart` | Diyetisyen OCR tarayıcısı, egzersiz seçicisi, tema uyumlu UI bileşenleri |
+| **Tests** | 15 test paketi (`test/`) | Yönlendirme, navigasyon, metabolik motor, diyetisyen tarayıcı, runtime koruma, AI ve uçtan uca akış testleri |
 
 ---
 
@@ -229,13 +235,65 @@ lib/
 13. **Antrenman Ekleme Ekranının Yeniden Düzenlenmesi (`AdvancedExerciseSelectorModal`):** 875+ egzersiz kütüphanesiyle tam entegre, anlık filtrelemeli canlı arama çubuğu (`TextField`), kategori filtre çipleri (Göğüs, Sırt, Omuz/Kol, Bacak, Karın, Dövüş, Kardiyo, Calisthenics), YouTube video formu önizleme butonu, dinamik set/tekrar/dakika seçicileri ve tek dokunuşla ekleme modalı hem `ActiveWorkoutScreen` hem de `WorkoutPlannerScreen`'e entegre edildi.
 
 > [!TIP]
-> **🎉 FAZ 1 RESMEN %100 TAMAMLANMIŞTIR!**
+> **🎉 FAZ 1 & FAZ 2 RESMEN %100 TAMAMLANMIŞTIR!**
 
-### 📌 Faz 2: Diyetisyen Listesi Analizi & Dinamik İdman Yıpranma/Protein Dengeleyicisi (Sıradaki Master Faz)
-1. **Diyetisyen Haftalık Listesi Yükleme (Fotoğraf / Metin):** Diyetisyenin verdiği basılı veya dijital listenin fotoğrafı çekilerek veya metni yapıştırılarak Gemini Vision ile taranır ve sisteme haftalık makro/öğün hedefi olarak kaydedilir.
-2. **Dinamik İdman Yıpranma Takibi (Workload Compensator):** O gün yapılan boks, kum torbası veya ağır squat/deadlift idmanının süresi ve yoğunluğuna göre harcanan ekstra kalori ve kas yıkımı hesaplanır.
-3. **Sistem İkazı & Ek Besin Önerisi:** Yemek ve Ana ekranda:
-   *`[SİSTEM UYARISI: Bugün 90 dk yüksek yoğunluklu boks idmanı tamamlandı. Kas katabolizmasını önlemek için diyetisyen listenize +30g protein ve +450 kcal eklenmesi emredildi.]`* kartı çıkar.
+---
+
+### 🧬 Faz 2: Bilimsel Metabolik Motor, Diyetisyen Analizi & Hedef Kilo Entegrasyonu (%100 TAMAMLANDI)
+
+1. **🔬 US Navy Vücut Kompozisyonu & LBM Hesabı (`AdvancedMetabolicEngine`):**
+   - Boy, kilo, bel çevresi ve cinsiyet verileriyle logaritmik vücut yağ oranı hesabı.
+   - Yağsız kas kütlesi (**LBM**) ve sınıflandırma (*Atletik, Fit, Standart, Yüksek Yağ*).
+   - **Katch-McArdle ($BMR = 370 + 21.6 \times LBM$) & Mifflin-St Jeor Hibrit BMR:** LBM verisiyle gerçek kas dokusuna dayalı bazal metabolizma.
+   - **Dinamik TDEE:** Haftalık idman gün sayısı ve dövüşçü moduna göre $1.20 - 1.85$ arası katsayılarla gerçek günlük enerji tüketimi.
+2. **🥊 MET Bazlı İdman Yıpranması & Katabolizma Koruması (`hesaplaIdmanYipranmasi`):**
+   - Boks/Kickboks/MMA: **10.5 MET**, Güreş/BJJ: **11.5 MET**, Kardiyo/HIIT: **9.5 MET**, Ağırlık: **6.5 MET**.
+   - Formül: $\text{Yakılan Kalori} = \left(\frac{MET \times 3.5 \times \text{Kilo}}{200}\right) \times \text{Süre Dakika} \times \text{RPE}$
+   - İdman sonrası kas yıkımını önleyen dinamik protein telafisi ($+15$g ile $+45$g arası) ve glikojen doldurucu karbonhidrat telafisi.
+   - Aktif Zindan ve Boks sayacı tamamlandığında otomatik hafızaya işlenir ve Diyet ekranında canlı dengelenir.
+3. **📋 Diyetisyen Listesi Tarayıcısı & Reçete Kilidi (`DietitianScannerModal`):**
+   - Diyetisyenin verdiği basılı veya dijital listenin fotoğrafı çekilerek veya metni yapıştırılarak Gemini Vision ile taranır.
+   - Ayrıştırılan kalori ve makrolar (`SystemMemory.gunlukHedefKalori`) sistemin resmi taban reçetesi olarak kilitlenir.
+4. **🎯 Hedef Kilo Projeksiyonu & Metabolik Tempo Hesabı:**
+   - Mevcut kilo ile hedef kilo arasındaki delta farkı tespiti.
+   - Sağlıklı haftalık tempo ($0.50$ kg/hafta) ve disiplinli ulaşma süresi (hafta) hesabı.
+   - Günlük kalori dengesi ($-550$ kcal açık veya $+350$ kcal fazlalık) projeksiyonu.
+5. **🧠 Avcının Beslenme Vizyonu & Fikir Girişi (Serbest Metin):**
+   - Sistemin dayatma yapmasını önleyen ve avcının kendi özel düşüncesini, tercihlerini veya kısıtlarını aktarabildiği serbest metin alanı.
+6. **🔮 Gemini AI ile Harmanlama & Sistem Stratejik Direktifi:**
+   - Avcının fikri + biyometrik verileri Gemini AI tarafından sentezlenir.
+   - Solo Leveling RPG tonunda motivasyonel Sistem Direktifi ve revize makro önerileri üretir.
+7. **⚡ "BU HEDEFLERİ SİSTEME ENTEGRE ET" Butonu:**
+   - Hesaplanan veya AI ile harmanlanan hedef kilo ve günlük kaloriyi tek dokunuşla tüm aktif takip sistemine, diyet ekranına ve veri kasasına bağlar.
+
+---
+
+## 📊 Sistem Analiz ve Durum Raporu (System Diagnostic Status)
+
+| Modül / Özellik | Durum | Kapsam & Gerçekleştirilen Fonksiyonlar |
+|-----------------|-------|---------------------------------------|
+| **Gemini AI Core (REST)** | ✅ **YAPILDI** | Gemini 3.6 Flash & Next-Gen Core, çoklu model desteği, API Key yönetimi |
+| **Avcı Uyanış Sihirbazı** | ✅ **YAPILDI** | 4 Adımlı sinematik Wizard, Full Body Scan, Dövüş testleri, 1RM Halter |
+| **Antrenman Motoru (AI)** | ✅ **YAPILDI** | Haftalık 7 günlük dinamik program üretimi, yerel kural fail-safe fallback |
+| **YouTube Form Rehberi** | ✅ **YAPILDI** | Akıllı başlık sanitizasyonu, tüm ekranlarda tek tıkla video başlatma |
+| **Avcı Taktik Kartı & Swap** | ✅ **YAPILDI** | Hedef kas, dövüş katkısı, 3 altın kural ve anlık 3 alternatif hareket değişimi |
+| **Set Logger & Rest Timer** | ✅ **YAPILDI** | Set/kg/tekrar loglama, 30-120sn sesli geri sayım sayacı |
+| **Dinamik Zindan Genişletme** | ✅ **YAPILDI** | Zindana anında ek hareket ekleme/kaldırma, 875+ kütüphane entegrasyonu |
+| **Uzatılmış İdman & Kardiyo** | ✅ **YAPILDI** | 6-8 hareket standardı, zorunlu kardiyo katmanı, Hacim & Raund seçicileri |
+| **Gölge Boksu & Dövüş Sim** | ✅ **YAPILDI** | Branşa özel 5 raundluk gölge boksu stilleri ve kombinasyonları |
+| **Dungeon & Boks Senkronizasyonu** | ✅ **YAPILDI** | Duvar saati senkronizasyonu, canlı Raid HUD banner'ı, erken kapanma koruması |
+| **Gelişmiş Egzersiz Seçici** | ✅ **YAPILDI** | Canlı arama, kategori çipleri, set/tekrar ve kardiyo dakika filtreleri |
+| **Bilimsel Metabolik Motor** | ✅ **YAPILDI** | US Navy yağ %, LBM, Katch-McArdle & Mifflin BMR, Dinamik TDEE |
+| **MET Yıpranma & Katabolizma** | ✅ **YAPILDI** | MET formülü ile kalori ve kas koruyucu protein/karb telafisi |
+| **Diyetisyen Menü Tarayıcısı** | ✅ **YAPILDI** | Fotoğraf/metin Gemini OCR, taban hedef kilitleme ve reçete yönetimi |
+| **Hedef Kilo Projeksiyonu** | ✅ **YAPILDI** | Delta kilo, haftalık tempo, tahmini hafta ve kalori farkı hesabı |
+| **Kullanıcı Vizyonu & Not Girişi** | ✅ **YAPILDI** | Kör otomasyonu önleyen serbest metin diyet stratejisi alanı |
+| **AI Harmanlama & Direktif** | ✅ **YAPILDI** | Kullanıcı fikri + biyometrik matematiğin senteziyle RPG Sistem Direktifi |
+| **Sisteme Entegre Et Butonu** | ✅ **YAPILDI** | Hesaplanan hedefleri tek tıkla aktif takip sistemine bağlama aksiyonu |
+| **Su Takibi (Hydration)** | ✅ **YAPILDI** | Günlük su sayacı, hızlı giriş butonları ve gece yarısı ödül/ceza |
+| **Avcı Çantası & Envanter** | ✅ **YAPILDI** | Eşya satın alma, çantadan canlı eşya kullanımı (`hp_full`, `cheat_meal` vb.) |
+| **Veri Kasası (Data Vault)** | ✅ **YAPILDI** | Şifrelenmiş JSON arşiv dışa/içe aktarma ile tam veri yedekleme |
+| **Çift Dil Desteği (TR/EN)** | ✅ **YAPILDI** | Tüm sistem unvanları, hedefler, diyaloglar ve dinamik dil anahtarı |
 
 ---
 
@@ -256,10 +314,12 @@ lib/
 
 ## 🧪 Otomatik Test Paketi
 
-Proje güvenilirliği için **13 test paketi ve toplam 66 test senaryosu** hazırlanmıştır (%100 Başarılı):
+Proje güvenilirliği için **15 test paketi ve toplam 76 test senaryosu** hazırlanmıştır (%100 Başarılı / Yeşil):
 
 | Test Dosyası | Kapsam |
 |--------------|--------|
+| [`test/advanced_metabolic_engine_test.dart`](test/advanced_metabolic_engine_test.dart) | US Navy vücut yağı, LBM, Katch-McArdle BMR, TDEE, MET yıpranması, hedef kilo projeksiyonu ve sisteme entegrasyon testleri |
+| [`test/dietitian_scanner_widget_test.dart`](test/dietitian_scanner_widget_test.dart) | Diyetisyen tarayıcı modalı, form alanları ve Makro Lab US Navy biyometrik kart render testleri |
 | [`test/assessment_flow_widget_test.dart`](test/assessment_flow_widget_test.dart) | 4 Adımlı Wizard, çoklu dövüş branşı, 1RM dövüş ağırlık testleri, odak bölgeleri, unvan senkronizasyonu |
 | [`test/system_features_test.dart`](test/system_features_test.dart) | Su takibi, çanta, makrolar, Data Vault, odak bölgelerine göre dinamik antrenman uyarlaması |
 | [`test/exercise_coach_test.dart`](test/exercise_coach_test.dart) | Avcı Taktik Kartı, Akıllı Alternatif Değiştirici (Smart Swap), SetKaydi serileştirmesi, RestTimer ve Detail Modal |
