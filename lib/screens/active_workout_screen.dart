@@ -194,6 +194,314 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
     );
   }
 
+  void _gorevSil(int index) {
+    final bugununProgrami = SystemMemory.haftalikPlan[bugunIndex]!;
+    if (index >= 0 && index < bugununProgrami.length) {
+      final silinen = bugununProgrami[index].ad;
+      setState(() {
+        bugununProgrami.removeAt(index);
+        _acikSetler.remove(index);
+      });
+      SystemMemory.kaydet();
+      AudioSystem.playTransition();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('SİSTEM: "$silinen" zindan görevlerinden kaldırıldı.'),
+          backgroundColor: sysRed,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  void _ekHareketEkleDialog() {
+    AudioSystem.playTransition();
+    final TextEditingController hareketCtrl = TextEditingController();
+    String secilenKategori = 'Tümü';
+    String secilenTip = 'Fiziksel';
+
+    final Map<String, List<String>> kategorikHareketler = {
+      'Göğüs': [
+        'Incline Dumbbell Press (3x10)',
+        'Dumbbell Fly (3x12)',
+        'Dips / Sehpada İtiş (3x10)',
+        'Kablo Göğüs İtiş (3x12)',
+        'Şınav (Push-up) (4x15)',
+      ],
+      'Sırt': [
+        'Barfiks (Pull-up) (3xMax)',
+        'Lat Pulldown (4x10)',
+        'Dumbbell Row (3x10)',
+        'Face Pull (4x15)',
+        'T-Bar Row (3x10)',
+      ],
+      'Omuz/Kol': [
+        'Overhead DB Press (3x10)',
+        'Lateral Raise (4x12)',
+        'Biceps Barbell Curl (3x10)',
+        'Hammer Curl (3x12)',
+        'Triceps Rope Pushdown (3x12)',
+      ],
+      'Bacak': [
+        'Barbell Squat (4x8)',
+        'Leg Press (4x10)',
+        'Romanian Deadlift (3x10)',
+        'Leg Extension (3x12)',
+        'Lunge / Adımlama (3x10)',
+      ],
+      'Karın': [
+        'Hanging Leg Raise (3x15)',
+        'Plank (3x60sn)',
+        'Kablo Crunch (3x15)',
+        'Russian Twist (3x20)',
+        'Ab Wheel Rollout (3x10)',
+      ],
+      'Dövüş/Boks': [
+        'Gölge Boksu (Shadow Boxing) (3 Raund x 3 Dk)',
+        'Ağır Kum Torbası Kombinasyon (4 Raund)',
+        'İp Atlama (10 Dk)',
+        'Burpee & Sprawl (4x12)',
+        'Plyo Patlayıcı Şınav (4x8)',
+      ],
+    };
+
+    showDialog(
+      context: context,
+      builder: (dialogCtx) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            List<String> gosterilecekHareketler = [];
+            if (secilenKategori == 'Tümü') {
+              kategorikHareketler.forEach((_, list) => gosterilecekHareketler.addAll(list));
+            } else {
+              gosterilecekHareketler = kategorikHareketler[secilenKategori] ?? [];
+            }
+
+            return AlertDialog(
+              backgroundColor: const Color(0xFF030712).withValues(alpha: 0.98),
+              shape: RoundedRectangleBorder(
+                side: const BorderSide(color: Color(0xFF22C55E), width: 1.5),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              titlePadding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+              contentPadding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+              title: Row(
+                children: [
+                  const Icon(Icons.add_circle_outline, color: Color(0xFF22C55E), size: 22),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'ZİNDANA EK HAREKET ENJEKTE ET',
+                      style: GoogleFonts.orbitron(
+                        color: const Color(0xFF22C55E),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Mevcut idman akışını bozmadan bu seansa dilediğiniz ek görevi ekleyin.',
+                        style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
+                      ),
+                      const SizedBox(height: 12),
+
+                      Row(
+                        children: [
+                          ChoiceChip(
+                            label: const Text('Fiziksel'),
+                            selected: secilenTip == 'Fiziksel',
+                            selectedColor: physicalGold.withValues(alpha: 0.25),
+                            labelStyle: TextStyle(
+                              color: secilenTip == 'Fiziksel' ? physicalGold : const Color(0xFF94A3B8),
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            backgroundColor: const Color(0xFF0F172A),
+                            side: BorderSide(
+                              color: secilenTip == 'Fiziksel' ? physicalGold : Colors.white12,
+                            ),
+                            onSelected: (_) => setDialogState(() => secilenTip = 'Fiziksel'),
+                          ),
+                          const SizedBox(width: 8),
+                          ChoiceChip(
+                            label: const Text('Zihinsel'),
+                            selected: secilenTip == 'Zihinsel',
+                            selectedColor: mentalPurple.withValues(alpha: 0.25),
+                            labelStyle: TextStyle(
+                              color: secilenTip == 'Zihinsel' ? mentalPurple : const Color(0xFF94A3B8),
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            backgroundColor: const Color(0xFF0F172A),
+                            side: BorderSide(
+                              color: secilenTip == 'Zihinsel' ? mentalPurple : Colors.white12,
+                            ),
+                            onSelected: (_) => setDialogState(() => secilenTip = 'Zihinsel'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+
+                      TextField(
+                        controller: hareketCtrl,
+                        style: const TextStyle(color: Colors.white, fontSize: 13),
+                        decoration: InputDecoration(
+                          labelText: 'Hareket Adı & Set / Tekrar',
+                          labelStyle: const TextStyle(color: Color(0xFF22C55E), fontSize: 11),
+                          hintText: 'Örn: Incline DB Press (3x10)',
+                          hintStyle: const TextStyle(color: Colors.white24, fontSize: 11),
+                          filled: true,
+                          fillColor: const Color(0xFF070B14),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: const Color(0xFF22C55E).withValues(alpha: 0.3)),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Color(0xFF22C55E)),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.clear, color: Colors.white30, size: 16),
+                            onPressed: () => hareketCtrl.clear(),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      Text(
+                        'HIZLI SEÇENEKLER (DOKUN VE DOLDUR):',
+                        style: GoogleFonts.orbitron(
+                          color: const Color(0xFF94A3B8),
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: ['Tümü', ...kategorikHareketler.keys].map((kat) {
+                            final bool aktif = secilenKategori == kat;
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 6.0),
+                              child: FilterChip(
+                                label: Text(kat),
+                                selected: aktif,
+                                selectedColor: sysBlue.withValues(alpha: 0.25),
+                                labelStyle: TextStyle(
+                                  color: aktif ? sysBlue : const Color(0xFF94A3B8),
+                                  fontSize: 10,
+                                  fontWeight: aktif ? FontWeight.bold : FontWeight.normal,
+                                ),
+                                backgroundColor: const Color(0xFF0F172A),
+                                side: BorderSide(
+                                  color: aktif ? sysBlue : Colors.white10,
+                                ),
+                                onSelected: (_) => setDialogState(() => secilenKategori = kat),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxHeight: 140),
+                        child: SingleChildScrollView(
+                          child: Wrap(
+                            spacing: 6,
+                            runSpacing: 6,
+                            children: gosterilecekHareketler.map((har) {
+                              return ActionChip(
+                                label: Text(har),
+                                backgroundColor: const Color(0xFF0F172A),
+                                side: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
+                                labelStyle: const TextStyle(color: Colors.white, fontSize: 10),
+                                onPressed: () {
+                                  hareketCtrl.text = har;
+                                  setDialogState(() {});
+                                },
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogCtx),
+                  child: const Text('İPTAL', style: TextStyle(color: Color(0xFF94A3B8))),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    final text = hareketCtrl.text.trim();
+                    if (text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Lütfen bir hareket adı girin veya chip seçin!'),
+                          backgroundColor: sysRed,
+                          duration: Duration(seconds: 1),
+                        ),
+                      );
+                      return;
+                    }
+
+                    String formatliAd = text;
+                    if (!formatliAd.startsWith('[')) {
+                      formatliAd = secilenTip == 'Fiziksel' ? '[EXTRA] $text' : '[MNT] $text';
+                    }
+
+                    final yeniGorev = Gorev(formatliAd, false, secilenTip);
+                    setState(() {
+                      SystemMemory.haftalikPlan[bugunIndex]!.add(yeniGorev);
+                    });
+                    SystemMemory.kaydet();
+                    AudioSystem.playSuccess();
+                    Navigator.pop(dialogCtx);
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('SİSTEM: "$formatliAd" zindana başarıyla eklendi!'),
+                        backgroundColor: const Color(0xFF22C55E),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.add, color: Colors.black, size: 16),
+                  label: const Text(
+                    'ZİNDANA EKLE',
+                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 11),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF22C55E),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Gorev> bugununProgrami = SystemMemory.haftalikPlan[bugunIndex]!;
@@ -264,6 +572,18 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                           ),
                           const SizedBox(width: 6),
                           ElevatedButton.icon(
+                            onPressed: _ekHareketEkleDialog,
+                            icon: const Icon(Icons.add, color: Color(0xFF22C55E), size: 14),
+                            label: const Text('+ EKLE', style: TextStyle(color: Color(0xFF22C55E), fontWeight: FontWeight.bold, fontSize: 11)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF22C55E).withValues(alpha: 0.1),
+                              side: const BorderSide(color: Color(0xFF22C55E), width: 1),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          ElevatedButton.icon(
                             onPressed: _sablonSecimDialog, 
                             icon: const Icon(Icons.auto_awesome, color: physicalGold, size: 14),
                             label: const Text('TEMPLATES', style: TextStyle(color: physicalGold, fontWeight: FontWeight.bold, fontSize: 11)),
@@ -289,6 +609,29 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                   ...bugununProgrami.asMap().entries.map((entry) {
                     return _buildQuestCard(entry.value, entry.key);
                   }),
+
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6.0, bottom: 10.0),
+                    child: OutlinedButton.icon(
+                      onPressed: _ekHareketEkleDialog,
+                      icon: const Icon(Icons.add_circle_outline, color: Color(0xFF22C55E), size: 16),
+                      label: Text(
+                        '+ EK HAREKET ENJEKTE ET',
+                        style: GoogleFonts.orbitron(
+                          color: const Color(0xFF22C55E),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 11,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: const Color(0xFF22C55E).withValues(alpha: 0.5), width: 1),
+                        backgroundColor: const Color(0xFF22C55E).withValues(alpha: 0.05),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -412,6 +755,13 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                     },
                   ),
                 YoutubeHelper.buildYouTubeButton(gorevAdi: gorev.ad, size: 20),
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white30, size: 18),
+                  tooltip: 'Görevi Kaldır',
+                  padding: const EdgeInsets.all(4),
+                  constraints: const BoxConstraints(),
+                  onPressed: () => _gorevSil(index),
+                ),
               ],
             ),
           ),

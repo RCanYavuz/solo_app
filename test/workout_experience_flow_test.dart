@@ -103,6 +103,54 @@ void main() {
       expect(find.text('MP RECOVERY (REST TIMER)'), findsOneWidget);
     });
 
+    testWidgets('ActiveWorkoutScreen içinde zindana ek hareket enjekte etme ve silme çalışır', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: ActiveWorkoutScreen(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('+ EKLE'), findsOneWidget);
+      expect(find.text('+ EK HAREKET ENJEKTE ET'), findsOneWidget);
+
+      // + EKLE butonuna bas
+      await tester.tap(find.text('+ EKLE'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('ZİNDANA EK HAREKET ENJEKTE ET'), findsOneWidget);
+      expect(find.text('ZİNDANA EKLE'), findsOneWidget);
+
+      // Hızlı chip seçeneklerinden birine tıkla
+      final chipFinder = find.text('Incline Dumbbell Press (3x10)');
+      if (chipFinder.evaluate().isNotEmpty) {
+        await tester.tap(chipFinder);
+        await tester.pumpAndSettle();
+      }
+
+      // Zindana Ekle'ye bas
+      await tester.tap(find.text('ZİNDANA EKLE'));
+      await tester.pumpAndSettle();
+
+      // Dialog kapandı ve yeni hareket zindana eklendi
+      expect(find.text('ZİNDANA EK HAREKET ENJEKTE ET'), findsNothing);
+      expect(find.text('[EXTRA] Incline Dumbbell Press (3x10)'), findsOneWidget);
+
+      // SnackBar süresini bekle
+      await tester.pump(const Duration(seconds: 3));
+      await tester.pumpAndSettle();
+
+      // Görevi silme butonuna bas (ekranda görünür kıl)
+      final deleteBtnFinder = find.byTooltip('Görevi Kaldır').last;
+      await tester.ensureVisible(deleteBtnFinder);
+      await tester.pumpAndSettle();
+      await tester.tap(deleteBtnFinder);
+      await tester.pumpAndSettle();
+
+      // Silinen hareket zindandan çıktı
+      expect(find.text('[EXTRA] Incline Dumbbell Press (3x10)'), findsNothing);
+    });
+
     testWidgets('WorkoutPlannerScreen üzerinde taktik ve silme butonları düzgün çalışır', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
