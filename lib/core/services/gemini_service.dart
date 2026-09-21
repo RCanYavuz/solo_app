@@ -340,12 +340,12 @@ KURALLAR:
    - Fitness hareketlerinde yüksek hacim kullan: "[PHY] Barbell Bench Press (4-5 Set x 8-12 Tekrar)" veya "[PHY] Incline Dumbbell Press (4 Set x 12 Tekrar)"
    - Odak bitiricilerinde: "[FOCUS-CORE] Asılı Bacak Kaldırma & Plank (4 Set x 15 Tekrar)"
    - Kardiyo protokollerinde: "[CARDIO] 20 Dk Zone 2 Efor Koşusu / Yürüyüşü" veya "[COMBAT-CARDIO] 15 Dk Hızlı İp Atlama & Burpee Sprawl"
-5. DOLU VE YÜKSEK HACİM KURALI: Her idman günü için KESİNLİKLE 5 İLE 7 HAREKET DİZ. Hareketler 4-5 set ve 10-15 tekrar olmalı, dövüş drilleri 5 raund x 3 dk olmalıdır. Asla kısa bırakma!
-   Her idman gününde şu 4 katman eksiksiz bulunmalıdır:
+5. DOLU, UZATILMIŞ VE YÜKSEK HACİM KURALI: Her idman günü için KESİNLİKLE 6 İLE 8 HAREKET DİZ. Hareketler 4-5 set ve 10-15 tekrar olmalı, dövüş drilleri 5-6 raund x 3 dk olmalıdır. Asla kısa bırakma!
+   Her idman gününde şu katmanlar eksiksiz bulunmalı ve HER GÜNÜN SONUNDA KESİNLİKLE EN AZ 1 TANE AYRI VE NET [CARDIO] GÖREVİ YER ALMALIDIR:
    - 1-2 Ana Bileşik Kuvvet Hareketi (Compound: Bench Press, Squat, Barfiks, Overhead Press vb. - 4-5 Set)
-   - 2-3 İzolasyon & Destek Hareketi (Incline DB, Row, Dips, Lateral Raise, Biceps/Triceps vb. - 4 Set)
+   - 2-3 İzolasyon & Destek Hareketi (Incline DB, Row, Dips, Lateral Raise, Biceps/Triceps vb. - 4-5 Set)
    - 1 Core / Karın Protokolü ([CORE / ABS] veya [FOCUS-CORE] - 4 Set)
-   - 1 Kardiyo veya Branşa Özel Gölge Boksu / Dövüş Kondisyonu Protokolü ([CARDIO] veya [COMBAT-SHADOW] - 5 Raund x 3 Dk)
+   - 1 KESİNTİSİZ KARDİYO MİSYONU ([CARDIO] 20 Dk Eğimli Koşu Bandı, [CARDIO] 20 Dk İp Atlama HIIT, [CARDIO] 5 KM Avcı Koşusu, [CARDIO] 20 Dk Bisiklet/Kürek vb.)
 6. ÇIKTIYI YALNIZCA AŞAĞIDAKİ JSON FORMATINDA DÖNDÜR, JSON DIŞINDA HİÇBİR AÇIKLAMA YAZMA:
 
 {
@@ -415,7 +415,7 @@ KURALLAR:
 
     final model = SystemMemory.geminiActiveModel;
     final prompt = '''
-Sen Solo Leveling evrenindeki "Sistem"sin. Avcı için seans sonuna veya mevcut idmanına eklenecek 3-4 hareketlik yüksek etkili bir "AI ÖZEL EK İDMAN / FINISHER BOOSTER" oluştur.
+Sen Solo Leveling evrenindeki "Sistem"sin. Avcı için seans sonuna veya mevcut idmanına eklenecek 4-5 hareketlik yüksek etkili ve uzatılmış bir "AI ÖZEL EK İDMAN / FINISHER BOOSTER" oluştur.
 AVCI:
 - Rütbe: $rank
 - Dövüş Sporcusu Mu: ${dovuscuMu ? "EVET, ${dovusBranslari.join(', ')}" : "HAYIR"}
@@ -423,13 +423,15 @@ AVCI:
 - Sakatlık Koruması: ${eklemKisitlari.isNotEmpty ? eklemKisitlari.join(', ') : "Yok"}
 
 KURALLAR:
-1. Türkçe olarak 3 veya 4 hareket hazırla.
+1. Türkçe olarak 4 veya 5 hareket hazırla.
 2. Format: "[KATEGORİ] Hareket Adı (Set x Tekrar veya Süre)"
-3. ÇIKTIYI YALNIZCA AŞAĞIDAKİ JSON DİZİSİ OLARAK DÖNDÜR, BAŞKA HİÇBİR ŞEY YAZMA:
+3. KESİNLİKLE EN AZ 1 TANE AYRI VE NET [CARDIO] GÖREVİ İÇERMELİDİR (Örn: "[CARDIO] 20 Dk Yüksek Yoğunluklu İp Atlama HIIT").
+4. ÇIKTIYI YALNIZCA AŞAĞIDAKİ JSON DİZİSİ OLARAK DÖNDÜR, BAŞKA HİÇBİR ŞEY YAZMA:
 [
-  {"ad": "[FOCUS-CORE] Asılı Bacak Kaldırma & Plank (3 Set x Max)", "tip": "Fiziksel"},
-  {"ad": "[CARDIO] 15 Dk Yüksek Yoğunluklu İp Atlama HIIT", "tip": "Fiziksel"},
-  {"ad": "[COMBAT] Gölge Boksu Patlayıcı Kombinasyon (3 Raund x 3 Dk)", "tip": "Fiziksel"}
+  {"ad": "[FOCUS-CORE] Asılı Bacak Kaldırma & Plank (4 Set x 15)", "tip": "Fiziksel"},
+  {"ad": "[CARDIO] 20 Dk Yüksek Yoğunluklu İp Atlama HIIT", "tip": "Fiziksel"},
+  {"ad": "[COMBAT] Gölge Boksu Patlayıcı Kombinasyon (4 Raund x 3 Dk)", "tip": "Fiziksel"},
+  {"ad": "[PHY] Dips & Göğüs İtiş (4 Set x 12)", "tip": "Fiziksel"}
 ]
 ''';
 

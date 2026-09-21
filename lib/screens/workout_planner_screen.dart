@@ -240,31 +240,52 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
     } 
     else if (sablonAdi == 'Full Body & Hypertrophy (B-Rank)') {
       gorevler = [
-        Gorev("[PHY] Barbell Bench Press (4x10)", false, "Fiziksel"),
-        Gorev("[PHY] Lat Pulldown / Pull-ups (4x10)", false, "Fiziksel"),
-        Gorev("[PHY] Barbell Squat (4x8)", false, "Fiziksel"),
-        Gorev("[PHY] Overhead Shoulder Press (3x10)", false, "Fiziksel"),
-        Gorev("[PHY] Barbell Bicep Curl & Triceps (3x12)", false, "Fiziksel"),
-        Gorev("[CORE / ABS] Plank (3x60sn)", false, "Fiziksel"),
-        Gorev("[CARDIO] 15 Dk Zone 2 Efor Koşusu", false, "Fiziksel"),
+        Gorev("[PHY] Barbell Bench Press (5 Set x 10)", false, "Fiziksel"),
+        Gorev("[PHY] Lat Pulldown / Pull-ups (5 Set x 10)", false, "Fiziksel"),
+        Gorev("[PHY] Barbell Squat (5 Set x 8)", false, "Fiziksel"),
+        Gorev("[PHY] Romanian Deadlift (4 Set x 10)", false, "Fiziksel"),
+        Gorev("[PHY] Overhead Shoulder Press (4 Set x 10)", false, "Fiziksel"),
+        Gorev("[PHY] Barbell Bicep Curl & Triceps Super-set (4 Set x 12)", false, "Fiziksel"),
+        Gorev("[CORE / ABS] Hanging Leg Raise & Plank (4 Set)", false, "Fiziksel"),
+        Gorev("[CARDIO] 20 Dk Eğimli Koşu Bandı Zone 2 & Sprint", false, "Fiziksel"),
       ];
     }
     else if (sablonAdi == 'Cardio & MetCon Burn') {
       gorevler = [
-        Gorev("[CARDIO] 30 Dk Zone 2 Efor Koşusu / Eğimli Yürüyüş", false, "Fiziksel"),
-        Gorev("[CARDIO] 15 Dk Yüksek Yoğunluklu İp Atlama (HIIT)", false, "Fiziksel"),
-        Gorev("[COMBAT-CARDIO] Burpee & Sprawl Kondisyon (4 Set x 15)", false, "Fiziksel"),
-        Gorev("[CORE / ABS] Plank to Push-up & Hollow Body (3 Set)", false, "Fiziksel"),
-        Gorev("[CARDIO] 10 Dk Kürek / Bisiklet Sprint Soğuma", false, "Fiziksel"),
+        Gorev("[CARDIO] 5 KM Avcı Tempolu Koşusu (Zone 3-4)", false, "Fiziksel"),
+        Gorev("[CARDIO] 20 Dk Yüksek Yoğunluklu İp Atlama (HIIT 45sn/15sn)", false, "Fiziksel"),
+        Gorev("[COMBAT-CARDIO] Burpee & Sprawl Kondisyon (5 Set x 15)", false, "Fiziksel"),
+        Gorev("[CARDIO] 15 Dk İnterval Sprint / Kürek Ergometresi", false, "Fiziksel"),
+        Gorev("[CORE / ABS] Plank to Push-up & Hollow Body (4 Set)", false, "Fiziksel"),
+        Gorev("[CARDIO] 10 Dk Bisiklet Soğuma & Esneme", false, "Fiziksel"),
       ];
     }
     else if (sablonAdi == 'Combat Striker Finisher') {
       gorevler = [
-        Gorev("[COMBAT] Gölge Boksu / Striking Drill (5 Raund x 3 Dk)", false, "Fiziksel"),
-        Gorev("[COMBAT] Ağır Kum Torbası Kombinasyonları (5 Raund)", false, "Fiziksel"),
-        Gorev("[COMBAT] Hızlı İp Atlama & Ayak Çalışması (15 Dk)", false, "Fiziksel"),
-        Gorev("[COMBAT] Rotasyonel Core: Russian Twist & Plank (4 Set)", false, "Fiziksel"),
-        Gorev("[COMBAT] Darbe Dayanıklılığı & Boyun Güçlendirme (4 Set)", false, "Fiziksel"),
+        Gorev("[COMBAT] Gölge Boksu / Şampiyon Raundları (6 Raund x 3 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT] Ağır Kum Torbası Kombinasyonları (6 Raund x 3 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT] Hızlı İp Atlama & Ayak Çalışması (20 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT] Burpee Sprawl & Darbe Direnci (5 Set x 15)", false, "Fiziksel"),
+        Gorev("[COMBAT] Rotasyonel Landmine & Russian Twist (4 Set)", false, "Fiziksel"),
+        Gorev("[CARDIO] 15 Dk Dövüş Kondisyon Koşusu (Zone 4)", false, "Fiziksel"),
+      ];
+    }
+    else if (sablonAdi == 'Hunter 5K/10K Cardio') {
+      gorevler = [
+        Gorev("[CARDIO] 5 KM Avcı Tempolu Koşusu", false, "Fiziksel"),
+        Gorev("[CARDIO] 20 Dk Yüksek Yoğunluklu İp Atlama (5 Raund x 3 Dk)", false, "Fiziksel"),
+        Gorev("[CARDIO] 15 Dk Eğimli Koşu Bandı (Incline %12)", false, "Fiziksel"),
+        Gorev("[COMBAT-CARDIO] Burpee Sprawl & Sıçrama (5 Set x 15)", false, "Fiziksel"),
+        Gorev("[CORE / ABS] Asılı Bacak Kaldırma & Plank (4 Set)", false, "Fiziksel"),
+      ];
+    }
+    else if (sablonAdi == 'Tabata & MetCon Burn') {
+      gorevler = [
+        Gorev("[CARDIO] 8 Tur Tabata Sprint (20sn Tam Efor / 10sn Dinlenme)", false, "Fiziksel"),
+        Gorev("[CARDIO] 20 Dk Eğimli Koşu Bandı Yağ Yakımı", false, "Fiziksel"),
+        Gorev("[COMBAT-CARDIO] 5 Raund Kum Torbası / Gölge Boksu Kardiyosu", false, "Fiziksel"),
+        Gorev("[CARDIO] 15 Dk Concept 2 Kürek Ergometresi", false, "Fiziksel"),
+        Gorev("[CORE / ABS] Dragon Flag & Russian Twist (4 Set)", false, "Fiziksel"),
       ];
     }
     else if (sablonAdi == 'Combat Shadow & Combos') {
@@ -393,13 +414,27 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
                   ),
                   _sablonKarti(
                     ad: 'Cardio & MetCon Burn',
-                    aciklama: '30 Dk Zone 2 Koşu, 15 Dk İp Atlama HIIT, Burpee Sprawl & Plank Soğuma (5 Hareket).',
+                    aciklama: '5 KM Koşu, 20 Dk İp Atlama HIIT, 5 Set Burpee Sprawl & Plank Soğuma (6 Hareket).',
                     renk: const Color(0xFF22C55E),
                     iconText: '🔥',
                   ),
                   _sablonKarti(
+                    ad: '🏃 Avcı 5K/10K Koşu & HIIT',
+                    sablonKodu: 'Hunter 5K/10K Cardio',
+                    aciklama: '5 KM Avcı Temposu Koşu, 20 Dk İp Atlama, 15 Dk Eğimli Koşu Bandı, Burpee Sprawl & Core.',
+                    renk: const Color(0xFF10B981),
+                    iconText: '🏃',
+                  ),
+                  _sablonKarti(
+                    ad: '⚡ Tabata & MetCon Extreme Burn',
+                    sablonKodu: 'Tabata & MetCon Burn',
+                    aciklama: '8 Tur Tabata Sprint, 20 Dk Eğimli Koşu, 5 Raund Kum Torbası Kardiyosu & 15 Dk Kürek Ergometresi.',
+                    renk: const Color(0xFFF59E0B),
+                    iconText: '⚡',
+                  ),
+                  _sablonKarti(
                     ad: 'Combat Striker Finisher',
-                    aciklama: '5 Raund Gölge Boksu, 5 Raund Kum Torbası, İp Atlama & Rotasyonel Core.',
+                    aciklama: '6 Raund Gölge Boksu, 6 Raund Kum Torbası, 20 Dk İp Atlama & Dövüş Kondisyon Koşusu.',
                     renk: sysRed,
                     iconText: '🥊',
                   ),

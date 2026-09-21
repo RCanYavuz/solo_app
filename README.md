@@ -220,11 +220,11 @@ lib/
 4. **Set, Ağırlık ve Tekrar Takip Kaydedicisi:** Aktif zindan idmanında set bazlı kg/tekrar loglama (`SetKaydi`).
 5. **Set Arası Dinlenme Sayacı (Rest Timer):** 30-120sn sesli ve görsel Solo Leveling geri sayım sayacı.
 6. **Zindana Dinamik Ek Hareket Enjekte Etme & Kaldırma:** Aktif Zindan Baskını ekranında üst bardaki `+ EKLE` butonu ve listenin altındaki `+ EK HAREKET ENJEKTE ET` butonuyla kategorilere göre (Göğüs, Sırt, Omuz/Kol, Bacak, Karın, Dövüş/Boks) filtrelenen hazır hareketleri veya serbest görevleri seansa anında dahil edebilme ve görev kartından kaldırma desteği.
-7. **5-7 Hareket Standardı & Kardiyo / MetCon Entegrasyonu:** Tüm varsayılan ve Gemini tarafından üretilen programlar 4 katmanlı (1-2 Compound + 2-3 İzolasyon/Aksesuar + 1 Core + 1 Kardiyo/MetCon) mimariye geçirildi.
-8. **Çift Seçenekli Şablon Yükleme (+ İdmana Ekle / 🔄 Sıfırla ve Kur):** Saitama, Full Body, Cardio & MetCon Burn, Combat Striker Finisher ve **Gölge Boksu & Kombinasyonlar (5 Raund)** şablonları hem mevcut idmanı silmeden üzerine ekleme (`+ Append`) hem de tek başına o idmanı yapma (`🔄 Replace`) modlarıyla donatıldı.
-9. **Kişiye Özel Yapay Zeka Bitirici (`🤖 AI AVCI ÖZEL BOOSTER`):** Avcının rütbesi, dövüş branşı ve hedef odak bölgelerine göre 3-4 hareketlik yoğun bitirici seansını tek tuşla idmana ekleyen Gemini REST ve akıllı yerel algoritma motoru kuruldu.
+7. **6-8 Hareket Uzatılmış İdman Standardı & Zorunlu Kardiyo Katmanı:** Tüm varsayılan ve Gemini tarafından üretilen programlar 4-5 set ve 6-8 hareketlik uzatılmış hacme geçirildi. Her idman gününün sonuna kesintisiz ve net bir `[CARDIO]` misyonu yerleştirildi.
+8. **Çift Seçenekli Şablon Yükleme (+ İdmana Ekle / 🔄 Sıfırla ve Kur) & Yeni Kardiyo Şablonları:** Saitama, Full Body, Cardio & MetCon Burn, Combat Striker Finisher, **Gölge Boksu & Kombinasyonlar (5 Raund)**, **`🏃 Avcı 5K/10K Koşu & HIIT`** ve **`⚡ Tabata & MetCon Extreme Burn`** şablonları hem mevcut idmanı silmeden üzerine ekleme (`+ Append`) hem de tek başına o idmanı yapma (`🔄 Replace`) modlarıyla donatıldı.
+9. **Kişiye Özel Yapay Zeka Bitirici (`🤖 AI AVCI ÖZEL BOOSTER`):** Avcının rütbesi, dövüş branşı ve hedef odak bölgelerine göre 4-5 hareketlik yoğun bitirici seansını (kardiyo dahil) tek tuşla idmana ekleyen Gemini REST ve akıllı yerel algoritma motoru kuruldu.
 10. **Dövüş Sporlarına Göre 5-6 Raundluk Gölge Boksu Stilleri & Kombinasyonları:** Boks (Peek-a-boo & Out-boxer), Kickboks (Dutch Volume & Low Kick), Muay Thai (8 Uzuv Teep/Dirsek), MMA (Seviye Değişimi & Sprawl) ve Güreş için her raundu ayrı kombinasyon ve stil içeren profesyonel dövüş simülasyonu.
-11. **İdmanı Uzatma & Dinamik Hacim / Sayaç Seçicisi:** Zindana hareket eklerken sabit `3x10` kaldırıldı; kullanıcıya `Standart (3 Set)`, `Uzatılmış (5 Set)` ve `Şampiyon (7 Set)` hızlı seviyeleri ile `[-] / [+]` dinamik set ve tekrar sayaçları sunuldu.
+11. **İdmanı Uzatma, Dinamik Hacim Kademeleri & Kardiyo Kategori Seçicisi:** Zindana hareket eklerken sabit `3x10` kaldırıldı; kullanıcıya `Standart (4 Set)`, `Uzatılmış (6 Set)`, `Şampiyon (8 Set)` ve `Ekstrem (10 Set)` hızlı seviyeleri, 15 sete ve 50 tekrara kadar sayaçlar, bağımsız **`Kardiyo`** kategorisi ve akıllı süre/mesafe formatlayıcısı sunuldu.
 
 ### ⏳ Faz 1 Kapsamında Sırada Eklenecekler:
 1. **Antrenman Ekleme Ekranının Yeniden Düzenlenmesi (Gelişmiş Egzersiz Ekleme Modalı):**
@@ -249,7 +249,7 @@ lib/
 
 ## 🧪 Otomatik Test Paketi
 
-Proje güvenilirliği için **11 test paketi ve toplam 55 test senaryosu** hazırlanmıştır (%100 Başarılı):
+Proje güvenilirliği için **11 test paketi ve toplam 61 test senaryosu** hazırlanmıştır (%100 Başarılı):
 
 | Test Dosyası | Kapsam |
 |--------------|--------|

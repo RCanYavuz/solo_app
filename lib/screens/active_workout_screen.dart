@@ -127,31 +127,52 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
     } 
     else if (sablonAdi == 'Full Body & Hypertrophy (B-Rank)') {
       gorevler = [
-        Gorev("[PHY] Barbell Bench Press (4x10)", false, "Fiziksel"),
-        Gorev("[PHY] Lat Pulldown / Pull-ups (4x10)", false, "Fiziksel"),
-        Gorev("[PHY] Barbell Squat (4x8)", false, "Fiziksel"),
-        Gorev("[PHY] Overhead Shoulder Press (3x10)", false, "Fiziksel"),
-        Gorev("[PHY] Barbell Bicep Curl & Triceps (3x12)", false, "Fiziksel"),
-        Gorev("[CORE / ABS] Plank (3x60sn)", false, "Fiziksel"),
-        Gorev("[CARDIO] 15 Dk Zone 2 Efor Koşusu", false, "Fiziksel"),
+        Gorev("[PHY] Barbell Bench Press (5 Set x 10)", false, "Fiziksel"),
+        Gorev("[PHY] Lat Pulldown / Pull-ups (5 Set x 10)", false, "Fiziksel"),
+        Gorev("[PHY] Barbell Squat (5 Set x 8)", false, "Fiziksel"),
+        Gorev("[PHY] Romanian Deadlift (4 Set x 10)", false, "Fiziksel"),
+        Gorev("[PHY] Overhead Shoulder Press (4 Set x 10)", false, "Fiziksel"),
+        Gorev("[PHY] Barbell Bicep Curl & Triceps Super-set (4 Set x 12)", false, "Fiziksel"),
+        Gorev("[CORE / ABS] Hanging Leg Raise & Plank (4 Set)", false, "Fiziksel"),
+        Gorev("[CARDIO] 20 Dk Eğimli Koşu Bandı Zone 2 & Sprint", false, "Fiziksel"),
       ];
     }
     else if (sablonAdi == 'Cardio & MetCon Burn') {
       gorevler = [
-        Gorev("[CARDIO] 30 Dk Zone 2 Efor Koşusu / Eğimli Yürüyüş", false, "Fiziksel"),
-        Gorev("[CARDIO] 15 Dk Yüksek Yoğunluklu İp Atlama (HIIT)", false, "Fiziksel"),
-        Gorev("[COMBAT-CARDIO] Burpee & Sprawl Kondisyon (4 Set x 15)", false, "Fiziksel"),
-        Gorev("[CORE / ABS] Plank to Push-up & Hollow Body (3 Set)", false, "Fiziksel"),
-        Gorev("[CARDIO] 10 Dk Kürek / Bisiklet Sprint Soğuma", false, "Fiziksel"),
+        Gorev("[CARDIO] 5 KM Avcı Tempolu Koşusu (Zone 3-4)", false, "Fiziksel"),
+        Gorev("[CARDIO] 20 Dk Yüksek Yoğunluklu İp Atlama (HIIT 45sn/15sn)", false, "Fiziksel"),
+        Gorev("[COMBAT-CARDIO] Burpee & Sprawl Kondisyon (5 Set x 15)", false, "Fiziksel"),
+        Gorev("[CARDIO] 15 Dk İnterval Sprint / Kürek Ergometresi", false, "Fiziksel"),
+        Gorev("[CORE / ABS] Plank to Push-up & Hollow Body (4 Set)", false, "Fiziksel"),
+        Gorev("[CARDIO] 10 Dk Bisiklet Soğuma & Esneme", false, "Fiziksel"),
       ];
     }
     else if (sablonAdi == 'Combat Striker Finisher') {
       gorevler = [
-        Gorev("[COMBAT] Gölge Boksu / Striking Drill (5 Raund x 3 Dk)", false, "Fiziksel"),
-        Gorev("[COMBAT] Ağır Kum Torbası Kombinasyonları (5 Raund)", false, "Fiziksel"),
-        Gorev("[COMBAT] Hızlı İp Atlama & Ayak Çalışması (15 Dk)", false, "Fiziksel"),
-        Gorev("[COMBAT] Rotasyonel Core: Russian Twist & Plank (4 Set)", false, "Fiziksel"),
-        Gorev("[COMBAT] Darbe Dayanıklılığı & Boyun Güçlendirme (4 Set)", false, "Fiziksel"),
+        Gorev("[COMBAT] Gölge Boksu / Şampiyon Raundları (6 Raund x 3 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT] Ağır Kum Torbası Kombinasyonları (6 Raund x 3 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT] Hızlı İp Atlama & Ayak Çalışması (20 Dk)", false, "Fiziksel"),
+        Gorev("[COMBAT] Burpee Sprawl & Darbe Direnci (5 Set x 15)", false, "Fiziksel"),
+        Gorev("[COMBAT] Rotasyonel Landmine & Russian Twist (4 Set)", false, "Fiziksel"),
+        Gorev("[CARDIO] 15 Dk Dövüş Kondisyon Koşusu (Zone 4)", false, "Fiziksel"),
+      ];
+    }
+    else if (sablonAdi == 'Hunter 5K/10K Cardio') {
+      gorevler = [
+        Gorev("[CARDIO] 5 KM Avcı Tempolu Koşusu", false, "Fiziksel"),
+        Gorev("[CARDIO] 20 Dk Yüksek Yoğunluklu İp Atlama (5 Raund x 3 Dk)", false, "Fiziksel"),
+        Gorev("[CARDIO] 15 Dk Eğimli Koşu Bandı (Incline %12)", false, "Fiziksel"),
+        Gorev("[COMBAT-CARDIO] Burpee Sprawl & Sıçrama (5 Set x 15)", false, "Fiziksel"),
+        Gorev("[CORE / ABS] Asılı Bacak Kaldırma & Plank (4 Set)", false, "Fiziksel"),
+      ];
+    }
+    else if (sablonAdi == 'Tabata & MetCon Burn') {
+      gorevler = [
+        Gorev("[CARDIO] 8 Tur Tabata Sprint (20sn Tam Efor / 10sn Dinlenme)", false, "Fiziksel"),
+        Gorev("[CARDIO] 20 Dk Eğimli Koşu Bandı Yağ Yakımı", false, "Fiziksel"),
+        Gorev("[COMBAT-CARDIO] 5 Raund Kum Torbası / Gölge Boksu Kardiyosu", false, "Fiziksel"),
+        Gorev("[CARDIO] 15 Dk Concept 2 Kürek Ergometresi", false, "Fiziksel"),
+        Gorev("[CORE / ABS] Dragon Flag & Russian Twist (4 Set)", false, "Fiziksel"),
       ];
     }
     else if (sablonAdi == 'Combat Shadow & Combos') {
@@ -275,13 +296,27 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                   ),
                   _sablonKarti(
                     ad: 'Cardio & MetCon Burn',
-                    aciklama: '30 Dk Zone 2 Koşu, 15 Dk İp Atlama HIIT, Burpee Sprawl & Plank Soğuma (5 Hareket).',
+                    aciklama: '5 KM Koşu, 20 Dk İp Atlama HIIT, 5 Set Burpee Sprawl & Plank Soğuma (6 Hareket).',
                     renk: const Color(0xFF22C55E),
                     iconText: '🔥',
                   ),
                   _sablonKarti(
+                    ad: '🏃 Avcı 5K/10K Koşu & HIIT',
+                    sablonKodu: 'Hunter 5K/10K Cardio',
+                    aciklama: '5 KM Avcı Temposu Koşu, 20 Dk İp Atlama, 15 Dk Eğimli Koşu Bandı, Burpee Sprawl & Core.',
+                    renk: const Color(0xFF10B981),
+                    iconText: '🏃',
+                  ),
+                  _sablonKarti(
+                    ad: '⚡ Tabata & MetCon Extreme Burn',
+                    sablonKodu: 'Tabata & MetCon Burn',
+                    aciklama: '8 Tur Tabata Sprint, 20 Dk Eğimli Koşu, 5 Raund Kum Torbası Kardiyosu & 15 Dk Kürek Ergometresi.',
+                    renk: const Color(0xFFF59E0B),
+                    iconText: '⚡',
+                  ),
+                  _sablonKarti(
                     ad: 'Combat Striker Finisher',
-                    aciklama: '5 Raund Gölge Boksu, 5 Raund Kum Torbası, İp Atlama & Rotasyonel Core.',
+                    aciklama: '6 Raund Gölge Boksu, 6 Raund Kum Torbası, 20 Dk İp Atlama & Dövüş Kondisyon Koşusu.',
                     renk: sysRed,
                     iconText: '🥊',
                   ),
@@ -461,6 +496,18 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
         'Russian Twist',
         'Ab Wheel Rollout',
       ],
+      'Kardiyo': [
+        '5 KM Avcı Koşusu (Hunter Run)',
+        '10 KM Maraton Koşusu',
+        '20 Dk Eğimli Yürüyüş Bandı (Incline Treadmill)',
+        '15 Dk Yüksek Yoğunluklu İp Atlama (HIIT)',
+        '20 Dk Zone 2 Dayanıklılık Koşusu',
+        '15 Dk İnterval Sprint (Zone 4 Tabata)',
+        '20 Dk Kondisyon Bisikleti / Spinning',
+        '15 Dk Concept 2 Kürek Ergometresi',
+        'Dövüş Kondisyonu: Burpee Sprawl & Sıçrama',
+        'Merdiven Tırmanma (Stairmaster)',
+      ],
     };
 
     void metniGuncelle(void Function(void Function()) setDialogState) {
@@ -475,13 +522,24 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
           har.toLowerCase().contains('gölge') ||
           har.toLowerCase().contains('torba') ||
           har.toLowerCase().contains('güreş');
+      final isCardio = har.toLowerCase().contains('koşu') ||
+          har.toLowerCase().contains('yürüyüş') ||
+          har.toLowerCase().contains('ip atlama') ||
+          har.toLowerCase().contains('kürek') ||
+          har.toLowerCase().contains('bisiklet') ||
+          har.toLowerCase().contains('kardiyo') ||
+          har.toLowerCase().contains('cardio') ||
+          har.toLowerCase().contains('stairmaster') ||
+          har.toLowerCase().contains('tabata');
 
-      if (isRaund) {
+      if (har.contains('5 KM') || har.contains('10 KM')) {
+        hareketCtrl.text = '[CARDIO] $har';
+      } else if (isRaund) {
         hareketCtrl.text = '$har ($secilenSetSayisi Raund x 3 Dk)';
       } else if (har.toLowerCase().contains('plank')) {
         hareketCtrl.text = '$har ($secilenSetSayisi Set x 60sn)';
-      } else if (har.toLowerCase().contains('ip atlama') || har.toLowerCase().contains('koşu')) {
-        hareketCtrl.text = '$har (${secilenSetSayisi * 3} Dk)';
+      } else if (isCardio) {
+        hareketCtrl.text = '[CARDIO] $har (${secilenSetSayisi * 4} Dk)';
       } else {
         hareketCtrl.text = '$har ($secilenSetSayisi Set x $secilenTekrarSayisi Tekrar)';
       }
@@ -591,40 +649,53 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                         spacing: 6,
                         children: [
                           ActionChip(
-                            label: const Text('⚡ Standart (3 Set/Raund)'),
-                            backgroundColor: secilenSetSayisi == 3 ? const Color(0xFF22C55E).withValues(alpha: 0.2) : const Color(0xFF0F172A),
-                            side: BorderSide(color: secilenSetSayisi == 3 ? const Color(0xFF22C55E) : Colors.white12),
-                            labelStyle: TextStyle(color: secilenSetSayisi == 3 ? const Color(0xFF22C55E) : Colors.white70, fontSize: 10),
+                            label: const Text('⚡ Standart (4 Set/Raund)'),
+                            backgroundColor: secilenSetSayisi == 4 ? const Color(0xFF22C55E).withValues(alpha: 0.2) : const Color(0xFF0F172A),
+                            side: BorderSide(color: secilenSetSayisi == 4 ? const Color(0xFF22C55E) : Colors.white12),
+                            labelStyle: TextStyle(color: secilenSetSayisi == 4 ? const Color(0xFF22C55E) : Colors.white70, fontSize: 10),
                             onPressed: () {
                               setDialogState(() {
-                                secilenSetSayisi = 3;
+                                secilenSetSayisi = 4;
                                 secilenTekrarSayisi = 10;
                                 metniGuncelle(setDialogState);
                               });
                             },
                           ),
                           ActionChip(
-                            label: const Text('⚔️ Uzatılmış (5 Set/Raund)'),
-                            backgroundColor: secilenSetSayisi == 5 ? const Color(0xFF38BDF8).withValues(alpha: 0.2) : const Color(0xFF0F172A),
-                            side: BorderSide(color: secilenSetSayisi == 5 ? const Color(0xFF38BDF8) : Colors.white12),
-                            labelStyle: TextStyle(color: secilenSetSayisi == 5 ? const Color(0xFF38BDF8) : Colors.white70, fontSize: 10),
+                            label: const Text('⚔️ Uzatılmış (6 Set/Raund)'),
+                            backgroundColor: secilenSetSayisi == 6 ? const Color(0xFF38BDF8).withValues(alpha: 0.2) : const Color(0xFF0F172A),
+                            side: BorderSide(color: secilenSetSayisi == 6 ? const Color(0xFF38BDF8) : Colors.white12),
+                            labelStyle: TextStyle(color: secilenSetSayisi == 6 ? const Color(0xFF38BDF8) : Colors.white70, fontSize: 10),
                             onPressed: () {
                               setDialogState(() {
-                                secilenSetSayisi = 5;
+                                secilenSetSayisi = 6;
                                 secilenTekrarSayisi = 12;
                                 metniGuncelle(setDialogState);
                               });
                             },
                           ),
                           ActionChip(
-                            label: const Text('👑 Şampiyon (7 Set/Raund)'),
-                            backgroundColor: secilenSetSayisi >= 7 ? const Color(0xFFA855F7).withValues(alpha: 0.2) : const Color(0xFF0F172A),
-                            side: BorderSide(color: secilenSetSayisi >= 7 ? const Color(0xFFA855F7) : Colors.white12),
-                            labelStyle: TextStyle(color: secilenSetSayisi >= 7 ? const Color(0xFFA855F7) : Colors.white70, fontSize: 10),
+                            label: const Text('👑 Şampiyon (8 Set/Raund)'),
+                            backgroundColor: secilenSetSayisi == 8 ? const Color(0xFFA855F7).withValues(alpha: 0.2) : const Color(0xFF0F172A),
+                            side: BorderSide(color: secilenSetSayisi == 8 ? const Color(0xFFA855F7) : Colors.white12),
+                            labelStyle: TextStyle(color: secilenSetSayisi == 8 ? const Color(0xFFA855F7) : Colors.white70, fontSize: 10),
                             onPressed: () {
                               setDialogState(() {
-                                secilenSetSayisi = 7;
+                                secilenSetSayisi = 8;
                                 secilenTekrarSayisi = 15;
+                                metniGuncelle(setDialogState);
+                              });
+                            },
+                          ),
+                          ActionChip(
+                            label: const Text('🔥 Ekstrem (10 Set/Raund)'),
+                            backgroundColor: secilenSetSayisi >= 10 ? const Color(0xFFEF4444).withValues(alpha: 0.2) : const Color(0xFF0F172A),
+                            side: BorderSide(color: secilenSetSayisi >= 10 ? const Color(0xFFEF4444) : Colors.white12),
+                            labelStyle: TextStyle(color: secilenSetSayisi >= 10 ? const Color(0xFFEF4444) : Colors.white70, fontSize: 10),
+                            onPressed: () {
+                              setDialogState(() {
+                                secilenSetSayisi = 10;
+                                secilenTekrarSayisi = 20;
                                 metniGuncelle(setDialogState);
                               });
                             },
@@ -669,7 +740,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                                         padding: EdgeInsets.zero,
                                         constraints: const BoxConstraints(),
                                         onPressed: () {
-                                          if (secilenSetSayisi < 10) {
+                                          if (secilenSetSayisi < 15) {
                                             setDialogState(() {
                                               secilenSetSayisi++;
                                               metniGuncelle(setDialogState);
@@ -717,7 +788,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                                         padding: EdgeInsets.zero,
                                         constraints: const BoxConstraints(),
                                         onPressed: () {
-                                          if (secilenTekrarSayisi < 30) {
+                                          if (secilenTekrarSayisi < 50) {
                                             setDialogState(() {
                                               secilenTekrarSayisi += 2;
                                               metniGuncelle(setDialogState);

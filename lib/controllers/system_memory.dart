@@ -408,13 +408,38 @@ class SystemMemory {
         }
       } 
       else if (secilenPlan == "Push / Pull / Legs") {
-        haftalikPlan[1]!.addAll([Gorev("[PHY] Push (Chest/Shoulders/Triceps)", false, "Fiziksel"), Gorev("[PHY] Core", false, "Fiziksel")]);
-        haftalikPlan[4]!.addAll([Gorev("[PHY] Push (Chest/Shoulders/Triceps)", false, "Fiziksel"), Gorev("[PHY] Core", false, "Fiziksel")]);
-        haftalikPlan[2]!.addAll([Gorev("[PHY] Pull (Back/Biceps/Rear Delts)", false, "Fiziksel"), Gorev("[PHY] Light Cardio", false, "Fiziksel")]);
-        haftalikPlan[5]!.addAll([Gorev("[PHY] Pull (Back/Biceps/Rear Delts)", false, "Fiziksel"), Gorev("[PHY] Light Cardio", false, "Fiziksel")]);
-        haftalikPlan[3]!.addAll([Gorev("[PHY] Legs (Quads/Hamstrings/Calves)", false, "Fiziksel")]);
-        haftalikPlan[6]!.addAll([Gorev("[PHY] Legs (Quads/Hamstrings/Calves)", false, "Fiziksel")]);
-        haftalikPlan[7]!.addAll([Gorev("[PHY] Active Recovery & Stretch", false, "Fiziksel"), Gorev("[PHY] Heavy Cardio", false, "Fiziksel")]);
+        haftalikPlan[1]!.addAll([
+          Gorev("[PHY] Push (Chest/Shoulders/Triceps)", false, "Fiziksel"),
+          Gorev("[PHY] Core", false, "Fiziksel"),
+          Gorev("[CARDIO] 20 Dk Eğimli Koşu Bandı", false, "Fiziksel"),
+        ]);
+        haftalikPlan[4]!.addAll([
+          Gorev("[PHY] Push (Chest/Shoulders/Triceps)", false, "Fiziksel"),
+          Gorev("[PHY] Core", false, "Fiziksel"),
+          Gorev("[CARDIO] 20 Dk Eğimli Koşu Bandı", false, "Fiziksel"),
+        ]);
+        haftalikPlan[2]!.addAll([
+          Gorev("[PHY] Pull (Back/Biceps/Rear Delts)", false, "Fiziksel"),
+          Gorev("[PHY] Light Cardio", false, "Fiziksel"),
+          Gorev("[CARDIO] 15 Dk Yüksek Yoğunluklu İp Atlama HIIT", false, "Fiziksel"),
+        ]);
+        haftalikPlan[5]!.addAll([
+          Gorev("[PHY] Pull (Back/Biceps/Rear Delts)", false, "Fiziksel"),
+          Gorev("[PHY] Light Cardio", false, "Fiziksel"),
+          Gorev("[CARDIO] 15 Dk Yüksek Yoğunluklu İp Atlama HIIT", false, "Fiziksel"),
+        ]);
+        haftalikPlan[3]!.addAll([
+          Gorev("[PHY] Legs (Quads/Hamstrings/Calves)", false, "Fiziksel"),
+          Gorev("[CARDIO] 20 Dk Bisiklet & İnterval Koşu", false, "Fiziksel"),
+        ]);
+        haftalikPlan[6]!.addAll([
+          Gorev("[PHY] Legs (Quads/Hamstrings/Calves)", false, "Fiziksel"),
+          Gorev("[CARDIO] 20 Dk Bisiklet & İnterval Koşu", false, "Fiziksel"),
+        ]);
+        haftalikPlan[7]!.addAll([
+          Gorev("[PHY] Active Recovery & Stretch", false, "Fiziksel"),
+          Gorev("[CARDIO] 30 Dk Heavy Cardio & 5 KM Avcı Koşusu", false, "Fiziksel"),
+        ]);
       } 
       else if (secilenPlan == "Saitama Hell") {
         for(int i = 1; i <= 7; i++) {
@@ -832,11 +857,11 @@ class SystemMemory {
     String setRepLabel;
     final rUpper = rank.toUpperCase();
     if (rUpper.startsWith('S') || rUpper.startsWith('A')) {
-      setRepLabel = "4-5 Sets x 8-12 Reps (Monarch Overload & Volume)";
+      setRepLabel = "5 Sets x 8-12 Reps (Monarch Overload & Volume)";
     } else if (rUpper.startsWith('B') || rUpper.startsWith('C')) {
-      setRepLabel = "4 Sets x 10-12 Reps (Knight Hypertrophy & Volume)";
+      setRepLabel = "4-5 Sets x 10-12 Reps (Knight Hypertrophy & Volume)";
     } else {
-      setRepLabel = "4 Sets x 12-15 Reps (Extended Foundation)";
+      setRepLabel = "4-5 Sets x 12-15 Reps (Extended Foundation)";
     }
 
     if (dovusSporuYapiyorMu) {
@@ -849,24 +874,25 @@ class SystemMemory {
           Gorev("[COMBAT] Strict Barfiks / Pull-up ($setRepLabel)", false, "Fiziksel"),
           Gorev("[COMBAT] Dumbbell Row & Çekiş Kuvveti ($setRepLabel)", false, "Fiziksel"),
           Gorev("[COMBAT] Boyun & Rotasyonel Core (Plank / Russian Twist)", false, "Fiziksel"),
-          Gorev("[CARDIO] 15 Dk Hızlı İp Atlama & Ayak Çalışması", false, "Fiziksel"),
+          Gorev("[CARDIO] 20 Dk Hızlı İp Atlama & Ayak Çalışması", false, "Fiziksel"),
         ]);
         haftalikPlan[3]!.addAll([
           ...combShadows.take(3),
           Gorev("[COMBAT] Hızlı İp Atlama / Footwork Drills (15 Dk)", false, "Fiziksel"),
-          Gorev("[COMBAT] Burpee Sprawl Kondisyon (4 Set x 15)", false, "Fiziksel"),
-          Gorev("[COMBAT] Ağır Kum Torbası Kombinasyonları (5 Raund)", false, "Fiziksel"),
+          Gorev("[COMBAT] Burpee Sprawl Kondisyon (5 Set x 15)", false, "Fiziksel"),
+          Gorev("[COMBAT] Ağır Kum Torbası Kombinasyonları (5 Raund x 3 Dk)", false, "Fiziksel"),
           Gorev("[COMBAT] Asılı Bacak Kaldırma (Hanging Leg Raise) (4 Set x 15)", false, "Fiziksel"),
-          Gorev("[CARDIO] 15 Dk Interval Sprint Koşusu (Zone 4)", false, "Fiziksel"),
+          Gorev("[CARDIO] 20 Dk Interval Sprint Koşusu (Zone 4)", false, "Fiziksel"),
         ]);
         haftalikPlan[5]!.addAll([
           ...combShadows.skip(3).take(2),
           Gorev("[COMBAT] Boksör Bacak Patlayıcılığı: Box Jumps / Squat Jump ($setRepLabel)", false, "Fiziksel"),
           Gorev("[COMBAT] Darbe Dayanıklılığı: Zercher / Goblet Squat ($setRepLabel)", false, "Fiziksel"),
           Gorev("[COMBAT] Bulgarian Split Squat ($setRepLabel)", false, "Fiziksel"),
-          Gorev("[COMBAT] Kum Torbası / Pad Work Kombinasyonları (5 Raund)", false, "Fiziksel"),
+          Gorev("[COMBAT] Kum Torbası / Pad Work Kombinasyonları (5 Raund x 3 Dk)", false, "Fiziksel"),
           Gorev("[COMBAT] Farmer's Walk & Bilek/Kavrama Gücü (4 Set)", false, "Fiziksel"),
           Gorev("[COMBAT] Karın & Hollow Body Plank Dayanıklılığı (4 Set)", false, "Fiziksel"),
+          Gorev("[CARDIO] 20 Dk Dövüş Kondisyonu & Burpee Sprawl MetCon", false, "Fiziksel"),
         ]);
       } else if (idmanGunu == 4) {
         haftalikPlan[1]!.addAll([
@@ -874,28 +900,28 @@ class SystemMemory {
           Gorev("[COMBAT] Barfiks / Çekiş & Face Pull ($setRepLabel)", false, "Fiziksel"),
           Gorev("[COMBAT] Incline Dumbbell Press ($setRepLabel)", false, "Fiziksel"),
           Gorev("[COMBAT] Rotasyonel Core & Russian Twist", false, "Fiziksel"),
-          Gorev("[CARDIO] 15 Dk İp Atlama & Footwork", false, "Fiziksel"),
+          Gorev("[CARDIO] 20 Dk İp Atlama & Footwork Drills", false, "Fiziksel"),
         ]);
         haftalikPlan[2]!.addAll([
-          Gorev("[COMBAT] Dövüş Kondisyonu: Gölge Boksu (5 Raund x 3 Dk)", false, "Fiziksel"),
-          Gorev("[COMBAT] Hızlı İp Atlama & Ayak Çalışması (15 Dk)", false, "Fiziksel"),
-          Gorev("[COMBAT] Burpee Sprawl & Sıçrama (4 Set x 15)", false, "Fiziksel"),
-          Gorev("[COMBAT] Asılı Bacak Kaldırma (3 Set x 15)", false, "Fiziksel"),
-          Gorev("[CARDIO] 15 Dk Zone 2 Efor Koşusu", false, "Fiziksel"),
+          Gorev("[COMBAT] Dövüş Kondisyonu: Gölge Boksu (6 Raund x 3 Dk)", false, "Fiziksel"),
+          Gorev("[COMBAT] Hızlı İp Atlama & Ayak Çalışması (20 Dk)", false, "Fiziksel"),
+          Gorev("[COMBAT] Burpee Sprawl & Sıçrama (5 Set x 15)", false, "Fiziksel"),
+          Gorev("[COMBAT] Asılı Bacak Kaldırma (4 Set x 15)", false, "Fiziksel"),
+          Gorev("[CARDIO] 20 Dk Zone 2 Efor Koşusu", false, "Fiziksel"),
         ]);
         haftalikPlan[4]!.addAll([
           Gorev("[COMBAT] Alt Gövde & Patlayıcılık: Box Jump & Split Squat ($setRepLabel)", false, "Fiziksel"),
           Gorev("[COMBAT] Zercher Squat / Goblet Squat ($setRepLabel)", false, "Fiziksel"),
           Gorev("[COMBAT] Romanian Deadlift / Hip Thrust ($setRepLabel)", false, "Fiziksel"),
           Gorev("[COMBAT] Boyun Köprüsü / Direnç Egzersizi & Plank", false, "Fiziksel"),
-          Gorev("[CARDIO] 15 Dk İnterval Kürek / Bisiklet Sprint", false, "Fiziksel"),
+          Gorev("[CARDIO] 20 Dk İnterval Kürek / Bisiklet Sprint", false, "Fiziksel"),
         ]);
         haftalikPlan[5]!.addAll([
           Gorev("[COMBAT] Ağır Kum Torbası Kombinasyonları (6 Raund x 3 Dk)", false, "Fiziksel"),
           Gorev("[COMBAT] Slip Bag / Head Movement & Reaksiyon Hızı", false, "Fiziksel"),
           Gorev("[COMBAT] Farmer's Walk & Tutuş Dayanıklılığı", false, "Fiziksel"),
-          Gorev("[COMBAT] Rotasyonel Landmine Core (3 Set)", false, "Fiziksel"),
-          Gorev("[CARDIO] 15 Dk MetCon Yüksek Yoğunluklu Kardiyo", false, "Fiziksel"),
+          Gorev("[COMBAT] Rotasyonel Landmine Core (4 Set)", false, "Fiziksel"),
+          Gorev("[CARDIO] 20 Dk MetCon Yüksek Yoğunluklu Kardiyo", false, "Fiziksel"),
         ]);
       } else {
         haftalikPlan[1]!.addAll([
@@ -903,35 +929,36 @@ class SystemMemory {
           Gorev("[COMBAT] Ağırlıklı Barfiks / Lat Row ($setRepLabel)", false, "Fiziksel"),
           Gorev("[COMBAT] Dumbbell Floor Press ($setRepLabel)", false, "Fiziksel"),
           Gorev("[COMBAT] Rotasyonel Core & Plank", false, "Fiziksel"),
-          Gorev("[CARDIO] 15 Dk İp Atlama Kardiyosu", false, "Fiziksel"),
+          Gorev("[CARDIO] 20 Dk İp Atlama Kardiyosu", false, "Fiziksel"),
         ]);
         haftalikPlan[2]!.addAll([
           Gorev("[COMBAT] Gölge Boksu & Reaksiyon Hızı (6 Raund x 3 Dk)", false, "Fiziksel"),
           Gorev("[COMBAT] Hızlı İp Atlama & Çeviklik (20 Dk)", false, "Fiziksel"),
-          Gorev("[COMBAT] Burpee Sprawl Kondisyon (4 Set x 15)", false, "Fiziksel"),
-          Gorev("[COMBAT] Asılı Bacak Kaldırma (3 Set x 15)", false, "Fiziksel"),
-          Gorev("[CARDIO] 10 Dk Zone 4 İnterval Sprint", false, "Fiziksel"),
+          Gorev("[COMBAT] Burpee Sprawl Kondisyon (5 Set x 15)", false, "Fiziksel"),
+          Gorev("[COMBAT] Asılı Bacak Kaldırma (4 Set x 15)", false, "Fiziksel"),
+          Gorev("[CARDIO] 15 Dk Zone 4 İnterval Sprint", false, "Fiziksel"),
         ]);
         haftalikPlan[3]!.addAll([
           Gorev("[COMBAT] Alt Gövde Gücü: Box Jump & Zercher Squat ($setRepLabel)", false, "Fiziksel"),
           Gorev("[COMBAT] Bulgarian Split Squat ($setRepLabel)", false, "Fiziksel"),
           Gorev("[COMBAT] Romanian Deadlift ($setRepLabel)", false, "Fiziksel"),
           Gorev("[COMBAT] Darbe Dayanıklılığı Core & Asılma", false, "Fiziksel"),
-          Gorev("[CARDIO] 15 Dk Zone 2 Dinamik Yürüyüş Bandı", false, "Fiziksel"),
+          Gorev("[CARDIO] 20 Dk Zone 2 Dinamik Yürüyüş Bandı", false, "Fiziksel"),
         ]);
         haftalikPlan[4]!.addAll([
           Gorev("[COMBAT] Kum Torbası / Sparring / Pad Work (6 Raund x 3 Dk)", false, "Fiziksel"),
           Gorev("[COMBAT] Slip Bag / Head Movement & Savunma Refleks", false, "Fiziksel"),
           Gorev("[COMBAT] Boyun Direnci & Trapezius Güçlendirme", false, "Fiziksel"),
           Gorev("[COMBAT] Rus Dönüşü (Russian Twist) (4 Set x 20)", false, "Fiziksel"),
-          Gorev("[CARDIO] 15 Dk Yüksek Yoğunluklu İp Atlama HIIT", false, "Fiziksel"),
+          Gorev("[CARDIO] 20 Dk Yüksek Yoğunluklu İp Atlama HIIT", false, "Fiziksel"),
         ]);
         haftalikPlan[5]!.addAll([
           Gorev("[COMBAT] Dövüş MetCon: Interval Koşu / Sprint (15 Dk)", false, "Fiziksel"),
           Gorev("[COMBAT] Farmer's Walk & Grip Strength (4 Set)", false, "Fiziksel"),
           Gorev("[COMBAT] Landmine Punch Press ($setRepLabel)", false, "Fiziksel"),
-          Gorev("[COMBAT] Hollow Body & Plank (3 Set x 60sn)", false, "Fiziksel"),
+          Gorev("[COMBAT] Hollow Body & Plank (4 Set x 60sn)", false, "Fiziksel"),
           Gorev("[COMBAT] Dinamik Mobilite & Esneme", false, "Fiziksel"),
+          Gorev("[CARDIO] 20 Dk Dövüş Kondisyonu & Burpee Sprawl Finisher", false, "Fiziksel"),
         ]);
       }
     } else if (ekipman == 'Salon') {
@@ -945,16 +972,18 @@ class SystemMemory {
           Gorev("[PHY] Incline Dumbbell Press ($setRepLabel)", false, "Fiziksel"),
           Gorev("[PHY] $squatVar ($setRepLabel)", false, "Fiziksel"),
           Gorev("[PHY] Lat Pulldown / Cable Row ($setRepLabel)", false, "Fiziksel"),
-          Gorev("[CORE / ABS] Hanging Leg Raise (3 Set x 15)", false, "Fiziksel"),
-          Gorev("[CARDIO] 15 Dk Eğimli Koşu Bandı Zone 2", false, "Fiziksel"),
+          Gorev("[PHY] Dips / Triceps Pushdown ($setRepLabel)", false, "Fiziksel"),
+          Gorev("[CORE / ABS] Hanging Leg Raise (4 Set x 15)", false, "Fiziksel"),
+          Gorev("[CARDIO] 20 Dk Eğimli Koşu Bandı Zone 2", false, "Fiziksel"),
         ]);
         haftalikPlan[3]!.addAll([
           Gorev("[PHY] Overhead Shoulder Press ($setRepLabel)", false, "Fiziksel"),
-          Gorev("[PHY] Lateral Raise (Dumbbell) (4 Set x 12)", false, "Fiziksel"),
+          Gorev("[PHY] Lateral Raise (Dumbbell) (5 Set x 12)", false, "Fiziksel"),
           Gorev("[PHY] $deadliftVar ($setRepLabel)", false, "Fiziksel"),
           Gorev("[PHY] Leg Curl / Extension ($setRepLabel)", false, "Fiziksel"),
           Gorev("[PHY] Barbell Biceps Curl ($setRepLabel)", false, "Fiziksel"),
-          Gorev("[CARDIO] 20 Dk Kürek / Bisiklet Zone 2 Kardiyo", false, "Fiziksel"),
+          Gorev("[CORE / ABS] Cable Crunch & Plank (4 Set)", false, "Fiziksel"),
+          Gorev("[CARDIO] 25 Dk Kürek / Bisiklet Zone 2 Kardiyo", false, "Fiziksel"),
         ]);
         haftalikPlan[5]!.addAll([
           Gorev("[PHY] Incline Dumbbell Press ($setRepLabel)", false, "Fiziksel"),
@@ -962,8 +991,8 @@ class SystemMemory {
           Gorev("[PHY] Romanian Deadlift ($setRepLabel)", false, "Fiziksel"),
           Gorev("[PHY] Barbell / Dumbbell Curl ($setRepLabel)", false, "Fiziksel"),
           Gorev("[PHY] Triceps Cable Pushdown ($setRepLabel)", false, "Fiziksel"),
-          Gorev("[CORE / ABS] Plank & Cable Crunch (3 Set)", false, "Fiziksel"),
-          Gorev("[CARDIO] 15 Dk Yüksek Yoğunluklu İp Atlama HIIT", false, "Fiziksel"),
+          Gorev("[CORE / ABS] Plank & Cable Crunch (4 Set)", false, "Fiziksel"),
+          Gorev("[CARDIO] 20 Dk Yüksek Yoğunluklu İp Atlama HIIT", false, "Fiziksel"),
         ]);
       } else if (idmanGunu == 4) {
         haftalikPlan[1]!.addAll([
@@ -972,15 +1001,16 @@ class SystemMemory {
           Gorev("[PHY] Upper A: Lat Pulldown ($setRepLabel)", false, "Fiziksel"),
           Gorev("[PHY] Upper A: DB Lateral Raise ($setRepLabel)", false, "Fiziksel"),
           Gorev("[PHY] Upper A: Triceps Rope Pushdown ($setRepLabel)", false, "Fiziksel"),
-          Gorev("[CARDIO] 15 Dk Eğimli Yürüyüş Bandı", false, "Fiziksel"),
+          Gorev("[CORE / ABS] Cable Crunch & Plank (4 Set)", false, "Fiziksel"),
+          Gorev("[CARDIO] 20 Dk Eğimli Yürüyüş Bandı", false, "Fiziksel"),
         ]);
         haftalikPlan[2]!.addAll([
           Gorev("[PHY] Lower A: $squatVar ($setRepLabel)", false, "Fiziksel"),
           Gorev("[PHY] Lower A: Romanian Deadlift ($setRepLabel)", false, "Fiziksel"),
           Gorev("[PHY] Lower A: Leg Extension / Lunge ($setRepLabel)", false, "Fiziksel"),
           Gorev("[PHY] Lower A: Standing Calf Raise (4 Set x 15)", false, "Fiziksel"),
-          Gorev("[CORE / ABS] Hanging Leg Raise (3 Set x 15)", false, "Fiziksel"),
-          Gorev("[CARDIO] 10 Dk Bisiklet Soğuma", false, "Fiziksel"),
+          Gorev("[CORE / ABS] Hanging Leg Raise (4 Set x 15)", false, "Fiziksel"),
+          Gorev("[CARDIO] 20 Dk Bisiklet & İnterval Koşu", false, "Fiziksel"),
         ]);
         haftalikPlan[4]!.addAll([
           Gorev("[PHY] Upper B: Overhead Press ($setRepLabel)", false, "Fiziksel"),
@@ -988,24 +1018,26 @@ class SystemMemory {
           Gorev("[PHY] Upper B: Cable Row ($setRepLabel)", false, "Fiziksel"),
           Gorev("[PHY] Upper B: Face Pull ($setRepLabel)", false, "Fiziksel"),
           Gorev("[PHY] Upper B: Barbell Bicep Curl ($setRepLabel)", false, "Fiziksel"),
-          Gorev("[CARDIO] 15 Dk İp Atlama / Kürek Kardiyosu", false, "Fiziksel"),
+          Gorev("[CORE / ABS] Plank & Hollow Body (4 Set)", false, "Fiziksel"),
+          Gorev("[CARDIO] 20 Dk İp Atlama / Kürek Kardiyosu", false, "Fiziksel"),
         ]);
         haftalikPlan[5]!.addAll([
           Gorev("[PHY] Lower B: $deadliftVar ($setRepLabel)", false, "Fiziksel"),
           Gorev("[PHY] Lower B: Leg Press ($setRepLabel)", false, "Fiziksel"),
           Gorev("[PHY] Lower B: Hamstring Curl ($setRepLabel)", false, "Fiziksel"),
           Gorev("[PHY] Lower B: Bulgarian Split Squat ($setRepLabel)", false, "Fiziksel"),
-          Gorev("[CORE / ABS] Plank & Ab Wheel Rollout (3 Set)", false, "Fiziksel"),
-          Gorev("[CARDIO] 15 Dk Zone 2 Efor Koşusu", false, "Fiziksel"),
+          Gorev("[CORE / ABS] Plank & Ab Wheel Rollout (4 Set)", false, "Fiziksel"),
+          Gorev("[CARDIO] 20 Dk Zone 2 Efor Koşusu", false, "Fiziksel"),
         ]);
       } else {
         haftalikPlan[1]!.addAll([
           Gorev("[PHY] Push: $pressVar ($setRepLabel)", false, "Fiziksel"),
           Gorev("[PHY] Push: Incline DB Press ($setRepLabel)", false, "Fiziksel"),
           Gorev("[PHY] Push: Dips ($setRepLabel)", false, "Fiziksel"),
-          Gorev("[PHY] Push: DB Lateral Raise (4 Set x 12)", false, "Fiziksel"),
+          Gorev("[PHY] Push: DB Lateral Raise (5 Set x 12)", false, "Fiziksel"),
           Gorev("[PHY] Push: Triceps Rope Pushdown ($setRepLabel)", false, "Fiziksel"),
-          Gorev("[CARDIO] 15 Dk Eğimli Koşu Bandı", false, "Fiziksel"),
+          Gorev("[CORE / ABS] Plank & Hollow Body (4 Set)", false, "Fiziksel"),
+          Gorev("[CARDIO] 20 Dk Eğimli Koşu Bandı", false, "Fiziksel"),
         ]);
         haftalikPlan[2]!.addAll([
           Gorev("[PHY] Pull: $deadliftVar ($setRepLabel)", false, "Fiziksel"),
@@ -1013,7 +1045,8 @@ class SystemMemory {
           Gorev("[PHY] Pull: Seated Cable Row ($setRepLabel)", false, "Fiziksel"),
           Gorev("[PHY] Pull: Face Pull (Rear Delts) ($setRepLabel)", false, "Fiziksel"),
           Gorev("[PHY] Pull: Incline Dumbbell Biceps Curl ($setRepLabel)", false, "Fiziksel"),
-          Gorev("[CORE / ABS] Asılı Bacak Kaldırma (3 Set)", false, "Fiziksel"),
+          Gorev("[CORE / ABS] Asılı Bacak Kaldırma (4 Set)", false, "Fiziksel"),
+          Gorev("[CARDIO] 20 Dk Yüksek Yoğunluklu İp Atlama HIIT", false, "Fiziksel"),
         ]);
         haftalikPlan[3]!.addAll([
           Gorev("[PHY] Legs: $squatVar ($setRepLabel)", false, "Fiziksel"),
@@ -1021,15 +1054,15 @@ class SystemMemory {
           Gorev("[PHY] Legs: Leg Press ($setRepLabel)", false, "Fiziksel"),
           Gorev("[PHY] Legs: Hamstring Curl ($setRepLabel)", false, "Fiziksel"),
           Gorev("[PHY] Legs: Calves & Ab Wheel (4 Set)", false, "Fiziksel"),
-          Gorev("[CARDIO] 10 Dk Bisiklet Soğuma", false, "Fiziksel"),
+          Gorev("[CARDIO] 20 Dk Bisiklet & İnterval Koşu", false, "Fiziksel"),
         ]);
         haftalikPlan[4]!.addAll([
           Gorev("[PHY] Push 2: Overhead Shoulder Press ($setRepLabel)", false, "Fiziksel"),
           Gorev("[PHY] Push 2: Dumbbell Fly ($setRepLabel)", false, "Fiziksel"),
-          Gorev("[PHY] Push 2: Cable Lateral Raise (4 Set x 15)", false, "Fiziksel"),
+          Gorev("[PHY] Push 2: Cable Lateral Raise (5 Set x 15)", false, "Fiziksel"),
           Gorev("[PHY] Push 2: Overhead Triceps Extension ($setRepLabel)", false, "Fiziksel"),
-          Gorev("[CORE / ABS] Plank & Hollow Body (3 Set)", false, "Fiziksel"),
-          Gorev("[CARDIO] 15 Dk Yüksek Yoğunluklu İp Atlama", false, "Fiziksel"),
+          Gorev("[CORE / ABS] Plank & Hollow Body (4 Set)", false, "Fiziksel"),
+          Gorev("[CARDIO] 20 Dk Yüksek Yoğunluklu İp Atlama", false, "Fiziksel"),
         ]);
         haftalikPlan[5]!.addAll([
           Gorev("[PHY] Pull 2: Barbell/DB Row ($setRepLabel)", false, "Fiziksel"),
@@ -1037,7 +1070,7 @@ class SystemMemory {
           Gorev("[PHY] Pull 2: Hammer Curls ($setRepLabel)", false, "Fiziksel"),
           Gorev("[PHY] Pull 2: Preacher Curl ($setRepLabel)", false, "Fiziksel"),
           Gorev("[CORE / ABS] Cable Crunch (4 Set x 15)", false, "Fiziksel"),
-          Gorev("[CARDIO] 20 Dk Zone 2 Kürek / Koşu", false, "Fiziksel"),
+          Gorev("[CARDIO] 25 Dk Zone 2 Kürek / Koşu", false, "Fiziksel"),
         ]);
         if (idmanGunu >= 6) {
           haftalikPlan[6]!.addAll([
@@ -1045,7 +1078,7 @@ class SystemMemory {
             Gorev("[PHY] Legs 2: Goblet Squat / Leg Press ($setRepLabel)", false, "Fiziksel"),
             Gorev("[PHY] Legs 2: Leg Extension ($setRepLabel)", false, "Fiziksel"),
             Gorev("[PHY] Legs 2: Standing Calf Raise (4 Set x 15)", false, "Fiziksel"),
-            Gorev("[CORE / ABS] Russian Twist & Plank", false, "Fiziksel"),
+            Gorev("[CORE / ABS] Russian Twist & Plank (4 Set)", false, "Fiziksel"),
             Gorev("[CARDIO] 20 Dk MetCon / İnterval Koşu", false, "Fiziksel"),
           ]);
         }
@@ -1060,9 +1093,9 @@ class SystemMemory {
         Gorev("[PHY] Incline Dumbbell Press ($setRepLabel)", false, "Fiziksel"),
         Gorev("[PHY] $squatVar ($setRepLabel)", false, "Fiziksel"),
         Gorev("[PHY] Two-Arm Dumbbell Row ($setRepLabel)", false, "Fiziksel"),
-        Gorev("[PHY] DB Lateral Raise (4 Set x 12)", false, "Fiziksel"),
-        Gorev("[CORE / ABS] Floor Crunch & Hollow Body (3 Set)", false, "Fiziksel"),
-        Gorev("[CARDIO] 15 Dk İp Atlama / Gölge Boksu", false, "Fiziksel"),
+        Gorev("[PHY] DB Lateral Raise (5 Set x 12)", false, "Fiziksel"),
+        Gorev("[CORE / ABS] Floor Crunch & Hollow Body (4 Set)", false, "Fiziksel"),
+        Gorev("[CARDIO] 20 Dk Eforlu İp Atlama & Gölge Boksu", false, "Fiziksel"),
       ]);
       haftalikPlan[3]!.addAll([
         Gorev("[PHY] Seated DB Shoulder Press ($setRepLabel)", false, "Fiziksel"),
@@ -1070,8 +1103,8 @@ class SystemMemory {
         Gorev("[PHY] Single Arm DB Row ($setRepLabel)", false, "Fiziksel"),
         Gorev("[PHY] Dumbbell Bicep Hammer Curl ($setRepLabel)", false, "Fiziksel"),
         Gorev("[PHY] Overhead DB Triceps Extension ($setRepLabel)", false, "Fiziksel"),
-        Gorev("[CORE / ABS] Plank (3 Set x 60sn)", false, "Fiziksel"),
-        Gorev("[CARDIO] 20 Dk Zone 2 Efor Yürüyüşü / Koşu", false, "Fiziksel"),
+        Gorev("[CORE / ABS] Plank (4 Set x 60sn)", false, "Fiziksel"),
+        Gorev("[CARDIO] 25 Dk Zone 2 Efor Yürüyüşü / Koşu", false, "Fiziksel"),
       ]);
       haftalikPlan[5]!.addAll([
         Gorev("[PHY] Bulgarian Split Squat (Dumbbell) ($setRepLabel)", false, "Fiziksel"),
@@ -1079,8 +1112,8 @@ class SystemMemory {
         Gorev("[PHY] Dumbbell Romanian Deadlift ($setRepLabel)", false, "Fiziksel"),
         Gorev("[PHY] Lateral Raise & Biceps 21s ($setRepLabel)", false, "Fiziksel"),
         Gorev("[PHY] DB Farmers Walk (4 Set)", false, "Fiziksel"),
-        Gorev("[CORE / ABS] Russian Twist & Leg Raise", false, "Fiziksel"),
-        Gorev("[CARDIO] 15 Dk Yüksek Yoğunluklu Kardiyo", false, "Fiziksel"),
+        Gorev("[CORE / ABS] Russian Twist & Leg Raise (4 Set)", false, "Fiziksel"),
+        Gorev("[CARDIO] 20 Dk Yüksek Yoğunluklu Kardiyo & Burpees", false, "Fiziksel"),
       ]);
     } else {
       // Vücut Ağırlığı (Calisthenics)
@@ -1093,24 +1126,24 @@ class SystemMemory {
         Gorev("[PHY] Calisthenics: Dips / Chair Dips ($setRepLabel)", false, "Fiziksel"),
         Gorev("[PHY] Calisthenics: $squatVar ($setRepLabel)", false, "Fiziksel"),
         Gorev("[PHY] Calisthenics: $pullVar ($setRepLabel)", false, "Fiziksel"),
-        Gorev("[CORE / ABS] Hollow Body Hold (3 x 45s)", false, "Fiziksel"),
-        Gorev("[CARDIO] 15 Dk İp Atlama / Gölge Boksu", false, "Fiziksel"),
+        Gorev("[CORE / ABS] Hollow Body Hold (4 x 45s)", false, "Fiziksel"),
+        Gorev("[CARDIO] 20 Dk İp Atlama & Avcı Koşusu", false, "Fiziksel"),
       ]);
       haftalikPlan[3]!.addAll([
         Gorev("[PHY] Calisthenics: Pike Push-ups ($setRepLabel)", false, "Fiziksel"),
         Gorev("[PHY] Calisthenics: Walking Lunges ($setRepLabel)", false, "Fiziksel"),
         Gorev("[PHY] Calisthenics: Chin-ups / Inverted Row ($setRepLabel)", false, "Fiziksel"),
         Gorev("[PHY] Calisthenics: Single Leg Calf Raise (4 Set x 15)", false, "Fiziksel"),
-        Gorev("[CORE / ABS] L-Sit / Hanging Knee Raise", false, "Fiziksel"),
-        Gorev("[CARDIO] 20 Dk Zone 2 Efor Koşusu / Yürüyüşü", false, "Fiziksel"),
+        Gorev("[CORE / ABS] L-Sit / Hanging Knee Raise (4 Set)", false, "Fiziksel"),
+        Gorev("[CARDIO] 25 Dk Zone 2 Efor Koşusu / Yürüyüşü", false, "Fiziksel"),
       ]);
       haftalikPlan[5]!.addAll([
         Gorev("[PHY] Calisthenics: Diamond Push-ups ($setRepLabel)", false, "Fiziksel"),
         Gorev("[PHY] Calisthenics: Explosive Jump Squats ($setRepLabel)", false, "Fiziksel"),
         Gorev("[PHY] Calisthenics: Single Leg Glute Bridges ($setRepLabel)", false, "Fiziksel"),
-        Gorev("[CORE / ABS] Plank to Push-up (3 Set x 12)", false, "Fiziksel"),
+        Gorev("[CORE / ABS] Plank to Push-up (4 Set x 12)", false, "Fiziksel"),
         Gorev("[CORE / ABS] Hanging / Lying Leg Raises (4 Set x 15)", false, "Fiziksel"),
-        Gorev("[CARDIO] Burpees & Sıçrama Kondisyonu (4 Set x 15)", false, "Fiziksel"),
+        Gorev("[CARDIO] 20 Dk Burpees & Sıçrama Kondisyonu HIIT", false, "Fiziksel"),
       ]);
     }
 
@@ -1250,24 +1283,26 @@ class SystemMemory {
       if (dovusSporuYapiyorMu) {
         final shadows = dovusGolgeBoksuKombinasyonlari(brans: dovusBransi);
         boosterGorevler.addAll([
-          Gorev("[COMBAT] $dovusBransi: Patlayıcı Şınav & Yumruk Torku (4 Set x 10)", false, "Fiziksel"),
+          Gorev("[COMBAT] $dovusBransi: Patlayıcı Şınav & Yumruk Torku (4 Set x 12)", false, "Fiziksel"),
           ...shadows.take(2),
-          Gorev("[COMBAT] Burpee Sprawl & Darbe Direnci Core (4 Set x 15)", false, "Fiziksel"),
-          Gorev("[CARDIO] 15 Dk Yüksek Yoğunluklu İp Atlama HIIT", false, "Fiziksel"),
+          Gorev("[COMBAT] Burpee Sprawl & Darbe Direnci Core (5 Set x 15)", false, "Fiziksel"),
+          Gorev("[CARDIO] 20 Dk Yüksek Yoğunluklu İp Atlama HIIT & Ayak Çevikliği", false, "Fiziksel"),
         ]);
       } else if (odakBolgeleri.any((o) => o.contains('Karın') || o.contains('Göbek'))) {
         boosterGorevler.addAll([
-          Gorev("[FOCUS-CORE] Asılı Bacak Kaldırma (Hanging Leg Raise) (4 Set x 12)", false, "Fiziksel"),
-          Gorev("[FOCUS-CORE] Plank to Push-up & Hollow Body (3 Set x 60sn)", false, "Fiziksel"),
-          Gorev("[CARDIO] 25 Dk Eğimli Yürüyüş Bandı Zone 2 Yağ Yakımı", false, "Fiziksel"),
+          Gorev("[FOCUS-CORE] Asılı Bacak Kaldırma (Hanging Leg Raise) (4 Set x 15)", false, "Fiziksel"),
+          Gorev("[FOCUS-CORE] Plank to Push-up & Hollow Body (4 Set x 60sn)", false, "Fiziksel"),
           Gorev("[PHY] Dumbbell Farmers Walk (Gövde Sıkılığı) (4 Set)", false, "Fiziksel"),
+          Gorev("[CORE / ABS] Cable / Floor Crunch (4 Set x 20)", false, "Fiziksel"),
+          Gorev("[CARDIO] 25 Dk Eğimli Yürüyüş Bandı Zone 2 Yağ Yakımı", false, "Fiziksel"),
         ]);
       } else {
         boosterGorevler.addAll([
-          Gorev("[PHY] Dips / Dumbbell Push-ups (3 Set x 12)", false, "Fiziksel"),
+          Gorev("[PHY] Dips / Dumbbell Push-ups (4 Set x 12)", false, "Fiziksel"),
           Gorev("[PHY] Dumbbell Lateral Raise & Face Pull (4 Set x 15)", false, "Fiziksel"),
-          Gorev("[CARDIO] 20 Dk Zone 2 Efor Koşusu / Bisiklet", false, "Fiziksel"),
           Gorev("[CORE / ABS] Cable / Floor Crunch (4 Set x 15)", false, "Fiziksel"),
+          Gorev("[PHY] Dumbbell Biceps & Triceps Finisher (4 Set x 12)", false, "Fiziksel"),
+          Gorev("[CARDIO] 20 Dk Eğimli Koşu Bandı & Sprint Kardiyosu", false, "Fiziksel"),
         ]);
       }
     }

@@ -170,23 +170,26 @@ void main() {
       expect(find.byIcon(Icons.play_circle_fill), findsWidgets);
     });
 
-    test('baslangicPrograminiAta 5-7 hareket standardına ve kardiyo katmanına sahiptir', () {
+    test('baslangicPrograminiAta 6-8 hareket standardına ve kardiyo katmanına sahiptir', () {
       SystemMemory.baslangicPrograminiAta(
         ekipman: 'salon',
         rank: 'E',
         idmanGunu: 3,
         hedef: 'combat',
       );
-      // Pazartesi (1), Çarşamba (3), Cuma (5) günlerinde 5-7 hareket olmalı
+      // Pazartesi (1), Çarşamba (3), Cuma (5) günlerinde 6-8 hareket olmalı
       final pzt = SystemMemory.haftalikPlan[1]!;
-      expect(pzt.length, greaterThanOrEqualTo(5));
-      expect(pzt.length, lessThanOrEqualTo(7));
-      // Kardiyo/kondisyon veya core katmanı içeriyor mu
-      final kardiyoVar = pzt.any((g) => g.ad.contains('Koşu') || g.ad.contains('İp Atlama') || g.ad.contains('Sprawl') || g.ad.contains('Cardio'));
-      expect(kardiyoVar, isTrue);
+      expect(pzt.length, greaterThanOrEqualTo(6));
+      expect(pzt.length, lessThanOrEqualTo(8));
+      // Her antrenman gününde net bir CARDIO görevi bulunmalı
+      for (int gun in [1, 3, 5]) {
+        final plan = SystemMemory.haftalikPlan[gun]!;
+        final kardiyoVar = plan.any((g) => g.ad.contains('[CARDIO]'));
+        expect(kardiyoVar, isTrue, reason: 'Gün $gun kardiyo görevi içermeli');
+      }
     });
 
-    test('aiEkIdmanBoosterUret fonksiyonu hem append hem replace modunda çalışır', () async {
+    test('aiEkIdmanBoosterUret fonksiyonu hem append hem replace modunda çalışır ve kardiyo içerir', () async {
       final bugun = DateTime.now().weekday;
       SystemMemory.haftalikPlan[bugun] = [
         Gorev('Mevcut Hareket 1', false, 'Fiziksel'),
@@ -194,13 +197,15 @@ void main() {
 
       // Append modu
       final eklenenler = await SystemMemory.aiEkIdmanBoosterUret(gun: bugun, sadeceBunuYap: false);
-      expect(eklenenler.length, greaterThanOrEqualTo(3));
-      expect(SystemMemory.haftalikPlan[bugun]!.length, greaterThanOrEqualTo(4));
+      expect(eklenenler.length, greaterThanOrEqualTo(4));
+      expect(SystemMemory.haftalikPlan[bugun]!.length, greaterThanOrEqualTo(5));
       expect(SystemMemory.haftalikPlan[bugun]!.first.ad, 'Mevcut Hareket 1');
+      expect(eklenenler.any((g) => g.ad.contains('[CARDIO]')), isTrue);
 
       // Replace modu
       await SystemMemory.aiEkIdmanBoosterUret(gun: bugun, sadeceBunuYap: true);
       expect(SystemMemory.haftalikPlan[bugun]!.any((g) => g.ad == 'Mevcut Hareket 1'), isFalse);
+      expect(SystemMemory.haftalikPlan[bugun]!.any((g) => g.ad.contains('[CARDIO]')), isTrue);
     });
 
     testWidgets('WorkoutPlannerScreen içindeki şablon diyaloğunda Ekle ve Sıfırla seçenekleri bulunur', (tester) async {
@@ -211,10 +216,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Icons.auto_awesome butonuna tıkla
-      final sablonBtn = find.byIcon(Icons.auto_awesome);
-      expect(sablonBtn, findsOneWidget);
-      await tester.tap(sablonBtn);
+      // Şablon butonuna tıkla
+      await tester.tap(find.byIcon(Icons.auto_awesome));
       await tester.pumpAndSettle();
 
       // Dialog başlığı ve butonları kontrol et
@@ -222,6 +225,8 @@ void main() {
       expect(find.text('+ GÜNLERE EKLE'), findsWidgets);
       expect(find.text('🔄 SIFIRLA VE KUR'), findsWidgets);
       expect(find.text('Cardio & MetCon Burn'), findsOneWidget);
+      expect(find.text('🏃 Avcı 5K/10K Koşu & HIIT'), findsOneWidget);
+      expect(find.text('⚡ Tabata & MetCon Extreme Burn'), findsOneWidget);
       expect(find.text('🤖 AI AVCI ÖZEL BOOSTER'), findsOneWidget);
       expect(find.text('Gölge Boksu & Kombinasyonlar (5 Raund)'), findsOneWidget);
     });
@@ -255,10 +260,13 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('HACİM & UZATMA SEVİYESİ:'), findsOneWidget);
-      expect(find.text('⚔️ Uzatılmış (5 Set/Raund)'), findsOneWidget);
-      expect(find.text('👑 Şampiyon (7 Set/Raund)'), findsOneWidget);
+      expect(find.text('⚔️ Uzatılmış (6 Set/Raund)'), findsOneWidget);
+      expect(find.text('👑 Şampiyon (8 Set/Raund)'), findsOneWidget);
+      expect(find.text('🔥 Ekstrem (10 Set/Raund)'), findsOneWidget);
       expect(find.textContaining('Set/Raund:'), findsOneWidget);
+
+      // Kardiyo kategorisinin varlığını doğrula
+      expect(find.text('Kardiyo'), findsOneWidget);
     });
   });
 }
-
