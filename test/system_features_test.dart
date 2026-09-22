@@ -467,6 +467,29 @@ void main() {
       expect(day1MonarchExercises.any((ad) => ad.contains("Kickboks")), isTrue);
       expect(day1MonarchExercises.any((ad) => ad.contains("Monarch Overload")), isTrue);
     });
+
+    test('otomatikStatDagit distributes AP smartly based on player combat profile', () {
+      SystemMemory.str.value = 10;
+      SystemMemory.agi.value = 10;
+      SystemMemory.vit.value = 10;
+      SystemMemory.intStat.value = 10;
+      SystemMemory.per.value = 10;
+      SystemMemory.ap.value = 20;
+
+      SystemMemory.dovusSporuYapiyorMu = true;
+      SystemMemory.dovusBransi = "Boks";
+      SystemMemory.aktifHedef = "Kilo Ver (Yağ Yak)";
+
+      final dagitilan = SystemMemory.otomatikStatDagit();
+
+      expect(SystemMemory.ap.value, 0);
+      expect(dagitilan['AGI']! > 0, isTrue);
+      expect(dagitilan['STR']! > 0, isTrue);
+      expect(dagitilan['VIT']! > 0, isTrue);
+      expect(SystemMemory.agi.value > 10, isTrue);
+      expect(SystemMemory.str.value > 10, isTrue);
+      expect(SystemMemory.vit.value > 10, isTrue);
+    });
   });
 }
 

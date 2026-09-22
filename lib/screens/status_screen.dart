@@ -10,6 +10,7 @@ import 'workout_planner_screen.dart';
 import 'boxing_timer_screen.dart';
 import 'workout_library_screen.dart';
 import '../core/translation_manager.dart';
+import '../core/audio_system.dart';
 
 class StatusWindow extends StatefulWidget {
   const StatusWindow({super.key});
@@ -395,6 +396,59 @@ class _StatusWindowState extends State<StatusWindow> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
+                              if (SystemMemory.ap.value > 0) ...[
+                                const SizedBox(height: 6),
+                                InkWell(
+                                  onTap: () {
+                                    final dagitilan = SystemMemory.otomatikStatDagit();
+                                    AudioSystem.playLevelUp();
+                                    setState(() {});
+                                    final isTr = TranslationManager.isTurkish;
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        backgroundColor: const Color(0xFF0F172A),
+                                        duration: const Duration(seconds: 3),
+                                        content: Text(
+                                          isTr
+                                              ? '⚡ AKILLI DAĞITILDI: +${dagitilan['STR']} STR, +${dagitilan['AGI']} AGI, +${dagitilan['VIT']} VIT, +${dagitilan['INT']} INT, +${dagitilan['PER']} PER'
+                                              : '⚡ AUTO ALLOCATED: +${dagitilan['STR']} STR, +${dagitilan['AGI']} AGI, +${dagitilan['VIT']} VIT, +${dagitilan['INT']} INT, +${dagitilan['PER']} PER',
+                                          style: const TextStyle(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 12),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: sysBlue.withValues(alpha: 0.18),
+                                      border: Border.all(color: sysBlue.withValues(alpha: 0.8)),
+                                      borderRadius: BorderRadius.circular(4),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: sysBlue.withValues(alpha: 0.25),
+                                          blurRadius: 6,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(Icons.flash_on, color: sysBlue, size: 12),
+                                        const SizedBox(width: 3),
+                                        Text(
+                                          TranslationManager.isTurkish ? 'AKILLI DAĞIT' : 'AUTO ALLOCATE',
+                                          style: GoogleFonts.orbitron(
+                                            color: sysBlue,
+                                            fontSize: 9,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 0.8,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                         ],
@@ -593,6 +647,13 @@ class _StatusWindowState extends State<StatusWindow> {
             GestureDetector(
               onTap: () {
                 SystemMemory.statuYukselt(label);
+                setState(() {});
+              },
+              onLongPress: () {
+                for (int i = 0; i < 5 && SystemMemory.ap.value > 0; i++) {
+                  SystemMemory.statuYukselt(label);
+                }
+                AudioSystem.playSuccess();
                 setState(() {});
               },
               child: Container(

@@ -262,10 +262,17 @@ class _CalendarScreenState extends State<CalendarScreen> {
           body: Column(
             children: [
               _buildTopToggle(), 
-              Expanded(flex: 3, child: SingleChildScrollView(child: Column(children: [if (seciliMod == 0) _buildSeritTakvim(), if (seciliMod == 1) _buildAylikTakvim(), if (seciliMod == 2) _buildYillikTakvim()]))),
+              if (seciliMod == 0)
+                _buildSeritTakvim()
+              else
+                Expanded(
+                  flex: 3,
+                  child: SingleChildScrollView(
+                    child: seciliMod == 1 ? _buildAylikTakvim() : _buildYillikTakvim(),
+                  ),
+                ),
               
               Expanded(
-                flex: 2,
                 child: Container(
                   width: double.infinity,
                   decoration: const BoxDecoration(color: Color(0xFF030712), border: Border(top: BorderSide(color: Colors.white12))),

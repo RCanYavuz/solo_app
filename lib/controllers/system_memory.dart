@@ -907,7 +907,7 @@ class SystemMemory {
         ((plankSaniye / 10).clamp(0, 18) * 2.0) +
         (barfiks * 4.0);
 
-    // Ağırlık / 1RM kuvvet katkısı (Combat Strength Bonus)
+    // Ağırlık / 1RM kuvvet katkısı (Combat Strength Bonus - dengeli destekleyici katkı)
     final double b = bench ?? 0.0;
     final double s = squat ?? 0.0;
     final double d = deadlift ?? 0.0;
@@ -915,7 +915,7 @@ class SystemMemory {
     final double big3 = b + s + d;
     if (big3 > 0 && k > 0) {
       final double ratio = big3 / k;
-      score += (ratio * 25.0);
+      score += (ratio * 6.0).clamp(0.0, 25.0);
     }
 
     if (score >= 260) return "S-Rank (Monarch)";
@@ -1823,6 +1823,97 @@ class SystemMemory {
       }
       kaydet(); 
     } 
+  }
+
+  /// Oyuncunun disiplinine, dövüş branşına ve antrenman hedefine göre AP puanlarını akıllıca dağıtır.
+  static Map<String, int> otomatikStatDagit({int? miktar}) {
+    int dagitilacak = miktar ?? ap.value;
+    if (dagitilacak <= 0 || ap.value <= 0) return {};
+    if (dagitilacak > ap.value) dagitilacak = ap.value;
+
+    // 1. Profil ve hedefe göre stat ağırlık katsayılarını belirle
+    double wStr = 1.0;
+    double wAgi = 1.0;
+    double wVit = 1.0;
+    double wInt = 0.6;
+    double wPer = 0.8;
+
+    // Dövüşçü Profili
+    if (dovusSporuYapiyorMu) {
+      wAgi += 1.8; // Hızlı ayaklar, refleks, kombinasyon
+      wStr += 1.4; // Vuruş ve nakavt patlayıcılığı
+      wVit += 1.2; // Raund kondisyonu ve dayanıklılık
+      wPer += 1.0; // Mesafe, ring zekası ve sezgi
+    }
+
+    // Hedef Kilo / Kas / Yağ
+    if (aktifHedef.contains('Kilo Al') || aktifHedef.contains('Kas')) {
+      wStr += 1.6; // Hipertrofi & Big 3 kuvveti
+      wVit += 1.2; // Kas toparlanması
+    } else if (aktifHedef.contains('Kilo Ver') || aktifHedef.contains('Yağ')) {
+      wAgi += 1.4; // Yüksek kalori yakımı & hız
+      wVit += 1.4; // Kardiyovasküler direnç
+    }
+
+    // Ekipman & Branş İnce Ayarı
+    if (ekipmanTuru == 'Vucut-Agirligi') {
+      wAgi += 1.0;
+      wPer += 0.6;
+    }
+
+    final bransKucuk = (dovusBransi + dovusBranslari.join(' ')).toLowerCase();
+    if (bransKucuk.contains('boks') || bransKucuk.contains('striking')) {
+      wAgi += 0.8;
+      wPer += 0.6;
+    }
+    if (bransKucuk.contains('güreş') || bransKucuk.contains('grappling') || bransKucuk.contains('mma')) {
+      wStr += 1.0;
+      wVit += 1.0;
+    }
+
+    Map<String, int> dagitilanlar = {'STR': 0, 'AGI': 0, 'VIT': 0, 'INT': 0, 'PER': 0};
+
+    // Ağırlıklı dağıtım döngüsü
+    for (int i = 0; i < dagitilacak; i++) {
+      Map<String, double> oncelik = {
+        'STR': wStr / (str.value + dagitilanlar['STR']! + 1),
+        'AGI': wAgi / (agi.value + dagitilanlar['AGI']! + 1),
+        'VIT': wVit / (vit.value + dagitilanlar['VIT']! + 1),
+        'INT': wInt / (intStat.value + dagitilanlar['INT']! + 1),
+        'PER': wPer / (per.value + dagitilanlar['PER']! + 1),
+      };
+
+      String secilen = oncelik.entries.reduce((a, b) => a.value >= b.value ? a : b).key;
+      dagitilanlar[secilen] = (dagitilanlar[secilen] ?? 0) + 1;
+    }
+
+    // Uygula
+    int gercekDagitilan = 0;
+    dagitilanlar.forEach((stat, adet) {
+      if (adet > 0) {
+        if (stat == 'STR') {
+          str.value += adet;
+        } else if (stat == 'AGI') {
+          agi.value += adet;
+        } else if (stat == 'VIT') {
+          vit.value += adet;
+          maxHp += adet * 10;
+          hp.value += adet * 10;
+        } else if (stat == 'INT') {
+          intStat.value += adet;
+          maxMp += adet * 2;
+          mp.value += adet * 2;
+        } else if (stat == 'PER') {
+          per.value += adet;
+        }
+        gercekDagitilan += adet;
+      }
+    });
+
+    ap.value -= gercekDagitilan;
+    if (ap.value < 0) ap.value = 0;
+    kaydet();
+    return dagitilanlar;
   }
 
   static void acilSifa() { hp.value = maxHp; kaydet(); }

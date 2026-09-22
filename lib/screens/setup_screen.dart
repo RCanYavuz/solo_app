@@ -221,11 +221,11 @@ class _SetupScreenState extends State<SetupScreen> {
       double pTotal = pBench + pSquat + pDeadlift;
       double pRatio = pKilo > 0 ? (pTotal / pKilo) : 0;
       if (pTotal == 0) return "E-Rank (Rookie)";
-      if (pRatio >= 4.5) return "S-Rank (Monarch)";
-      if (pRatio >= 3.75) return "A-Rank (National)";
-      if (pRatio >= 3.0) return "B-Rank (Elite)";
-      if (pRatio >= 2.25) return "C-Rank (Knight)";
-      if (pRatio >= 1.5) return "D-Rank (Hunter)";
+      if (pRatio >= 5.8) return "S-Rank (Monarch)";
+      if (pRatio >= 4.8) return "A-Rank (National)";
+      if (pRatio >= 3.8) return "B-Rank (Elite)";
+      if (pRatio >= 2.8) return "C-Rank (Knight)";
+      if (pRatio >= 2.0) return "D-Rank (Hunter)";
       return "E-Rank (Rookie)";
     }
   }
@@ -363,15 +363,15 @@ class _SetupScreenState extends State<SetupScreen> {
         testBench = (kilo * 0.4).roundToDouble();
         testSquat = (kilo * 0.5).roundToDouble();
         testDeadlift = (kilo * 0.6).roundToDouble();
-      } else if (ratio >= 4.5) {
+      } else if (ratio >= 5.8) {
         baslangicRank = "S-Rank (Monarch)";
-      } else if (ratio >= 3.75) {
+      } else if (ratio >= 4.8) {
         baslangicRank = "A-Rank (National)";
-      } else if (ratio >= 3.0) {
+      } else if (ratio >= 3.8) {
         baslangicRank = "B-Rank (Elite)";
-      } else if (ratio >= 2.25) {
+      } else if (ratio >= 2.8) {
         baslangicRank = "C-Rank (Knight)";
-      } else if (ratio >= 1.5) {
+      } else if (ratio >= 2.0) {
         baslangicRank = "D-Rank (Hunter)";
       } else {
         baslangicRank = "E-Rank (Rookie)";
@@ -384,6 +384,11 @@ class _SetupScreenState extends State<SetupScreen> {
         rank: baslangicRank,
         idmanGunu: secilenIdmanGunu,
       );
+    }
+
+    // Başlangıç uyanış AP puanlarını kullanıcının özelliklerine göre otomatik dağıt
+    if (SystemMemory.ap.value > 0) {
+      SystemMemory.otomatikStatDagit();
     }
 
     // Yükleme & Doğrulama Modalı (Solo Leveling Temalı)

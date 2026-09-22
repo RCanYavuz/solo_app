@@ -107,15 +107,15 @@ void showAwakeningTestDialog(BuildContext context, {VoidCallback? onCompleted}) 
 
             if (total == 0) {
               previewRank = SystemMemory.hunterRank;
-            } else if (ratio >= 4.5) {
+            } else if (ratio >= 5.8) {
               previewRank = "S-Rank (Monarch)";
-            } else if (ratio >= 3.75) {
+            } else if (ratio >= 4.8) {
               previewRank = "A-Rank (National)";
-            } else if (ratio >= 3.0) {
+            } else if (ratio >= 3.8) {
               previewRank = "B-Rank (Elite)";
-            } else if (ratio >= 2.25) {
+            } else if (ratio >= 2.8) {
               previewRank = "C-Rank (Knight)";
-            } else if (ratio >= 1.5) {
+            } else if (ratio >= 2.0) {
               previewRank = "D-Rank (Hunter)";
             } else {
               previewRank = "E-Rank (Rookie)";
@@ -131,15 +131,15 @@ void showAwakeningTestDialog(BuildContext context, {VoidCallback? onCompleted}) 
 
             if (total == 0) {
               previewRank = SystemMemory.hunterRank;
-            } else if (ratio >= 4.5) {
+            } else if (ratio >= 5.8) {
               previewRank = "S-Rank (Monarch)";
-            } else if (ratio >= 3.75) {
+            } else if (ratio >= 4.8) {
               previewRank = "A-Rank (National)";
-            } else if (ratio >= 3.0) {
+            } else if (ratio >= 3.8) {
               previewRank = "B-Rank (Elite)";
-            } else if (ratio >= 2.25) {
+            } else if (ratio >= 2.8) {
               previewRank = "C-Rank (Knight)";
-            } else if (ratio >= 1.5) {
+            } else if (ratio >= 2.0) {
               previewRank = "D-Rank (Hunter)";
             } else {
               previewRank = "E-Rank (Rookie)";
@@ -494,6 +494,9 @@ void showAwakeningTestDialog(BuildContext context, {VoidCallback? onCompleted}) 
 
                     Navigator.pop(ctx);
                     if (isFirstAwakening) {
+                      if (SystemMemory.ap.value > 0) {
+                        SystemMemory.otomatikStatDagit();
+                      }
                       AudioSystem.playLevelUp();
                     } else {
                       AudioSystem.playSuccess();
@@ -527,6 +530,9 @@ void showAwakeningTestDialog(BuildContext context, {VoidCallback? onCompleted}) 
                     Navigator.pop(ctx);
 
                     if (isFirstAwakening) {
+                      if (SystemMemory.ap.value > 0) {
+                        SystemMemory.otomatikStatDagit();
+                      }
                       AudioSystem.playLevelUp();
                     } else {
                       AudioSystem.playSuccess();

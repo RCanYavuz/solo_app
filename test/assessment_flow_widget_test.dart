@@ -64,7 +64,7 @@ void main() {
       // Verify dynamic calculation
       expect(find.text('360.0 kg'), findsOneWidget);
       expect(find.text('4.80x BW'), findsOneWidget);
-      expect(find.text('S-Rank (Monarch)'), findsOneWidget);
+      expect(find.text('A-Rank (National)'), findsOneWidget);
 
       // Submit data
       await tester.tap(find.text('SUBMIT DATA'));
@@ -75,7 +75,7 @@ void main() {
       expect(find.text('+100 EXP  |  +3 AP (Awakening Reward)'), findsOneWidget);
 
       // Verify SystemMemory state updated
-      expect(SystemMemory.hunterRank, 'S-Rank (Monarch)');
+      expect(SystemMemory.hunterRank, 'A-Rank (National)');
       expect(SystemMemory.maxBench, 90.0);
       expect(SystemMemory.maxSquat, 120.0);
       expect(SystemMemory.maxDeadlift, 150.0);
