@@ -16,6 +16,7 @@ import 'shop_screen.dart';
 import 'deep_work_timer_screen.dart';
 import '../widgets/study_planner_modal.dart';
 import '../models/mental_task_model.dart';
+import '../core/audio_system.dart';
 
 enum QuestFilter { all, physical, mental }
 
@@ -645,7 +646,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           return Container(
                             decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.white12, width: 0.5))),
                             child: ListTile(
-                              leading: Icon(g.yapildiMi ? Icons.check_box : Icons.check_box_outline_blank, color: g.yapildiMi ? sysBlue : sysTextMuted, size: 20),
+                              leading: IconButton(
+                                constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                                splashRadius: 22,
+                                tooltip: g.yapildiMi ? 'Tamamlandı' : 'Tamamla',
+                                icon: Icon(
+                                  g.yapildiMi ? Icons.check_box : Icons.check_box_outline_blank,
+                                  color: g.yapildiMi ? sysBlue : sysTextMuted,
+                                  size: 22,
+                                ),
+                                onPressed: () async {
+                                  setState(() {
+                                    g.yapildiMi = !g.yapildiMi;
+                                  });
+                                  SystemMemory.bossGuncelle();
+                                  await SystemMemory.kaydet();
+                                  if (g.yapildiMi) {
+                                    AudioSystem.playSuccess();
+                                  }
+                                },
+                              ),
                               title: GestureDetector(
                                 onTap: () => ExerciseDetailModal.show(
                                   context,
@@ -754,15 +774,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.white12, width: 0.5))),
                                 child: ListTile(
                                   leading: IconButton(
+                                    constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                                    splashRadius: 22,
                                     icon: Icon(
                                       task.isCompleted ? Icons.check_box : Icons.check_box_outline_blank,
                                       color: task.isCompleted ? Colors.purpleAccent : sysTextMuted,
-                                      size: 20,
+                                      size: 22,
                                     ),
-                                    onPressed: () {
+                                    onPressed: () async {
                                       if (!task.isCompleted) {
-                                        SystemMemory.zihinselGorevTamamla(task.id);
+                                        await SystemMemory.zihinselGorevTamamla(task.id);
+                                      } else {
+                                        await SystemMemory.zihinselGorevGeriAl(task.id);
                                       }
+                                      setState(() {});
                                     },
                                   ),
                                   title: Text(

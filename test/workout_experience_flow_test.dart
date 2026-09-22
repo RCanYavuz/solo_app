@@ -268,5 +268,40 @@ void main() {
       // Kardiyo kategorisinin varlığını doğrula
       expect(find.text('Kardiyo'), findsOneWidget);
     });
+
+    testWidgets('DashboardScreen üzerinde görev checkboxına basılarak görev direkt tamamlanabilir', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: DashboardScreen(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      int bugun = DateTime.now().weekday;
+      final gorevler = SystemMemory.haftalikPlan[bugun]!;
+      expect(gorevler.isNotEmpty, isTrue);
+
+      final ilkGorev = gorevler.first;
+      expect(ilkGorev.yapildiMi, isFalse);
+
+      // Checkbox ikonuna tıkla
+      final checkFinder = find.byIcon(Icons.check_box_outline_blank);
+      await tester.scrollUntilVisible(checkFinder.first, 300, scrollable: find.byType(Scrollable).first);
+      await tester.pumpAndSettle();
+
+      await tester.tap(checkFinder.first);
+      await tester.pumpAndSettle();
+
+      // Görev durumu true olmalı ve checked ikonu görünmeli
+      expect(ilkGorev.yapildiMi, isTrue);
+      expect(find.byIcon(Icons.check_box), findsWidgets);
+
+      // Tekrar tıklayarak uncheck yapabilmeli
+      final checkedFinder = find.byIcon(Icons.check_box);
+      await tester.tap(checkedFinder.first);
+      await tester.pumpAndSettle();
+
+      expect(ilkGorev.yapildiMi, isFalse);
+    });
   });
 }

@@ -253,6 +253,30 @@ class SystemMemory {
     }
   }
 
+  static Future<void> zihinselGorevGeriAl(String id) async {
+    final list = List<MentalTask>.from(gunlukZihinselGorevler.value);
+    final index = list.indexWhere((t) => t.id == id);
+    if (index != -1 && list[index].isCompleted) {
+      final task = list[index];
+      task.isCompleted = false;
+      task.completedMinutes = 0;
+      if (task.targetPages != null) {
+        toplamOkunanSayfaSayisi = (toplamOkunanSayfaSayisi - task.completedPages).clamp(0, 999999);
+        task.completedPages = 0;
+      }
+      toplamOdaklanmaDakikasi = (toplamOdaklanmaDakikasi - task.targetMinutes).clamp(0, 999999);
+      bitenGorevSayisi = (bitenGorevSayisi - 1).clamp(0, 999999);
+
+      intStat.value = (intStat.value - task.rewardInt).clamp(0, 99999);
+      per.value = (per.value - task.rewardPer).clamp(0, 99999);
+      exp.value = (exp.value - task.rewardExp).clamp(0, maxExp.value);
+      altin.value = (altin.value - 50).clamp(0, 99999999);
+
+      gunlukZihinselGorevler.value = list;
+      await kaydet();
+    }
+  }
+
   static Future<void> deepWorkTamamlandi({required int dakika, required String baslik}) async {
     toplamOdaklanmaDakikasi += dakika;
     int exp = dakika * 3;
