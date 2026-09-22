@@ -292,6 +292,22 @@ class SystemMemory {
   static String bossTuru = "Fiziksel";
   static String bossIsim = "Unknown";
 
+  static Map<String, int> basarimKademeleri = {};
+  static ValueNotifier<String?> yeniBasarimBildirimi = ValueNotifier(null);
+
+  /// Başarım kademe atlamasını kontrol eder, yeni bir seviye açıldıysa bildirir
+  static bool basarimKademeGuncelle(String basarimAnahtari, int yeniKademe, String basarimAdi, String hedefMetin) {
+    int eskiKademe = basarimKademeleri[basarimAnahtari] ?? 0;
+    if (yeniKademe > eskiKademe) {
+      basarimKademeleri[basarimAnahtari] = yeniKademe;
+      yeniBasarimBildirimi.value = "[ACHIEVEMENT ASCENDED]\n$basarimAdi (Tier $yeniKademe)\nTarget Unlocked: $hedefMetin";
+      AudioSystem.playSuccess();
+      kaydet();
+      return true;
+    }
+    return false;
+  }
+
   static int get yas {
     if (dogumTarihi == null) return 20;
     DateTime bugun = DateTime.now();
@@ -313,6 +329,7 @@ class SystemMemory {
       normalGunlukHedefKalori = prefs.getInt('normalGunlukHedefKalori') ?? 0;
       
       hp.value = prefs.getInt('hp') ?? 100; mp.value = prefs.getInt('mp') ?? 10;
+      fatigue.value = prefs.getInt('fatigue') ?? 0;
       maxHp = prefs.getInt('maxHp') ?? 100; maxMp = prefs.getInt('maxMp') ?? 10;
       level.value = prefs.getInt('level') ?? 1; exp.value = prefs.getInt('exp') ?? 0;
       maxExp.value = prefs.getInt('maxExp') ?? 100; ap.value = prefs.getInt('ap') ?? 0;
@@ -442,6 +459,12 @@ class SystemMemory {
         overloadGecmisi = oMap.map((key, value) => MapEntry(key, OverloadKaydi.fromJson(value)));
       } catch (_) {}
 
+      String bKademeJson = prefs.getString('basarimKademeleri') ?? '{}';
+      try {
+        Map<String, dynamic> bkMap = jsonDecode(bKademeJson);
+        basarimKademeleri = bkMap.map((key, value) => MapEntry(key, (value as num).toInt()));
+      } catch (_) {}
+
       kusanilanSuplementler = prefs.getStringList('kusanilanSuplementler') ?? [];
       sesliKocAktif.value = prefs.getBool('sesliKocAktif') ?? true;
       suHedefiGuncelle();
@@ -460,6 +483,7 @@ class SystemMemory {
     prefs.setInt('normalGunlukHedefKalori', normalGunlukHedefKalori);
     
     prefs.setInt('hp', hp.value); prefs.setInt('mp', mp.value);
+    prefs.setInt('fatigue', fatigue.value);
     prefs.setInt('maxHp', maxHp); prefs.setInt('maxMp', maxMp);
     prefs.setInt('level', level.value); prefs.setInt('exp', exp.value); prefs.setInt('maxExp', maxExp.value); prefs.setInt('ap', ap.value);
     prefs.setInt('altin', altin.value); 
@@ -552,6 +576,7 @@ class SystemMemory {
     prefs.setString('overloadGecmisi', jsonEncode(
       overloadGecmisi.map((key, value) => MapEntry(key, value.toJson())),
     ));
+    prefs.setString('basarimKademeleri', jsonEncode(basarimKademeleri));
     prefs.setStringList('kusanilanSuplementler', kusanilanSuplementler);
     prefs.setBool('sesliKocAktif', sesliKocAktif.value);
 
@@ -718,6 +743,10 @@ class SystemMemory {
       int gunFarki = bugun.difference(sonGiris).inDays;
       if (gunFarki > 1 && !golgeModuAktif && !redGateAktif) {
         streakGunSayisi = 0; 
+        int kacirilanEkGun = gunFarki - 1;
+        int ekCeza = kacirilanEkGun * 15;
+        hp.value = (hp.value - ekCeza).clamp(0, maxHp);
+        geceRaporu = "$geceRaporu\n[SYSTEM PENALTY] Missed $kacirilanEkGun additional day(s) without stealth!\nPENALTY: -$ekCeza HP";
       }
 
       sonGirisTarihi = bugunStr; kaydet();
@@ -744,6 +773,10 @@ class SystemMemory {
       dakika: dakika,
       idmanTuru: dovusSporuYapiyorMu ? 'Dövüş & Zindan' : 'Ağırlık & Zindan',
     );
+
+    // Solo Leveling Fatigue (Yorgunluk) artışı: Zindan eforu yorgunluğu artırır
+    int yorgunlukArtisi = (dakika * 0.4).toInt().clamp(5, 30);
+    fatigue.value = (fatigue.value + yorgunlukArtisi).clamp(0, 100);
 
     int kazanilanAltin = dakika * (redGateAktif ? 10 : 2); 
     altin.value += kazanilanAltin;
@@ -808,8 +841,15 @@ class SystemMemory {
       }
 
       int hasar = 0;
-      for (var g in haftalikPlan[7]!) {
-        if (g.yapildiMi) { hasar += (g.tip == bossTuru) ? (level.value * 25) : (level.value * 5); }
+      // Hafta boyunca (1-7) tamamlanan tüm görevlerin kümülatif etkisi
+      for (int gun = 1; gun <= 7; gun++) {
+        if (haftalikPlan.containsKey(gun)) {
+          for (var g in haftalikPlan[gun]!) {
+            if (g.yapildiMi) {
+              hasar += (g.tip == bossTuru) ? (level.value * 15) : (level.value * 5);
+            }
+          }
+        }
       }
       if (bugunAlinanKalori > 0 && bugunAlinanKalori <= gunlukHedefKalori) { hasar += (level.value * 30); }
       
@@ -1409,6 +1449,17 @@ class SystemMemory {
       }
     }
 
+    // --- DİNLENME & ZİHİNSEL GELİŞİM PROTOKOLÜ (REST DAYS & MENTAL MASTERY) ---
+    for (int gun = 1; gun <= 7; gun++) {
+      if (haftalikPlan[gun]!.isEmpty) {
+        haftalikPlan[gun]!.addAll([
+          Gorev("[MIND] 20 Dk Taktiksel Kitap / Makale Okuma & Zihinsel Odaklanma", false, "Zihinsel"),
+          Gorev("[PERCEPTION] 10 Dk Derin Meditasyon & Nefes Protokolü (Box Breathing)", false, "Zihinsel"),
+          Gorev("[REST] Kas Toparlanması & Mobilite / Esneme Seansı", false, "Fiziksel"),
+        ]);
+      }
+    }
+
     normalHaftalikPlan.clear();
     haftalikPlan.forEach((key, value) {
       normalHaftalikPlan[key] = value.map((e) => Gorev(e.ad, false, e.tip)).toList();
@@ -1542,7 +1593,8 @@ class SystemMemory {
 
   static String tartiGuncelle(double yeniKilo) {
     double eskiKilo = kilo; double fark = eskiKilo - yeniKilo; 
-    oyuncuyuAnalizEt(cinsiyet, dogumTarihi!, boy, yeniKilo, aktifHedef, aktifZorluk, profilFotoByte);
+    DateTime effectiveDogum = dogumTarihi ?? DateTime(2000, 1, 1);
+    oyuncuyuAnalizEt(cinsiyet, effectiveDogum, boy, yeniKilo, aktifHedef, aktifZorluk, profilFotoByte);
     kiloGecmisi.add({ 'tarih': DateTime.now().toIso8601String(), 'kilo': yeniKilo, 'kalori': bugunAlinanKalori });
     
     if (fark == 0) return "[SYSTEM] No change in body mass detected.";
@@ -1786,6 +1838,10 @@ class SystemMemory {
       });
     }
 
+    // Uyku ve gece dinlenmesiyle Fatigue (Yorgunluk) toparlanması
+    int yorgunlukDususu = uyunanSaat > 0 ? (uyunanSaat * 12) : 25;
+    fatigue.value = (fatigue.value - yorgunlukDususu).clamp(0, 100);
+
     bugunAlinanKalori = 0; 
     bugununYemekleri.clear(); 
     uyunanSaat = 0;
@@ -1793,6 +1849,10 @@ class SystemMemory {
     bugunCheatMealAktif = false;
     bugunSlothDayAktif = false;
     bugunGamingPassAktif = false;
+    bugunYakilanIdmanKalorisi = 0;
+    bugunTelafiProteini = 0;
+    bugunTelafiKarbonhidrati = 0;
+    sonIdmanYipranmaRaporu = null;
     
     // Yalnızca değerlendirilen günün görevleri sıfırlanır (haftanın diğer günleri korunur)
     if (haftalikPlan.containsKey(degerlendirilenGun)) {

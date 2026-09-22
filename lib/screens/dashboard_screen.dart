@@ -19,7 +19,55 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _basarimKontrolleriniCalistir();
+    });
+  }
+
+  void _basarimKontrolleriniCalistir() {
+    if (!mounted) return;
+    int kiloFarki = (SystemMemory.baslangicKilosu - SystemMemory.kilo).abs().toInt();
+    SystemMemory.basarimKademeGuncelle('streak', _kademeHesapla(SystemMemory.streakGunSayisi, [7, 14, 30, 60, 100, 365])['kademe'], TranslationManager.get('ach_iron_will'), 'Streak');
+    SystemMemory.basarimKademeGuncelle('gorev', _kademeHesapla(SystemMemory.bitenGorevSayisi, [50, 100, 250, 500, 1000, 5000])['kademe'], TranslationManager.get('ach_unbreakable'), 'Quests');
+    SystemMemory.basarimKademeGuncelle('level', _kademeHesapla(SystemMemory.level.value, [10, 20, 30, 50, 80, 100])['kademe'], TranslationManager.get('ach_awakening'), 'Level');
+    SystemMemory.basarimKademeGuncelle('str', _kademeHesapla(SystemMemory.str.value, [30, 50, 100, 150, 200, 300])['kademe'], TranslationManager.get('ach_warrior'), 'STR');
+    SystemMemory.basarimKademeGuncelle('agi', _kademeHesapla(SystemMemory.agi.value, [30, 50, 100, 150, 200, 300])['kademe'], TranslationManager.get('ach_shadow_step'), 'AGI');
+    SystemMemory.basarimKademeGuncelle('int', _kademeHesapla(SystemMemory.intStat.value, [30, 50, 100, 150, 200, 300])['kademe'], TranslationManager.get('ach_sage'), 'INT');
+    SystemMemory.basarimKademeGuncelle('altin', _kademeHesapla(SystemMemory.altin.value, [2000, 5000, 10000, 50000, 100000, 500000])['kademe'], TranslationManager.get('ach_merchant'), 'Gold');
+    SystemMemory.basarimKademeGuncelle('kilo', _kademeHesapla(kiloFarki, [5, 10, 15, 20, 30, 50])['kademe'], 'Body Mass Adaptation', 'Weight Goal');
+    
+    if (SystemMemory.yeniBasarimBildirimi.value != null) {
+      final msg = SystemMemory.yeniBasarimBildirimi.value!;
+      SystemMemory.yeniBasarimBildirimi.value = null;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: const Color(0xFF0F172A),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+            side: const BorderSide(color: Color(0xFF38BDF8), width: 1.5),
+          ),
+          content: Row(
+            children: [
+              const Icon(Icons.military_tech, color: Color(0xFF38BDF8), size: 28),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  msg,
+                  style: GoogleFonts.rajdhani(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                ),
+              ),
+            ],
+          ),
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    }
+  }
+
   String _unvanBelirle(int level) {
     return TranslationManager.rankTitle(level);
   }

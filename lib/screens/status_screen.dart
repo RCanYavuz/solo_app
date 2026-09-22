@@ -185,132 +185,197 @@ class _StatusWindowState extends State<StatusWindow> {
                     ),
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  child: Row(
+                  child: Column(
                     children: [
-                      Column(
+                      Row(
                         children: [
-                          const Icon(
-                            Icons.add_box,
-                            color: Colors.white,
-                            size: 24,
+                          Column(
+                            children: [
+                              const Icon(
+                                Icons.add_box,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                              Text(
+                                'HP',
+                                style: GoogleFonts.rajdhani(
+                                  color: sysTextMuted,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
                           ),
-                          Text(
-                            'HP',
-                            style: GoogleFonts.rajdhani(
-                              color: sysTextMuted,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Container(
+                                  height: 8,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: sysBlue.withValues(alpha: 0.5),
+                                      width: 1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
+                                  child: FractionallySizedBox(
+                                    alignment: Alignment.centerLeft,
+                                    widthFactor:
+                                        (SystemMemory.hp.value / SystemMemory.maxHp)
+                                            .clamp(0.0, 1.0),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: sysBlue,
+                                        borderRadius: BorderRadius.circular(2),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: sysBlue.withValues(alpha: 0.5),
+                                            blurRadius: 5,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Text(
+                                  '${SystemMemory.hp.value}/${SystemMemory.maxHp}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          Column(
+                            children: [
+                              const Icon(
+                                Icons.science,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                              Text(
+                                'MP',
+                                style: GoogleFonts.rajdhani(
+                                  color: sysTextMuted,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Container(
+                                  height: 8,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: sysBlue.withValues(alpha: 0.5),
+                                      width: 1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
+                                  child: FractionallySizedBox(
+                                    alignment: Alignment.centerLeft,
+                                    widthFactor:
+                                        (SystemMemory.mp.value / SystemMemory.maxMp)
+                                            .clamp(0.0, 1.0),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: sysBlue,
+                                        borderRadius: BorderRadius.circular(2),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: sysBlue.withValues(alpha: 0.5),
+                                            blurRadius: 5,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Text(
+                                  '${SystemMemory.mp.value}/${SystemMemory.maxMp}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Container(
-                              height: 8,
-                              width: double.infinity,
+                      const SizedBox(height: 12),
+                      const Divider(color: Colors.white12, thickness: 1, height: 1),
+                      const SizedBox(height: 10),
+                      // --- SOLO LEVELING FATIGUE (YORGUNLUK) BARI ---
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.bolt,
+                            color: SystemMemory.fatigue.value >= 80 ? const Color(0xFFEF4444) : const Color(0xFFF59E0B),
+                            size: 18,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'FATIGUE',
+                            style: GoogleFonts.rajdhani(
+                              color: SystemMemory.fatigue.value >= 80 ? const Color(0xFFEF4444) : const Color(0xFFF59E0B),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                              letterSpacing: 1,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Container(
+                              height: 6,
                               decoration: BoxDecoration(
                                 border: Border.all(
-                                  color: sysBlue.withValues(alpha: 0.5),
+                                  color: (SystemMemory.fatigue.value >= 80 ? const Color(0xFFEF4444) : const Color(0xFFF59E0B)).withValues(alpha: 0.4),
                                   width: 1,
                                 ),
                                 borderRadius: BorderRadius.circular(2),
                               ),
                               child: FractionallySizedBox(
                                 alignment: Alignment.centerLeft,
-                                widthFactor:
-                                    (SystemMemory.hp.value / SystemMemory.maxHp)
-                                        .clamp(0.0, 1.0),
+                                widthFactor: (SystemMemory.fatigue.value / 100.0).clamp(0.0, 1.0),
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    color: sysBlue,
+                                    color: SystemMemory.fatigue.value >= 80 ? const Color(0xFFEF4444) : const Color(0xFFF59E0B),
                                     borderRadius: BorderRadius.circular(2),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: sysBlue.withValues(alpha: 0.5),
-                                        blurRadius: 5,
+                                        color: (SystemMemory.fatigue.value >= 80 ? const Color(0xFFEF4444) : const Color(0xFFF59E0B)).withValues(alpha: 0.5),
+                                        blurRadius: 4,
                                       ),
                                     ],
                                   ),
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 5),
-                            Text(
-                              '${SystemMemory.hp.value}/${SystemMemory.maxHp}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Column(
-                        children: [
-                          const Icon(
-                            Icons.science,
-                            color: Colors.white,
-                            size: 24,
                           ),
+                          const SizedBox(width: 10),
                           Text(
-                            'MP',
-                            style: GoogleFonts.rajdhani(
-                              color: sysTextMuted,
+                            '${SystemMemory.fatigue.value} / 100',
+                            style: TextStyle(
+                              color: SystemMemory.fatigue.value >= 80 ? const Color(0xFFEF4444) : Colors.white,
+                              fontSize: 11,
                               fontWeight: FontWeight.bold,
-                              fontSize: 14,
                             ),
                           ),
                         ],
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Container(
-                              height: 8,
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: sysBlue.withValues(alpha: 0.5),
-                                  width: 1,
-                                ),
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                              child: FractionallySizedBox(
-                                alignment: Alignment.centerLeft,
-                                widthFactor:
-                                    (SystemMemory.mp.value / SystemMemory.maxMp)
-                                        .clamp(0.0, 1.0),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: sysBlue,
-                                    borderRadius: BorderRadius.circular(2),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: sysBlue.withValues(alpha: 0.5),
-                                        blurRadius: 5,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 5),
-                            Text(
-                              '${SystemMemory.mp.value}/${SystemMemory.maxMp}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
                       ),
                     ],
                   ),
