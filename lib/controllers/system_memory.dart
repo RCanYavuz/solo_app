@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -170,6 +171,35 @@ class SystemMemory {
 
     if (geceBildirimiAktif) {
       await notif.geceHesaplasmaHatirlaticisiPlanla();
+    }
+  }
+
+  // ==========================================
+  // FİZİKSEL GELİŞİM & İLERLEME FOTOĞRAFLARI (TRANSFORMATION VAULT)
+  // ==========================================
+  static List<Map<String, dynamic>> ilerlemeFotolari = [];
+
+  static Future<void> ilerlemeFotoEkle({
+    required Uint8List fotoBytes,
+    required double kilo,
+    String? not,
+    DateTime? tarih,
+  }) async {
+    final entry = {
+      'id': DateTime.now().millisecondsSinceEpoch.toString(),
+      'tarih': (tarih ?? DateTime.now()).toIso8601String(),
+      'kilo': kilo,
+      'fotoBase64': base64Encode(fotoBytes),
+      'not': not ?? '',
+    };
+    ilerlemeFotolari.add(entry);
+    await kaydet();
+  }
+
+  static Future<void> ilerlemeFotoSil(int index) async {
+    if (index >= 0 && index < ilerlemeFotolari.length) {
+      ilerlemeFotolari.removeAt(index);
+      await kaydet();
     }
   }
 

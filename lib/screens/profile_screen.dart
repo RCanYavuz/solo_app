@@ -14,6 +14,7 @@ import '../core/translation_manager.dart';
 import '../widgets/hunter_radar_chart.dart';
 import '../widgets/supplement_loadout_modal.dart';
 import '../core/services/notification_service.dart';
+import '../widgets/progress_gallery_modal.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -1795,6 +1796,72 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   side: const BorderSide(color: bloodRed, width: 2), 
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
                 ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // ==========================================
+            // İLERLEME FOTOĞRAFLARI (TRANSFORMATION VAULT)
+            // ==========================================
+            HologramCard(
+              neonRenk: sysBlue,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.photo_library, color: sysBlue, size: 18),
+                          const SizedBox(width: 10),
+                          Text(
+                            "TRANSFORMATION VAULT",
+                            style: GoogleFonts.orbitron(
+                              color: sysBlue,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 2,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: sysBlue.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: sysBlue.withValues(alpha: 0.4)),
+                        ),
+                        child: Text(
+                          "${SystemMemory.ilerlemeFotolari.length} ENTRY",
+                          style: const TextStyle(color: sysBlue, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    "Fiziksel değişim zaman çizelgesi ve Önce / Sonra (Before & After) karşılaştırma vizörü.",
+                    style: TextStyle(color: sysTextMuted, fontSize: 12),
+                  ),
+                  const SizedBox(height: 14),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () => ProgressGalleryModal.show(context),
+                      icon: const Icon(Icons.compare, size: 16, color: sysBlue),
+                      label: const Text(
+                        "GALERİYİ & DÖNÜŞÜMÜ GÖRÜNTÜLE",
+                        style: TextStyle(color: sysBlue, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: sysBlue.withValues(alpha: 0.6)),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 20),

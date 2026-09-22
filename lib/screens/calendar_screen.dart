@@ -79,12 +79,121 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
+  List<Map<String, dynamic>> _gunIdmanlariniBul(DateTime date) {
+    return SystemMemory.idmanGecmisi.where((idman) {
+      try {
+        DateTime idmanTarihi = DateTime.parse(idman['tarih']);
+        return idmanTarihi.year == date.year &&
+            idmanTarihi.month == date.month &&
+            idmanTarihi.day == date.day;
+      } catch (_) {
+        return false;
+      }
+    }).toList();
+  }
+
+  void _idmanDetayModal(Map<String, dynamic> idman) {
+    DateTime t = DateTime.tryParse(idman['tarih'] ?? '') ?? DateTime.now();
+    int dakika = idman['dakika'] ?? 0;
+    int gorevSayisi = idman['gorevSayisi'] ?? 0;
+    int exp = dakika * 15;
+    int kalori = dakika * 7;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF070B14),
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(color: Color(0xFFEAB308), width: 1.5),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        title: Row(
+          children: [
+            const Icon(Icons.local_fire_department, color: Color(0xFFEAB308), size: 24),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                '[ DUNGEON RAID REPORT ]',
+                style: GoogleFonts.orbitron(color: const Color(0xFFEAB308), fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '${t.day} ${aylar[t.month]} ${t.year} - ${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}',
+              style: const TextStyle(color: sysTextMuted, fontSize: 12),
+            ),
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0F172A),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: Colors.white12),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Süre / Duration:', style: TextStyle(color: sysTextMuted, fontSize: 12)),
+                      Text('$dakika DK', style: GoogleFonts.orbitron(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Tamamlanan Görev:', style: TextStyle(color: sysTextMuted, fontSize: 12)),
+                      Text('$gorevSayisi', style: GoogleFonts.orbitron(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 13)),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Kazanılan EXP:', style: TextStyle(color: sysTextMuted, fontSize: 12)),
+                      Text('+$exp EXP', style: GoogleFonts.orbitron(color: const Color(0xFF10B981), fontWeight: FontWeight.bold, fontSize: 13)),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Tahmini Kalori:', style: TextStyle(color: sysTextMuted, fontSize: 12)),
+                      Text('~$kalori KCAL', style: GoogleFonts.orbitron(color: const Color(0xFFEF4444), fontWeight: FontWeight.bold, fontSize: 13)),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Sistem: "Avcının zindan disiplini ve akını başarıyla arşivlendi."',
+              style: GoogleFonts.rajdhani(color: sysBlue, fontStyle: FontStyle.italic, fontSize: 12),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('KAPAT', style: TextStyle(color: Color(0xFFEAB308), fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSeritTakvim() {
     DateTime bugun = DateTime.now();
     DateTime baslangicTarihi = bugun.subtract(const Duration(days: 15));
 
     return Container(
-      height: 100,
+      height: 105,
       decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.white12, width: 1))),
       child: ListView.builder(
         controller: _scrollController, scrollDirection: Axis.horizontal, itemCount: 45,
@@ -95,26 +204,40 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
           List<Gorev> p = SystemMemory.haftalikPlan[islenenTarih.weekday]!;
           bool gorevVar = p.isNotEmpty;
+          bool idmanYapildi = _gunIdmanlariniBul(islenenTarih).isNotEmpty;
 
           return GestureDetector(
             onTap: () => setState(() => seciliTarih = islenenTarih),
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200), width: 65, margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+              duration: const Duration(milliseconds: 200), width: 68, margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
               decoration: BoxDecoration(
-                color: seciliMi ? sysBlue.withValues(alpha: 0.1) : const Color(0xFF070B14), 
+                color: seciliMi ? sysBlue.withValues(alpha: 0.15) : const Color(0xFF070B14), 
                 borderRadius: BorderRadius.circular(4), 
-                border: Border.all(color: seciliMi ? sysBlue : (bugunMu ? Colors.white54 : Colors.transparent), width: 1)
+                border: Border.all(
+                  color: seciliMi 
+                      ? sysBlue 
+                      : (idmanYapildi ? const Color(0xFFEAB308) : (bugunMu ? Colors.white54 : Colors.transparent)), 
+                  width: idmanYapildi || seciliMi ? 1.5 : 1,
+                ),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(aylar[islenenTarih.month].toUpperCase(), style: TextStyle(color: seciliMi ? sysBlue : sysTextMuted, fontSize: 10, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 2),
-                  Text('${islenenTarih.day}', style: GoogleFonts.orbitron(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text('${islenenTarih.day}', style: GoogleFonts.orbitron(color: idmanYapildi ? const Color(0xFFEAB308) : Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                   Text(gunAdlari[islenenTarih.weekday].toUpperCase(), style: TextStyle(color: seciliMi ? sysBlue : sysTextMuted, fontSize: 10)),
                   const SizedBox(height: 4),
-                  if (gorevVar) Container(width: 4, height: 4, decoration: const BoxDecoration(color: sysBlue, shape: BoxShape.circle)),
-                  if (!gorevVar) const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (gorevVar) Container(width: 4, height: 4, decoration: const BoxDecoration(color: sysBlue, shape: BoxShape.circle)),
+                      if (idmanYapildi) ...[
+                        const SizedBox(width: 3),
+                        const Icon(Icons.local_fire_department, color: Color(0xFFEAB308), size: 10),
+                      ],
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -156,6 +279,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
               List<Gorev> p = SystemMemory.haftalikPlan[islenen.weekday]!;
               bool gorevVar = p.isNotEmpty;
+              bool idmanYapildi = _gunIdmanlariniBul(islenen).isNotEmpty;
 
               return GestureDetector(
                 onTap: () => setState(() => seciliTarih = islenen),
@@ -164,14 +288,35 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   decoration: BoxDecoration(
                     color: seciliMi ? sysBlue.withValues(alpha: 0.1) : const Color(0xFF070B14), 
                     borderRadius: BorderRadius.circular(4), 
-                    border: Border.all(color: seciliMi ? sysBlue : (bugunMu ? Colors.white54 : Colors.white12), width: 1)
+                    border: Border.all(
+                      color: seciliMi 
+                          ? sysBlue 
+                          : (idmanYapildi ? const Color(0xFFEAB308) : (bugunMu ? Colors.white54 : Colors.white12)), 
+                      width: idmanYapildi ? 1.5 : 1,
+                    ),
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('${islenen.day}', style: TextStyle(color: Colors.white, fontWeight: seciliMi || bugunMu ? FontWeight.bold : FontWeight.normal, fontSize: 14)),
+                      Text(
+                        '${islenen.day}', 
+                        style: TextStyle(
+                          color: idmanYapildi ? const Color(0xFFEAB308) : Colors.white, 
+                          fontWeight: idmanYapildi || seciliMi || bugunMu ? FontWeight.bold : FontWeight.normal, 
+                          fontSize: 14,
+                        ),
+                      ),
                       const SizedBox(height: 2),
-                      if (gorevVar) Container(width: 3, height: 3, decoration: const BoxDecoration(color: sysBlue, shape: BoxShape.circle))
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (gorevVar) Container(width: 3, height: 3, decoration: const BoxDecoration(color: sysBlue, shape: BoxShape.circle)),
+                          if (idmanYapildi) ...[
+                            const SizedBox(width: 2),
+                            Container(width: 4, height: 4, decoration: const BoxDecoration(color: Color(0xFFEAB308), shape: BoxShape.circle)),
+                          ],
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -339,10 +484,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           return Container(
                             margin: const EdgeInsets.only(bottom: 10),
                             decoration: BoxDecoration(color: const Color(0xFF070B14), border: Border.all(color: sysRed.withValues(alpha: 0.3)), borderRadius: BorderRadius.circular(4)),
-                            child: ListTile(
-                              leading: const Icon(Icons.whatshot, color: sysRed, size: 20),
-                              title: Text('${TranslationManager.get('calendar_raid_at')} $saat', style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
-                              subtitle: Text('${TranslationManager.get('dash_duration')}: ${idman['dakika']} ${TranslationManager.get('dash_min')} | ${TranslationManager.get('dash_quests_done')}: ${idman['gorevSayisi']}', style: const TextStyle(color: sysTextMuted, fontSize: 12)),
+                            child: Material(
+                              type: MaterialType.transparency,
+                              child: ListTile(
+                                onTap: () => _idmanDetayModal(idman),
+                                leading: const Icon(Icons.whatshot, color: sysRed, size: 20),
+                                title: Text('${TranslationManager.get('calendar_raid_at')} $saat', style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                                subtitle: Text('${TranslationManager.get('dash_duration')}: ${idman['dakika']} ${TranslationManager.get('dash_min')} | ${TranslationManager.get('dash_quests_done')}: ${idman['gorevSayisi']}', style: const TextStyle(color: sysTextMuted, fontSize: 12)),
+                                trailing: const Icon(Icons.arrow_forward_ios, color: Color(0xFFEAB308), size: 14),
+                              ),
                             ),
                           );
                         }),

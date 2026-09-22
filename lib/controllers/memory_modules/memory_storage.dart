@@ -28,6 +28,11 @@ class MemoryStorage {
         SystemMemory.kiloGecmisi.length - maxGecmisKayitSayisi,
       );
     }
+    if (SystemMemory.ilerlemeFotolari.length > 50) {
+      SystemMemory.ilerlemeFotolari = SystemMemory.ilerlemeFotolari.sublist(
+        SystemMemory.ilerlemeFotolari.length - 50,
+      );
+    }
   }
 
   static Future<void> baslat() async {
@@ -197,6 +202,13 @@ class MemoryStorage {
       SystemMemory.idmanBildirimDakikasi = prefs.getInt('idmanBildirimDakikasi') ?? 0;
       SystemMemory.geceBildirimiAktif = prefs.getBool('geceBildirimiAktif') ?? true;
 
+      // İlerleme Fotoğrafları Arşivi
+      String fotolarJson = prefs.getString('ilerlemeFotolari') ?? '[]';
+      try {
+        List<dynamic> fList = jsonDecode(fotolarJson);
+        SystemMemory.ilerlemeFotolari = fList.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+      } catch (_) {}
+
       SystemMemory.suHedefiGuncelle();
 
       SystemMemory.bossGuncelle();
@@ -340,6 +352,9 @@ class MemoryStorage {
       await prefs.setInt('idmanBildirimSaati', SystemMemory.idmanBildirimSaati);
       await prefs.setInt('idmanBildirimDakikasi', SystemMemory.idmanBildirimDakikasi);
       await prefs.setBool('geceBildirimiAktif', SystemMemory.geceBildirimiAktif);
+
+      // İlerleme Fotoğrafları Arşivi
+      await prefs.setString('ilerlemeFotolari', jsonEncode(SystemMemory.ilerlemeFotolari));
 
       SystemMemory.bossGuncelle();
   }

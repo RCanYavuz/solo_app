@@ -9,6 +9,9 @@ import '../widgets/hologram_card.dart';
 import '../widgets/awakening_test_dialog.dart';
 import '../core/sistem_gecisi.dart'; 
 import '../widgets/exercise_detail_modal.dart';
+import '../widgets/sleep_tracker_card.dart';
+import '../widgets/achievement_dialog.dart';
+import '../core/dynamic_difficulty_engine.dart';
 import 'shop_screen.dart'; 
 
 class DashboardScreen extends StatefulWidget {
@@ -29,7 +32,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   void _basarimKontrolleriniCalistir() {
     if (!mounted) return;
-    int kiloFarki = (SystemMemory.baslangicKilosu - SystemMemory.kilo).abs().toInt();
+    int kiloFarki = (SystemMemory.baslangicKilosu > 0 && SystemMemory.kilo > 0)
+        ? (SystemMemory.baslangicKilosu - SystemMemory.kilo).abs().toInt()
+        : 0;
     SystemMemory.basarimKademeGuncelle('streak', _kademeHesapla(SystemMemory.streakGunSayisi, [7, 14, 30, 60, 100, 365])['kademe'], TranslationManager.get('ach_iron_will'), 'Streak');
     SystemMemory.basarimKademeGuncelle('gorev', _kademeHesapla(SystemMemory.bitenGorevSayisi, [50, 100, 250, 500, 1000, 5000])['kademe'], TranslationManager.get('ach_unbreakable'), 'Quests');
     SystemMemory.basarimKademeGuncelle('level', _kademeHesapla(SystemMemory.level.value, [10, 20, 30, 50, 80, 100])['kademe'], TranslationManager.get('ach_awakening'), 'Level');
@@ -42,29 +47,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (SystemMemory.yeniBasarimBildirimi.value != null) {
       final msg = SystemMemory.yeniBasarimBildirimi.value!;
       SystemMemory.yeniBasarimBildirimi.value = null;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: const Color(0xFF0F172A),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-            side: const BorderSide(color: Color(0xFF38BDF8), width: 1.5),
-          ),
-          content: Row(
-            children: [
-              const Icon(Icons.military_tech, color: Color(0xFF38BDF8), size: 28),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  msg,
-                  style: GoogleFonts.rajdhani(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
-                ),
-              ),
-            ],
-          ),
-          duration: const Duration(seconds: 4),
-        ),
-      );
+      AchievementDialog.show(context, message: msg);
     }
   }
 
@@ -263,6 +246,79 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: 15),
             ],
 
+            // --- 1.8. DİNAMİK ZORLUK AYARI (DDA EVOLUTION BANNER) ---
+            Builder(
+              builder: (context) {
+                final dda = DynamicDifficultyEngine.analizEt();
+                if (dda.action == DdaAction.maintain) return const SizedBox.shrink();
+
+                final bool isDeload = dda.action == DdaAction.deload;
+                final Color ddaColor = isDeload ? const Color(0xFF10B981) : const Color(0xFF8B5CF6);
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 15),
+                  child: HologramCard(
+                    neonRenk: ddaColor,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(isDeload ? Icons.spa : Icons.auto_awesome, color: ddaColor, size: 24),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                dda.baslik,
+                                style: GoogleFonts.orbitron(
+                                  color: ddaColor,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          dda.aciklama,
+                          style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
+                        ),
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: ddaColor.withValues(alpha: 0.2),
+                              side: BorderSide(color: ddaColor),
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                            ),
+                            onPressed: () async {
+                              await DynamicDifficultyEngine.zorluguUygula(dda);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('SİSTEM: ${dda.onerilenZorluk} protokolü devreye alındı!'),
+                                    backgroundColor: ddaColor,
+                                  ),
+                                );
+                                setState(() {});
+                              }
+                            },
+                            icon: Icon(isDeload ? Icons.healing : Icons.trending_up, size: 16, color: ddaColor),
+                            label: Text(
+                              isDeload ? 'DELOAD PROTOKOLÜNÜ BAŞLAT' : '${dda.onerilenZorluk.toUpperCase()} ZORLUĞA GEÇ',
+                              style: TextStyle(color: ddaColor, fontWeight: FontWeight.bold, fontSize: 11, letterSpacing: 1),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+
             // --- 2. DURUM VE ENERJİ ---
             IntrinsicHeight( 
               child: Row(
@@ -317,6 +373,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   )
                 ],
               ),
+            ),
+            const SizedBox(height: 15),
+
+            // --- 2.5. UYKU & HÜCRESEL YENİLENME (RECOVERY CHAMBER) ---
+            SleepTrackerCard(
+              onSleepChanged: () => setState(() {}),
             ),
             const SizedBox(height: 20),
 
