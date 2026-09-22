@@ -60,6 +60,10 @@ class AudioSystem {
     } catch (_) {}
   }
 
+  static Future<void> playButtonClick() async => playBell();
+  static Future<void> playQuestComplete() async => playSuccess();
+  static Future<void> playDungeonStart() async => playTransition();
+
   static Future<void> playStartup() async {
     if (_isTest) return;
     try {

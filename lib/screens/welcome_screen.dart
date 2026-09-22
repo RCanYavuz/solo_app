@@ -2,78 +2,95 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'instruction_screen.dart'; // YENİ: Kurallar ekranı yolu
-
+import 'instruction_screen.dart';
 import '../core/translation_manager.dart';
+import '../widgets/hologram_card.dart';
+import '../core/audio_system.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
+  static const Color sysBlue = Color(0xFF38BDF8);
+  static const Color sysDarkBg = Color(0xFF030712);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black, // Simsiyah fonda açılır, karmaşayı çözer.
+      backgroundColor: sysDarkBg,
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(30),
-          child: Container(
-            padding: const EdgeInsets.all(25),
-            decoration: BoxDecoration(
-              color: const Color(0xFF0D0D0D), 
-              borderRadius: BorderRadius.circular(15),
-              border: Border.all(color: Colors.cyanAccent, width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.cyanAccent.withValues(alpha: 0.15), 
-                  blurRadius: 20, 
-                  spreadRadius: 2
-                )
-              ]
-            ),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          child: HologramCard(
+            neonRenk: sysBlue,
+            padding: const EdgeInsets.all(24),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  TranslationManager.get('welcome_init'),
-                  style: GoogleFonts.orbitron(
-                    color: Colors.cyanAccent, 
-                    fontSize: 20, 
-                    fontWeight: FontWeight.bold, 
-                    letterSpacing: 1.5
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.flash_on, color: sysBlue, size: 24),
+                    const SizedBox(width: 8),
+                    Text(
+                      TranslationManager.get('welcome_init'),
+                      style: GoogleFonts.orbitron(
+                        color: sysBlue,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2.0,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  height: 1,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        sysBlue.withValues(alpha: 0.1),
+                        sysBlue,
+                        sysBlue.withValues(alpha: 0.1),
+                      ],
+                    ),
                   ),
                 ),
-                const SizedBox(height: 15),
-                const Divider(color: Colors.cyanAccent, thickness: 1),
                 const SizedBox(height: 20),
                 Text(
                   TranslationManager.get('welcome_message'),
                   textAlign: TextAlign.center,
                   style: GoogleFonts.rajdhani(
-                    color: Colors.white, 
-                    fontSize: 18, 
-                    height: 1.5, 
-                    fontWeight: FontWeight.bold
+                    color: Colors.white,
+                    fontSize: 16,
+                    height: 1.6,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
                   ),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 28),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      // YENİ: Sisteme ilk girişte doğrudan Kılavuz'a yönlendirilir
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const InstructionScreen()));
+                      AudioSystem.playTransition();
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const InstructionScreen()),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.cyanAccent.withValues(alpha: 0.15),
-                      padding: const EdgeInsets.symmetric(vertical: 18),
-                      side: const BorderSide(color: Colors.cyanAccent, width: 1.5),
+                      backgroundColor: sysBlue.withValues(alpha: 0.15),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      side: const BorderSide(color: sysBlue, width: 1.5),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
                     ),
                     child: Text(
                       TranslationManager.get('welcome_start'),
-                      style: const TextStyle(
-                        color: Colors.cyanAccent, 
-                        fontWeight: FontWeight.bold, 
-                        letterSpacing: 2
+                      style: GoogleFonts.orbitron(
+                        color: sysBlue,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2.5,
                       ),
                     ),
                   ),

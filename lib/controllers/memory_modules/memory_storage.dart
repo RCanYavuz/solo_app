@@ -5,6 +5,7 @@ import '../system_memory.dart';
 import '../../models/task_model.dart';
 import '../../models/food_model.dart';
 import '../../models/inventory_item_model.dart';
+import '../../models/mental_task_model.dart';
 import '../../core/progressive_overload_engine.dart';
 
 class MemoryStorage {
@@ -209,6 +210,18 @@ class MemoryStorage {
         SystemMemory.ilerlemeFotolari = fList.map((e) => Map<String, dynamic>.from(e as Map)).toList();
       } catch (_) {}
 
+      // Zihinsel Görevler & Odaklanma Arşivi
+      SystemMemory.toplamOkunanSayfaSayisi = prefs.getInt('toplamOkunanSayfaSayisi') ?? 0;
+      SystemMemory.toplamOdaklanmaDakikasi = prefs.getInt('toplamOdaklanmaDakikasi') ?? 0;
+      SystemMemory.aktifUzmanlikAlani = prefs.getString('aktifUzmanlikAlani') ?? "Yazılım & AI";
+      SystemMemory.tamamlananKitaplar = prefs.getStringList('tamamlananKitaplar') ?? [];
+      
+      String zihinselJson = prefs.getString('gunlukZihinselGorevler') ?? '[]';
+      try {
+        List<dynamic> mList = jsonDecode(zihinselJson);
+        SystemMemory.gunlukZihinselGorevler.value = mList.map((e) => MentalTask.fromJson(e as Map<String, dynamic>)).toList();
+      } catch (_) {}
+
       SystemMemory.suHedefiGuncelle();
 
       SystemMemory.bossGuncelle();
@@ -355,6 +368,13 @@ class MemoryStorage {
 
       // İlerleme Fotoğrafları Arşivi
       await prefs.setString('ilerlemeFotolari', jsonEncode(SystemMemory.ilerlemeFotolari));
+
+      // Zihinsel Görevler & Odaklanma Arşivi
+      await prefs.setInt('toplamOkunanSayfaSayisi', SystemMemory.toplamOkunanSayfaSayisi);
+      await prefs.setInt('toplamOdaklanmaDakikasi', SystemMemory.toplamOdaklanmaDakikasi);
+      await prefs.setString('aktifUzmanlikAlani', SystemMemory.aktifUzmanlikAlani);
+      await prefs.setStringList('tamamlananKitaplar', SystemMemory.tamamlananKitaplar);
+      await prefs.setString('gunlukZihinselGorevler', jsonEncode(SystemMemory.gunlukZihinselGorevler.value.map((e) => e.toJson()).toList()));
 
       SystemMemory.bossGuncelle();
   }

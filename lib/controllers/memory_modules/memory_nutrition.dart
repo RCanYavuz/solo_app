@@ -508,6 +508,14 @@ class MemoryNutrition {
       }
     }
 
+    if (SystemMemory.gunlukZihinselGorevler.value.isNotEmpty) {
+      for (var mt in SystemMemory.gunlukZihinselGorevler.value) {
+        mt.isCompleted = false;
+        mt.completedMinutes = 0;
+        mt.completedPages = 0;
+      }
+    }
+
     return "$rapor\n[QUEST LOG]\nNET HP: ${hpFarki > 0 ? '+' : ''}$hpFarki | GOLD EARNED: $kazanilanAltin 🪙 | EXP EARNED: $kazanilanExp$levelRaporu";
   }
 

@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../../controllers/system_memory.dart';
 import '../../models/task_model.dart';
+import '../../models/mental_task_model.dart';
 
 /// Solo App Gemini Yapay Zeka Servisi (Clean Architecture - Core Katmanı)
 /// Doğrudan REST API kullanır (deprecated SDK yerine).
@@ -578,4 +579,260 @@ KURALLAR:
       return null;
     }
   }
+
+  /// Uzmanlık alanı, seviye ve günlük süreye göre kişiye özel haftalık zihinsel gelişim ve çalışma protokolü üretir.
+  static Future<List<MentalTask>> aiCalismaPlaniUret({
+    required String alan,
+    required String seviye,
+    required int gunlukDakika,
+    String? hedef,
+  }) async {
+    final apiKey = SystemMemory.geminiApiKey.trim();
+    final model = SystemMemory.geminiActiveModel.isNotEmpty
+        ? SystemMemory.geminiActiveModel
+        : 'gemini-3.6-flash';
+
+    if (apiKey.isEmpty) {
+      return _varsayilanZihinselProtokol(alan, gunlukDakika);
+    }
+
+    final prompt = '''
+Sen Solo Leveling Sistemisin. Kullanıcı [AVCI] zihinsel ve mesleki uyanışını gerçekleştirmek istiyor.
+Aşağıdaki verilere göre Avcı için 3 veya 4 adet yüksek odaklı ZİHİNSEL GELİŞİM / ÇALIŞMA GÖREVİ hazırla:
+- Uzmanlık / İlgi Alanı: $alan
+- Mevcut Seviye: $seviye
+- Günlük Ayrılacak Süre: $gunlukDakika dakika
+- Hedef: ${hedef ?? "Uzmanlıkta Seviye Atlama & Kitap Okuma Disiplini"}
+
+KURALLAR:
+1. Türkçe yaz.
+2. EN AZ 1 TANE KİTAP OKUMA VEYA KAYNAK ARAŞTIRMA GÖREVİ OLMALIDIR (category: "Book").
+3. Diğer görevler pratik, kodlama, vaka inceleme, sınav veya yabancı dil içermelidir (category: "Coding", "Language", "Exam", "Skill").
+4. ÇIKTIYI YALNIZCA AŞAĞIDAKİ JSON DİZİSİ OLARAK DÖNDÜR, BAŞKA METİN YAZMA:
+[
+  {
+    "title": "[ALAN] 30 Dk İleri Konu Analizi",
+    "category": "Skill",
+    "targetMinutes": 30,
+    "rewardExp": 90,
+    "rewardInt": 2,
+    "rewardPer": 1,
+    "notes": "Önemli kavramları çıkar."
+  },
+  {
+    "title": "[KİTAP] Alan Kılavuzu Okuması (20 Sayfa)",
+    "category": "Book",
+    "targetMinutes": 25,
+    "targetPages": 20,
+    "bookTitle": "Mesleki Başucu Kitabı",
+    "rewardExp": 80,
+    "rewardInt": 1,
+    "rewardPer": 2
+  }
+]
+''';
+
+    try {
+      final responseText = await _generateContent(model, apiKey, prompt);
+      if (responseText == null || responseText.isEmpty) {
+        return _varsayilanZihinselProtokol(alan, gunlukDakika);
+      }
+
+      final cleanJson = responseText.replaceAll(RegExp(r'```json\s*|```'), '').trim();
+      final decoded = jsonDecode(cleanJson);
+      if (decoded is! List) return _varsayilanZihinselProtokol(alan, gunlukDakika);
+
+      final List<MentalTask> gorevler = [];
+      for (final item in decoded) {
+        if (item is Map<String, dynamic>) {
+          gorevler.add(MentalTask.fromJson(item));
+        } else if (item is Map) {
+          gorevler.add(MentalTask.fromJson(Map<String, dynamic>.from(item)));
+        }
+      }
+      return gorevler.isNotEmpty ? gorevler : _varsayilanZihinselProtokol(alan, gunlukDakika);
+    } catch (e) {
+      debugPrint("AI study plan generation error: $e");
+      return _varsayilanZihinselProtokol(alan, gunlukDakika);
+    }
+  }
+
+  /// Çevrimdışı veya API'siz durumlarda branşa göre akıllı yerel zihinsel protokol şablonu.
+  static List<MentalTask> _varsayilanZihinselProtokol(String alan, int gunlukDakika) {
+    final lower = alan.toLowerCase();
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    if (lower.contains('yazılım') || lower.contains('kod') || lower.contains('flutter') || lower.contains('ai') || lower.contains('software')) {
+      return [
+        MentalTask(
+          id: 'mt_${now}_1',
+          title: '[KOD] Mimari & Algoritma Pratiği (30 dk)',
+          category: 'Coding',
+          targetMinutes: 30,
+          rewardExp: 100,
+          rewardInt: 2,
+          rewardPer: 1,
+          notes: 'Temiz kod ve tasarım desenlerine dikkat et.',
+        ),
+        MentalTask(
+          id: 'mt_${now}_2',
+          title: '[KİTAP] Teknik Kitap Okuma & Analiz (20 sayfa)',
+          category: 'Book',
+          bookTitle: 'Clean Code / Refactoring',
+          targetPages: 20,
+          targetMinutes: 25,
+          rewardExp: 90,
+          rewardInt: 2,
+          rewardPer: 2,
+        ),
+        MentalTask(
+          id: 'mt_${now}_3',
+          title: '[ODAK] Hata Ayıklama & Derin Çalışma (25 dk)',
+          category: 'Skill',
+          targetMinutes: 25,
+          rewardExp: 80,
+          rewardInt: 1,
+          rewardPer: 2,
+        ),
+      ];
+    } else if (lower.contains('dil') || lower.contains('english') || lower.contains('ingilizce') || lower.contains('almanca')) {
+      return [
+        MentalTask(
+          id: 'mt_${now}_1',
+          title: '[DİL] Hedef Dilde 30 Dk Aktif Pratik & Konuşma',
+          category: 'Language',
+          targetMinutes: 30,
+          rewardExp: 90,
+          rewardInt: 1,
+          rewardPer: 2,
+        ),
+        MentalTask(
+          id: 'mt_${now}_2',
+          title: '[KİTAP] Yabancı Dilde Kitap Okuma (15 sayfa)',
+          category: 'Book',
+          targetPages: 15,
+          targetMinutes: 25,
+          rewardExp: 90,
+          rewardInt: 2,
+          rewardPer: 2,
+        ),
+        MentalTask(
+          id: 'mt_${now}_3',
+          title: '[DİNLEME] Yabancı Dilde Podcast & Not Çıkarma',
+          category: 'Language',
+          targetMinutes: 20,
+          rewardExp: 70,
+          rewardInt: 1,
+          rewardPer: 1,
+        ),
+      ];
+    } else if (lower.contains('sınav') || lower.contains('yks') || lower.contains('kpss') || lower.contains('tıp') || lower.contains('akademi')) {
+      return [
+        MentalTask(
+          id: 'mt_${now}_1',
+          title: '[KONU] Yoğunlaştırılmış Konu Özeti Çıkarma (35 dk)',
+          category: 'Exam',
+          targetMinutes: 35,
+          rewardExp: 110,
+          rewardInt: 2,
+          rewardPer: 1,
+        ),
+        MentalTask(
+          id: 'mt_${now}_2',
+          title: '[KİTAP] Ders Kaynağı / Makale İncelemesi (25 sayfa)',
+          category: 'Book',
+          targetPages: 25,
+          targetMinutes: 30,
+          rewardExp: 100,
+          rewardInt: 2,
+          rewardPer: 2,
+        ),
+        MentalTask(
+          id: 'mt_${now}_3',
+          title: '[SORU] Kritik Soru Çözümü & Analiz (30 dk)',
+          category: 'Exam',
+          targetMinutes: 30,
+          rewardExp: 90,
+          rewardInt: 1,
+          rewardPer: 2,
+        ),
+      ];
+    } else {
+      return [
+        MentalTask(
+          id: 'mt_${now}_1',
+          title: '[KİTAP] Zihinsel Disiplin & Felsefe Okuması (20 sayfa)',
+          category: 'Book',
+          bookTitle: 'Günün Eseri',
+          targetPages: 20,
+          targetMinutes: 25,
+          rewardExp: 90,
+          rewardInt: 2,
+          rewardPer: 2,
+        ),
+        MentalTask(
+          id: 'mt_${now}_2',
+          title: '[BECERİ] Uzmanlık Alanında Derin İnceleme (30 dk)',
+          category: 'Skill',
+          targetMinutes: 30,
+          rewardExp: 80,
+          rewardInt: 2,
+          rewardPer: 1,
+        ),
+        MentalTask(
+          id: 'mt_${now}_3',
+          title: '[ODAK] Günlük Planlama & Zihinsel Netlik (15 dk)',
+          category: 'Skill',
+          targetMinutes: 15,
+          rewardExp: 60,
+          rewardInt: 1,
+          rewardPer: 2,
+        ),
+      ];
+    }
+  }
+
+  /// Okunan kitaptan veya konudan kilit avcı dersleri ve stratejik çıkarımlar üretir.
+  static Future<String> aiKitapCikarimiUret({
+    required String kitapAdi,
+    required String notlar,
+  }) async {
+    final apiKey = SystemMemory.geminiApiKey.trim();
+    final model = SystemMemory.geminiActiveModel.isNotEmpty
+        ? SystemMemory.geminiActiveModel
+        : 'gemini-3.6-flash';
+
+    if (apiKey.isEmpty) {
+      return "[ SİSTEM BİLGELİĞİ: $kitapAdi ]\n"
+          "1. KAVRAMA: Bilgiyi ezberleme, zihinsel modellerine entegre et.\n"
+          "2. DİSİPLİN: Her gün okunan 20 sayfa, yılda 25 kitaba ve devasa bir INT artışına dönüşür.\n"
+          "3. EYLEM: Teori tek başına güç değildir; uygulanan bilgi kudrettir.";
+    }
+
+    final prompt = '''
+Kullanıcı [AVCI] şu kitaptan/konudan notlar okudu ve sisteme kaydetti:
+- Eser / Konu: $kitapAdi
+- Avcının Notları / Odak Noktaları: $notlar
+
+Solo Leveling Sistemi olarak bu bilgileri analiz et.
+Avcıya karakterini, zekasını (INT) ve algısını (PER) geliştirecek 3 TANE KESKİN SİSTEM ÇIKARIMI (Ders / Strateji) yaz.
+Başında "[ SİSTEM BİLGELİĞİ: $kitapAdi ]" başlığı olsun.
+Maddeli, otoriter ve ilham verici bir dille yaz.
+''';
+
+    try {
+      final responseText = await _generateContent(model, apiKey, prompt);
+      if (responseText != null && responseText.trim().isNotEmpty) {
+        return responseText.trim();
+      }
+    } catch (e) {
+      debugPrint("AI insight error: $e");
+    }
+
+    return "[ SİSTEM BİLGELİĞİ: $kitapAdi ]\n"
+        "1. KAVRAMA: Bilgiyi ezberleme, zihinsel modellerine entegre et.\n"
+        "2. DİSİPLİN: Düzenli okuma disiplini zihnin dayanıklılığını maksimuma ulaştırır.\n"
+        "3. EYLEM: Okunan her sayfa, zindanda stratejik bir avantaja dönüşür.";
+  }
 }
+

@@ -7,6 +7,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import '../models/task_model.dart';
 import '../models/food_model.dart';
 import '../models/inventory_item_model.dart';
+import '../models/mental_task_model.dart';
 import '../core/progressive_overload_engine.dart';
 import '../core/advanced_metabolic_engine.dart';
 
@@ -201,6 +202,78 @@ class SystemMemory {
       ilerlemeFotolari.removeAt(index);
       await kaydet();
     }
+  }
+
+  // ==========================================
+  // ZİHİNSEL GELİŞİM & ÇALIŞMA PROTOKOLÜ (MIND & STUDY)
+  // ==========================================
+  static ValueNotifier<List<MentalTask>> gunlukZihinselGorevler = ValueNotifier([]);
+  static int toplamOkunanSayfaSayisi = 0;
+  static int toplamOdaklanmaDakikasi = 0;
+  static String aktifUzmanlikAlani = "Yazılım & AI";
+  static List<String> tamamlananKitaplar = [];
+
+  static Future<void> zihinselGorevEkle(MentalTask task) async {
+    final list = List<MentalTask>.from(gunlukZihinselGorevler.value);
+    list.add(task);
+    gunlukZihinselGorevler.value = list;
+    await kaydet();
+  }
+
+  static Future<void> zihinselGorevSil(String id) async {
+    final list = List<MentalTask>.from(gunlukZihinselGorevler.value);
+    list.removeWhere((t) => t.id == id);
+    gunlukZihinselGorevler.value = list;
+    await kaydet();
+  }
+
+  static Future<void> zihinselGorevTamamla(String id) async {
+    final list = List<MentalTask>.from(gunlukZihinselGorevler.value);
+    final index = list.indexWhere((t) => t.id == id);
+    if (index != -1 && !list[index].isCompleted) {
+      final task = list[index];
+      task.isCompleted = true;
+      task.completedMinutes = task.targetMinutes;
+      if (task.targetPages != null) {
+        task.completedPages = task.targetPages!;
+        toplamOkunanSayfaSayisi += task.targetPages!;
+      }
+      toplamOdaklanmaDakikasi += task.targetMinutes;
+      bitenGorevSayisi++;
+
+      // Stat ve EXP Ödülleri
+      intStat.value += task.rewardInt;
+      per.value += task.rewardPer;
+      mp.value = (mp.value + 5).clamp(0, maxMp);
+      expKazan(task.rewardExp);
+      altin.value += 50;
+
+      gunlukZihinselGorevler.value = list;
+      await kaydet();
+    }
+  }
+
+  static Future<void> deepWorkTamamlandi({required int dakika, required String baslik}) async {
+    toplamOdaklanmaDakikasi += dakika;
+    int exp = dakika * 3;
+    int intArtis = (dakika / 25).floor().clamp(1, 5);
+    int perArtis = (dakika / 30).floor().clamp(1, 3);
+    
+    intStat.value += intArtis;
+    per.value += perArtis;
+    expKazan(exp);
+    altin.value += dakika * 2;
+    mp.value = (mp.value + 4).clamp(0, maxMp);
+
+    final list = List<MentalTask>.from(gunlukZihinselGorevler.value);
+    final matchIdx = list.indexWhere((t) => !t.isCompleted && (t.title.toLowerCase().contains(baslik.toLowerCase()) || baslik.toLowerCase().contains(t.title.toLowerCase())));
+    if (matchIdx != -1) {
+      list[matchIdx].isCompleted = true;
+      list[matchIdx].completedMinutes = dakika;
+      bitenGorevSayisi++;
+      gunlukZihinselGorevler.value = list;
+    }
+    await kaydet();
   }
 
   // Makro Besin Toplamları

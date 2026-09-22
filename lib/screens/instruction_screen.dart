@@ -1,9 +1,10 @@
 // lib/screens/instruction_screen.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../core/audio_system.dart'; 
-import 'ana_ekran.dart'; 
+import '../core/audio_system.dart';
+import 'ana_ekran.dart';
 import '../core/translation_manager.dart';
+import '../widgets/hologram_card.dart';
 
 class InstructionScreen extends StatefulWidget {
   const InstructionScreen({super.key});
@@ -13,6 +14,12 @@ class InstructionScreen extends StatefulWidget {
 }
 
 class _InstructionScreenState extends State<InstructionScreen> {
+  static const Color sysBlue = Color(0xFF38BDF8);
+  static const Color sysDarkBg = Color(0xFF030712);
+  static const Color sysGold = Color(0xFFB08D57);
+  static const Color sysRed = Color(0xFFEF4444);
+  static const Color sysPurple = Color(0xFFA855F7);
+  static const Color sysOrange = Color(0xFFF97316);
 
   @override
   void initState() {
@@ -23,10 +30,10 @@ class _InstructionScreenState extends State<InstructionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0E17),
+      backgroundColor: sysDarkBg,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(25.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -34,15 +41,30 @@ class _InstructionScreenState extends State<InstructionScreen> {
               Center(
                 child: Column(
                   children: [
-                    const Icon(Icons.info_outline, color: Colors.amberAccent, size: 50),
-                    const SizedBox(height: 15),
-                    Text(TranslationManager.get('instruction_title'), style: GoogleFonts.orbitron(color: Colors.amberAccent, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 2)),
-                    const SizedBox(height: 10),
-                    Text(TranslationManager.get('instruction_subtitle'), style: GoogleFonts.rajdhani(color: Colors.white70, fontSize: 16)),
+                    const Icon(Icons.shield_outlined, color: sysBlue, size: 44),
+                    const SizedBox(height: 12),
+                    Text(
+                      TranslationManager.get('instruction_title'),
+                      style: GoogleFonts.orbitron(
+                        color: sysBlue,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 3,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      TranslationManager.get('instruction_subtitle'),
+                      style: GoogleFonts.rajdhani(
+                        color: Colors.white70,
+                        fontSize: 14,
+                        letterSpacing: 1,
+                      ),
+                    ),
                   ],
                 ),
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 24),
 
               // --- KURALLAR LİSTESİ ---
               Expanded(
@@ -50,47 +72,69 @@ class _InstructionScreenState extends State<InstructionScreen> {
                   physics: const BouncingScrollPhysics(),
                   children: [
                     _kuralKarti(
-                      ikon: Icons.gavel, renk: Colors.redAccent, baslik: TranslationManager.get('instruction_r1_title'),
-                      metin: TranslationManager.get('instruction_r1_desc')
+                      ikon: Icons.gavel,
+                      renk: sysRed,
+                      baslik: TranslationManager.get('instruction_r1_title'),
+                      metin: TranslationManager.get('instruction_r1_desc'),
                     ),
                     _kuralKarti(
-                      ikon: Icons.trending_up, renk: Colors.amberAccent, baslik: TranslationManager.get('instruction_r2_title'),
-                      metin: TranslationManager.get('instruction_r2_desc')
+                      ikon: Icons.trending_up,
+                      renk: sysGold,
+                      baslik: TranslationManager.get('instruction_r2_title'),
+                      metin: TranslationManager.get('instruction_r2_desc'),
                     ),
                     _kuralKarti(
-                      ikon: Icons.local_fire_department, renk: Colors.cyanAccent, baslik: TranslationManager.get('instruction_r3_title'),
-                      metin: TranslationManager.get('instruction_r3_desc')
+                      ikon: Icons.local_fire_department,
+                      renk: sysBlue,
+                      baslik: TranslationManager.get('instruction_r3_title'),
+                      metin: TranslationManager.get('instruction_r3_desc'),
                     ),
                     _kuralKarti(
-                      ikon: Icons.calendar_month, renk: Colors.purpleAccent, baslik: TranslationManager.get('instruction_r4_title'),
-                      metin: TranslationManager.get('instruction_r4_desc')
+                      ikon: Icons.calendar_month,
+                      renk: sysPurple,
+                      baslik: TranslationManager.get('instruction_r4_title'),
+                      metin: TranslationManager.get('instruction_r4_desc'),
                     ),
                     _kuralKarti(
-                      ikon: Icons.warning_amber_rounded, renk: Colors.orangeAccent, baslik: TranslationManager.get('instruction_r5_title'),
-                      metin: TranslationManager.get('instruction_r5_desc')
+                      ikon: Icons.warning_amber_rounded,
+                      renk: sysOrange,
+                      baslik: TranslationManager.get('instruction_r5_title'),
+                      metin: TranslationManager.get('instruction_r5_desc'),
                     ),
                   ],
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
               // --- ONAY VE BAŞLAMA BUTONU ---
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    AudioSystem.playTransition(); 
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AnaEkran()));
+                    AudioSystem.playTransition();
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const AnaEkran()),
+                    );
                   },
-                  icon: const Icon(Icons.login, color: Colors.cyanAccent),
-                  label: Text(TranslationManager.get('instruction_confirm'), style: const TextStyle(color: Colors.cyanAccent, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                  icon: const Icon(Icons.login, color: sysBlue),
+                  label: Text(
+                    TranslationManager.get('instruction_confirm'),
+                    style: GoogleFonts.orbitron(
+                      color: sysBlue,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2,
+                    ),
+                  ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.cyanAccent.withValues(alpha: 0.1), padding: const EdgeInsets.symmetric(vertical: 20),
-                    side: const BorderSide(color: Colors.cyanAccent, width: 2), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))
+                    backgroundColor: sysBlue.withValues(alpha: 0.12),
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    side: const BorderSide(color: sysBlue, width: 1.5),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -98,18 +142,49 @@ class _InstructionScreenState extends State<InstructionScreen> {
     );
   }
 
-  Widget _kuralKarti({required IconData ikon, required Color renk, required String baslik, required String metin}) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 15),
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(color: const Color(0xFF111827), borderRadius: BorderRadius.circular(10), border: Border.all(color: renk.withValues(alpha: 0.3))),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(children: [Icon(ikon, color: renk, size: 24), const SizedBox(width: 10), Text(baslik, style: GoogleFonts.orbitron(color: renk, fontSize: 16, fontWeight: FontWeight.bold))]),
-          const SizedBox(height: 10),
-          Text(metin, style: const TextStyle(color: Colors.white70, fontSize: 14, height: 1.4)),
-        ],
+  Widget _kuralKarti({
+    required IconData ikon,
+    required Color renk,
+    required String baslik,
+    required String metin,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: HologramCard(
+        neonRenk: renk,
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(ikon, color: renk, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    baslik,
+                    style: GoogleFonts.orbitron(
+                      color: renk,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              metin,
+              style: GoogleFonts.rajdhani(
+                color: Colors.white.withValues(alpha: 0.85),
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                height: 1.4,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

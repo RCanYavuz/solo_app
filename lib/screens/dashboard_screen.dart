@@ -13,6 +13,11 @@ import '../widgets/sleep_tracker_card.dart';
 import '../widgets/achievement_dialog.dart';
 import '../core/dynamic_difficulty_engine.dart';
 import 'shop_screen.dart'; 
+import 'deep_work_timer_screen.dart';
+import '../widgets/study_planner_modal.dart';
+import '../models/mental_task_model.dart';
+
+enum QuestFilter { all, physical, mental }
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -22,6 +27,7 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  QuestFilter _questFilter = QuestFilter.all;
   @override
   void initState() {
     super.initState();
@@ -43,6 +49,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     SystemMemory.basarimKademeGuncelle('int', _kademeHesapla(SystemMemory.intStat.value, [30, 50, 100, 150, 200, 300])['kademe'], TranslationManager.get('ach_sage'), 'INT');
     SystemMemory.basarimKademeGuncelle('altin', _kademeHesapla(SystemMemory.altin.value, [2000, 5000, 10000, 50000, 100000, 500000])['kademe'], TranslationManager.get('ach_merchant'), 'Gold');
     SystemMemory.basarimKademeGuncelle('kilo', _kademeHesapla(kiloFarki, [5, 10, 15, 20, 30, 50])['kademe'], 'Body Mass Adaptation', 'Weight Goal');
+    SystemMemory.basarimKademeGuncelle('okuma', _kademeHesapla(SystemMemory.toplamOkunanSayfaSayisi, [50, 150, 300, 500, 1000, 2500])['kademe'], 'The Grand Scholar', 'Reading & Wisdom');
+    SystemMemory.basarimKademeGuncelle('odak', _kademeHesapla(SystemMemory.toplamOdaklanmaDakikasi, [60, 300, 600, 1500, 3000, 6000])['kademe'], 'Absolute Concentration', 'Deep Work');
     
     if (SystemMemory.yeniBasarimBildirimi.value != null) {
       final msg = SystemMemory.yeniBasarimBildirimi.value!;
@@ -110,6 +118,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     
     int kiloFarki = (SystemMemory.baslangicKilosu - SystemMemory.kilo).abs().toInt();
     var bKilo = _kademeHesapla(kiloFarki, [5, 10, 15, 20, 30, 50]);
+    var bOkuma = _kademeHesapla(SystemMemory.toplamOkunanSayfaSayisi, [50, 150, 300, 500, 1000, 2500]);
+    var bOdak = _kademeHesapla(SystemMemory.toplamOdaklanmaDakikasi, [60, 300, 600, 1500, 3000, 6000]);
 
     return ValueListenableBuilder<String>(
       valueListenable: SystemMemory.appLanguage,
@@ -405,6 +415,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     bKilo['hedef'], 
                     Icons.monitor_weight, sysBlue, sysTextMuted
                   ),
+                  _basarimKarti(
+                    "Scholar ${_romaRakam(bOkuma['kademe'])}", 
+                    "${bOkuma['hedef']} Sayfa Kitap", 
+                    SystemMemory.toplamOkunanSayfaSayisi, 
+                    bOkuma['hedef'], 
+                    Icons.menu_book, sysBlue, sysTextMuted
+                  ),
+                  _basarimKarti(
+                    "Deep Focus ${_romaRakam(bOdak['kademe'])}", 
+                    "${bOdak['hedef']} Dk Odak", 
+                    SystemMemory.toplamOdaklanmaDakikasi, 
+                    bOdak['hedef'], 
+                    Icons.hourglass_top, Colors.purpleAccent, sysTextMuted
+                  ),
                 ],
               ),
             ),
@@ -481,60 +505,328 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             const SizedBox(height: 20),
 
-            // --- 5. GÜNLÜK GÖREVLER ---
-            Text(TranslationManager.get('dash_daily_quests'), style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
-            const SizedBox(height: 10),
-            HologramCard(
-              neonRenk: sysBlue,
-              padding: EdgeInsets.zero,
-              child: bugununGorevleri.isEmpty 
-              ? Padding(padding: const EdgeInsets.all(20), child: Center(child: Text(TranslationManager.get('dash_no_quests'), style: const TextStyle(color: sysTextMuted))))
-              : ListView.builder(
-                  shrinkWrap: true, physics: const NeverScrollableScrollPhysics(),
-                  itemCount: bugununGorevleri.length,
-                  itemBuilder: (context, index) {
-                    Gorev g = bugununGorevleri[index];
-                    return Container(
-                      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.white12, width: 0.5))),
-                      child: ListTile(
-                        leading: Icon(g.yapildiMi ? Icons.check_box : Icons.check_box_outline_blank, color: g.yapildiMi ? sysBlue : sysTextMuted, size: 20),
-                        title: GestureDetector(
-                          onTap: () => ExerciseDetailModal.show(
-                            context,
-                            gorevAdi: g.ad,
-                            gun: bugun,
-                            index: index,
-                            onSwapped: () => setState(() {}),
-                          ),
-                          child: Text(
-                            g.ad,
-                            style: TextStyle(
-                              color: g.yapildiMi ? sysTextMuted : Colors.white,
-                              fontSize: 14,
-                              decoration: g.yapildiMi ? TextDecoration.lineThrough : null,
-                            ),
-                          ),
+            // --- 5. GÜNLÜK GÖREVLER (ÇOK YÖNLÜ AVCI SİSTEMİ) ---
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  TranslationManager.get('dash_daily_quests'),
+                  style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2),
+                ),
+                Row(
+                  children: [
+                    InkWell(
+                      onTap: () => StudyPlannerModal.show(context).then((_) => setState(() {})),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: sysBlue.withValues(alpha: 0.15),
+                          border: Border.all(color: sysBlue.withValues(alpha: 0.6)),
+                          borderRadius: BorderRadius.circular(4),
                         ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
+                        child: Row(
                           children: [
-                            Text(g.tip == 'Fiziksel' ? TranslationManager.get('dash_phy') : TranslationManager.get('dash_mnt'), style: TextStyle(color: sysBlue.withValues(alpha: 0.5), fontSize: 10)),
+                            const Icon(Icons.auto_awesome, color: sysBlue, size: 12),
                             const SizedBox(width: 4),
-                            ExerciseTacticalButtons(
-                              gorevAdi: g.ad,
-                              gun: bugun,
-                              index: index,
-                              onSwapped: () => setState(() {}),
-                              size: 18,
-                            ),
+                            Text('AI ÇALIŞMA', style: GoogleFonts.orbitron(color: sysBlue, fontSize: 10, fontWeight: FontWeight.bold)),
                           ],
                         ),
                       ),
-                    );
-                  },
+                    ),
+                    const SizedBox(width: 6),
+                    InkWell(
+                      onTap: () => Navigator.push(context, SistemGecisi(sayfa: const DeepWorkTimerScreen())).then((_) => setState(() {})),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.purpleAccent.withValues(alpha: 0.15),
+                          border: Border.all(color: Colors.purpleAccent.withValues(alpha: 0.6)),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.timer, color: Colors.purpleAccent, size: 12),
+                            const SizedBox(width: 4),
+                            Text('DEEP WORK', style: GoogleFonts.orbitron(color: Colors.purpleAccent, fontSize: 10, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
+              ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 8),
+
+            // Filtre Seçenekleri: Tümü / Fiziksel / Zihinsel
+            Row(
+              children: [
+                _buildFilterChip('TÜMÜ', QuestFilter.all, sysBlue),
+                const SizedBox(width: 8),
+                _buildFilterChip('⚔️ FİZİKSEL', QuestFilter.physical, sysBlue),
+                const SizedBox(width: 8),
+                _buildFilterChip('🧠 ZİHİNSEL', QuestFilter.mental, Colors.purpleAccent),
+              ],
+            ),
+            const SizedBox(height: 10),
+
+            // FİZİKSEL GÖREVLER BÖLÜMÜ
+            if (_questFilter == QuestFilter.all || _questFilter == QuestFilter.physical) ...[
+              if (_questFilter == QuestFilter.all) ...[
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Text(
+                    '// FİZİKSEL ANTRENMAN PROTOKOLÜ',
+                    style: GoogleFonts.orbitron(color: sysBlue.withValues(alpha: 0.7), fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1),
+                  ),
+                ),
+              ],
+              HologramCard(
+                neonRenk: sysBlue,
+                padding: EdgeInsets.zero,
+                child: bugununGorevleri.isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.spa, color: sysBlue, size: 24),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'DİNLENME PROTOKOLÜ (RECOVERY DAY)',
+                                    style: GoogleFonts.orbitron(color: sysBlue, fontSize: 12, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Bugün fiziksel kas liflerinin süperkompansasyon (büyüme) fazı devrededir. Dinlenme günlerinde kaslar onarılırken zihninizi geliştirin.',
+                              style: GoogleFonts.rajdhani(color: Colors.white70, fontSize: 13),
+                            ),
+                            const SizedBox(height: 10),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 4,
+                              children: [
+                                _recoveryBadge('💧 3-4L Hidrasyon'),
+                                _recoveryBadge('🧘 15 Dk Esneme'),
+                                _recoveryBadge('📖 Kitap & Zihin'),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton.icon(
+                                onPressed: () => Navigator.push(context, SistemGecisi(sayfa: const DeepWorkTimerScreen())).then((_) => setState(() {})),
+                                icon: const Icon(Icons.psychology, size: 16, color: sysBlue),
+                                label: Text(
+                                  'ZİHİNSEL ZİNDANA GİR (DEEP WORK)',
+                                  style: GoogleFonts.orbitron(fontSize: 11, fontWeight: FontWeight.bold, color: sysBlue),
+                                ),
+                                style: OutlinedButton.styleFrom(
+                                  side: const BorderSide(color: sysBlue),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: bugununGorevleri.length,
+                        itemBuilder: (context, index) {
+                          Gorev g = bugununGorevleri[index];
+                          return Container(
+                            decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.white12, width: 0.5))),
+                            child: ListTile(
+                              leading: Icon(g.yapildiMi ? Icons.check_box : Icons.check_box_outline_blank, color: g.yapildiMi ? sysBlue : sysTextMuted, size: 20),
+                              title: GestureDetector(
+                                onTap: () => ExerciseDetailModal.show(
+                                  context,
+                                  gorevAdi: g.ad,
+                                  gun: bugun,
+                                  index: index,
+                                  onSwapped: () => setState(() {}),
+                                ),
+                                child: Text(
+                                  g.ad,
+                                  style: TextStyle(
+                                    color: g.yapildiMi ? sysTextMuted : Colors.white,
+                                    fontSize: 14,
+                                    decoration: g.yapildiMi ? TextDecoration.lineThrough : null,
+                                  ),
+                                ),
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(g.tip == 'Fiziksel' ? TranslationManager.get('dash_phy') : TranslationManager.get('dash_mnt'), style: TextStyle(color: sysBlue.withValues(alpha: 0.5), fontSize: 10)),
+                                  const SizedBox(width: 4),
+                                  ExerciseTacticalButtons(
+                                    gorevAdi: g.ad,
+                                    gun: bugun,
+                                    index: index,
+                                    onSwapped: () => setState(() {}),
+                                    size: 18,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            // ZİHİNSEL GÖREVLER BÖLÜMÜ
+            if (_questFilter == QuestFilter.all || _questFilter == QuestFilter.mental) ...[
+              if (_questFilter == QuestFilter.all) ...[
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Text(
+                    '// BİLİŞSEL GELİŞİM & ÇALIŞMA PROTOKOLÜ',
+                    style: GoogleFonts.orbitron(color: Colors.purpleAccent.withValues(alpha: 0.8), fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1),
+                  ),
+                ),
+              ],
+              ValueListenableBuilder<List<MentalTask>>(
+                valueListenable: SystemMemory.gunlukZihinselGorevler,
+                builder: (context, mentalList, _) {
+                  return HologramCard(
+                    neonRenk: Colors.purpleAccent,
+                    padding: EdgeInsets.zero,
+                    child: mentalList.isEmpty
+                        ? Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.psychology, color: Colors.purpleAccent, size: 22),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'ZİHİNSEL ZİNDAN: AKTİF PROTOKOL YOK',
+                                        style: GoogleFonts.orbitron(color: Colors.purpleAccent, fontSize: 12, fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'Gelişim sadece ağırlık kaldırmakla sınırlı değildir. Yapay zeka ile uzmanlık alanınıza veya okuma hedefinize özel günlük görev protokolü üretin.',
+                                  style: GoogleFonts.rajdhani(color: Colors.white70, fontSize: 13),
+                                ),
+                                const SizedBox(height: 12),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton.icon(
+                                    onPressed: () => StudyPlannerModal.show(context).then((_) => setState(() {})),
+                                    icon: const Icon(Icons.auto_awesome, size: 16, color: Colors.black),
+                                    label: Text(
+                                      'AI ÇALIŞMA PROTOKOLÜ OLUŞTUR',
+                                      style: GoogleFonts.orbitron(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black),
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.purpleAccent,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: mentalList.length,
+                            itemBuilder: (context, index) {
+                              final task = mentalList[index];
+                              return Container(
+                                decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.white12, width: 0.5))),
+                                child: ListTile(
+                                  leading: IconButton(
+                                    icon: Icon(
+                                      task.isCompleted ? Icons.check_box : Icons.check_box_outline_blank,
+                                      color: task.isCompleted ? Colors.purpleAccent : sysTextMuted,
+                                      size: 20,
+                                    ),
+                                    onPressed: () {
+                                      if (!task.isCompleted) {
+                                        SystemMemory.zihinselGorevTamamla(task.id);
+                                      }
+                                    },
+                                  ),
+                                  title: Text(
+                                    task.title,
+                                    style: TextStyle(
+                                      color: task.isCompleted ? sysTextMuted : Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      decoration: task.isCompleted ? TextDecoration.lineThrough : null,
+                                    ),
+                                  ),
+                                  subtitle: Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: Colors.purpleAccent.withValues(alpha: 0.15),
+                                          borderRadius: BorderRadius.circular(3),
+                                          border: Border.all(color: Colors.purpleAccent.withValues(alpha: 0.4), width: 0.8),
+                                        ),
+                                        child: Text(
+                                          task.category.toUpperCase(),
+                                          style: GoogleFonts.orbitron(color: Colors.purpleAccent, fontSize: 9, fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        '${task.targetMinutes} dk | +${task.rewardExp} EXP',
+                                        style: GoogleFonts.rajdhani(color: Colors.white60, fontSize: 12),
+                                      ),
+                                      if (task.targetPages != null) ...[
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          '| ${task.completedPages}/${task.targetPages} sayfa',
+                                          style: GoogleFonts.rajdhani(color: sysBlue, fontSize: 12, fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                  trailing: IconButton(
+                                    icon: const Icon(Icons.timer_outlined, color: Colors.purpleAccent, size: 20),
+                                    tooltip: 'Deep Work Başlat',
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        SistemGecisi(
+                                          sayfa: DeepWorkTimerScreen(
+                                            initialTopic: task.title,
+                                            initialMinutes: task.targetMinutes,
+                                          ),
+                                        ),
+                                      ).then((_) => setState(() {}));
+                                    },
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+            ],
+            const SizedBox(height: 4),
 
             // --- 6. BUGÜNÜN ZİNDAN (İDMAN) KAYITLARI ---
             Text(TranslationManager.get('dash_todays_dungeon'), style: GoogleFonts.orbitron(color: sysRed, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
@@ -564,19 +856,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             const SizedBox(height: 20),
 
-            // --- 7. ZİNDANA GİRİŞ BUTONU (ACTIVE WORKOUT) ---
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () => Navigator.push(context, SistemGecisi(sayfa: const ActiveWorkoutScreen())).then((_) => setState((){})),
-                icon: const Icon(Icons.flash_on, color: sysRed, size: 24),
-                label: Text(TranslationManager.get('dash_enter_dungeon'), style: const TextStyle(color: sysRed, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: sysRed.withValues(alpha: 0.1), padding: const EdgeInsets.symmetric(vertical: 20),
-                  side: const BorderSide(color: sysRed, width: 2), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                  shadowColor: sysRed.withValues(alpha: 0.5), elevation: 10
+            // --- 7. ZİNDANA GİRİŞ BUTONLARI (FİZİKSEL & BİLİŞSEL) ---
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => Navigator.push(context, SistemGecisi(sayfa: const ActiveWorkoutScreen())).then((_) => setState((){})),
+                    icon: const Icon(Icons.flash_on, color: sysRed, size: 20),
+                    label: Text(
+                      'FİZİKSEL ZİNDAN',
+                      style: GoogleFonts.orbitron(color: sysRed, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.1),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: sysRed.withValues(alpha: 0.1),
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      side: const BorderSide(color: sysRed, width: 1.5),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                      shadowColor: sysRed.withValues(alpha: 0.5),
+                      elevation: 8,
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => Navigator.push(context, SistemGecisi(sayfa: const DeepWorkTimerScreen())).then((_) => setState((){})),
+                    icon: const Icon(Icons.psychology, color: Colors.purpleAccent, size: 20),
+                    label: Text(
+                      'BİLİŞSEL ZİNDAN',
+                      style: GoogleFonts.orbitron(color: Colors.purpleAccent, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.1),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.purpleAccent.withValues(alpha: 0.1),
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      side: const BorderSide(color: Colors.purpleAccent, width: 1.5),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                      shadowColor: Colors.purpleAccent.withValues(alpha: 0.5),
+                      elevation: 8,
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 20),
 
@@ -634,6 +954,52 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const SizedBox(height: 4),
           Text('${(progress * 100).toInt()}%', style: TextStyle(color: aktifRenk, fontSize: 10, fontWeight: FontWeight.bold)),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFilterChip(String label, QuestFilter filter, Color activeColor) {
+    final isSelected = _questFilter == filter;
+    return InkWell(
+      onTap: () => setState(() => _questFilter = filter),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: isSelected ? activeColor.withValues(alpha: 0.2) : Colors.black45,
+          border: Border.all(
+            color: isSelected ? activeColor : Colors.white24,
+            width: isSelected ? 1.5 : 1,
+          ),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.orbitron(
+            color: isSelected ? activeColor : Colors.white60,
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _recoveryBadge(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F172A),
+        border: Border.all(color: const Color(0xFF38BDF8).withValues(alpha: 0.3)),
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: Text(
+        text,
+        style: GoogleFonts.rajdhani(
+          color: Colors.white,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
