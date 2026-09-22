@@ -22,8 +22,15 @@ class GeminiService {
       'Türkçe konuş. Cümlelerinde bazen [SİSTEM], [BİLDİRİM] gibi RPG tarzı köşeli parantezler kullan. '
       'Gereksiz nezaket cümleleri yerine net, keskin bir Sistem dili benimse.';
 
-  /// REST API üzerinden Gemini'ye mesaj gönderir (Opsiyonel görsel ile).
-  static Future<String?> _generateContent(String modelName, String apiKey, String prompt, {String? base64Image}) async {
+  /// REST API üzerinden Gemini'ye mesaj gönderir (Opsiyonel görsel veya PDF dokümanı ile).
+  static Future<String?> _generateContent(
+    String modelName,
+    String apiKey,
+    String prompt, {
+    String? base64Image,
+    String? inlineData,
+    String? inlineMimeType,
+  }) async {
     final url = Uri.parse(
       'https://generativelanguage.googleapis.com/v1beta/models/$modelName:generateContent?key=$apiKey',
     );
@@ -34,8 +41,20 @@ class GeminiService {
     final parts = <Map<String, dynamic>>[
       {'text': fullPrompt},
     ];
-    if (base64Image != null) {
-      parts.add({'inline_data': {'mime_type': 'image/jpeg', 'data': base64Image}});
+    if (inlineData != null) {
+      parts.add({
+        'inline_data': {
+          'mime_type': inlineMimeType ?? 'application/pdf',
+          'data': inlineData,
+        }
+      });
+    } else if (base64Image != null) {
+      parts.add({
+        'inline_data': {
+          'mime_type': inlineMimeType ?? 'image/jpeg',
+          'data': base64Image,
+        }
+      });
     }
 
     final body = jsonEncode({
@@ -218,24 +237,34 @@ EĞER FOTOĞRAFTA YEMEK YOKSA ŞU ŞEKİLDE DÖNDÜR:
     }
   }
 
-  /// Diyetisyenin hazırladığı diyet listesini (fotoğraf veya metin) analiz eder,
+  /// Diyetisyenin hazırladığı diyet listesini (PDF, Word, fotoğraf veya metin) analiz eder,
   /// toplam kalori ve makroları çıkarıp öğün bazında yapılandırır.
-  static Future<Map<String, dynamic>?> diyetisyenMenusuAnalizEt(String metin, {Uint8List? imageBytes}) async {
+  static Future<Map<String, dynamic>?> diyetisyenMenusuAnalizEt(
+    String metin, {
+    Uint8List? documentBytes,
+    String? mimeType,
+    Uint8List? imageBytes,
+  }) async {
     final apiKey = SystemMemory.geminiApiKey.trim();
     if (apiKey.isEmpty) return null;
 
     final model = SystemMemory.geminiActiveModel;
-    String? base64Image;
-    if (imageBytes != null) {
-      base64Image = base64Encode(imageBytes);
+    final bytesToSend = documentBytes ?? imageBytes;
+    String? base64Payload;
+    if (bytesToSend != null) {
+      base64Payload = base64Encode(bytesToSend);
     }
 
     try {
+      final effectiveMimeType = mimeType ?? (imageBytes != null ? 'image/jpeg' : 'application/pdf');
+      final isPdf = effectiveMimeType == 'application/pdf';
+      final isWord = effectiveMimeType.contains('word') || effectiveMimeType.contains('officedocument');
+
       final prompt = '''
 Sen klinik beslenme uzmanı ve diyetisyen verilerini inceleyen "Sistem" metabolik analiz ünitesisin.
 Avcı sana diyetisyeninin hazırladığı beslenme listesini/menüsünü gönderdi.
-\${metin.isNotEmpty ? 'METİN NOTLARI: "$metin"' : ''}
-\${imageBytes != null ? 'Görsel olarak diyet listesi fotoğrafı/belgesi iliştirildi. Belgedeki tüm öğünleri, porsiyonları ve besinleri dikkatle oku.' : ''}
+\${metin.isNotEmpty ? 'DİYETİSYEN METNİ / NOTLARI / BELGEDEN OKUNAN METİN:\n"""\n$metin\n"""' : ''}
+\${bytesToSend != null ? 'Ek olarak diyetisyen belgesi (\${isPdf ? "PDF Dokümanı" : (isWord ? "Word Dosyası" : "Görsel")}) iliştirildi. Belgedeki tüm öğünleri, porsiyonları, gramajları, besinleri ve varsa belirtilen kalori/makro değerlerini dikkatle tara ve oku.' : ''}
 
 GÖREVİN:
 1. Bu diyetisyen programının günlük TOPLAM KALORİ, PROTEİN (g), KARBONHİDRAT (g) ve YAĞ (g) hedeflerini kesin/tahmini olarak hesapla.
@@ -256,7 +285,13 @@ GÖREVİN:
 }
 ''';
 
-      final res = await _generateContent(model, apiKey, prompt, base64Image: base64Image);
+      final res = await _generateContent(
+        model,
+        apiKey,
+        prompt,
+        inlineData: base64Payload,
+        inlineMimeType: effectiveMimeType,
+      );
       if (res == null || res.isEmpty) return null;
 
       final cleanJson = res.replaceAll(RegExp(r'```json\s*|```'), '').trim();

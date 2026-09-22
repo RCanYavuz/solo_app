@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import '../controllers/system_memory.dart';
 import '../core/services/gemini_service.dart';
+import '../core/document_parser.dart';
 
 class DietitianScannerModal extends StatefulWidget {
   const DietitianScannerModal({super.key});
@@ -28,6 +29,7 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
   final TextEditingController _yagCtrl = TextEditingController();
 
   Uint8List? _secilenFoto;
+  ParsedDocument? _secilenDokuman;
   bool _tariyor = false;
   String? _hata;
   String? _aiNot;
@@ -71,10 +73,32 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
     }
   }
 
+  Future<void> _dokumanSec() async {
+    try {
+      final doc = await DocumentParser.pickDocument();
+      if (doc != null) {
+        setState(() {
+          _secilenDokuman = doc;
+          _secilenFoto = null;
+          _hata = null;
+          if (doc.extractedText != null && doc.extractedText!.isNotEmpty) {
+            if (_metinCtrl.text.trim().isEmpty) {
+              _metinCtrl.text = doc.extractedText!;
+            } else {
+              _metinCtrl.text = '${_metinCtrl.text}\n\n[BELGEDEN OKUNAN METİN]:\n${doc.extractedText!}';
+            }
+          }
+        });
+      }
+    } catch (e) {
+      setState(() => _hata = "Belge seçilemedi: $e");
+    }
+  }
+
   Future<void> _taramayiBaslat() async {
     final metin = _metinCtrl.text.trim();
-    if (metin.isEmpty && _secilenFoto == null) {
-      setState(() => _hata = "Lütfen diyet listenizin metnini yazın veya belgesini fotoğraflayın.");
+    if (metin.isEmpty && _secilenFoto == null && _secilenDokuman == null) {
+      setState(() => _hata = "Lütfen diyet listenizin metnini yazın veya PDF / Word / Fotoğraf belgesi yükleyin.");
       return;
     }
 
@@ -83,7 +107,14 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
       _hata = null;
     });
 
-    final res = await GeminiService.diyetisyenMenusuAnalizEt(metin, imageBytes: _secilenFoto);
+    Uint8List? bytesToSend = _secilenDokuman?.bytes ?? _secilenFoto;
+    String? mimeType = _secilenDokuman?.mimeType ?? (_secilenFoto != null ? 'image/jpeg' : null);
+
+    final res = await GeminiService.diyetisyenMenusuAnalizEt(
+      metin,
+      documentBytes: bytesToSend,
+      mimeType: mimeType,
+    );
 
     if (!mounted) return;
 
@@ -257,17 +288,35 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
               ),
               const SizedBox(height: 8),
 
-              // Görsel Seçim Butonları
+              // Belge ve Görsel Seçim Butonları
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: _tariyor ? null : _dokumanSec,
+                  icon: const Icon(Icons.description, color: sysDarkBg, size: 18),
+                  label: const Text(
+                    '📄 PDF / WORD BELGESİ SEÇ (.pdf, .docx, .doc)',
+                    style: TextStyle(color: sysDarkBg, fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: sysBlue,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: _tariyor ? null : () => _fotoSec(ImageSource.camera),
-                      icon: const Icon(Icons.camera_alt, color: sysBlue, size: 16),
-                      label: const Text('KAMERAYLA ÇEK', style: TextStyle(color: sysBlue, fontSize: 11, fontWeight: FontWeight.bold)),
+                      icon: const Icon(Icons.camera_alt, color: sysTextMuted, size: 15),
+                      label: const Text('KAMERA', style: TextStyle(color: sysTextMuted, fontSize: 11, fontWeight: FontWeight.bold)),
                       style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: sysBlue.withValues(alpha: 0.5)),
-                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        side: const BorderSide(color: Colors.white24),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
                       ),
                     ),
                   ),
@@ -275,16 +324,61 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: _tariyor ? null : () => _fotoSec(ImageSource.gallery),
-                      icon: const Icon(Icons.photo_library, color: sysBlue, size: 16),
-                      label: const Text('GALERİDEN SEÇ', style: TextStyle(color: sysBlue, fontSize: 11, fontWeight: FontWeight.bold)),
+                      icon: const Icon(Icons.photo_library, color: sysTextMuted, size: 15),
+                      label: const Text('GALERİ / FOTO', style: TextStyle(color: sysTextMuted, fontSize: 11, fontWeight: FontWeight.bold)),
                       style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: sysBlue.withValues(alpha: 0.5)),
-                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        side: const BorderSide(color: Colors.white24),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
                       ),
                     ),
                   ),
                 ],
               ),
+
+              if (_secilenDokuman != null) ...[
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: sysBlue.withValues(alpha: 0.12),
+                    border: Border.all(color: sysBlue.withValues(alpha: 0.5)),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        _secilenDokuman!.isPdf
+                            ? Icons.picture_as_pdf
+                            : (_secilenDokuman!.isWord ? Icons.article : Icons.description),
+                        color: _secilenDokuman!.isPdf ? sysRed : sysBlue,
+                        size: 22,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _secilenDokuman!.fileName,
+                              style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              '${(_secilenDokuman!.bytes.length / 1024).toStringAsFixed(1)} KB • ${_secilenDokuman!.extension.toUpperCase()} Belgesi',
+                              style: TextStyle(color: sysBlue.withValues(alpha: 0.8), fontSize: 10),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: sysRed, size: 16),
+                        onPressed: () => setState(() => _secilenDokuman = null),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+
               if (_secilenFoto != null) ...[
                 const SizedBox(height: 8),
                 Container(
