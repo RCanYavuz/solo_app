@@ -13,6 +13,7 @@ import 'setup_screen.dart';
 import '../core/translation_manager.dart';
 import '../widgets/hunter_radar_chart.dart';
 import '../widgets/supplement_loadout_modal.dart';
+import '../core/services/notification_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -1875,6 +1876,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
+            const SizedBox(height: 20),
+
+            // ==========================================
+            // BİLDİRİM VE SİSTEM DİREKTİFLERİ (NOTIFICATIONS)
+            // ==========================================
+            _buildNotificationCard(),
+
             const SizedBox(height: 40),
           ],
         ),
@@ -1883,6 +1891,182 @@ class _ProfileScreenState extends State<ProfileScreen> {
   },
 );
 }
+
+  Widget _buildNotificationCard() {
+    return HologramCard(
+      neonRenk: sysBlue,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.notifications_active, color: sysBlue, size: 18),
+                  const SizedBox(width: 10),
+                  Text(
+                    "SYSTEM DIRECTIVES",
+                    style: GoogleFonts.orbitron(
+                      color: sysBlue,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: sysBlue.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: sysBlue.withValues(alpha: 0.4)),
+                ),
+                child: const Text(
+                  "ALERTS",
+                  style: TextStyle(color: sysBlue, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            "Zindan çağrıları, hidrasyon takviyesi ve ceza protokolü bildirimlerini yönetin.",
+            style: TextStyle(color: sysTextMuted, fontSize: 12),
+          ),
+          const SizedBox(height: 16),
+          // Su Hatırlatıcısı
+          Material(
+            type: MaterialType.transparency,
+            child: SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              activeThumbColor: sysBlue,
+              title: const Text("Hidrasyon Protokolü (Su)", style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+              subtitle: Text("Her ${SystemMemory.suBildirimAraligiSaat} saatte bir uyarı (+1 MP)", style: const TextStyle(color: sysTextMuted, fontSize: 11)),
+              value: SystemMemory.suBildirimiAktif,
+              onChanged: (val) {
+                setState(() {
+                  SystemMemory.suBildirimiAktif = val;
+                });
+                SystemMemory.bildirimleriSenkronizeEt();
+                SystemMemory.kaydet();
+              },
+            ),
+          ),
+          const Divider(color: Colors.white12, height: 1),
+          // İdman Hatırlatıcısı
+          Material(
+            type: MaterialType.transparency,
+            child: SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              activeThumbColor: bloodRed,
+              title: const Text("Zindan Çağrısı (İdman)", style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+              subtitle: Text(
+                "Günlük antrenman saati: ${SystemMemory.idmanBildirimSaati.toString().padLeft(2, '0')}:${SystemMemory.idmanBildirimDakikasi.toString().padLeft(2, '0')}",
+                style: const TextStyle(color: sysTextMuted, fontSize: 11),
+              ),
+              value: SystemMemory.idmanBildirimiAktif,
+              onChanged: (val) {
+                setState(() {
+                  SystemMemory.idmanBildirimiAktif = val;
+                });
+                SystemMemory.bildirimleriSenkronizeEt();
+                SystemMemory.kaydet();
+              },
+            ),
+          ),
+          if (SystemMemory.idmanBildirimiAktif) ...[
+            const SizedBox(height: 4),
+            Align(
+              alignment: Alignment.centerRight,
+              child: OutlinedButton.icon(
+                onPressed: () async {
+                  final initialTime = TimeOfDay(
+                    hour: SystemMemory.idmanBildirimSaati,
+                    minute: SystemMemory.idmanBildirimDakikasi,
+                  );
+                  final picked = await showTimePicker(
+                    context: context,
+                    initialTime: initialTime,
+                    builder: (context, child) {
+                      return Theme(
+                        data: ThemeData.dark().copyWith(
+                          colorScheme: const ColorScheme.dark(
+                            primary: sysBlue,
+                            surface: Color(0xFF030712),
+                          ),
+                        ),
+                        child: child!,
+                      );
+                    },
+                  );
+                  if (picked != null) {
+                    setState(() {
+                      SystemMemory.idmanBildirimSaati = picked.hour;
+                      SystemMemory.idmanBildirimDakikasi = picked.minute;
+                    });
+                    await SystemMemory.bildirimleriSenkronizeEt();
+                    await SystemMemory.kaydet();
+                  }
+                },
+                icon: const Icon(Icons.access_time, size: 14, color: sysBlue),
+                label: const Text("Saati Değiştir", style: TextStyle(color: sysBlue, fontSize: 11, fontWeight: FontWeight.bold)),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: sysBlue.withValues(alpha: 0.5)),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                ),
+              ),
+            ),
+          ],
+          const Divider(color: Colors.white12, height: 1),
+          // Gece Hesaplaşması
+          Material(
+            type: MaterialType.transparency,
+            child: SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              activeThumbColor: physicalGold,
+              title: const Text("Gece Hesaplaşması Uyarısı", style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+              subtitle: const Text("Saat 22:30'da ceza protokolü öncesi son uyarı", style: TextStyle(color: sysTextMuted, fontSize: 11)),
+              value: SystemMemory.geceBildirimiAktif,
+              onChanged: (val) {
+                setState(() {
+                  SystemMemory.geceBildirimiAktif = val;
+                });
+                SystemMemory.bildirimleriSenkronizeEt();
+                SystemMemory.kaydet();
+              },
+            ),
+          ),
+          const SizedBox(height: 12),
+          // Test Bildirimi Butonu
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () async {
+                await NotificationService.instance.testBildirimiGonder();
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("SYSTEM: Test bildirimi gönderildi!", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                      backgroundColor: sysBlue,
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
+              },
+              icon: const Icon(Icons.bolt, size: 16, color: sysBlue),
+              label: const Text("TEST BİLDİRİMİ TETİKLE", style: TextStyle(color: sysBlue, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1)),
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(color: sysBlue.withValues(alpha: 0.6)),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildLanguageButton(String langCode, String flag, String label, bool active) {
     return GestureDetector(

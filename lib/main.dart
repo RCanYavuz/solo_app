@@ -10,16 +10,24 @@ import 'core/theme/app_colors.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 
+import 'core/services/notification_service.dart';
+
 void main() async {
   // Flutter motorunun tam yüklendiğinden emin ol
   WidgetsFlutterBinding.ensureInitialized();
   
+  // BİLDİRİM SERVİSİNİ BAŞLAT
+  await NotificationService.instance.init();
+
   if (!kIsWeb) {
     await initializeService();
   }
   
   // SİSTEM HAFIZASINI OKU VE YÜKLE
   await SystemMemory.baslat();
+
+  // BİLDİRİMLERİ SENKRONİZE ET
+  await SystemMemory.bildirimleriSenkronizeEt();
 
   // SES SİSTEMİNİ BAŞLAT
   await AudioSystem.init();
@@ -77,6 +85,18 @@ Future<void> initializeService() async {
 
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService.instance.init();
+
+  service.on('triggerNotification').listen((event) {
+    if (event != null && event['title'] != null && event['body'] != null) {
+      NotificationService.instance.anlikBildirimGonder(
+        title: event['title'] as String,
+        body: event['body'] as String,
+      );
+    }
+  });
+
   service.on('stopService').listen((event) {
     service.stopSelf();
   });

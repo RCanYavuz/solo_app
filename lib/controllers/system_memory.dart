@@ -13,6 +13,7 @@ import 'memory_modules/memory_storage.dart';
 import 'memory_modules/memory_workout.dart';
 import 'memory_modules/memory_nutrition.dart';
 import 'memory_modules/memory_combat_ranks.dart';
+import '../core/services/notification_service.dart';
 
 class SystemMemory {
   // ==========================================
@@ -143,6 +144,34 @@ class SystemMemory {
   // Başarımlar Takip Motoru
   static Map<String, int> basarimKademeleri = {};
   static ValueNotifier<String?> yeniBasarimBildirimi = ValueNotifier(null);
+
+  // Bildirim Protokolleri & Tercihleri
+  static bool suBildirimiAktif = true;
+  static int suBildirimAraligiSaat = 2;
+  static bool idmanBildirimiAktif = true;
+  static int idmanBildirimSaati = 18;
+  static int idmanBildirimDakikasi = 0;
+  static bool geceBildirimiAktif = true;
+
+  /// Bildirim tercihlerine göre zamanlamaları günceller
+  static Future<void> bildirimleriSenkronizeEt() async {
+    final notif = NotificationService.instance;
+    if (suBildirimiAktif) {
+      await notif.suHatirlaticisiPlanla(intervalHours: suBildirimAraligiSaat);
+    } else {
+      await notif.suHatirlaticisiIptal();
+    }
+
+    if (idmanBildirimiAktif) {
+      await notif.idmanHatirlaticisiPlanla(hour: idmanBildirimSaati, minute: idmanBildirimDakikasi);
+    } else {
+      await notif.idmanHatirlaticisiIptal();
+    }
+
+    if (geceBildirimiAktif) {
+      await notif.geceHesaplasmaHatirlaticisiPlanla();
+    }
+  }
 
   // Makro Besin Toplamları
   static int get bugunProtein => bugununYemekleri.fold(0, (sum, item) => sum + item.protein);

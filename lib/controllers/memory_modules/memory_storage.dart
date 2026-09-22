@@ -188,6 +188,15 @@ class MemoryStorage {
 
       SystemMemory.kusanilanSuplementler = prefs.getStringList('kusanilanSuplementler') ?? [];
       SystemMemory.sesliKocAktif.value = prefs.getBool('sesliKocAktif') ?? true;
+
+      // Bildirim Tercihleri
+      SystemMemory.suBildirimiAktif = prefs.getBool('suBildirimiAktif') ?? true;
+      SystemMemory.suBildirimAraligiSaat = prefs.getInt('suBildirimAraligiSaat') ?? 2;
+      SystemMemory.idmanBildirimiAktif = prefs.getBool('idmanBildirimiAktif') ?? true;
+      SystemMemory.idmanBildirimSaati = prefs.getInt('idmanBildirimSaati') ?? 18;
+      SystemMemory.idmanBildirimDakikasi = prefs.getInt('idmanBildirimDakikasi') ?? 0;
+      SystemMemory.geceBildirimiAktif = prefs.getBool('geceBildirimiAktif') ?? true;
+
       SystemMemory.suHedefiGuncelle();
 
       SystemMemory.bossGuncelle();
@@ -323,6 +332,14 @@ class MemoryStorage {
       await prefs.setString('basarimKademeleri', jsonEncode(SystemMemory.basarimKademeleri));
       await prefs.setStringList('kusanilanSuplementler', SystemMemory.kusanilanSuplementler);
       await prefs.setBool('sesliKocAktif', SystemMemory.sesliKocAktif.value);
+
+      // Bildirim Tercihleri
+      await prefs.setBool('suBildirimiAktif', SystemMemory.suBildirimiAktif);
+      await prefs.setInt('suBildirimAraligiSaat', SystemMemory.suBildirimAraligiSaat);
+      await prefs.setBool('idmanBildirimiAktif', SystemMemory.idmanBildirimiAktif);
+      await prefs.setInt('idmanBildirimSaati', SystemMemory.idmanBildirimSaati);
+      await prefs.setInt('idmanBildirimDakikasi', SystemMemory.idmanBildirimDakikasi);
+      await prefs.setBool('geceBildirimiAktif', SystemMemory.geceBildirimiAktif);
 
       SystemMemory.bossGuncelle();
   }
