@@ -115,7 +115,7 @@ class _InstructionScreenState extends State<InstructionScreen> {
                     AudioSystem.playTransition();
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => const AnaEkran()),
+                      MaterialPageRoute(builder: (context) => const AnaEkran(playStartupSound: false)),
                     );
                   },
                   icon: const Icon(Icons.login, color: sysBlue),

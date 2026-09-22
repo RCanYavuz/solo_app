@@ -5,6 +5,7 @@ import 'package:audioplayers/audioplayers.dart';
 class AudioSystem {
   static final AudioPlayer _player = AudioPlayer();
   static final AudioPlayer _transitionPlayer = AudioPlayer(); 
+  static final AudioPlayer _startupPlayer = AudioPlayer(); 
 
   static bool get _isTest {
     if (kIsWeb) return false;
@@ -67,11 +68,8 @@ class AudioSystem {
   static Future<void> playStartup() async {
     if (_isTest) return;
     try {
-      final AudioPlayer startupPlayer = AudioPlayer();
-      await startupPlayer.play(AssetSource('audio/startup.mp3'));
-      startupPlayer.onPlayerComplete.listen((event) {
-        startupPlayer.dispose();
-      });
+      await _startupPlayer.stop();
+      await _startupPlayer.play(AssetSource('audio/startup.mp3'));
     } catch (_) {}
   }
 }

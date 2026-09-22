@@ -39,5 +39,20 @@ void main() {
       expect(find.byType(AnaEkran), findsOneWidget);
       expect(find.byType(SetupScreen), findsNothing);
     });
+
+    testWidgets('AnaEkran playStartupSound parametresi doğru çalışır', (WidgetTester tester) async {
+      SharedPreferences.setMockInitialValues({
+        'level': 1,
+        'oyuncuIsmi': 'JINWOO',
+      });
+      await SystemMemory.baslat();
+
+      // Varsayılan olarak playStartupSound true olmalıdır
+      const ekranDefault = AnaEkran();
+      expect(ekranDefault.playStartupSound, isTrue);
+
+      const ekranSessiz = AnaEkran(playStartupSound: false);
+      expect(ekranSessiz.playStartupSound, isFalse);
+    });
   });
 }

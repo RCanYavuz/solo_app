@@ -12,7 +12,8 @@ import 'diet_screen.dart';
 import 'profile_screen.dart';
 
 class AnaEkran extends StatefulWidget {
-  const AnaEkran({super.key});
+  final bool playStartupSound;
+  const AnaEkran({super.key, this.playStartupSound = true});
 
   @override
   State<AnaEkran> createState() => _AnaEkranState();
@@ -33,6 +34,9 @@ class _AnaEkranState extends State<AnaEkran> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    if (widget.playStartupSound) {
+      AudioSystem.playStartup();
+    }
     _kontrolVeRapor();
   }
 
