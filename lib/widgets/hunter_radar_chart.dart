@@ -8,6 +8,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../core/translation_manager.dart';
 
 class HunterRadarChart extends StatelessWidget {
   final int str;
@@ -33,22 +34,22 @@ class HunterRadarChart extends StatelessWidget {
     final enDusuk = stats.entries.reduce((a, b) => a.value <= b.value ? a : b);
 
     if (enYuksek.value - enDusuk.value <= 4) {
-      return 'ALL-ROUNDER (DENGELİ AVCI)';
+      return TranslationManager.isTurkish ? 'ALL-ROUNDER (DENGELİ AVCI)' : 'ALL-ROUNDER (BALANCED HUNTER)';
     }
 
     switch (enYuksek.key) {
       case 'STR':
-        return 'BERSERKER / AĞIR VURUŞÇU';
+        return TranslationManager.isTurkish ? 'BERSERKER / AĞIR VURUŞÇU' : 'BERSERKER / HEAVY HITTER';
       case 'AGI':
-        return 'ASSASSIN / GÖLGE SUİKASTÇİSİ';
+        return TranslationManager.isTurkish ? 'ASSASSIN / GÖLGE SUİKASTÇİSİ' : 'ASSASSIN / SHADOW ASSASSIN';
       case 'VIT':
-        return 'TANKER / KAYA MUHAFIZ';
+        return TranslationManager.isTurkish ? 'TANKER / KAYA MUHAFIZ' : 'TANK / ROCK GUARDIAN';
       case 'INT':
-        return 'STRATEGIST / BÜYÜCÜ LİDER';
+        return TranslationManager.isTurkish ? 'STRATEGIST / BÜYÜCÜ LİDER' : 'STRATEGIST / MAGE LEADER';
       case 'PER':
-        return 'SCOUT / KESKİN SEZGİ';
+        return TranslationManager.isTurkish ? 'SCOUT / KESKİN SEZGİ' : 'SCOUT / SHARP PERCEPTION';
       default:
-        return 'SAVAŞÇI';
+        return TranslationManager.isTurkish ? 'SAVAŞÇI' : 'WARRIOR';
     }
   }
 
@@ -75,7 +76,7 @@ class HunterRadarChart extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '[ BİYOMETRİK STAT RADARI ]',
+                TranslationManager.isTurkish ? '[ BİYOMETRİK STAT RADARI ]' : '[ BIOMETRIC STAT RADAR ]',
                 style: GoogleFonts.orbitron(
                   color: const Color(0xFF38BDF8),
                   fontSize: 11,

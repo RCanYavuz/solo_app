@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solo_leveling_app/controllers/system_memory.dart';
 import 'package:solo_leveling_app/core/services/notification_service.dart';
+import 'package:solo_leveling_app/core/translation_manager.dart';
 import 'package:solo_leveling_app/screens/profile_screen.dart';
 
 void main() {
@@ -112,7 +113,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // SYSTEM DIRECTIVES kartı arayüzde bulunmalı
-      final directivesFinder = find.text('SYSTEM DIRECTIVES');
+      final directivesFinder = find.text(TranslationManager.get('profile_system_directives'));
       expect(directivesFinder, findsOneWidget);
 
       // Hidrasyon ve Zindan çağrısı switchleri bulunmalı

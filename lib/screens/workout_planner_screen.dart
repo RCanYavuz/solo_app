@@ -168,7 +168,7 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
                       const SizedBox(height: 18),
                       const Center(child: CircularProgressIndicator(color: mentalPurple, strokeWidth: 2.5)),
                       const SizedBox(height: 8),
-                      const Center(child: Text("Sistem antrenman protokolünü hesaplıyor...", style: TextStyle(color: mentalPurple, fontSize: 11))),
+                      Center(child: Text(TranslationManager.isTurkish ? "Sistem antrenman protokolünü hesaplıyor..." : "System calculating workout protocol...", style: const TextStyle(color: mentalPurple, fontSize: 11))),
                     ]
                   ],
                 ),
@@ -176,7 +176,7 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
               actions: [
                 TextButton(
                   onPressed: yukleniyor ? null : () => Navigator.pop(context),
-                  child: const Text('İPTAL', style: TextStyle(color: sysTextMuted)),
+                  child: Text(TranslationManager.isTurkish ? 'İPTAL' : 'CANCEL', style: const TextStyle(color: sysTextMuted)),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -202,22 +202,22 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
                     if (basarili) {
                       AudioSystem.playLevelUp();
                       messenger.showSnackBar(
-                        const SnackBar(
-                          content: Text('⚡ SİSTEM: Haftalık antrenman programı Gemini AI tarafından başarıyla yenilendi!'),
+                        SnackBar(
+                          content: Text(TranslationManager.isTurkish ? '⚡ SİSTEM: Haftalık antrenman programı Gemini AI tarafından başarıyla yenilendi!' : '⚡ SYSTEM: Weekly workout program successfully refreshed by Gemini AI!'),
                           backgroundColor: Colors.green,
                         ),
                       );
                     } else {
                       AudioSystem.playSuccess();
                       messenger.showSnackBar(
-                        const SnackBar(
-                          content: Text('⚠️ SİSTEM: Yerel kural motoru devreye alındı (Çevrimdışı/Yedek mod).'),
+                        SnackBar(
+                          content: Text(TranslationManager.isTurkish ? '⚠️ SİSTEM: Yerel kural motoru devreye alındı (Çevrimdışı/Yedek mod).' : '⚠️ SYSTEM: Local rule engine engaged (Offline/Fallback mode).'),
                           backgroundColor: physicalGold,
                         ),
                       );
                     }
                   },
-                  child: const Text('TÜM HAFTAYI YENİLE', style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 11)),
+                  child: Text(TranslationManager.isTurkish ? 'TÜM HAFTAYI YENİLE' : 'REFRESH FULL WEEK', style: const TextStyle(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 11)),
                 ),
               ],
             );
@@ -302,10 +302,10 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
     else if (sablonAdi == 'AI Booster') {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('SİSTEM: AI Avcı Booster hesaplanıyor...'),
-          backgroundColor: Color(0xFFA855F7),
-          duration: Duration(seconds: 1),
+        SnackBar(
+          content: Text(TranslationManager.isTurkish ? 'SİSTEM: AI Avcı Booster hesaplanıyor...' : 'SYSTEM: Calculating AI Hunter Booster...'),
+          backgroundColor: const Color(0xFFA855F7),
+          duration: const Duration(seconds: 1),
         ),
       );
 
@@ -323,8 +323,8 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
         SnackBar(
           content: Text(
             ekleModu
-                ? 'SİSTEM: AI Booster seçili günlere eklendi!'
-                : 'SİSTEM: AI Booster seçili günlere kuruldu!',
+                ? (TranslationManager.isTurkish ? 'SİSTEM: AI Booster seçili günlere eklendi!' : 'SYSTEM: AI Booster added to selected days!')
+                : (TranslationManager.isTurkish ? 'SİSTEM: AI Booster seçili günlere kuruldu!' : 'SYSTEM: AI Booster installed for selected days!'),
           ),
           backgroundColor: const Color(0xFF22C55E),
           duration: const Duration(seconds: 2),
@@ -459,7 +459,7 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('KAPAT', style: TextStyle(color: sysTextMuted)),
+              child: Text(TranslationManager.isTurkish ? 'KAPAT' : 'CLOSE', style: const TextStyle(color: sysTextMuted)),
             ),
           ],
         );
@@ -508,7 +508,7 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
                 child: OutlinedButton.icon(
                   onPressed: () => _sablonUygula(kod, ekleModu: true),
                   icon: const Icon(Icons.add, size: 12, color: Color(0xFF22C55E)),
-                  label: const Text('+ GÜNLERE EKLE', style: TextStyle(color: Color(0xFF22C55E), fontSize: 9, fontWeight: FontWeight.bold)),
+                  label: Text(TranslationManager.isTurkish ? '+ GÜNLERE EKLE' : '+ ADD TO DAYS', style: const TextStyle(color: Color(0xFF22C55E), fontSize: 9, fontWeight: FontWeight.bold)),
                   style: OutlinedButton.styleFrom(
                     side: BorderSide(color: const Color(0xFF22C55E).withValues(alpha: 0.6)),
                     padding: const EdgeInsets.symmetric(vertical: 8),
@@ -521,7 +521,7 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
                 child: OutlinedButton.icon(
                   onPressed: () => _sablonUygula(kod, ekleModu: false),
                   icon: const Icon(Icons.sync, size: 12, color: sysRed),
-                  label: const Text('🔄 SIFIRLA VE KUR', style: TextStyle(color: sysRed, fontSize: 9, fontWeight: FontWeight.bold)),
+                  label: Text(TranslationManager.isTurkish ? '🔄 SIFIRLA VE KUR' : '🔄 RESET & INSTALL', style: const TextStyle(color: sysRed, fontSize: 9, fontWeight: FontWeight.bold)),
                   style: OutlinedButton.styleFrom(
                     side: BorderSide(color: sysRed.withValues(alpha: 0.6)),
                     padding: const EdgeInsets.symmetric(vertical: 8),
@@ -694,12 +694,12 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
                             ),
                             child: IconButton(
                               icon: const Icon(Icons.manage_search, color: sysBlue),
-                              tooltip: 'Kütüphaneden Ara & Ekle',
+                              tooltip: TranslationManager.isTurkish ? 'Kütüphaneden Ara & Ekle' : 'Search & Add from Library',
                               onPressed: () {
                                 AdvancedExerciseSelectorModal.show(
                                   context,
-                                  baslik: 'PLANA EGZERSİZ ENJEKTE ET',
-                                  onayButonMetni: 'SEÇİLİ GÜNLERE EKLE',
+                                  baslik: TranslationManager.isTurkish ? 'PLANA EGZERSİZ ENJEKTE ET' : 'INJECT EXERCISE INTO PLAN',
+                                  onayButonMetni: TranslationManager.isTurkish ? 'SEÇİLİ GÜNLERE EKLE' : 'ADD TO SELECTED DAYS',
                                   onEklendi: (gorev) {
                                     setState(() {
                                       for (int gun in seciliGunler) {
@@ -709,7 +709,7 @@ class _WorkoutPlannerScreenState extends State<WorkoutPlannerScreen> {
                                     SystemMemory.kaydet();
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text('SİSTEM: "${gorev.ad}" seçili günlere eklendi!'),
+                                        content: Text(TranslationManager.isTurkish ? 'SİSTEM: "${gorev.ad}" seçili günlere eklendi!' : 'SYSTEM: "${gorev.ad}" added to selected days!'),
                                         backgroundColor: const Color(0xFF22C55E),
                                         duration: const Duration(seconds: 2),
                                       ),

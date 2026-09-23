@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import '../controllers/system_memory.dart';
 import '../core/audio_system.dart';
+import '../core/translation_manager.dart';
 
 class ProgressGalleryModal extends StatefulWidget {
   const ProgressGalleryModal({super.key});
@@ -70,7 +71,7 @@ class _ProgressGalleryModalState extends State<ProgressGalleryModal>
           borderRadius: BorderRadius.circular(8),
         ),
         title: Text(
-          'LOG TRANSFORMATION ENTRY',
+          TranslationManager.isTurkish ? 'İLERLEME GİRİŞİ KAYDET' : 'LOG TRANSFORMATION ENTRY',
           style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold),
         ),
         content: Column(
@@ -85,22 +86,22 @@ class _ProgressGalleryModalState extends State<ProgressGalleryModal>
               controller: kiloController,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
-                labelText: 'Mevcut Kilo (kg)',
-                labelStyle: TextStyle(color: textMuted),
-                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
-                focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: sysBlue)),
+              decoration: InputDecoration(
+                labelText: TranslationManager.isTurkish ? 'Mevcut Kilo (kg)' : 'Current Weight (kg)',
+                labelStyle: const TextStyle(color: textMuted),
+                enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+                focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: sysBlue)),
               ),
             ),
             const SizedBox(height: 8),
             TextField(
               controller: notController,
               style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
-                labelText: 'Avcı Notu (Opsiyonel)',
-                labelStyle: TextStyle(color: textMuted),
-                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
-                focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: sysBlue)),
+              decoration: InputDecoration(
+                labelText: TranslationManager.isTurkish ? 'Avcı Notu (Opsiyonel)' : 'Hunter Note (Optional)',
+                labelStyle: const TextStyle(color: textMuted),
+                enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+                focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: sysBlue)),
               ),
             ),
           ],
@@ -108,7 +109,7 @@ class _ProgressGalleryModalState extends State<ProgressGalleryModal>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('İPTAL', style: TextStyle(color: Colors.white54)),
+            child: Text(TranslationManager.isTurkish ? 'İPTAL' : 'CANCEL', style: const TextStyle(color: Colors.white54)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: sysBlue),
@@ -123,7 +124,7 @@ class _ProgressGalleryModalState extends State<ProgressGalleryModal>
               if (ctx.mounted) Navigator.pop(ctx);
               setState(() {});
             },
-            child: const Text('KAYDET', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+            child: Text(TranslationManager.isTurkish ? 'KAYDET' : 'SAVE', style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -179,7 +180,7 @@ class _ProgressGalleryModalState extends State<ProgressGalleryModal>
                 ),
                 IconButton(
                   icon: const Icon(Icons.add_a_photo, color: sysBlue),
-                  tooltip: 'Yeni Fotoğraf Ekle',
+                  tooltip: TranslationManager.isTurkish ? 'Yeni Fotoğraf Ekle' : 'Add New Photo',
                   onPressed: _yeniFotoEkle,
                 ),
               ],
@@ -211,15 +212,15 @@ class _ProgressGalleryModalState extends State<ProgressGalleryModal>
                           children: [
                             const Icon(Icons.collections, color: Colors.white24, size: 50),
                             const SizedBox(height: 12),
-                            const Text(
-                              "Henüz ilerleme fotoğrafı kaydedilmedi.",
-                              style: TextStyle(color: textMuted, fontSize: 13),
+                            Text(
+                              TranslationManager.isTurkish ? "Henüz ilerleme fotoğrafı kaydedilmedi." : "No progress photos logged yet.",
+                              style: const TextStyle(color: textMuted, fontSize: 13),
                             ),
                             const SizedBox(height: 12),
                             OutlinedButton.icon(
                               onPressed: _yeniFotoEkle,
                               icon: const Icon(Icons.camera_alt, color: sysBlue, size: 16),
-                              label: const Text("İLK FOTOĞRAFI EKLE", style: TextStyle(color: sysBlue)),
+                              label: Text(TranslationManager.isTurkish ? "İLK FOTOĞRAFI EKLE" : "ADD FIRST PHOTO", style: const TextStyle(color: sysBlue)),
                               style: OutlinedButton.styleFrom(
                                 side: const BorderSide(color: sysBlue),
                               ),
@@ -324,16 +325,18 @@ class _ProgressGalleryModalState extends State<ProgressGalleryModal>
                                 style: GoogleFonts.orbitron(color: gold, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 1.5),
                               ),
                               const SizedBox(height: 8),
-                              const Text(
-                                "Fiziksel gelişim karşılaştırmasını aktif etmek için en az 2 gelişim fotoğrafı kaydedilmiş olmalıdır.",
+                              Text(
+                                TranslationManager.isTurkish
+                                    ? "Fiziksel gelişim karşılaştırmasını aktif etmek için en az 2 gelişim fotoğrafı kaydedilmiş olmalıdır."
+                                    : "At least 2 progress photos are required to unlock transformation comparison protocol.",
                                 textAlign: TextAlign.center,
-                                style: TextStyle(color: textMuted, fontSize: 12),
+                                style: const TextStyle(color: textMuted, fontSize: 12),
                               ),
                               const SizedBox(height: 16),
                               OutlinedButton.icon(
                                 onPressed: _yeniFotoEkle,
                                 icon: const Icon(Icons.add_a_photo, color: gold, size: 16),
-                                label: const Text("YENİ GİRİŞ EKLE", style: TextStyle(color: gold)),
+                                label: Text(TranslationManager.isTurkish ? "YENİ GİRİŞ EKLE" : "ADD NEW ENTRY", style: const TextStyle(color: gold)),
                                 style: OutlinedButton.styleFrom(
                                   side: const BorderSide(color: gold),
                                 ),
@@ -382,7 +385,7 @@ class _ProgressGalleryModalState extends State<ProgressGalleryModal>
               children: [
                 Column(
                   children: [
-                    const Text('BAŞLANGIÇ', style: TextStyle(color: textMuted, fontSize: 10, letterSpacing: 1)),
+                    Text(TranslationManager.isTurkish ? 'BAŞLANGIÇ' : 'INITIAL', style: const TextStyle(color: textMuted, fontSize: 10, letterSpacing: 1)),
                     const SizedBox(height: 4),
                     Text('$firstKilo KG', style: GoogleFonts.orbitron(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                   ],
@@ -390,7 +393,7 @@ class _ProgressGalleryModalState extends State<ProgressGalleryModal>
                 Container(width: 1, height: 30, color: Colors.white12),
                 Column(
                   children: [
-                    const Text('GÜNCEL', style: TextStyle(color: textMuted, fontSize: 10, letterSpacing: 1)),
+                    Text(TranslationManager.isTurkish ? 'GÜNCEL' : 'CURRENT', style: const TextStyle(color: textMuted, fontSize: 10, letterSpacing: 1)),
                     const SizedBox(height: 4),
                     Text('$lastKilo KG', style: GoogleFonts.orbitron(color: sysBlue, fontSize: 16, fontWeight: FontWeight.bold)),
                   ],
@@ -398,7 +401,7 @@ class _ProgressGalleryModalState extends State<ProgressGalleryModal>
                 Container(width: 1, height: 30, color: Colors.white12),
                 Column(
                   children: [
-                    const Text('DEĞİŞİM', style: TextStyle(color: textMuted, fontSize: 10, letterSpacing: 1)),
+                    Text(TranslationManager.isTurkish ? 'DEĞİŞİM' : 'CHANGE', style: const TextStyle(color: textMuted, fontSize: 10, letterSpacing: 1)),
                     const SizedBox(height: 4),
                     Text(
                       '${diffKilo >= 0 ? '+' : ''}${diffKilo.toStringAsFixed(1)} KG',
@@ -413,9 +416,12 @@ class _ProgressGalleryModalState extends State<ProgressGalleryModal>
                 Container(width: 1, height: 30, color: Colors.white12),
                 Column(
                   children: [
-                    const Text('SÜRE', style: TextStyle(color: textMuted, fontSize: 10, letterSpacing: 1)),
+                    Text(TranslationManager.isTurkish ? 'SÜRE' : 'DURATION', style: const TextStyle(color: textMuted, fontSize: 10, letterSpacing: 1)),
                     const SizedBox(height: 4),
-                    Text('$days GÜN', style: GoogleFonts.orbitron(color: gold, fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text(
+                      TranslationManager.isTurkish ? '$days GÜN' : '$days DAYS',
+                      style: GoogleFonts.orbitron(color: gold, fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
                   ],
                 ),
               ],

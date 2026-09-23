@@ -88,11 +88,11 @@ void main() {
       await tester.tap(expandIconFinder);
       await tester.pumpAndSettle();
 
-      expect(find.text('SET & OVERLOAD LOG'), findsOneWidget);
-      expect(find.text('SET EKLE'), findsOneWidget);
+      expect(find.text(TranslationManager.get('workout_set_overload_log')), findsOneWidget);
+      expect(find.text(TranslationManager.get('workout_add_set')), findsOneWidget);
 
       // SET EKLE butonuna bas
-      await tester.tap(find.text('SET EKLE'));
+      await tester.tap(find.text(TranslationManager.get('workout_add_set')));
       await tester.pumpAndSettle();
 
       expect(find.text('SET 1'), findsOneWidget);

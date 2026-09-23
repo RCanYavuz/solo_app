@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/audio_system.dart'; 
 import '../controllers/system_memory.dart'; 
+import '../core/translation_manager.dart'; 
 
 class EgitimFazi {
   final String isim;
@@ -282,13 +283,18 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
         builder: (context) => AlertDialog(
           backgroundColor: deepBlack,
           shape: RoundedRectangleBorder(side: const BorderSide(color: systemRed), borderRadius: BorderRadius.circular(4)),
-          title: Text('[ COMBAT PROTOCOL COMPLETE ]', style: GoogleFonts.orbitron(color: systemRed, fontWeight: FontWeight.bold, fontSize: 16)),
+          title: Text(
+            TranslationManager.isTurkish ? '[ SAVAŞ PROTOKOLÜ TAMAMLANDI ]' : '[ COMBAT PROTOCOL COMPLETE ]',
+            style: GoogleFonts.orbitron(color: systemRed, fontWeight: FontWeight.bold, fontSize: 16),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Combat simulation completed successfully.\nCombat performance and metabolic wear have been recorded.",
+                TranslationManager.isTurkish
+                    ? "Dövüş simülasyonu başarıyla tamamlandı.\nSavaş performansı ve metabolik yıpranma kaydedildi."
+                    : "Combat simulation completed successfully.\nCombat performance and metabolic wear have been recorded.",
                 style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 12),
@@ -300,7 +306,9 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  "+$kazanilanExp EXP EARNED\n+1 STRENGTH | +1 AGILITY\nYAKILAN: ~${yipranma.yakilanKalori} kcal | TELAFİ: +${yipranma.telafiProteini}g Protein\nACTIVE RAID TIMER CONTINUES",
+                  TranslationManager.isTurkish
+                      ? "+$kazanilanExp EXP KAZANILDI\n+1 GÜÇ (STR) | +1 ÇEVİKLİK (AGI)\nYAKILAN: ~${yipranma.yakilanKalori} kcal | TELAFİ: +${yipranma.telafiProteini}g Protein\nAKTİF ZİNDAN SAYACI DEVAM EDİYOR"
+                      : "+$kazanilanExp EXP EARNED\n+1 STRENGTH | +1 AGILITY\nBURNED: ~${yipranma.yakilanKalori} kcal | RECOVERY: +${yipranma.telafiProteini}g Protein\nACTIVE RAID TIMER CONTINUES",
                   style: GoogleFonts.orbitron(color: systemRed, fontSize: 11, height: 1.5, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -313,7 +321,10 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
                 Navigator.pop(context); // Diyaloğu kapat
                 Navigator.pop(context); // Zindana geri dön
               },
-              child: const Text('RETURN TO ACTIVE RAID', style: TextStyle(color: systemRed, fontWeight: FontWeight.bold)),
+              child: Text(
+                TranslationManager.isTurkish ? 'ZİNDAN AKININA DÖN' : 'RETURN TO ACTIVE RAID',
+                style: const TextStyle(color: systemRed, fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         ),
@@ -328,12 +339,20 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
       builder: (context) => AlertDialog(
         backgroundColor: deepBlack,
         shape: RoundedRectangleBorder(side: const BorderSide(color: physicalGold), borderRadius: BorderRadius.circular(4)),
-        title: Text('[ DUNGEON CLEARED ]', style: GoogleFonts.orbitron(color: physicalGold, fontWeight: FontWeight.bold)),
+        title: Text(
+          TranslationManager.isTurkish ? '[ ZİNDAN TEMİZLENDİ ]' : '[ DUNGEON CLEARED ]',
+          style: GoogleFonts.orbitron(color: physicalGold, fontWeight: FontWeight.bold),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("You have survived the trial.\nThe System rewards your discipline.", style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(
+              TranslationManager.isTurkish
+                  ? "Sınavdan sağ çıktınız.\nSistem disiplininizi ödüllendiriyor."
+                  : "You have survived the trial.\nThe System rewards your discipline.",
+              style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(10),
@@ -356,7 +375,10 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
               Navigator.pop(context);
               _sifirla();
             },
-            child: const Text('CLAIM REWARDS', style: TextStyle(color: physicalGold, fontWeight: FontWeight.bold)),
+            child: Text(
+              TranslationManager.isTurkish ? 'ÖDÜLLERİ AL' : 'CLAIM REWARDS',
+              style: const TextStyle(color: physicalGold, fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
@@ -469,13 +491,16 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
                         children: [
                           const Icon(Icons.shield, color: systemRed, size: 20),
                           const SizedBox(width: 10),
-                          Text("SYSTEM RANK: ", style: GoogleFonts.orbitron(color: systemRest, fontSize: 14)),
+                          Text(TranslationManager.isTurkish ? "SİSTEM DERECESİ: " : "SYSTEM RANK: ", style: GoogleFonts.orbitron(color: systemRest, fontSize: 14)),
                           Text(otomatikRank, style: GoogleFonts.orbitron(color: systemRed, fontSize: 16, fontWeight: FontWeight.bold)),
                         ],
                       ),
                       const SizedBox(height: 15),
                       SegmentedButton<String>(
-                        segments: const [ButtonSegment(value: 'Free Settings', label: Text('FREE SETTINGS')), ButtonSegment(value: 'System Courses', label: Text('COURSES'))],
+                        segments: [
+                          ButtonSegment(value: 'Free Settings', label: Text(TranslationManager.isTurkish ? 'SERBEST AYAR' : 'FREE SETTINGS')),
+                          ButtonSegment(value: 'System Courses', label: Text(TranslationManager.isTurkish ? 'SİSTEM PARKURU' : 'COURSES')),
+                        ],
                         selected: {anaMod},
                         onSelectionChanged: (set) { setState(() { anaMod = set.first; _parkuruOlustur(); }); },
                         style: SegmentedButton.styleFrom(backgroundColor: const Color(0xFF0F172A), selectedBackgroundColor: systemRed.withValues(alpha: 0.2), selectedForegroundColor: systemRed, foregroundColor: systemRest),
@@ -485,7 +510,14 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
                       if (anaMod == 'System Courses') ...[
                         DropdownButtonFormField<String>(
                           initialValue: sistemTuru, dropdownColor: cardBg, 
-                          decoration: InputDecoration(labelText: 'Workout Type', labelStyle: const TextStyle(color: physicalGold), filled: true, fillColor: const Color(0xFF0F172A), enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: physicalGold.withValues(alpha: 0.5)), borderRadius: BorderRadius.circular(4)), focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: physicalGold), borderRadius: BorderRadius.circular(4))),
+                          decoration: InputDecoration(
+                            labelText: TranslationManager.isTurkish ? 'İdman Türü' : 'Workout Type',
+                            labelStyle: const TextStyle(color: physicalGold),
+                            filled: true,
+                            fillColor: const Color(0xFF0F172A),
+                            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: physicalGold.withValues(alpha: 0.5)), borderRadius: BorderRadius.circular(4)),
+                            focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: physicalGold), borderRadius: BorderRadius.circular(4)),
+                          ),
                           style: const TextStyle(color: physicalGold, fontWeight: FontWeight.bold),
                           items: ['Jump Rope', 'Running (Speed)', 'Running (Incline)'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
                           onChanged: (val) { setState(() { sistemTuru = val!; _parkuruOlustur(); }); },
@@ -493,9 +525,16 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
                         const SizedBox(height: 15),
                         DropdownButtonFormField<int>(
                           initialValue: sistemSuresiDakika, dropdownColor: cardBg, 
-                          decoration: InputDecoration(labelText: 'Total Duration', labelStyle: const TextStyle(color: systemBlue), filled: true, fillColor: const Color(0xFF0F172A), enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: systemBlue.withValues(alpha: 0.5)), borderRadius: BorderRadius.circular(4)), focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: systemBlue), borderRadius: BorderRadius.circular(4))),
+                          decoration: InputDecoration(
+                            labelText: TranslationManager.isTurkish ? 'Toplam Süre' : 'Total Duration',
+                            labelStyle: const TextStyle(color: systemBlue),
+                            filled: true,
+                            fillColor: const Color(0xFF0F172A),
+                            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: systemBlue.withValues(alpha: 0.5)), borderRadius: BorderRadius.circular(4)),
+                            focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: systemBlue), borderRadius: BorderRadius.circular(4)),
+                          ),
                           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                          items: [15, 20, 30, 45, 60, 90, 120].map((e) => DropdownMenuItem(value: e, child: Text('$e Minutes'))).toList(),
+                          items: [15, 20, 30, 45, 60, 90, 120].map((e) => DropdownMenuItem(value: e, child: Text('$e ${TranslationManager.isTurkish ? "Dakika" : "Minutes"}'))).toList(),
                           onChanged: (val) { setState(() { sistemSuresiDakika = val!; _parkuruOlustur(); }); },
                         ),
                       ],
@@ -505,11 +544,11 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              _ayarButonu('Work', _sureFormatla(raundSuresiSaniye), () { if(raundSuresiSaniye > 15) setState(() { raundSuresiSaniye -= 30; _parkuruOlustur(); }); }, () { setState(() { raundSuresiSaniye += 30; _parkuruOlustur(); }); }),
+                              _ayarButonu(TranslationManager.isTurkish ? 'Çalışma' : 'Work', _sureFormatla(raundSuresiSaniye), () { if(raundSuresiSaniye > 15) setState(() { raundSuresiSaniye -= 30; _parkuruOlustur(); }); }, () { setState(() { raundSuresiSaniye += 30; _parkuruOlustur(); }); }),
                               const SizedBox(width: 10),
-                              _ayarButonu('Rest', _sureFormatla(dinlenmeSuresiSaniye), () { if(dinlenmeSuresiSaniye > 0) setState(() { dinlenmeSuresiSaniye -= 10; _parkuruOlustur(); }); }, () { setState(() { dinlenmeSuresiSaniye += 10; _parkuruOlustur(); }); }),
+                              _ayarButonu(TranslationManager.isTurkish ? 'Dinlenme' : 'Rest', _sureFormatla(dinlenmeSuresiSaniye), () { if(dinlenmeSuresiSaniye > 0) setState(() { dinlenmeSuresiSaniye -= 10; _parkuruOlustur(); }); }, () { setState(() { dinlenmeSuresiSaniye += 10; _parkuruOlustur(); }); }),
                               const SizedBox(width: 10),
-                              _ayarButonu('Round', toplamRaund.toString().padLeft(2, '0'), () { if(toplamRaund > 1) setState(() { toplamRaund--; _parkuruOlustur(); }); }, () { setState(() { toplamRaund++; _parkuruOlustur(); }); }),
+                              _ayarButonu(TranslationManager.isTurkish ? 'Raund' : 'Round', toplamRaund.toString().padLeft(2, '0'), () { if(toplamRaund > 1) setState(() { toplamRaund--; _parkuruOlustur(); }); }, () { setState(() { toplamRaund++; _parkuruOlustur(); }); }),
                             ],
                           ),
                         )
@@ -522,7 +561,7 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
                   children: [
                     if (aktifFaz != null) ...[
                       Text(aktifFaz.isim.toUpperCase(), style: GoogleFonts.rajdhani(color: fazRengi, fontSize: 28, fontWeight: FontWeight.bold, letterSpacing: 2)),
-                      Text("Step: ${aktifFazIndex + 1} / ${parkur.length}", style: const TextStyle(color: systemRest, fontSize: 14)),
+                      Text("${TranslationManager.isTurkish ? 'Adım' : 'Step'}: ${aktifFazIndex + 1} / ${parkur.length}", style: const TextStyle(color: systemRest, fontSize: 14)),
                       const SizedBox(height: 20),
                     ],
                     Stack(
@@ -540,7 +579,7 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
                         child: Text(aktifFaz.talimat, textAlign: TextAlign.center, style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: 1)),
                       ),
                     const SizedBox(height: 15),
-                    if (siradakiFaz != null) Text('Next: ${siradakiFaz.isim}', style: const TextStyle(color: systemRest, fontSize: 14)),
+                    if (siradakiFaz != null) Text('${TranslationManager.isTurkish ? "Sıradaki" : "Next"}: ${siradakiFaz.isim}', style: const TextStyle(color: systemRest, fontSize: 14)),
                   ],
                 ),
               ),

@@ -11,6 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../core/supplement_engine.dart';
 import '../controllers/system_memory.dart';
 import '../core/audio_system.dart';
+import '../core/translation_manager.dart';
 
 class SupplementLoadoutModal extends StatefulWidget {
   const SupplementLoadoutModal({super.key});
@@ -103,7 +104,7 @@ class _SupplementLoadoutModalState extends State<SupplementLoadoutModal> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '[ METABOLİK DONANIM ]',
+                          TranslationManager.isTurkish ? '[ METABOLİK DONANIM ]' : '[ METABOLIC LOADOUT ]',
                           style: GoogleFonts.orbitron(
                             color: sysBlue,
                             fontSize: 12,
@@ -112,7 +113,7 @@ class _SupplementLoadoutModalState extends State<SupplementLoadoutModal> {
                           ),
                         ),
                         Text(
-                          'Suplement Kuşanma Yuvaları',
+                          TranslationManager.isTurkish ? 'Suplement Kuşanma Yuvaları' : 'Supplement Loadout Slots',
                           style: GoogleFonts.rajdhani(
                             color: Colors.white,
                             fontSize: 16,
@@ -143,7 +144,7 @@ class _SupplementLoadoutModalState extends State<SupplementLoadoutModal> {
                   children: [
                     Column(
                       children: [
-                        Text('SU HEDEFİ ETKİSİ', style: GoogleFonts.orbitron(color: sysBlue, fontSize: 10)),
+                        Text(TranslationManager.isTurkish ? 'SU HEDEFİ ETKİSİ' : 'WATER TARGET IMPACT', style: GoogleFonts.orbitron(color: sysBlue, fontSize: 10)),
                         const SizedBox(height: 4),
                         Text(
                           '+$toplamEkSu ml',
@@ -154,7 +155,7 @@ class _SupplementLoadoutModalState extends State<SupplementLoadoutModal> {
                     Container(width: 1, height: 30, color: Colors.white12),
                     Column(
                       children: [
-                        Text('İDMAN HACİM TOLERANSI', style: GoogleFonts.orbitron(color: sysGold, fontSize: 10)),
+                        Text(TranslationManager.isTurkish ? 'İDMAN HACİM TOLERANSI' : 'VOLUME TOLERANCE', style: GoogleFonts.orbitron(color: sysGold, fontSize: 10)),
                         const SizedBox(height: 4),
                         Text(
                           '+${toplamHacim.toStringAsFixed(0)}%',
@@ -169,7 +170,7 @@ class _SupplementLoadoutModalState extends State<SupplementLoadoutModal> {
 
               // Suplement Listesi (4 Donanım Yuvası)
               Text(
-                'KUŞANILABİLİR TAKVİYELER',
+                TranslationManager.isTurkish ? 'KUŞANILABİLİR TAKVİYELER' : 'EQUIPPABLE SUPPLEMENTS',
                 style: GoogleFonts.orbitron(color: const Color(0xFF94A3B8), fontSize: 11, letterSpacing: 1.2),
               ),
               const SizedBox(height: 10),
@@ -245,7 +246,9 @@ class _SupplementLoadoutModalState extends State<SupplementLoadoutModal> {
                             border: Border.all(color: kusanildi ? sysGreen : sysBlue),
                           ),
                           child: Text(
-                            kusanildi ? '✓ KUŞANILDI' : 'KUŞAN',
+                            kusanildi
+                                ? (TranslationManager.isTurkish ? '✓ KUŞANILDI' : '✓ EQUIPPED')
+                                : (TranslationManager.isTurkish ? 'KUŞAN' : 'EQUIP'),
                             style: GoogleFonts.orbitron(
                               color: kusanildi ? sysGreen : sysBlue,
                               fontSize: 10,
@@ -262,7 +265,7 @@ class _SupplementLoadoutModalState extends State<SupplementLoadoutModal> {
 
               // Sistem Tavsiyeleri
               Text(
-                'SİSTEM AKILLI TAVSİYELERİ',
+                TranslationManager.isTurkish ? 'SİSTEM AKILLI TAVSİYELERİ' : 'SYSTEM SMART RECOMMENDATIONS',
                 style: GoogleFonts.orbitron(color: sysGold, fontSize: 11, letterSpacing: 1.2),
               ),
               const SizedBox(height: 8),
@@ -301,7 +304,7 @@ class _SupplementLoadoutModalState extends State<SupplementLoadoutModal> {
                 ),
                 onPressed: () => Navigator.pop(context),
                 child: Text(
-                  'KAYDET & DEVAM ET',
+                  TranslationManager.isTurkish ? 'KAYDET & DEVAM ET' : 'SAVE & PROCEED',
                   style: GoogleFonts.orbitron(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 13),
                 ),
               ),

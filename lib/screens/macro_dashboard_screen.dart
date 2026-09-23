@@ -316,7 +316,7 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
                         children: [
                           const Icon(Icons.flag_outlined, color: _sysGreen, size: 22),
                           const SizedBox(width: 10),
-                          Text('HEDEF KİLO', style: GoogleFonts.rajdhani(color: _sysText, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                          Text(TranslationManager.get('macro_target_weight_label'), style: GoogleFonts.rajdhani(color: _sysText, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1)),
                           const Spacer(),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -361,7 +361,7 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text('BOY', style: GoogleFonts.rajdhani(color: _sysText, fontSize: 13, fontWeight: FontWeight.bold)),
+                                    Text(TranslationManager.isTurkish ? 'BOY' : 'HEIGHT', style: GoogleFonts.rajdhani(color: _sysText, fontSize: 13, fontWeight: FontWeight.bold)),
                                     Text('${_boy.round()} CM', style: GoogleFonts.orbitron(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                                   ],
                                 ),
@@ -383,7 +383,7 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text('BEL ÇEVRESİ', style: GoogleFonts.rajdhani(color: _sysText, fontSize: 13, fontWeight: FontWeight.bold)),
+                                    Text(TranslationManager.get('macro_waist_label'), style: GoogleFonts.rajdhani(color: _sysText, fontSize: 13, fontWeight: FontWeight.bold)),
                                     Text('${_belCm.round()} CM', style: GoogleFonts.orbitron(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                                   ],
                                 ),
@@ -451,7 +451,7 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
                             child: ElevatedButton.icon(
                               onPressed: _hesapla,
                               icon: const Icon(Icons.bolt, color: _sysBlue, size: 20),
-                              label: Text('HESAPLA', style: GoogleFonts.orbitron(color: _sysBlue, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                              label: Text(TranslationManager.isTurkish ? 'HESAPLA' : 'CALCULATE', style: GoogleFonts.orbitron(color: _sysBlue, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: _sysBlue.withValues(alpha: 0.08),
                                 padding: const EdgeInsets.symmetric(vertical: 14),
@@ -750,8 +750,8 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
   Future<void> _aiIleHarmanlaVeAnalizEt() async {
     if (SystemMemory.geminiApiKey.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('⚠️ AI Analizi için önce Profil > Core Ayarlarından Gemini API Key giriniz.'),
+        SnackBar(
+          content: Text(TranslationManager.isTurkish ? '⚠️ AI Analizi için önce Profil > Core Ayarlarından Gemini API Key giriniz.' : '⚠️ Enter Gemini API Key in Profile > Core Settings first for AI Analysis.'),
           backgroundColor: _sysRed,
         ),
       );
@@ -786,8 +786,8 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
 
       if (res == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Sistem Core yanıt vermedi. Lütfen internet bağlantınızı veya API anahtarınızı kontrol edin.'),
+          SnackBar(
+            content: Text(TranslationManager.isTurkish ? 'Sistem Core yanıt vermedi. Lütfen internet bağlantınızı veya API anahtarınızı kontrol edin.' : 'System Core unresponsive. Please check internet connection or API key.'),
             backgroundColor: _sysRed,
           ),
         );
@@ -799,7 +799,7 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
       if (!mounted) return;
       setState(() => _aiYukleniyor = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('AI Analiz Hatası: $e'), backgroundColor: _sysRed),
+        SnackBar(content: Text(TranslationManager.isTurkish ? 'AI Analiz Hatası: $e' : 'AI Analysis Error: $e'), backgroundColor: _sysRed),
       );
     }
   }
@@ -872,7 +872,7 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('ÖNERİLEN REVİZE MAKRO DEĞERLERİ:', style: GoogleFonts.orbitron(color: _sysPurple, fontSize: 10, fontWeight: FontWeight.bold)),
+                    Text(TranslationManager.isTurkish ? 'ÖNERİLEN REVİZE MAKRO DEĞERLERİ:' : 'RECOMMENDED REVISED MACROS:', style: GoogleFonts.orbitron(color: _sysPurple, fontSize: 10, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 6),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -883,7 +883,7 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
                     ),
                     if (taktik.isNotEmpty) ...[
                       const SizedBox(height: 4),
-                      Text('Taktik: $taktik', style: const TextStyle(color: _sysGold, fontSize: 11, fontStyle: FontStyle.italic)),
+                      Text(TranslationManager.isTurkish ? 'Taktik: $taktik' : 'Tactics: $taktik', style: const TextStyle(color: _sysGold, fontSize: 11, fontStyle: FontStyle.italic)),
                     ],
                   ],
                 ),
@@ -894,7 +894,7 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('KAPAT', style: TextStyle(color: _sysText)),
+            child: Text(TranslationManager.isTurkish ? 'KAPAT' : 'CLOSE', style: const TextStyle(color: _sysText)),
           ),
           ElevatedButton.icon(
             style: ElevatedButton.styleFrom(
@@ -913,14 +913,14 @@ class _MacroDashboardScreenState extends State<MacroDashboardScreen>
               Navigator.pop(ctx);
               _animCtrl.forward(from: 0);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('AI Revizyonu laboratuvar paneline uygulandı. "SİSTEME ENTEGRE ET" butonuyla kalıcı kılabilirsiniz.'),
+                SnackBar(
+                  content: Text(TranslationManager.isTurkish ? 'AI Revizyonu laboratuvar paneline uygulandı. "SİSTEME ENTEGRE ET" butonuyla kalıcı kılabilirsiniz.' : 'AI revision applied to lab panel. Tap "INTEGRATE TO SYSTEM" to persist.'),
                   backgroundColor: _sysPurple,
                 ),
               );
             },
             icon: const Icon(Icons.check, color: _sysPurple, size: 18),
-            label: const Text('UYGULA & GRAFİĞE AL', style: TextStyle(color: _sysPurple, fontWeight: FontWeight.bold)),
+            label: Text(TranslationManager.isTurkish ? 'UYGULA & GRAFİĞE AL' : 'APPLY & CHART', style: const TextStyle(color: _sysPurple, fontWeight: FontWeight.bold)),
           ),
         ],
       ),

@@ -378,7 +378,12 @@ class TranslationManager {
       'workout_no_quests': 'No quests assigned. Load a template or return to planner.',
       'workout_set_overload_log': 'SET & OVERLOAD LOG',
       'workout_add_set': 'ADD SET',
+      'workout_no_sets_hint': 'No sets added yet. Tap "ADD SET" to log your weights.',
       'workout_tactics_substitute': '• Tap: Tactics / Alternatives',
+
+      // Notification Section
+      'profile_system_directives': 'SYSTEM DIRECTIVES',
+      'profile_alerts_badge': 'ALERTS',
 
       // Macro Dashboard Extras
       'macro_target_weight_label': 'TARGET WEIGHT',
@@ -848,7 +853,12 @@ class TranslationManager {
       'workout_no_quests': 'Atanmış görev yok. Bir şablon yükleyin veya planlayıcıya dönün.',
       'workout_set_overload_log': 'SET & OVERLOAD KAYDI',
       'workout_add_set': 'SET EKLE',
+      'workout_no_sets_hint': 'Henüz set eklenmedi. "SET EKLE" butonuna basarak ağırlık kaydedin.',
       'workout_tactics_substitute': '• Dokun: Taktik / Alternatif',
+
+      // Notification Section
+      'profile_system_directives': 'SİSTEM DİREKTİFLERİ',
+      'profile_alerts_badge': 'UYARILAR',
 
       // Macro Dashboard Extras
       'macro_target_weight_label': 'HEDEF KİLO',

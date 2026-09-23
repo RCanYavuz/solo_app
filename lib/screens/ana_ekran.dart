@@ -80,7 +80,12 @@ class _AnaEkranState extends State<AnaEkran> with WidgetsBindingObserver {
         return AlertDialog(
           backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95),
           shape: RoundedRectangleBorder(side: BorderSide(color: dialogColor, width: 1), borderRadius: BorderRadius.circular(4)),
-          title: Text(cezaVarMi ? '[ SYSTEM WARNING ]' : '[ DAILY QUEST COMPLETED ]', style: GoogleFonts.orbitron(color: dialogColor, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+          title: Text(
+            cezaVarMi
+                ? (TranslationManager.isTurkish ? '[ SİSTEM UYARISI ]' : '[ SYSTEM WARNING ]')
+                : (TranslationManager.isTurkish ? '[ GÜNLÜK GÖREV TAMAMLANDI ]' : '[ DAILY QUEST COMPLETED ]'),
+            style: GoogleFonts.orbitron(color: dialogColor, fontWeight: FontWeight.bold, letterSpacing: 1.5),
+          ),
           content: Text(rapor, style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.2, height: 1.5)),
           actions: [
             ElevatedButton(
@@ -89,7 +94,7 @@ class _AnaEkranState extends State<AnaEkran> with WidgetsBindingObserver {
                 Navigator.pop(context); 
                 setState(() {}); 
               },
-              child: Text('CONFIRM', style: TextStyle(color: dialogColor, fontWeight: FontWeight.bold, letterSpacing: 2)),
+              child: Text(TranslationManager.isTurkish ? 'ONAYLA' : 'CONFIRM', style: TextStyle(color: dialogColor, fontWeight: FontWeight.bold, letterSpacing: 2)),
             ),
           ],
         );

@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../core/audio_system.dart';
 import '../core/youtube_helper.dart';
 import '../models/task_model.dart';
+import '../core/translation_manager.dart';
 
 class ExerciseLibraryItem {
   final String ad;
@@ -25,21 +26,21 @@ class ExerciseLibraryItem {
 }
 
 class AdvancedExerciseSelectorModal extends StatefulWidget {
-  final String baslik;
-  final String onayButonMetni;
+  final String? baslik;
+  final String? onayButonMetni;
   final void Function(Gorev gorev) onEklendi;
 
   const AdvancedExerciseSelectorModal({
     super.key,
-    this.baslik = 'ZİNDANA EK HAREKET ENJEKTE ET',
-    this.onayButonMetni = 'ZİNDANA EKLE',
+    this.baslik,
+    this.onayButonMetni,
     required this.onEklendi,
   });
 
   static Future<void> show(
     BuildContext context, {
-    String baslik = 'ZİNDANA EK HAREKET ENJEKTE ET',
-    String onayButonMetni = 'ZİNDANA EKLE',
+    String? baslik,
+    String? onayButonMetni,
     required void Function(Gorev gorev) onEklendi,
   }) {
     AudioSystem.playTransition();
@@ -90,6 +91,22 @@ class _AdvancedExerciseSelectorModalState
     'Kardiyo',
     'Calisthenics',
   ];
+
+  String _kategoriEtiketi(String kat) {
+    if (TranslationManager.isTurkish) return kat;
+    switch (kat) {
+      case 'Tümü': return 'All';
+      case 'Göğüs': return 'Chest';
+      case 'Sırt': return 'Back';
+      case 'Omuz/Kol': return 'Shoulder/Arm';
+      case 'Bacak': return 'Legs';
+      case 'Karın': return 'Abs';
+      case 'Dövüş': return 'Combat';
+      case 'Kardiyo': return 'Cardio';
+      case 'Calisthenics': return 'Calisthenics';
+      default: return kat;
+    }
+  }
 
   static final List<ExerciseLibraryItem> _tumHareketler = [
     // ─── GÖĞÜS ───
@@ -270,7 +287,7 @@ class _AdvancedExerciseSelectorModalState
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              widget.baslik,
+              widget.baslik ?? (TranslationManager.isTurkish ? 'ZİNDANA EK HAREKET ENJEKTE ET' : 'INJECT EXTRA EXERCISE INTO DUNGEON'),
               style: GoogleFonts.orbitron(
                 color: sysGreen,
                 fontWeight: FontWeight.bold,
@@ -306,7 +323,9 @@ class _AdvancedExerciseSelectorModalState
                 style: const TextStyle(color: Colors.white, fontSize: 13),
                 onChanged: (_) => setState(() {}),
                 decoration: InputDecoration(
-                  hintText: 'Egzersiz veya kas ara (örn: Bench, Squat, Koşu, Boks)...',
+                  hintText: TranslationManager.isTurkish
+                      ? 'Egzersiz veya kas ara (örn: Bench, Squat, Koşu, Boks)...'
+                      : 'Search exercise or muscle (e.g. Bench, Squat, Run, Boxing)...',
                   hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 11),
                   prefixIcon: const Icon(Icons.search, color: sysGreen, size: 18),
                   suffixIcon: _aramaCtrl.text.isNotEmpty
@@ -342,7 +361,7 @@ class _AdvancedExerciseSelectorModalState
                     return Padding(
                       padding: const EdgeInsets.only(right: 6),
                       child: ChoiceChip(
-                        label: Text(kat),
+                        label: Text(_kategoriEtiketi(kat)),
                         selected: secili,
                         onSelected: (val) {
                           if (val) {
@@ -385,11 +404,13 @@ class _AdvancedExerciseSelectorModalState
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: liste.isEmpty
-                    ? const Center(
+                    ? Center(
                         child: Text(
-                          'Aramanızla eşleşen egzersiz bulunamadı.\nAşağıdan özel isim yazabilirsiniz.',
+                          TranslationManager.isTurkish
+                              ? 'Aramanızla eşleşen egzersiz bulunamadı.\nAşağıdan özel isim yazabilirsiniz.'
+                              : 'No matching exercises found.\nYou can enter a custom name below.',
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: Color(0xFF64748B), fontSize: 11),
+                          style: const TextStyle(color: Color(0xFF64748B), fontSize: 11),
                         ),
                       )
                     : ListView.builder(
@@ -471,7 +492,7 @@ class _AdvancedExerciseSelectorModalState
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('KARDİYO SÜRESİ:', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11, fontWeight: FontWeight.bold)),
+                    Text(TranslationManager.isTurkish ? 'KARDİYO SÜRESİ:' : 'CARDIO DURATION:', style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11, fontWeight: FontWeight.bold)),
                     Row(
                       children: [15, 20, 30, 45].map((dk) {
                         final secili = _secilenKardiyoDk == dk;
@@ -487,7 +508,7 @@ class _AdvancedExerciseSelectorModalState
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
-                                '$dk Dk',
+                                '$dk ${TranslationManager.isTurkish ? 'Dk' : 'Min'}',
                                 style: TextStyle(
                                   color: secili ? sysBlue : Colors.white70,
                                   fontSize: 11,
@@ -507,7 +528,7 @@ class _AdvancedExerciseSelectorModalState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'HACİM & UZATMA SEVİYESİ:',
+                      TranslationManager.isTurkish ? 'HACİM & UZATMA SEVİYESİ:' : 'VOLUME & EXTENSION LEVEL:',
                       style: GoogleFonts.orbitron(
                         color: sysGreen,
                         fontSize: 10,
@@ -520,13 +541,13 @@ class _AdvancedExerciseSelectorModalState
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
-                          _hacimKademesiChip('⚡ Standart (4 Set/Raund)', 4, 10),
+                          _hacimKademesiChip(TranslationManager.isTurkish ? '⚡ Standart (4 Set/Raund)' : '⚡ Standard (4 Sets/Rounds)', 4, 10),
                           const SizedBox(width: 6),
-                          _hacimKademesiChip('⚔️ Uzatılmış (6 Set/Raund)', 6, 12),
+                          _hacimKademesiChip(TranslationManager.isTurkish ? '⚔️ Uzatılmış (6 Set/Raund)' : '⚔️ Extended (6 Sets/Rounds)', 6, 12),
                           const SizedBox(width: 6),
-                          _hacimKademesiChip('👑 Şampiyon (8 Set/Raund)', 8, 15),
+                          _hacimKademesiChip(TranslationManager.isTurkish ? '👑 Şampiyon (8 Set/Raund)' : '👑 Champion (8 Sets/Rounds)', 8, 15),
                           const SizedBox(width: 6),
-                          _hacimKademesiChip('🔥 Ekstrem (10 Set/Raund)', 10, 20),
+                          _hacimKademesiChip(TranslationManager.isTurkish ? '🔥 Ekstrem (10 Set/Raund)' : '🔥 Extreme (10 Sets/Rounds)', 10, 20),
                         ],
                       ),
                     ),
@@ -549,7 +570,7 @@ class _AdvancedExerciseSelectorModalState
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Set/Raund: $_secilenSet',
+                              '${TranslationManager.isTurkish ? 'Set/Raund' : 'Set/Round'}: $_secilenSet',
                               style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
                             ),
                             Row(
@@ -589,7 +610,7 @@ class _AdvancedExerciseSelectorModalState
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Tekrar: $_secilenTekrar', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                            Text(TranslationManager.isTurkish ? 'Tekrar: $_secilenTekrar' : 'Reps: $_secilenTekrar', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                             Row(
                               children: [
                                 IconButton(
@@ -626,7 +647,9 @@ class _AdvancedExerciseSelectorModalState
                 style: const TextStyle(color: Colors.white, fontSize: 12),
                 onChanged: (_) => setState(() {}),
                 decoration: InputDecoration(
-                  hintText: 'Veya buraya özel bir görev / egzersiz yazın...',
+                  hintText: TranslationManager.isTurkish
+                      ? 'Veya buraya özel bir görev / egzersiz yazın...'
+                      : 'Or enter custom task / exercise here...',
                   hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 11),
                   prefixIcon: const Icon(Icons.edit_note, color: sysGold, size: 18),
                   filled: true,
@@ -684,7 +707,7 @@ class _AdvancedExerciseSelectorModalState
               child: TextButton(
                 onPressed: () => Navigator.pop(context),
                 style: TextButton.styleFrom(foregroundColor: const Color(0xFF94A3B8)),
-                child: const Text('İPTAL'),
+                child: Text(TranslationManager.isTurkish ? 'İPTAL' : 'CANCEL'),
               ),
             ),
             const SizedBox(width: 8),
@@ -700,7 +723,7 @@ class _AdvancedExerciseSelectorModalState
                 onPressed: _onaylaVeEkle,
                 icon: const Icon(Icons.bolt, color: sysGreen, size: 18),
                 label: Text(
-                  widget.onayButonMetni,
+                  widget.onayButonMetni ?? (TranslationManager.isTurkish ? 'ZİNDANA EKLE' : 'ADD TO DUNGEON'),
                   style: GoogleFonts.orbitron(
                     color: sysGreen,
                     fontWeight: FontWeight.bold,

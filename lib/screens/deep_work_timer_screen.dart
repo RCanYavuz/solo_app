@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/theme/app_colors.dart';
 import '../core/audio_system.dart';
+import '../core/translation_manager.dart';
 import '../controllers/system_memory.dart';
 import '../widgets/hologram_card.dart';
 
@@ -43,7 +44,7 @@ class _DeepWorkTimerScreenState extends State<DeepWorkTimerScreen> {
   void initState() {
     super.initState();
     _focusDurationMinutes = widget.initialMinutes ?? 25;
-    _topic = widget.initialTopic ?? 'Kodlama / Araştırma';
+    _topic = widget.initialTopic ?? (TranslationManager.isTurkish ? 'Kodlama / Araştırma' : 'Coding / Research');
     _topicController.text = _topic;
     _remainingSeconds = _focusDurationMinutes * 60;
     _initialSecondsForPhase = _remainingSeconds;
@@ -140,7 +141,7 @@ class _DeepWorkTimerScreenState extends State<DeepWorkTimerScreen> {
             Icon(Icons.stars, color: AppColors.systemCyan),
             const SizedBox(width: 8),
             Text(
-              'ODAKLANMA PROTOKOLÜ TAMAMLANDI',
+              TranslationManager.isTurkish ? 'ODAKLANMA PROTOKOLÜ TAMAMLANDI' : 'FOCUS PROTOCOL COMPLETE',
               style: GoogleFonts.orbitron(
                 color: AppColors.systemCyan,
                 fontSize: 13,
@@ -154,7 +155,9 @@ class _DeepWorkTimerScreenState extends State<DeepWorkTimerScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Avcı zihinsel konsantrasyonunu korudu ve zihinsel zindanı temizledi.',
+              TranslationManager.isTurkish
+                  ? 'Avcı zihinsel konsantrasyonunu korudu ve zihinsel zindanı temizledi.'
+                  : 'Hunter maintained mental concentration and cleared the cognitive dungeon.',
               style: GoogleFonts.rajdhani(color: Colors.white70, fontSize: 14),
             ),
             const SizedBox(height: 16),
@@ -167,13 +170,13 @@ class _DeepWorkTimerScreenState extends State<DeepWorkTimerScreen> {
               ),
               child: Column(
                 children: [
-                  _statRow('KAZANILAN TECRÜBE', '+$expReward EXP', Colors.yellowAccent),
+                  _statRow(TranslationManager.isTurkish ? 'KAZANILAN TECRÜBE' : 'EXP GAINED', '+$expReward EXP', Colors.yellowAccent),
                   const SizedBox(height: 6),
-                  _statRow('ZEKA (INT) ARTIŞI', '+$intReward INT', AppColors.systemCyan),
+                  _statRow(TranslationManager.isTurkish ? 'ZEKA (INT) ARTIŞI' : 'INTELLIGENCE (INT) UP', '+$intReward INT', AppColors.systemCyan),
                   const SizedBox(height: 6),
-                  _statRow('SEZGİ (PER) ARTIŞI', '+$perReward PER', Colors.purpleAccent),
+                  _statRow(TranslationManager.isTurkish ? 'SEZGİ (PER) ARTIŞI' : 'PERCEPTION (PER) UP', '+$perReward PER', Colors.purpleAccent),
                   const SizedBox(height: 6),
-                  _statRow('TOPLAM ODAK', '$_focusDurationMinutes DK', Colors.white),
+                  _statRow(TranslationManager.isTurkish ? 'TOPLAM ODAK' : 'TOTAL FOCUS', '$_focusDurationMinutes ${TranslationManager.isTurkish ? "DK" : "MIN"}', Colors.white),
                 ],
               ),
             ),
@@ -188,7 +191,7 @@ class _DeepWorkTimerScreenState extends State<DeepWorkTimerScreen> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
             ),
             child: Text(
-              'DEVAM ET',
+              TranslationManager.isTurkish ? 'DEVAM ET' : 'CONTINUE',
               style: GoogleFonts.orbitron(fontWeight: FontWeight.bold),
             ),
           ),
@@ -232,7 +235,9 @@ class _DeepWorkTimerScreenState extends State<DeepWorkTimerScreen> {
         SnackBar(
           backgroundColor: AppColors.systemCyan,
           content: Text(
-            '$passedMinutes dakikalık odaklanma oturumu kaydedildi! (+${passedMinutes * 2} EXP)',
+            TranslationManager.isTurkish
+                ? '$passedMinutes dakikalık odaklanma oturumu kaydedildi! (+${passedMinutes * 2} EXP)'
+                : '$passedMinutes minute focus session logged! (+${passedMinutes * 2} EXP)',
             style: GoogleFonts.rajdhani(color: Colors.black, fontWeight: FontWeight.bold),
           ),
         ),
@@ -266,7 +271,7 @@ class _DeepWorkTimerScreenState extends State<DeepWorkTimerScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          'BİLİŞSEL ZİNDAN // DEEP WORK',
+          TranslationManager.isTurkish ? 'BİLİŞSEL ZİNDAN // DEEP WORK' : 'COGNITIVE DUNGEON // DEEP WORK',
           style: GoogleFonts.orbitron(
             color: AppColors.systemCyan,
             fontSize: 14,
@@ -291,7 +296,7 @@ class _DeepWorkTimerScreenState extends State<DeepWorkTimerScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'AKTİF PROTOKOL: ${isFocus ? "ODAKLANMA" : "DİNLENME"}',
+                          '${TranslationManager.isTurkish ? "AKTİF PROTOKOL" : "ACTIVE PROTOCOL"}: ${isFocus ? (TranslationManager.isTurkish ? "ODAKLANMA" : "FOCUS") : (TranslationManager.isTurkish ? "DİNLENME" : "REST")}',
                           style: GoogleFonts.orbitron(
                             color: themeColor,
                             fontSize: 12,
@@ -307,7 +312,7 @@ class _DeepWorkTimerScreenState extends State<DeepWorkTimerScreen> {
                             border: Border.all(color: themeColor, width: 1),
                           ),
                           child: Text(
-                            'SEANS: #$_completedSessions',
+                            '${TranslationManager.isTurkish ? "SEANS" : "SESSION"}: #$_completedSessions',
                             style: GoogleFonts.orbitron(
                               color: themeColor,
                               fontSize: 11,
@@ -327,7 +332,7 @@ class _DeepWorkTimerScreenState extends State<DeepWorkTimerScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                       decoration: InputDecoration(
-                        labelText: 'ÇALIŞILAN KONU VEYA KİTAP',
+                        labelText: TranslationManager.isTurkish ? 'ÇALIŞILAN KONU VEYA KİTAP' : 'STUDY TOPIC / BOOK',
                         labelStyle: GoogleFonts.orbitron(
                           color: Colors.white60,
                           fontSize: 11,
@@ -349,11 +354,11 @@ class _DeepWorkTimerScreenState extends State<DeepWorkTimerScreen> {
                       const SizedBox(height: 12),
                       Row(
                         children: [
-                          _durationChip('25 dk (Pomodoro)', 25, 5),
+                          _durationChip(TranslationManager.isTurkish ? '25 dk (Pomodoro)' : '25 min (Pomodoro)', 25, 5),
                           const SizedBox(width: 8),
-                          _durationChip('50 dk (Derin)', 50, 10),
+                          _durationChip(TranslationManager.isTurkish ? '50 dk (Derin)' : '50 min (Deep)', 50, 10),
                           const SizedBox(width: 8),
-                          _durationChip('90 dk (Ultra)', 90, 15),
+                          _durationChip(TranslationManager.isTurkish ? '90 dk (Ultra)' : '90 min (Ultra)', 90, 15),
                         ],
                       ),
                     ],
@@ -398,7 +403,9 @@ class _DeepWorkTimerScreenState extends State<DeepWorkTimerScreen> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          isFocus ? 'BİLİŞSEL ODAK' : 'YENİLENME MODU',
+                          isFocus
+                              ? (TranslationManager.isTurkish ? 'BİLİŞSEL ODAK' : 'COGNITIVE FOCUS')
+                              : (TranslationManager.isTurkish ? 'YENİLENME MODU' : 'RECOVERY MODE'),
                           style: GoogleFonts.orbitron(
                             color: themeColor,
                             fontSize: 11,
@@ -423,7 +430,7 @@ class _DeepWorkTimerScreenState extends State<DeepWorkTimerScreen> {
                       onPressed: _startTimer,
                       icon: const Icon(Icons.play_arrow, size: 24),
                       label: Text(
-                        'BAŞLAT',
+                        TranslationManager.isTurkish ? 'BAŞLAT' : 'START',
                         style: GoogleFonts.orbitron(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -443,7 +450,7 @@ class _DeepWorkTimerScreenState extends State<DeepWorkTimerScreen> {
                       onPressed: _pauseTimer,
                       icon: const Icon(Icons.pause, size: 24),
                       label: Text(
-                        'DURAKLAT',
+                        TranslationManager.isTurkish ? 'DURAKLAT' : 'PAUSE',
                         style: GoogleFonts.orbitron(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -462,7 +469,7 @@ class _DeepWorkTimerScreenState extends State<DeepWorkTimerScreen> {
                     onPressed: _manualFinishEarly,
                     icon: const Icon(Icons.stop, size: 20),
                     label: Text(
-                      'BİTİR',
+                      TranslationManager.isTurkish ? 'BİTİR' : 'FINISH',
                       style: GoogleFonts.orbitron(fontSize: 13, fontWeight: FontWeight.bold),
                     ),
                     style: OutlinedButton.styleFrom(
@@ -484,22 +491,22 @@ class _DeepWorkTimerScreenState extends State<DeepWorkTimerScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _statItem(
-                      'TOPLAM ODAK',
-                      '$_totalFocusedMinutes DK',
+                      TranslationManager.isTurkish ? 'TOPLAM ODAK' : 'TOTAL FOCUS',
+                      '$_totalFocusedMinutes ${TranslationManager.isTurkish ? "DK" : "MIN"}',
                       Icons.timer_outlined,
                       AppColors.systemCyan,
                     ),
                     Container(width: 1, height: 40, color: Colors.white12),
                     _statItem(
-                      'BİTİRİLEN SEANS',
-                      '$_completedSessions ADET',
+                      TranslationManager.isTurkish ? 'BİTİRİLEN SEANS' : 'COMPLETED SESSIONS',
+                      '$_completedSessions',
                       Icons.check_circle_outline,
                       Colors.greenAccent,
                     ),
                     Container(width: 1, height: 40, color: Colors.white12),
                     _statItem(
-                      'GENEL SİSTEM',
-                      '${SystemMemory.toplamOdaklanmaDakikasi} DK',
+                      TranslationManager.isTurkish ? 'GENEL SİSTEM' : 'SYSTEM TOTAL',
+                      '${SystemMemory.toplamOdaklanmaDakikasi} ${TranslationManager.isTurkish ? "DK" : "MIN"}',
                       Icons.military_tech_outlined,
                       Colors.purpleAccent,
                     ),

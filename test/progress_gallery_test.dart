@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solo_leveling_app/controllers/system_memory.dart';
+import 'package:solo_leveling_app/core/translation_manager.dart';
 import 'package:solo_leveling_app/widgets/progress_gallery_modal.dart';
 
 void main() {
@@ -100,9 +101,11 @@ void main() {
       await tester.pumpAndSettle();
 
       // Karşılaştırma çubuğu değerleri
-      expect(find.text('BAŞLANGIÇ'), findsOneWidget);
+      final initialLabel = TranslationManager.isTurkish ? 'BAŞLANGIÇ' : 'INITIAL';
+      final currentLabel = TranslationManager.isTurkish ? 'GÜNCEL' : 'CURRENT';
+      expect(find.text(initialLabel), findsOneWidget);
       expect(find.text('70.0 KG'), findsWidgets);
-      expect(find.text('GÜNCEL'), findsOneWidget);
+      expect(find.text(currentLabel), findsOneWidget);
       expect(find.text('74.0 KG'), findsWidgets);
       expect(find.text('+4.0 KG'), findsOneWidget);
     });

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/audio_system.dart';
+import '../core/translation_manager.dart';
 import '../controllers/system_memory.dart';
 
 class AchievementDialog extends StatefulWidget {
@@ -23,17 +24,18 @@ class AchievementDialog extends StatefulWidget {
     required String message,
   }) async {
     // Parse message if formatted as "[ACHIEVEMENT ASCENDED]\nTitle (Tier X)\nTarget Unlocked: ..."
-    String title = "ACHIEVEMENT ASCENDED";
+    // or "[BAŞARIM YÜKSELDİ]\nBaşlık (Kademe X)\nAçılan Hedef: ..."
+    String title = TranslationManager.isTurkish ? "BAŞARIM YÜKSELDİ" : "ACHIEVEMENT ASCENDED";
     int tier = 1;
     String target = "";
 
     final lines = message.split('\n');
     if (lines.isNotEmpty) {
-      if (lines[0].contains('ACHIEVEMENT')) {
+      if (lines[0].contains('ACHIEVEMENT') || lines[0].contains('BAŞARIM')) {
         if (lines.length > 1) {
           title = lines[1];
-          // Try parse tier number
-          final match = RegExp(r'Tier (\d+)').firstMatch(title);
+          // Try parse tier/kademe number
+          final match = RegExp(r'(?:Tier|Kademe)\s*(\d+)').firstMatch(title);
           if (match != null) {
             tier = int.tryParse(match.group(1) ?? '1') ?? 1;
           }
@@ -192,7 +194,7 @@ class _AchievementDialogState extends State<AchievementDialog>
 
               // Subheader
               Text(
-                "ACHIEVEMENT ASCENDED",
+                TranslationManager.isTurkish ? "BAŞARIM YÜKSELDİ" : "ACHIEVEMENT ASCENDED",
                 style: GoogleFonts.orbitron(
                   color: Colors.white,
                   fontSize: 16,
@@ -269,7 +271,7 @@ class _AchievementDialogState extends State<AchievementDialog>
                     Navigator.of(context).pop();
                   },
                   child: Text(
-                    "ACCEPT REWARD",
+                    TranslationManager.isTurkish ? "ÖDÜLÜ KABUL ET" : "ACCEPT REWARD",
                     style: GoogleFonts.orbitron(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,

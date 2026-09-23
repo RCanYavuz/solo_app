@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solo_leveling_app/core/supplement_engine.dart';
 import 'package:solo_leveling_app/core/voice_coach_system.dart';
 import 'package:solo_leveling_app/controllers/system_memory.dart';
+import 'package:solo_leveling_app/core/translation_manager.dart';
 import 'package:solo_leveling_app/widgets/hunter_radar_chart.dart';
 import 'package:solo_leveling_app/widgets/supplement_loadout_modal.dart';
 
@@ -59,10 +60,8 @@ void main() {
       expect(oneriler.any((o) => o.contains('KREATİN PROTOKOLÜ')), isTrue);
       expect(oneriler.any((o) => o.contains('PROTEİN ONARIMI')), isTrue);
     });
-  });
 
-  group('VoiceCoachSystem Testleri', () {
-    test('Sesli koç mesajları sonSesliMesaj değerini güncellemeli', () async {
+    test('VoiceCoachSystem Testleri Sesli koç mesajları sonSesliMesaj değerini güncellemeli', () async {
       await VoiceCoachSystem.dinlenmeBasladi(60, egzersizAdi: 'Bench Press');
       expect(VoiceCoachSystem.sonSesliMesaj.value, contains('60 saniye toparlan'));
 
@@ -73,7 +72,7 @@ void main() {
       expect(VoiceCoachSystem.sonSesliMesaj.value, contains('Dinlenme süren doldu'));
     });
 
-    test('Sesli koç kapatıldığında mesaj gönderilmemeli', () async {
+    test('VoiceCoachSystem Testleri Sesli koç kapatıldığında mesaj gönderilmemeli', () async {
       SystemMemory.sesliKocAktif.value = false;
       VoiceCoachSystem.sonSesliMesaj.value = null;
 
@@ -98,8 +97,10 @@ void main() {
         ),
       );
 
-      expect(find.text('[ BİYOMETRİK STAT RADARI ]'), findsOneWidget);
-      expect(find.text('BERSERKER / AĞIR VURUŞÇU'), findsOneWidget);
+      final radarTitle = TranslationManager.isTurkish ? '[ BİYOMETRİK STAT RADARI ]' : '[ BIOMETRIC STAT RADAR ]';
+      final classLabel = TranslationManager.isTurkish ? 'BERSERKER / AĞIR VURUŞÇU' : 'BERSERKER / HEAVY HITTER';
+      expect(find.text(radarTitle), findsOneWidget);
+      expect(find.text(classLabel), findsOneWidget);
     });
 
     testWidgets('SupplementLoadoutModal açılır ve kuşanma butonunu tetikler', (tester) async {
@@ -119,22 +120,24 @@ void main() {
       await tester.tap(find.text('Modal Aç'));
       await tester.pumpAndSettle();
 
-      expect(find.text('[ METABOLİK DONANIM ]'), findsOneWidget);
+      final titleText = TranslationManager.isTurkish ? '[ METABOLİK DONANIM ]' : '[ METABOLIC LOADOUT ]';
+      expect(find.text(titleText), findsOneWidget);
       expect(find.text('Kreatin Monohidrat (Creapure)'), findsOneWidget);
 
-      // İlk KUŞAN butonuna dokun
-      final kusanBtn = find.text('KUŞAN').first;
+      final kusanBtnText = TranslationManager.isTurkish ? 'KUŞAN' : 'EQUIP';
+      final kusanBtn = find.text(kusanBtnText).first;
       await tester.tap(kusanBtn);
       await tester.pumpAndSettle();
 
-      expect(find.text('✓ KUŞANILDI'), findsWidgets);
+      final kusandiText = TranslationManager.isTurkish ? '✓ KUŞANILDI' : '✓ EQUIPPED';
+      expect(find.text(kusandiText), findsWidgets);
       expect(SystemMemory.kusanilanSuplementler.isNotEmpty, isTrue);
 
       // Modal kapat
       await tester.tap(find.byIcon(Icons.close));
       await tester.pumpAndSettle();
 
-      expect(find.text('[ METABOLİK DONANIM ]'), findsNothing);
+      expect(find.text(titleText), findsNothing);
     });
   });
 }

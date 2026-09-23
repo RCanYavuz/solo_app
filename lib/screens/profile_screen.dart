@@ -1979,7 +1979,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const Icon(Icons.notifications_active, color: sysBlue, size: 18),
                   const SizedBox(width: 10),
                   Text(
-                    "SYSTEM DIRECTIVES",
+                    TranslationManager.get('profile_system_directives'),
                     style: GoogleFonts.orbitron(
                       color: sysBlue,
                       fontSize: 14,
@@ -1996,8 +1996,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   borderRadius: BorderRadius.circular(4),
                   border: Border.all(color: sysBlue.withValues(alpha: 0.4)),
                 ),
-                child: const Text(
-                  "ALERTS",
+                child: Text(
+                  TranslationManager.get('profile_alerts_badge'),
                   style: TextStyle(color: sysBlue, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
                 ),
               ),

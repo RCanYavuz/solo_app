@@ -5,6 +5,7 @@ import '../core/services/gemini_service.dart';
 import '../controllers/system_memory.dart';
 import '../models/mental_task_model.dart';
 import '../core/audio_system.dart';
+import '../core/translation_manager.dart';
 
 class StudyPlannerModal extends StatefulWidget {
   const StudyPlannerModal({super.key});
@@ -24,20 +25,33 @@ class StudyPlannerModal extends StatefulWidget {
 
 class _StudyPlannerModalState extends State<StudyPlannerModal> {
   final _goalController = TextEditingController();
-  String _selectedAlan = 'Yazılım & Kodlama';
+  String? _selectedAlan;
   int _selectedDuration = 45;
   bool _isLoading = false;
   List<MentalTask>? _generatedTasks;
   String? _errorMessage;
 
-  final List<String> _alanlar = [
-    'Yazılım & Kodlama',
-    'Yabancı Dil (İngilizce/Japonca)',
-    'Akademik & Sınav Hazırlığı',
-    'Kitap Okuma & Analiz',
-    'Finans & Strateji',
-    'Kişisel Gelişim & Felsefe',
-  ];
+  List<String> get _alanlar => TranslationManager.isTurkish
+      ? [
+          'Yazılım & Kodlama',
+          'Yabancı Dil (İngilizce/Japonca)',
+          'Akademik & Sınav Hazırlığı',
+          'Kitap Okuma & Analiz',
+          'Finans & Strateji',
+          'Kişisel Gelişim & Felsefe',
+        ]
+      : [
+          'Software & Coding',
+          'Foreign Languages (English/Japanese)',
+          'Academic & Exam Prep',
+          'Reading & Analytical Study',
+          'Finance & Strategy',
+          'Self-Mastery & Philosophy',
+        ];
+
+  String get _currentAlan => (_selectedAlan != null && _alanlar.contains(_selectedAlan))
+      ? _selectedAlan!
+      : _alanlar.first;
 
   final List<int> _sureler = [25, 45, 60, 90];
 
@@ -56,10 +70,10 @@ class _StudyPlannerModalState extends State<StudyPlannerModal> {
 
     try {
       final tasks = await GeminiService.aiCalismaPlaniUret(
-        alan: _selectedAlan,
+        alan: _currentAlan,
         seviye: SystemMemory.hunterRank,
         hedef: _goalController.text.trim().isEmpty
-            ? 'Genel Gelişim ve Ustalık'
+            ? (TranslationManager.isTurkish ? 'Genel Gelişim ve Ustalık' : 'General Mastery & Skill Progression')
             : _goalController.text.trim(),
         gunlukDakika: _selectedDuration,
       );
@@ -100,7 +114,9 @@ class _StudyPlannerModalState extends State<StudyPlannerModal> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                '${_generatedTasks!.length} Yeni Zihinsel Görev Sisteme Enjekte Edildi!',
+                TranslationManager.isTurkish
+                    ? '${_generatedTasks!.length} Yeni Zihinsel Görev Sisteme Enjekte Edildi!'
+                    : '${_generatedTasks!.length} New Mental Quests Injected into System!',
                 style: GoogleFonts.rajdhani(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
@@ -179,7 +195,7 @@ class _StudyPlannerModalState extends State<StudyPlannerModal> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'SİSTEM // ZİHİNSEL GELİŞİM PROTOKOLÜ',
+                        TranslationManager.isTurkish ? 'SİSTEM // ZİHİNSEL GELİŞİM PROTOKOLÜ' : 'SYSTEM // MENTAL GROWTH PROTOCOL',
                         style: GoogleFonts.orbitron(
                           color: AppColors.systemCyan,
                           fontSize: 13,
@@ -188,7 +204,9 @@ class _StudyPlannerModalState extends State<StudyPlannerModal> {
                         ),
                       ),
                       Text(
-                        'Yapay Zeka Destekli Bilişsel ve Mesleki Görev Motoru',
+                        TranslationManager.isTurkish
+                            ? 'Yapay Zeka Destekli Bilişsel ve Mesleki Görev Motoru'
+                            : 'AI-Powered Cognitive & Vocational Quest Engine',
                         style: GoogleFonts.rajdhani(
                           color: Colors.white70,
                           fontSize: 12,
@@ -205,7 +223,7 @@ class _StudyPlannerModalState extends State<StudyPlannerModal> {
 
             // Alan Seçimi
             Text(
-              'GELİŞİM ALANI SEÇİN',
+              TranslationManager.isTurkish ? 'GELİŞİM ALANI SEÇİN' : 'SELECT GROWTH DOMAIN',
               style: GoogleFonts.orbitron(
                 color: Colors.white,
                 fontSize: 11,
@@ -223,7 +241,7 @@ class _StudyPlannerModalState extends State<StudyPlannerModal> {
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
-                  value: _selectedAlan,
+                  value: _currentAlan,
                   isExpanded: true,
                   dropdownColor: const Color(0xFF0F172A),
                   style: GoogleFonts.rajdhani(
@@ -247,7 +265,7 @@ class _StudyPlannerModalState extends State<StudyPlannerModal> {
 
             // Günlük Süre
             Text(
-              'GÜNLÜK HEDEF ODAKLANMA SÜRESİ',
+              TranslationManager.isTurkish ? 'GÜNLÜK HEDEF ODAKLANMA SÜRESİ' : 'DAILY TARGET FOCUS TIME',
               style: GoogleFonts.orbitron(
                 color: Colors.white,
                 fontSize: 11,
@@ -280,7 +298,7 @@ class _StudyPlannerModalState extends State<StudyPlannerModal> {
                         ),
                         child: Center(
                           child: Text(
-                            '$sure dk',
+                            '$sure ${TranslationManager.isTurkish ? "dk" : "min"}',
                             style: GoogleFonts.orbitron(
                               color: isSelected
                                   ? AppColors.systemCyan
@@ -300,7 +318,7 @@ class _StudyPlannerModalState extends State<StudyPlannerModal> {
 
             // Spesifik Hedef
             Text(
-              'ÖZEL HEDEF / KONU DETAYI (İSTEĞE BAĞLI)',
+              TranslationManager.isTurkish ? 'ÖZEL HEDEF / KONU DETAYI (İSTEĞE BAĞLI)' : 'SPECIFIC OBJECTIVE / TOPIC (OPTIONAL)',
               style: GoogleFonts.orbitron(
                 color: Colors.white,
                 fontSize: 11,
@@ -313,7 +331,7 @@ class _StudyPlannerModalState extends State<StudyPlannerModal> {
               controller: _goalController,
               style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 14),
               decoration: InputDecoration(
-                hintText: 'Örn: Flutter State Management, Clean Code Kitabı...',
+                hintText: TranslationManager.isTurkish ? 'Örn: Flutter State Management, Clean Code Kitabı...' : 'e.g., Flutter State Management, Clean Code Book...',
                 hintStyle: GoogleFonts.rajdhani(color: Colors.white38),
                 filled: true,
                 fillColor: Colors.black45,
@@ -358,7 +376,7 @@ class _StudyPlannerModalState extends State<StudyPlannerModal> {
                           ),
                           const SizedBox(width: 12),
                           Text(
-                            'SİSTEM PROTOKOLÜ DERLİYOR...',
+                            TranslationManager.isTurkish ? 'SİSTEM PROTOKOLÜ DERLİYOR...' : 'SYSTEM COMPILING PROTOCOL...',
                             style: GoogleFonts.orbitron(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
@@ -372,7 +390,7 @@ class _StudyPlannerModalState extends State<StudyPlannerModal> {
                           const Icon(Icons.bolt, size: 20),
                           const SizedBox(width: 8),
                           Text(
-                            'GÖREV PROTOKOLÜNÜ ÜRET',
+                            TranslationManager.isTurkish ? 'GÖREV PROTOKOLÜNÜ ÜRET' : 'GENERATE QUEST PROTOCOL',
                             style: GoogleFonts.orbitron(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
@@ -416,7 +434,7 @@ class _StudyPlannerModalState extends State<StudyPlannerModal> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'SİSTEM TARAFINDAN ÖNERİLEN GÖREVLER',
+                          TranslationManager.isTurkish ? 'SİSTEM TARAFINDAN ÖNERİLEN GÖREVLER' : 'RECOMMENDED SYSTEM QUESTS',
                           style: GoogleFonts.orbitron(
                             color: AppColors.systemCyan,
                             fontSize: 11,
@@ -452,7 +470,7 @@ class _StudyPlannerModalState extends State<StudyPlannerModal> {
                                     ),
                                   ),
                                   Text(
-                                    '${task.targetMinutes} dk | +${task.rewardExp} EXP | +${task.rewardInt} INT | +${task.rewardPer} PER',
+                                    '${task.targetMinutes} ${TranslationManager.isTurkish ? "dk" : "min"} | +${task.rewardExp} EXP | +${task.rewardInt} INT | +${task.rewardPer} PER',
                                     style: GoogleFonts.rajdhani(
                                       color: Colors.white60,
                                       fontSize: 12,
@@ -472,7 +490,7 @@ class _StudyPlannerModalState extends State<StudyPlannerModal> {
                         onPressed: _acceptPlan,
                         icon: const Icon(Icons.check, size: 18),
                         label: Text(
-                          'GÖREVLERİ GÜNLÜK LİSTEYE EKLE',
+                          TranslationManager.isTurkish ? 'GÖREVLERİ GÜNLÜK LİSTEYE EKLE' : 'INJECT QUESTS INTO DAILY PROTOCOL',
                           style: GoogleFonts.orbitron(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,

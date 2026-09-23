@@ -10,6 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../core/exercise_coach.dart';
 import '../core/youtube_helper.dart';
 import '../core/audio_system.dart';
+import '../core/translation_manager.dart';
 
 class ExerciseDetailModal extends StatefulWidget {
   final String gorevAdi;
@@ -78,7 +79,7 @@ class _ExerciseDetailModalState extends State<ExerciseDetailModal> {
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('[SİSTEM] Hareket başarıyla güncellendi: $yeniHareket'),
+              content: Text(TranslationManager.isTurkish ? '[SİSTEM] Hareket başarıyla güncellendi: $yeniHareket' : '[SYSTEM] Exercise updated successfully: $yeniHareket'),
               backgroundColor: _sysBlue,
             ),
           );
@@ -344,15 +345,17 @@ class _ExerciseDetailModalState extends State<ExerciseDetailModal> {
                   ),
                   TextButton.icon(
                     icon: const Icon(Icons.arrow_back, color: _sysTextMuted, size: 16),
-                    label: const Text('Geri', style: TextStyle(color: _sysTextMuted, fontSize: 12)),
+                    label: Text(TranslationManager.isTurkish ? 'Geri' : 'Back', style: const TextStyle(color: _sysTextMuted, fontSize: 12)),
                     onPressed: () => setState(() => _alternatifModu = false),
                   ),
                 ],
               ),
               const SizedBox(height: 10),
-              const Text(
-                'Salondaki alet doluysa veya ekleminizi korumak istiyorsanız aşağıdaki muadil hareketlerden birini seçin:',
-                style: TextStyle(color: _sysTextMuted, fontSize: 12),
+              Text(
+                TranslationManager.isTurkish
+                    ? 'Salondaki alet doluysa veya ekleminizi korumak istiyorsanız aşağıdaki muadil hareketlerden birini seçin:'
+                    : 'If gym equipment is busy or to protect joints, select one of the equivalent exercises below:',
+                style: const TextStyle(color: _sysTextMuted, fontSize: 12),
               ),
               const SizedBox(height: 12),
               ..._taktik.alternatifler.map((alt) {
@@ -378,7 +381,7 @@ class _ExerciseDetailModalState extends State<ExerciseDetailModal> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
                       ),
                       onPressed: () => _hareketDegistir(alt),
-                      child: const Text('SEÇ', style: TextStyle(color: _sysBlue, fontSize: 11, fontWeight: FontWeight.bold)),
+                      child: Text(TranslationManager.isTurkish ? 'SEÇ' : 'SELECT', style: const TextStyle(color: _sysBlue, fontSize: 11, fontWeight: FontWeight.bold)),
                     ),
                   ),
                 );

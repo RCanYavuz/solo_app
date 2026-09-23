@@ -187,10 +187,10 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
     else if (sablonAdi == 'AI Booster') {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('SİSTEM: AI Avcı Booster hesaplanıyor...'),
-          backgroundColor: Color(0xFFA855F7),
-          duration: Duration(seconds: 1),
+        SnackBar(
+          content: Text(TranslationManager.isTurkish ? 'SİSTEM: AI Avcı Booster hesaplanıyor...' : 'SYSTEM: Calculating AI Hunter Booster...'),
+          backgroundColor: const Color(0xFFA855F7),
+          duration: const Duration(seconds: 1),
         ),
       );
 
@@ -339,7 +339,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('KAPAT', style: TextStyle(color: Color(0xFF94A3B8))),
+              child: Text(TranslationManager.isTurkish ? 'KAPAT' : 'CLOSE', style: const TextStyle(color: Color(0xFF94A3B8))),
             ),
           ],
         );
@@ -469,8 +469,11 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
   Widget build(BuildContext context) {
     List<Gorev> bugununProgrami = SystemMemory.haftalikPlan[bugunIndex]!;
 
-    return Scaffold(
-      backgroundColor: sysDarkBg,
+    return ValueListenableBuilder<String>(
+      valueListenable: SystemMemory.appLanguage,
+      builder: (context, _, __) {
+        return Scaffold(
+          backgroundColor: sysDarkBg,
       body: SafeArea(
         child: Column(
           children: [
@@ -644,6 +647,8 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
         ),
       ),
     );
+      },
+    );
   }
 
   void _rirGeriBildirimTetikle(Gorev gorev) {
@@ -734,15 +739,18 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                   child: Row(
                     children: [
                       Text(
-                        fiziksel ? '[PHY]' : '[MNT]',
-                        style: TextStyle(
-                          color: fiziksel ? sysBlue.withValues(alpha: 0.7) : mentalPurple,
+                        fiziksel ? TranslationManager.get('workout_tactics') : TranslationManager.get('workout_routine'),
+                        style: const TextStyle(
+                          color: Color(0xFF94A3B8),
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(width: 5),
-                      const Text('• Dokun: Taktik / Alternatif', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 10)),
+                      Text(
+                        TranslationManager.get('workout_tactics_substitute'),
+                        style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 10),
+                      ),
                     ],
                   ),
                 ),
@@ -854,7 +862,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'SET & OVERLOAD LOG',
+                TranslationManager.get('workout_set_overload_log'),
                 style: GoogleFonts.orbitron(
                   color: physicalGold,
                   fontSize: 10,
@@ -882,12 +890,12 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Icon(Icons.add, color: physicalGold, size: 12),
+                    children: [
+                      const Icon(Icons.add, color: physicalGold, size: 12),
                       SizedBox(width: 3),
                       Text(
-                        'SET EKLE',
-                        style: TextStyle(color: physicalGold, fontSize: 10, fontWeight: FontWeight.bold),
+                        TranslationManager.get('workout_add_set'),
+                        style: const TextStyle(color: physicalGold, fontSize: 10, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -897,11 +905,11 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
           ),
           const SizedBox(height: 6),
           if (gorev.setler.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 6),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
               child: Text(
-                'Henüz set eklenmedi. "SET EKLE" butonuna basarak ağırlık kaydedin.',
-                style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
+                TranslationManager.get('workout_no_sets_hint'),
+                style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
               ),
             )
           else
@@ -1006,9 +1014,11 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
               controller: kiloCtrl,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
-                labelText: 'Ağırlık (kg - Vücut ağırlığı için boş bırakın)',
-                labelStyle: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+              decoration: InputDecoration(
+                labelText: TranslationManager.isTurkish
+                    ? 'Ağırlık (kg - Vücut ağırlığı için boş bırakın)'
+                    : 'Weight (kg - Leave empty for Bodyweight)',
+                labelStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
               ),
             ),
             const SizedBox(height: 10),
@@ -1016,9 +1026,9 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
               controller: repCtrl,
               keyboardType: TextInputType.number,
               style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
-                labelText: 'Tekrar Sayısı (Reps)',
-                labelStyle: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+              decoration: InputDecoration(
+                labelText: TranslationManager.isTurkish ? 'Tekrar Sayısı (Reps)' : 'Reps (Target count)',
+                labelStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
               ),
             ),
           ],
@@ -1026,7 +1036,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('İPTAL', style: TextStyle(color: Color(0xFF94A3B8))),
+            child: Text(TranslationManager.isTurkish ? 'İPTAL' : 'CANCEL', style: const TextStyle(color: Color(0xFF94A3B8))),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -1041,7 +1051,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
               SystemMemory.kaydet();
               Navigator.pop(ctx);
             },
-            child: const Text('KAYDET', style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold)),
+            child: Text(TranslationManager.isTurkish ? 'KAYDET' : 'SAVE', style: const TextStyle(color: sysBlue, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
