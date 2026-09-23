@@ -235,7 +235,7 @@ lib/
 2. **Tek Dokunuşla YouTube Video Rehberi:** Dashboard, Takvim, Antrenman Planlayıcı, Aktif İdman ve Kütüphanedeki tüm hareketlerde canlı YouTube arama ve form videosu açma.
 3. **Solo Leveling Avcı Taktik Kartı & Akıllı Alternatif Değiştirici (Smart Swap):** Egzersize dokunulduğunda açılan hedef kas, dövüş faydası, 3 altın kural ve salondaki yoğunluk/ağrı durumunda 3 muadil hareket önerisi ve tek tıkla swap.
 4. **Set, Ağırlık ve Tekrar Takip Kaydedicisi:** Aktif zindan idmanında set bazlı kg/tekrar loglama (`SetKaydi`).
-5. **Set Arası Dinlenme Sayacı (Rest Timer):** 30-120sn sesli ve görsel Solo Leveling geri sayım sayacı.
+5. **Set Arası Dinlenme Sayacı & Yapay Zeka Sesli Koç (Rest Timer & Voice Coach):** 30-120sn geri sayım sayacı, dinlenme başlangıcı, 3-2-1 geri sayımı, tükeniş ve aşırı yükleme sesli direktifleri (TTS / Text-to-Speech). *(Not: Kullanıcıdan mikrofona gelen sesli komut algılama / Speech-to-Text özelliği mevcut sürümde bulunmamakta olup, gelecek sürümlerin yol haritasındadır.)*
 6. **Zindana Dinamik Ek Hareket Enjekte Etme & Kaldırma:** Aktif Zindan Baskını ekranında üst bardaki `+ EKLE` butonu ve listenin altındaki `+ EK HAREKET ENJEKTE ET` butonuyla kategorilere göre (Göğüs, Sırt, Omuz/Kol, Bacak, Karın, Dövüş/Boks) filtrelenen hazır hareketleri veya serbest görevleri seansa anında dahil edebilme ve görev kartından kaldırma desteği.
 7. **6-8 Hareket Uzatılmış İdman Standardı & Zorunlu Kardiyo Katmanı:** Tüm varsayılan ve Gemini tarafından üretilen programlar 4-5 set ve 6-8 hareketlik uzatılmış hacme geçirildi. Her idman gününün sonuna kesintisiz ve net bir `[CARDIO]` misyonu yerleştirildi.
 8. **Çift Seçenekli Şablon Yükleme (+ İdmana Ekle / 🔄 Sıfırla ve Kur) & Yeni Kardiyo Şablonları:** Saitama, Full Body, Cardio & MetCon Burn, Combat Striker Finisher, Gölge Boksu & Kombinasyonlar, Avcı 5K/10K Koşu & HIIT ve Tabata & MetCon Extreme Burn şablonları hem Append hem Replace modlarıyla.
@@ -359,13 +359,13 @@ lib/
 | **AI Harmanlama & Direktif** | ✅ **YAPILDI** | Kullanıcı fikri + biyometrik matematiğin senteziyle RPG Sistem Direktifi |
 | **Sisteme Entegre Et Butonu** | ✅ **YAPILDI** | Hesaplanan hedefleri tek tıkla aktif takip sistemine bağlama aksiyonu |
 | **Suplement Kuşanma (Loadout)** | ✅ **YAPILDI** | 4 ekipman yuvası, metabolik sinerji, dinamik su artışı (+500ml) & tolerans |
-| **Yapay Zeka Sesli Koç (Voice)** | ✅ **YAPILDI** | Dinlenme sayacı başlama, 3-2-1 geri sayım, zafer uyarıları & overload direktifleri |
+| **Yapay Zeka Sesli Koç (Voice)** | ✅ **YAPILDI** | Dinlenme sayacı başlama, 3-2-1 geri sayım, zafer uyarıları & overload direktifleri (TTS). Mikrofondan ses tanıma (STT) yol haritasında. |
 | **Canlı Kamera Vizörü (Lens)** | ✅ **YAPILDI** | Cihaz kamerası ile doğrudan tabak fotoğrafı çekme ve OCR tarama |
 | **Biyometrik Radar Grafiği** | ✅ **YAPILDI** | 5-stat STR/AGI/VIT/INT/PER pentagon siber radar poligonu ve sınıf tayini |
 | **Su Takibi (Hydration)** | ✅ **YAPILDI** | Günlük su sayacı, hızlı giriş butonları ve gece yarısı ödül/ceza |
 | **Avcı Çantası & Envanter** | ✅ **YAPILDI** | Eşya satın alma, çantadan canlı eşya kullanımı (`hp_full`, `cheat_meal` vb.) |
 | **Veri Kasası (Data Vault)** | ✅ **YAPILDI** | Şifrelenmiş JSON arşiv dışa/içe aktarma ile tam veri yedekleme |
-| **Çift Dil Desteği (TR/EN)** | ✅ **YAPILDI** | Tüm sistem unvanları, hedefler, diyaloglar ve dinamik dil anahtarı |
+| **Çift Dil Desteği (TR/EN)** | ✅ **YAPILDI** | Tüm sistem unvanları, hedefler, diyaloglar, modallar, arama ipuçları ve dinamik dil anahtarı ile %100 temiz iki dilli mimari |
 | **Zihinsel Görev Motoru** | ✅ **YAPILDI** | `MentalTask` model, 6 kategori, kitap & sayfa takibi, INT/PER ödülleri |
 | **AI Çalışma Planlayıcı** | ✅ **YAPILDI** | `StudyPlannerModal`, 6 uzmanlık alanı, Gemini AI plan üretimi, çevrimdışı yedek |
 | **Bilişsel Zindan (Deep Work)** | ✅ **YAPILDI** | Pomodoro sayacı, odak/dinlenme fazları, EXP/INT/PER ödülleri, seans takibi |
@@ -397,7 +397,7 @@ lib/
 
 ## 🧪 Otomatik Test Paketi
 
-Proje güvenilirliği için **26 test paketi** hazırlanmıştır (%100 Başarılı / Yeşil):
+Proje güvenilirliği için **26 test paketi** ve **127 testin tamamı** hazırlanmış ve çalıştırılmıştır (%100 Başarılı / 127 Passed, 0 Failed):
 
 | # | Test Dosyası | Kapsam |
 |---|-------------|--------|
