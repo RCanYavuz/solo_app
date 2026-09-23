@@ -11,6 +11,7 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     await SystemMemory.baslat();
+    SystemMemory.appLanguage.value = 'tr';
   });
 
   group('Modül 3: CalendarScreen İdman Geçmişi ve Rapor Testleri', () {

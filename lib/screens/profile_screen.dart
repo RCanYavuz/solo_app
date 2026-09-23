@@ -248,16 +248,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 borderRadius: BorderRadius.circular(4)
               ),
               title: Text(
-                'OVERRIDE PROTOCOL', 
+                TranslationManager.get('profile_override_protocol_title'), 
                 style: GoogleFonts.orbitron(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: 1)
               ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    "Change your Main Objective:", 
-                    style: TextStyle(color: sysTextMuted, fontSize: 12)
+                  Text(
+                    TranslationManager.get('profile_override_objective_sub'), 
+                    style: const TextStyle(color: sysTextMuted, fontSize: 12)
                   ),
                   const SizedBox(height: 10),
                   DropdownButtonFormField<String>(
@@ -286,9 +286,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
                   const SizedBox(height: 20),
-                  const Text(
-                    "Change Dungeon Difficulty:", 
-                    style: TextStyle(color: sysTextMuted, fontSize: 12)
+                  Text(
+                    TranslationManager.get('profile_override_diff_sub'), 
+                    style: const TextStyle(color: sysTextMuted, fontSize: 12)
                   ),
                   const SizedBox(height: 10),
                   DropdownButtonFormField<String>(
@@ -329,7 +329,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context), 
-                  child: const Text('CANCEL', style: TextStyle(color: sysTextMuted))
+                  child: Text(TranslationManager.get('btn_cancel'), style: const TextStyle(color: sysTextMuted))
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -341,14 +341,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     setState(() {}); 
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('SYSTEM: Protocol Overridden! Calories Recalculated.'),
+                      SnackBar(
+                        content: Text(TranslationManager.get('profile_override_snack')),
                         backgroundColor: sysBlue, 
-                        duration: Duration(seconds: 2),
+                        duration: const Duration(seconds: 2),
                       )
                     );
                   }, 
-                  child: const Text('OVERRIDE', style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold))
+                  child: Text(TranslationManager.get('profile_override_confirm'), style: const TextStyle(color: sysBlue, fontWeight: FontWeight.bold))
                 )
               ],
             );
@@ -374,7 +374,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             borderRadius: BorderRadius.circular(4)
           ),
           title: Text(
-            'SYSTEM UPDATE', 
+            TranslationManager.get('profile_sys_update_title'), 
             style: GoogleFonts.orbitron(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: 1)
           ),
           content: SingleChildScrollView(
@@ -382,25 +382,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
               mainAxisSize: MainAxisSize.min, 
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "The System will analyze your current physical specs and apply rewards or penalties.", 
-                  style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12)
+                Text(
+                  TranslationManager.get('profile_sys_update_desc'), 
+                  style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12)
                 ),
                 const SizedBox(height: 20),
-                _profilGirdiAlani("HEIGHT (cm)", boyCtrl),
+                _profilGirdiAlani(TranslationManager.get('profile_height_cm'), boyCtrl),
                 const SizedBox(height: 10),
-                _profilGirdiAlani("CURRENT WEIGHT (kg)", kiloCtrl),
+                _profilGirdiAlani(TranslationManager.get('profile_weight_kg'), kiloCtrl),
                 const SizedBox(height: 10),
-                _profilGirdiAlani("TARGET WEIGHT (kg)", hedefKiloCtrl),
+                _profilGirdiAlani(TranslationManager.get('profile_target_weight_kg'), hedefKiloCtrl),
                 const SizedBox(height: 10),
-                _profilGirdiAlani("AGE", yasCtrl),
+                _profilGirdiAlani(TranslationManager.get('profile_age'), yasCtrl),
               ]
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context), 
-              child: const Text('CANCEL', style: TextStyle(color: Color(0xFF94A3B8)))
+              child: Text(TranslationManager.get('btn_cancel'), style: const TextStyle(color: Color(0xFF94A3B8)))
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -424,7 +424,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _tartiRaporuGoster(rapor);
                 }
               }, 
-              child: const Text('CONFIRM', style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold))
+              child: Text(TranslationManager.get('btn_confirm'), style: const TextStyle(color: sysBlue, fontWeight: FontWeight.bold))
             )
           ],
         );
@@ -436,7 +436,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showDialog(
       context: context, 
       builder: (context) {
-        bool cezaVarMi = rapor.contains("PENALTY");
+        bool cezaVarMi = rapor.contains("PENALTY") || rapor.contains("CEZA") || rapor.contains("UYARI");
         Color dialogRenk = cezaVarMi ? const Color(0xFFEF4444) : sysBlue;
 
         return AlertDialog(
@@ -446,7 +446,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             borderRadius: BorderRadius.circular(4)
           ),
           title: Text(
-            cezaVarMi ? 'WARNING' : 'ACHIEVEMENT', 
+            cezaVarMi ? TranslationManager.get('profile_weight_warning') : TranslationManager.get('profile_weight_achieve'), 
             style: GoogleFonts.orbitron(color: dialogRenk, fontWeight: FontWeight.bold, fontSize: 16)
           ),
           content: Text(
@@ -460,7 +460,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 side: BorderSide(color: dialogRenk)
               ), 
               onPressed: () => Navigator.pop(context), 
-              child: Text('OK', style: TextStyle(color: dialogRenk, fontWeight: FontWeight.bold))
+              child: Text(TranslationManager.get('btn_ok'), style: TextStyle(color: dialogRenk, fontWeight: FontWeight.bold))
             )
           ],
         );
@@ -579,7 +579,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   const Icon(Icons.whatshot, color: bloodRed, size: 28),
                   const SizedBox(width: 10),
-                  Text('RED GATE SETUP', style: GoogleFonts.orbitron(color: bloodRed, fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text(TranslationManager.get('profile_red_gate_setup_title'), style: GoogleFonts.orbitron(color: bloodRed, fontWeight: FontWeight.bold, fontSize: 16)),
                 ],
               ),
               content: SingleChildScrollView(
@@ -588,13 +588,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Set your own limits and select a combat protocol.", 
+                      TranslationManager.get('profile_red_gate_setup_desc'), 
                       style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)
                     ),
                     const SizedBox(height: 20),
                     
                     Text(
-                      "Survival Duration: ${secilenGun.toInt()} Days", 
+                      TranslationManager.isTurkish
+                          ? "Hayatta Kalma Süresi: ${secilenGun.toInt()} Gün"
+                          : "Survival Duration: ${secilenGun.toInt()} Days", 
                       style: const TextStyle(color: bloodRed, fontSize: 14, fontWeight: FontWeight.bold)
                     ),
                     Slider(
@@ -610,9 +612,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(height: 10),
 
-                    const Text(
-                      "Hell's Training Protocol:", 
-                      style: TextStyle(color: bloodRed, fontSize: 14, fontWeight: FontWeight.bold)
+                    Text(
+                      TranslationManager.get('profile_red_gate_protocol'), 
+                      style: const TextStyle(color: bloodRed, fontSize: 14, fontWeight: FontWeight.bold)
                     ),
                     const SizedBox(height: 5),
                     DropdownButtonFormField<String>(
@@ -636,9 +638,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(height: 15),
                     
-                    const Text(
-                      "Hell's Calorie Limit:", 
-                      style: TextStyle(color: bloodRed, fontSize: 14, fontWeight: FontWeight.bold)
+                    Text(
+                      TranslationManager.get('profile_red_gate_cal_limit'), 
+                      style: const TextStyle(color: bloodRed, fontSize: 14, fontWeight: FontWeight.bold)
                     ),
                     const SizedBox(height: 5),
                     TextField(
@@ -665,15 +667,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         border: Border.all(color: bloodRed.withValues(alpha: 0.3)), 
                         borderRadius: BorderRadius.circular(4)
                       ),
-                      child: const Text(
-                        "INFO: Your normal plan is backed up. The System will forcefully assign you the chosen Training Protocol every single day of this hell.", 
-                        style: TextStyle(color: sysTextMuted, fontSize: 11, fontStyle: FontStyle.italic)
+                      child: Text(
+                        TranslationManager.get('profile_red_gate_info'), 
+                        style: const TextStyle(color: sysTextMuted, fontSize: 11, fontStyle: FontStyle.italic)
                       ),
                     ),
                     const SizedBox(height: 15),
 
                     Text(
-                      "EXPECTED CLEAR REWARD", 
+                      TranslationManager.get('profile_red_gate_reward'), 
                       style: GoogleFonts.orbitron(color: physicalGold, fontSize: 14, fontWeight: FontWeight.bold)
                     ),
                     const SizedBox(height: 5),
@@ -687,7 +689,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context), 
-                  child: const Text('CANCEL', style: TextStyle(color: sysTextMuted))
+                  child: Text(TranslationManager.get('btn_cancel'), style: const TextStyle(color: sysTextMuted))
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -701,14 +703,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Navigator.pop(context);
                     AudioSystem.playTransition();
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('SYSTEM: Welcome to Hell. Check your Daily Quests!'), 
+                      SnackBar(
+                        content: Text(TranslationManager.get('profile_welcome_hell')), 
                         backgroundColor: bloodRed, 
-                        duration: Duration(seconds: 3)
+                        duration: const Duration(seconds: 3)
                       )
                     );
                   },
-                  child: const Text('OPEN GATE', style: TextStyle(color: bloodRed, fontWeight: FontWeight.bold)),
+                  child: Text(TranslationManager.get('profile_open_gate'), style: const TextStyle(color: bloodRed, fontWeight: FontWeight.bold)),
                 )
               ],
             );
@@ -736,19 +738,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const Icon(Icons.directions_run, color: Colors.white, size: 28),
               const SizedBox(width: 10),
               Text(
-                'USE ESCAPE CRYSTAL?', 
+                TranslationManager.get('profile_escape_title'), 
                 style: GoogleFonts.orbitron(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)
               ),
             ],
           ),
-          content: const Text(
-            "Are you sure you want to flee the Red Gate? You will return to the normal world, but you will forfeit all accumulated survival rewards. Cowards get nothing.", 
-            style: TextStyle(color: sysTextMuted, fontSize: 14)
+          content: Text(
+            TranslationManager.get('profile_escape_desc'), 
+            style: const TextStyle(color: sysTextMuted, fontSize: 14)
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context), 
-              child: const Text('STAY & FIGHT', style: TextStyle(color: bloodRed, fontWeight: FontWeight.bold))
+              child: Text(TranslationManager.get('profile_stay_fight'), style: const TextStyle(color: bloodRed, fontWeight: FontWeight.bold))
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -760,14 +762,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 setState(() {});
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('SYSTEM: You fled the Red Gate. Normal protocol restored.'), 
+                  SnackBar(
+                    content: Text(TranslationManager.get('profile_fled_snack')), 
                     backgroundColor: Colors.white, 
-                    duration: Duration(seconds: 3)
+                    duration: const Duration(seconds: 3)
                   )
                 );
               },
-              child: const Text('FLEE GATE', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+              child: Text(TranslationManager.get('profile_flee_gate'), style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
             )
           ],
         );
@@ -797,7 +799,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const Icon(Icons.auto_awesome, color: sysBlue, size: 20),
                   const SizedBox(width: 8),
                   Text(
-                    'GEMINI CORE PROTOCOL',
+                    TranslationManager.get('profile_gemini_core_title'),
                     style: GoogleFonts.orbitron(
                       color: sysBlue,
                       fontWeight: FontWeight.bold,
@@ -812,9 +814,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Enter your Google Gemini API Key to enable AI Meal Decoding and System Voice synthesis.',
-                      style: TextStyle(color: sysTextMuted, fontSize: 12),
+                    Text(
+                      TranslationManager.get('profile_gemini_core_desc'),
+                      style: const TextStyle(color: sysTextMuted, fontSize: 12),
                     ),
                     const SizedBox(height: 15),
                     TextField(
@@ -822,7 +824,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       obscureText: sifreli,
                       style: const TextStyle(color: Colors.white, fontSize: 13, fontFamily: 'monospace'),
                       decoration: InputDecoration(
-                        labelText: 'API KEY (AIza...)',
+                        labelText: TranslationManager.get('profile_gemini_key_label'),
                         labelStyle: const TextStyle(color: sysTextMuted, fontSize: 12),
                         suffixIcon: IconButton(
                           icon: Icon(sifreli ? Icons.visibility : Icons.visibility_off, color: sysTextMuted, size: 18),
@@ -839,7 +841,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        const Text('Active Model: ', style: TextStyle(color: sysTextMuted, fontSize: 12)),
+                        Text('${TranslationManager.get('profile_active_model')} ', style: const TextStyle(color: sysTextMuted, fontSize: 12)),
                         Text(
                           SystemMemory.geminiActiveModel,
                           style: const TextStyle(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 12),
@@ -860,10 +862,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Navigator.pop(context);
                           setState(() {});
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('SYSTEM: Gemini Key Updated.'), backgroundColor: Colors.green)
+                            SnackBar(content: Text(TranslationManager.get('profile_gemini_updated')), backgroundColor: Colors.green)
                           );
                         },
-                        child: const Text('SAVE KEY', style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold)),
+                        child: Text(TranslationManager.get('profile_save_key'), style: const TextStyle(color: sysBlue, fontWeight: FontWeight.bold)),
                       ),
                     )
                   ],
@@ -872,7 +874,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('CANCEL', style: TextStyle(color: sysTextMuted)),
+                  child: Text(TranslationManager.get('btn_cancel'), style: const TextStyle(color: sysTextMuted)),
                 ),
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
@@ -882,7 +884,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   icon: _geminiTestEdiliyor
                       ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(color: Colors.amber, strokeWidth: 2))
                       : const Icon(Icons.troubleshoot, size: 16, color: Colors.amber),
-                  label: const Text('DIAGNOSTIC', style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold)),
+                  label: Text(TranslationManager.get('profile_diagnostic'), style: const TextStyle(color: Colors.amber, fontWeight: FontWeight.bold)),
                   onPressed: _geminiTestEdiliyor ? null : () async {
                     setDialogState(() => _geminiTestEdiliyor = true);
                     final key = apiKeyCtrl.text.trim();
@@ -917,19 +919,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const Icon(Icons.warning_amber, color: bloodRed),
               const SizedBox(width: 10),
               Text(
-                'SYSTEM PURGE', 
+                TranslationManager.get('profile_purge_title'), 
                 style: GoogleFonts.orbitron(color: bloodRed, fontWeight: FontWeight.bold, fontSize: 16)
               ),
             ],
           ),
-          content: const Text(
-            "All data (level, gold, history, API key) will be permanently deleted. Are you sure?", 
-            style: TextStyle(color: Colors.white, fontSize: 14)
+          content: Text(
+            TranslationManager.get('profile_purge_desc'), 
+            style: const TextStyle(color: Colors.white, fontSize: 14)
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context), 
-              child: const Text('CANCEL', style: TextStyle(color: sysTextMuted))
+              child: Text(TranslationManager.get('btn_cancel'), style: const TextStyle(color: sysTextMuted))
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -946,7 +948,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   (route) => false
                 );
               }, 
-              child: const Text('WIPE DATA', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))
+              child: Text(TranslationManager.get('profile_wipe_data'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold))
             )
           ],
         );
@@ -1040,7 +1042,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const Icon(Icons.file_download, color: sysBlue, size: 20),
               const SizedBox(width: 8),
               Text(
-                'SYSTEM ARCHIVE EXPORT',
+                TranslationManager.get('profile_archive_export_title'),
                 style: GoogleFonts.orbitron(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 1),
               ),
             ],
@@ -1049,9 +1051,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Copy your complete Hunter encrypted archive to clipboard. You can restore your stats, level, inventory, and history on any device.',
-                style: TextStyle(color: sysTextMuted, fontSize: 12),
+              Text(
+                TranslationManager.get('profile_archive_export_desc'),
+                style: const TextStyle(color: sysTextMuted, fontSize: 12),
               ),
               const SizedBox(height: 12),
               Container(
@@ -1074,7 +1076,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('CLOSE', style: TextStyle(color: sysTextMuted)),
+              child: Text(TranslationManager.get('btn_close'), style: const TextStyle(color: sysTextMuted)),
             ),
             ElevatedButton.icon(
               onPressed: () {
@@ -1082,14 +1084,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 AudioSystem.playSuccess();
                 Navigator.pop(ctx);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('[SYSTEM] Hunter archive copied to clipboard!'),
+                  SnackBar(
+                    content: Text(TranslationManager.get('profile_archive_copied_snack')),
                     backgroundColor: sysBlue,
                   ),
                 );
               },
               icon: const Icon(Icons.copy, size: 16, color: Colors.black),
-              label: const Text('COPY TO CLIPBOARD', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 11)),
+              label: Text(TranslationManager.get('profile_archive_copy_btn'), style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 11)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: sysBlue,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
@@ -1118,7 +1120,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const Icon(Icons.file_upload, color: physicalGold, size: 20),
               const SizedBox(width: 8),
               Text(
-                'RESTORE ARCHIVE',
+                TranslationManager.get('profile_archive_restore_title'),
                 style: GoogleFonts.orbitron(color: physicalGold, fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 1),
               ),
             ],
@@ -1127,9 +1129,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Paste your raw backup JSON archive below to overwrite and restore all Hunter data.',
-                style: TextStyle(color: sysTextMuted, fontSize: 12),
+              Text(
+                TranslationManager.get('profile_archive_restore_desc'),
+                style: const TextStyle(color: sysTextMuted, fontSize: 12),
               ),
               const SizedBox(height: 12),
               TextField(
@@ -1152,7 +1154,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('CANCEL', style: TextStyle(color: sysTextMuted)),
+              child: Text(TranslationManager.get('btn_cancel'), style: const TextStyle(color: sysTextMuted)),
             ),
             ElevatedButton(
               onPressed: () {
@@ -1166,15 +1168,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   setState(() {});
                   AudioSystem.playLevelUp();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('[SYSTEM] Hunter archive successfully restored!'),
+                    SnackBar(
+                      content: Text(TranslationManager.get('profile_archive_restored_snack')),
                       backgroundColor: Colors.green,
                     ),
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('[SYSTEM ERROR] Invalid or corrupt archive JSON!'),
+                    SnackBar(
+                      content: Text(TranslationManager.get('profile_archive_invalid_snack')),
                       backgroundColor: bloodRed,
                     ),
                   );
@@ -1185,7 +1187,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 side: const BorderSide(color: physicalGold),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
               ),
-              child: const Text('RESTORE DATA', style: TextStyle(color: physicalGold, fontWeight: FontWeight.bold)),
+              child: Text(TranslationManager.get('profile_archive_restore_btn'), style: const TextStyle(color: physicalGold, fontWeight: FontWeight.bold)),
             ),
           ],
         );
@@ -1336,7 +1338,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 },
                 icon: const Icon(Icons.shield, color: sysBlue, size: 18),
                 label: Text(
-                  '💊 SUPLEMENT KUŞANMA & SİNERJİ (${SystemMemory.kusanilanSuplementler.length}/4)',
+                  '${TranslationManager.isTurkish ? '💊 SUPLEMENT KUŞANMA & SİNERJİ' : '💊 EQUIP SUPPLEMENTS & SYNERGY'} (${SystemMemory.kusanilanSuplementler.length}/4)',
                   style: GoogleFonts.orbitron(
                     color: sysBlue,
                     fontSize: 11,
@@ -1415,9 +1417,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text("Equipment Mode:", style: TextStyle(color: sysTextMuted, fontSize: 12)),
+                      Text(TranslationManager.get('profile_equipment_mode'), style: const TextStyle(color: sysTextMuted, fontSize: 12)),
                       Text(
-                        SystemMemory.ekipmanTuru == 'Salon' ? 'Gym (Salon)' : (SystemMemory.ekipmanTuru == 'Ev-Dambil' ? 'Home Dumbbells' : 'Calisthenics'),
+                        SystemMemory.ekipmanTuru == 'Salon'
+                            ? (TranslationManager.isTurkish ? 'Spor Salonu' : 'Gym (Salon)')
+                            : (SystemMemory.ekipmanTuru == 'Ev-Dambil'
+                                ? (TranslationManager.isTurkish ? 'Ev / Dambıl' : 'Home Dumbbells')
+                                : (TranslationManager.isTurkish ? 'Vücut Ağırlığı' : 'Calisthenics')),
                         style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -1428,7 +1434,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          SystemMemory.retestGerekiyorMu ? '⚔️ PROMOTION TRIAL READY' : 'Next Rank Trial Progress:',
+                          SystemMemory.retestGerekiyorMu ? TranslationManager.get('profile_trial_ready') : TranslationManager.get('profile_trial_progress'),
                           style: TextStyle(
                             color: SystemMemory.retestGerekiyorMu ? physicalGold : sysTextMuted,
                             fontSize: 11,
@@ -1436,7 +1442,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                         Text(
-                          '${SystemMemory.sonTesttenBeriIdmanSayisi} / ${SystemMemory.rankIcinGerekliIdmanKotasi} Raids',
+                          '${SystemMemory.sonTesttenBeriIdmanSayisi} / ${SystemMemory.rankIcinGerekliIdmanKotasi} ${TranslationManager.isTurkish ? 'İdman' : 'Raids'}',
                           style: TextStyle(
                             color: SystemMemory.retestGerekiyorMu ? physicalGold : Colors.white,
                             fontSize: 11,
@@ -1467,7 +1473,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         size: 16,
                       ),
                       label: Text(
-                        SystemMemory.retestGerekiyorMu ? '⚔️ ENTER PROMOTION TRIAL' : TranslationManager.get('profile_take_test'),
+                        SystemMemory.retestGerekiyorMu ? TranslationManager.get('profile_enter_trial') : TranslationManager.get('profile_take_test'),
                         style: const TextStyle(color: physicalGold, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
                       ),
                       style: ElevatedButton.styleFrom(
@@ -1642,7 +1648,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                         child: Text(
-                          SystemMemory.geminiApiKey.isNotEmpty ? "CONFIGURED" : "NO KEY",
+                          SystemMemory.geminiApiKey.isNotEmpty ? TranslationManager.get('profile_configured') : TranslationManager.get('profile_no_key'),
                           style: TextStyle(
                             color: SystemMemory.geminiApiKey.isNotEmpty ? Colors.greenAccent : Colors.amber,
                             fontSize: 10,
@@ -1654,7 +1660,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  _protokolSatiri("Active Engine", SystemMemory.geminiActiveModel, sysTextMuted),
+                  _protokolSatiri(TranslationManager.get('profile_active_model'), SystemMemory.geminiActiveModel, sysTextMuted),
                   const SizedBox(height: 12),
                   Row(
                     children: [
@@ -1662,7 +1668,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: OutlinedButton.icon(
                           onPressed: _geminiAyarDialog,
                           icon: const Icon(Icons.key, size: 14, color: sysBlue),
-                          label: const Text('SET KEY', style: TextStyle(color: sysBlue, fontSize: 11, fontWeight: FontWeight.bold)),
+                          label: Text(TranslationManager.get('profile_set_key'), style: const TextStyle(color: sysBlue, fontSize: 11, fontWeight: FontWeight.bold)),
                           style: OutlinedButton.styleFrom(
                             side: BorderSide(color: sysBlue.withValues(alpha: 0.5)),
                             padding: const EdgeInsets.symmetric(vertical: 10),
@@ -1676,7 +1682,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           icon: _geminiTestEdiliyor
                               ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                               : const Icon(Icons.wifi, size: 14, color: Colors.white),
-                          label: const Text('DIAGNOSTIC', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                          label: Text(TranslationManager.get('profile_diagnostic'), style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: sysBlue.withValues(alpha: 0.2),
                             side: const BorderSide(color: sysBlue),
@@ -1816,7 +1822,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const Icon(Icons.photo_library, color: sysBlue, size: 18),
                           const SizedBox(width: 10),
                           Text(
-                            "TRANSFORMATION VAULT",
+                            TranslationManager.get('profile_transformation_vault'),
                             style: GoogleFonts.orbitron(
                               color: sysBlue,
                               fontSize: 14,
@@ -1834,16 +1840,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           border: Border.all(color: sysBlue.withValues(alpha: 0.4)),
                         ),
                         child: Text(
-                          "${SystemMemory.ilerlemeFotolari.length} ENTRY",
+                          "${SystemMemory.ilerlemeFotolari.length} ${TranslationManager.isTurkish ? 'KAYIT' : 'ENTRY'}",
                           style: const TextStyle(color: sysBlue, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    "Fiziksel değişim zaman çizelgesi ve Önce / Sonra (Before & After) karşılaştırma vizörü.",
-                    style: TextStyle(color: sysTextMuted, fontSize: 12),
+                  Text(
+                    TranslationManager.get('profile_trans_vault_desc'),
+                    style: const TextStyle(color: sysTextMuted, fontSize: 12),
                   ),
                   const SizedBox(height: 14),
                   SizedBox(
@@ -1851,9 +1857,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: OutlinedButton.icon(
                       onPressed: () => ProgressGalleryModal.show(context),
                       icon: const Icon(Icons.compare, size: 16, color: sysBlue),
-                      label: const Text(
-                        "GALERİYİ & DÖNÜŞÜMÜ GÖRÜNTÜLE",
-                        style: TextStyle(color: sysBlue, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1),
+                      label: Text(
+                        TranslationManager.get('profile_view_gallery_btn'),
+                        style: const TextStyle(color: sysBlue, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1),
                       ),
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(color: sysBlue.withValues(alpha: 0.6)),
@@ -1907,9 +1913,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    "Export your full Hunter profile or restore from a previously saved JSON archive.",
-                    style: TextStyle(color: sysTextMuted, fontSize: 12),
+                  Text(
+                    TranslationManager.get('profile_data_vault_desc'),
+                    style: const TextStyle(color: sysTextMuted, fontSize: 12),
                   ),
                   const SizedBox(height: 12),
                   Row(
@@ -1998,9 +2004,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
           ),
           const SizedBox(height: 8),
-          const Text(
-            "Zindan çağrıları, hidrasyon takviyesi ve ceza protokolü bildirimlerini yönetin.",
-            style: TextStyle(color: sysTextMuted, fontSize: 12),
+          Text(
+            TranslationManager.get('profile_notif_desc'),
+            style: const TextStyle(color: sysTextMuted, fontSize: 12),
           ),
           const SizedBox(height: 16),
           // Su Hatırlatıcısı
@@ -2009,8 +2015,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: SwitchListTile(
               contentPadding: EdgeInsets.zero,
               activeThumbColor: sysBlue,
-              title: const Text("Hidrasyon Protokolü (Su)", style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-              subtitle: Text("Her ${SystemMemory.suBildirimAraligiSaat} saatte bir uyarı (+1 MP)", style: const TextStyle(color: sysTextMuted, fontSize: 11)),
+              title: Text(TranslationManager.get('profile_hydration_title'), style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+              subtitle: Text(
+                TranslationManager.isTurkish
+                    ? "Her ${SystemMemory.suBildirimAraligiSaat} saatte bir uyarı (+1 MP)"
+                    : "Alert every ${SystemMemory.suBildirimAraligiSaat} hours (+1 MP)",
+                style: const TextStyle(color: sysTextMuted, fontSize: 11),
+              ),
               value: SystemMemory.suBildirimiAktif,
               onChanged: (val) {
                 setState(() {
@@ -2028,9 +2039,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: SwitchListTile(
               contentPadding: EdgeInsets.zero,
               activeThumbColor: bloodRed,
-              title: const Text("Zindan Çağrısı (İdman)", style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+              title: Text(TranslationManager.get('profile_dungeon_call_title'), style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
               subtitle: Text(
-                "Günlük antrenman saati: ${SystemMemory.idmanBildirimSaati.toString().padLeft(2, '0')}:${SystemMemory.idmanBildirimDakikasi.toString().padLeft(2, '0')}",
+                TranslationManager.isTurkish
+                    ? "Günlük antrenman saati: ${SystemMemory.idmanBildirimSaati.toString().padLeft(2, '0')}:${SystemMemory.idmanBildirimDakikasi.toString().padLeft(2, '0')}"
+                    : "Daily training time: ${SystemMemory.idmanBildirimSaati.toString().padLeft(2, '0')}:${SystemMemory.idmanBildirimDakikasi.toString().padLeft(2, '0')}",
                 style: const TextStyle(color: sysTextMuted, fontSize: 11),
               ),
               value: SystemMemory.idmanBildirimiAktif,
@@ -2078,7 +2091,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   }
                 },
                 icon: const Icon(Icons.access_time, size: 14, color: sysBlue),
-                label: const Text("Saati Değiştir", style: TextStyle(color: sysBlue, fontSize: 11, fontWeight: FontWeight.bold)),
+                label: Text(TranslationManager.get('profile_change_time'), style: const TextStyle(color: sysBlue, fontSize: 11, fontWeight: FontWeight.bold)),
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(color: sysBlue.withValues(alpha: 0.5)),
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -2093,8 +2106,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: SwitchListTile(
               contentPadding: EdgeInsets.zero,
               activeThumbColor: physicalGold,
-              title: const Text("Gece Hesaplaşması Uyarısı", style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-              subtitle: const Text("Saat 22:30'da ceza protokolü öncesi son uyarı", style: TextStyle(color: sysTextMuted, fontSize: 11)),
+              title: Text(TranslationManager.get('profile_midnight_alert_title'), style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+              subtitle: Text(TranslationManager.get('profile_midnight_alert_sub'), style: const TextStyle(color: sysTextMuted, fontSize: 11)),
               value: SystemMemory.geceBildirimiAktif,
               onChanged: (val) {
                 setState(() {
@@ -2114,16 +2127,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 await NotificationService.instance.testBildirimiGonder();
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("SYSTEM: Test bildirimi gönderildi!", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                    SnackBar(
+                      content: Text(TranslationManager.get('profile_test_notif_sent'), style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
                       backgroundColor: sysBlue,
-                      duration: Duration(seconds: 2),
+                      duration: const Duration(seconds: 2),
                     ),
                   );
                 }
               },
               icon: const Icon(Icons.bolt, size: 16, color: sysBlue),
-              label: const Text("TEST BİLDİRİMİ TETİKLE", style: TextStyle(color: sysBlue, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1)),
+              label: Text(TranslationManager.get('profile_test_notif_btn'), style: const TextStyle(color: sysBlue, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1)),
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: sysBlue.withValues(alpha: 0.6)),
                 padding: const EdgeInsets.symmetric(vertical: 12),

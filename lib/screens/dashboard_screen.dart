@@ -213,7 +213,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '[ ⚔️ RANK PROMOTION TRIAL READY ]',
+                                TranslationManager.get('dash_promotion_trial_ready'),
                                 style: GoogleFonts.orbitron(
                                   color: const Color(0xFFEAB308),
                                   fontSize: 13,
@@ -223,7 +223,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                'Training quota fulfilled (${SystemMemory.sonTesttenBeriIdmanSayisi}/${SystemMemory.rankIcinGerekliIdmanKotasi} raids). Enter trial to ascend rank!',
+                                TranslationManager.isTurkish
+                                    ? 'İdman kotası dolduruldu (${SystemMemory.sonTesttenBeriIdmanSayisi}/${SystemMemory.rankIcinGerekliIdmanKotasi} akın). Rütbeni yükseltmek için sınava gir!'
+                                    : 'Training quota fulfilled (${SystemMemory.sonTesttenBeriIdmanSayisi}/${SystemMemory.rankIcinGerekliIdmanKotasi} raids). Enter trial to ascend rank!',
                                 style: const TextStyle(color: sysTextMuted, fontSize: 11),
                               ),
                             ],
@@ -245,9 +247,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           showAwakeningTestDialog(context, onCompleted: () => setState(() {}));
                         },
                         icon: const Icon(Icons.flash_on, color: Color(0xFFEAB308), size: 18),
-                        label: const Text(
-                          'ENTER PROMOTION TRIAL NOW',
-                          style: TextStyle(color: Color(0xFFEAB308), fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 12),
+                        label: Text(
+                          TranslationManager.get('dash_enter_promotion_trial'),
+                          style: const TextStyle(color: Color(0xFFEAB308), fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 12),
                         ),
                       ),
                     ),
@@ -309,7 +311,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('SİSTEM: ${dda.onerilenZorluk} protokolü devreye alındı!'),
+                                    content: Text(TranslationManager.isTurkish
+                                        ? 'SİSTEM: ${dda.onerilenZorluk} protokolü devreye alındı!'
+                                        : 'SYSTEM: ${dda.onerilenZorluk} protocol activated!'),
                                     backgroundColor: ddaColor,
                                   ),
                                 );
@@ -318,7 +322,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             },
                             icon: Icon(isDeload ? Icons.healing : Icons.trending_up, size: 16, color: ddaColor),
                             label: Text(
-                              isDeload ? 'DELOAD PROTOKOLÜNÜ BAŞLAT' : '${dda.onerilenZorluk.toUpperCase()} ZORLUĞA GEÇ',
+                              isDeload 
+                                  ? TranslationManager.get('dash_start_deload') 
+                                  : (TranslationManager.isTurkish
+                                      ? '${dda.onerilenZorluk.toUpperCase()} ZORLUĞA GEÇ'
+                                      : 'SWITCH TO ${dda.onerilenZorluk.toUpperCase()} DIFFICULTY'),
                               style: TextStyle(color: ddaColor, fontWeight: FontWeight.bold, fontSize: 11, letterSpacing: 1),
                             ),
                           ),
@@ -417,15 +425,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Icons.monitor_weight, sysBlue, sysTextMuted
                   ),
                   _basarimKarti(
-                    "Scholar ${_romaRakam(bOkuma['kademe'])}", 
-                    "${bOkuma['hedef']} Sayfa Kitap", 
+                    "${TranslationManager.get('dash_scholar')} ${_romaRakam(bOkuma['kademe'])}", 
+                    "${bOkuma['hedef']} ${TranslationManager.get('dash_pages_read')}", 
                     SystemMemory.toplamOkunanSayfaSayisi, 
                     bOkuma['hedef'], 
                     Icons.menu_book, sysBlue, sysTextMuted
                   ),
                   _basarimKarti(
-                    "Deep Focus ${_romaRakam(bOdak['kademe'])}", 
-                    "${bOdak['hedef']} Dk Odak", 
+                    "${TranslationManager.get('dash_deep_focus')} ${_romaRakam(bOdak['kademe'])}", 
+                    "${bOdak['hedef']} ${TranslationManager.get('dash_min_focus')}", 
                     SystemMemory.toplamOdaklanmaDakikasi, 
                     bOdak['hedef'], 
                     Icons.hourglass_top, Colors.purpleAccent, sysTextMuted
@@ -529,7 +537,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           children: [
                             const Icon(Icons.auto_awesome, color: sysBlue, size: 12),
                             const SizedBox(width: 4),
-                            Text('AI ÇALIŞMA', style: GoogleFonts.orbitron(color: sysBlue, fontSize: 10, fontWeight: FontWeight.bold)),
+                            Text(TranslationManager.get('dash_ai_study'), style: GoogleFonts.orbitron(color: sysBlue, fontSize: 10, fontWeight: FontWeight.bold)),
                           ],
                         ),
                       ),
@@ -562,11 +570,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             // Filtre Seçenekleri: Tümü / Fiziksel / Zihinsel
             Row(
               children: [
-                _buildFilterChip('TÜMÜ', QuestFilter.all, sysBlue),
+                _buildFilterChip(TranslationManager.get('dash_filter_all'), QuestFilter.all, sysBlue),
                 const SizedBox(width: 8),
-                _buildFilterChip('⚔️ FİZİKSEL', QuestFilter.physical, sysBlue),
+                _buildFilterChip(TranslationManager.get('dash_filter_physical'), QuestFilter.physical, sysBlue),
                 const SizedBox(width: 8),
-                _buildFilterChip('🧠 ZİHİNSEL', QuestFilter.mental, Colors.purpleAccent),
+                _buildFilterChip(TranslationManager.get('dash_filter_mental'), QuestFilter.mental, Colors.purpleAccent),
               ],
             ),
             const SizedBox(height: 10),
@@ -577,7 +585,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 6),
                   child: Text(
-                    '// FİZİKSEL ANTRENMAN PROTOKOLÜ',
+                    TranslationManager.get('dash_physical_protocol'),
                     style: GoogleFonts.orbitron(color: sysBlue.withValues(alpha: 0.7), fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1),
                   ),
                 ),
@@ -597,7 +605,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
-                                    'DİNLENME PROTOKOLÜ (RECOVERY DAY)',
+                                    TranslationManager.get('dash_recovery_protocol'),
                                     style: GoogleFonts.orbitron(color: sysBlue, fontSize: 12, fontWeight: FontWeight.bold),
                                   ),
                                 ),
@@ -605,7 +613,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Bugün fiziksel kas liflerinin süperkompansasyon (büyüme) fazı devrededir. Dinlenme günlerinde kaslar onarılırken zihninizi geliştirin.',
+                              TranslationManager.get('dash_recovery_desc'),
                               style: GoogleFonts.rajdhani(color: Colors.white70, fontSize: 13),
                             ),
                             const SizedBox(height: 10),
@@ -613,9 +621,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               spacing: 8,
                               runSpacing: 4,
                               children: [
-                                _recoveryBadge('💧 3-4L Hidrasyon'),
-                                _recoveryBadge('🧘 15 Dk Esneme'),
-                                _recoveryBadge('📖 Kitap & Zihin'),
+                                _recoveryBadge(TranslationManager.get('dash_rec_hydration')),
+                                _recoveryBadge(TranslationManager.get('dash_rec_stretch')),
+                                _recoveryBadge(TranslationManager.get('dash_rec_reading')),
                               ],
                             ),
                             const SizedBox(height: 12),
@@ -625,7 +633,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 onPressed: () => Navigator.push(context, SistemGecisi(sayfa: const DeepWorkTimerScreen())).then((_) => setState(() {})),
                                 icon: const Icon(Icons.psychology, size: 16, color: sysBlue),
                                 label: Text(
-                                  'ZİHİNSEL ZİNDANA GİR (DEEP WORK)',
+                                  TranslationManager.get('dash_enter_mental_dungeon'),
                                   style: GoogleFonts.orbitron(fontSize: 11, fontWeight: FontWeight.bold, color: sysBlue),
                                 ),
                                 style: OutlinedButton.styleFrom(
@@ -649,7 +657,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               leading: IconButton(
                                 constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
                                 splashRadius: 22,
-                                tooltip: g.yapildiMi ? 'Tamamlandı' : 'Tamamla',
+                                tooltip: g.yapildiMi ? TranslationManager.get('dash_completed') : TranslationManager.get('dash_complete'),
                                 icon: Icon(
                                   g.yapildiMi ? Icons.check_box : Icons.check_box_outline_blank,
                                   color: g.yapildiMi ? sysBlue : sysTextMuted,
@@ -711,7 +719,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 6),
                   child: Text(
-                    '// BİLİŞSEL GELİŞİM & ÇALIŞMA PROTOKOLÜ',
+                    TranslationManager.get('dash_mental_protocol'),
                     style: GoogleFonts.orbitron(color: Colors.purpleAccent.withValues(alpha: 0.8), fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1),
                   ),
                 ),
@@ -734,7 +742,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
-                                        'ZİHİNSEL ZİNDAN: AKTİF PROTOKOL YOK',
+                                        TranslationManager.get('dash_mental_no_protocol'),
                                         style: GoogleFonts.orbitron(color: Colors.purpleAccent, fontSize: 12, fontWeight: FontWeight.bold),
                                       ),
                                     ),
@@ -742,7 +750,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
-                                  'Gelişim sadece ağırlık kaldırmakla sınırlı değildir. Yapay zeka ile uzmanlık alanınıza veya okuma hedefinize özel günlük görev protokolü üretin.',
+                                  TranslationManager.get('dash_mental_no_protocol_desc'),
                                   style: GoogleFonts.rajdhani(color: Colors.white70, fontSize: 13),
                                 ),
                                 const SizedBox(height: 12),
@@ -752,7 +760,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     onPressed: () => StudyPlannerModal.show(context).then((_) => setState(() {})),
                                     icon: const Icon(Icons.auto_awesome, size: 16, color: Colors.black),
                                     label: Text(
-                                      'AI ÇALIŞMA PROTOKOLÜ OLUŞTUR',
+                                      TranslationManager.get('dash_create_study_protocol'),
                                       style: GoogleFonts.orbitron(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black),
                                     ),
                                     style: ElevatedButton.styleFrom(
@@ -815,13 +823,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       ),
                                       const SizedBox(width: 8),
                                       Text(
-                                        '${task.targetMinutes} dk | +${task.rewardExp} EXP',
+                                        '${task.targetMinutes} ${TranslationManager.get('dash_min')} | +${task.rewardExp} EXP',
                                         style: GoogleFonts.rajdhani(color: Colors.white60, fontSize: 12),
                                       ),
                                       if (task.targetPages != null) ...[
                                         const SizedBox(width: 6),
                                         Text(
-                                          '| ${task.completedPages}/${task.targetPages} sayfa',
+                                          '| ${task.completedPages}/${task.targetPages} ${TranslationManager.isTurkish ? "sayfa" : "pages"}',
                                           style: GoogleFonts.rajdhani(color: sysBlue, fontSize: 12, fontWeight: FontWeight.bold),
                                         ),
                                       ],
@@ -829,7 +837,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ),
                                   trailing: IconButton(
                                     icon: const Icon(Icons.timer_outlined, color: Colors.purpleAccent, size: 20),
-                                    tooltip: 'Deep Work Başlat',
+                                    tooltip: TranslationManager.get('dash_start_deep_work'),
                                     onPressed: () {
                                       Navigator.push(
                                         context,
@@ -889,7 +897,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     onPressed: () => Navigator.push(context, SistemGecisi(sayfa: const ActiveWorkoutScreen())).then((_) => setState((){})),
                     icon: const Icon(Icons.flash_on, color: sysRed, size: 20),
                     label: Text(
-                      'FİZİKSEL ZİNDAN',
+                      TranslationManager.get('dash_physical_dungeon'),
                       style: GoogleFonts.orbitron(color: sysRed, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.1),
                     ),
                     style: ElevatedButton.styleFrom(
@@ -908,7 +916,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     onPressed: () => Navigator.push(context, SistemGecisi(sayfa: const DeepWorkTimerScreen())).then((_) => setState((){})),
                     icon: const Icon(Icons.psychology, color: Colors.purpleAccent, size: 20),
                     label: Text(
-                      'BİLİŞSEL ZİNDAN',
+                      TranslationManager.get('dash_cognitive_dungeon'),
                       style: GoogleFonts.orbitron(color: Colors.purpleAccent, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.1),
                     ),
                     style: ElevatedButton.styleFrom(

@@ -14,6 +14,7 @@ import '../widgets/rest_timer_dialog.dart';
 import '../widgets/advanced_exercise_selector_modal.dart';
 import '../widgets/rir_feedback_modal.dart';
 import '../core/progressive_overload_engine.dart';
+import '../core/translation_manager.dart';
 
 class ActiveWorkoutScreen extends StatefulWidget {
   final DateTime Function()? nowProvider;
@@ -27,24 +28,42 @@ class ActiveWorkoutScreen extends StatefulWidget {
 class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsBindingObserver {
   static const Color sysRed = Color(0xFFEF4444); 
   static const Color sysBlue = Color(0xFF38BDF8); 
-  static const Color sysDarkBg = Color(0xFF030712);
+  static const Color sysDarkBg = Color(0xFF030712); 
   static const Color physicalGold = Color(0xFFB08D57); 
-  static const Color mentalPurple = Color(0xFFA060E0); 
+  static const Color mentalPurple = Color(0xFFA060E0);
 
-  int gecenSaniye = 0;
-  late final DateTime _dungeonBaslangicZamani;
-  Timer? _kronometre;
-  int bugunIndex = DateTime.now().weekday;
-  final Set<int> _acikSetler = {};
-
+  int bugunIndex = DateTime.now().weekday; 
   DateTime get _now => widget.nowProvider != null ? widget.nowProvider!() : DateTime.now();
+  late DateTime _dungeonBaslangicZamani; 
+  int gecenSaniye = 0; 
+  Timer? _kronometre; 
+  final Set<int> _acikSetler = <int>{}; 
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addObserver(this); 
     _dungeonBaslangicZamani = _now;
-    
+    _kronometreyiBaslat();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this); 
+    _kronometre?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      setState(() {
+        gecenSaniye = _now.difference(_dungeonBaslangicZamani).inSeconds;
+      });
+    }
+  }
+
+  void _kronometreyiBaslat() {
     _kronometre = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
         setState(() {
@@ -52,25 +71,6 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
         });
       }
     });
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    _kronometre?.cancel();
-    super.dispose();
-  }
-
-  // ZAMAN FARKI HESAPLAYICI (Ekran kilitlendiğinde, alta alındığında veya geri dönüldüğünde)
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      if (mounted) {
-        setState(() {
-          gecenSaniye = _now.difference(_dungeonBaslangicZamani).inSeconds;
-        });
-      }
-    }
   }
 
   String _sureFormatla(int toplamSaniye) {
@@ -97,7 +97,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF030712).withValues(alpha: 0.95),
         shape: RoundedRectangleBorder(side: const BorderSide(color: sysBlue, width: 1), borderRadius: BorderRadius.circular(4)),
-        title: Text('[ DUNGEON CLEARED ]', style: GoogleFonts.orbitron(color: sysBlue, fontWeight: FontWeight.bold)),
+        title: Text(TranslationManager.get('active_dungeon_cleared'), style: GoogleFonts.orbitron(color: sysBlue, fontWeight: FontWeight.bold)),
         content: Text(rapor, style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
         actions: [ 
           ElevatedButton(
@@ -106,7 +106,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
               Navigator.pop(context); 
               Navigator.pop(context); 
             }, 
-            child: const Text('CONFIRM', style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold))
+            child: Text(TranslationManager.get('btn_confirm'), style: const TextStyle(color: sysBlue, fontWeight: FontWeight.bold))
           ) 
         ],
       ),
@@ -388,7 +388,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                 child: OutlinedButton.icon(
                   onPressed: () => _sablonUygula(kod, ekleModu: true),
                   icon: const Icon(Icons.add, size: 12, color: Color(0xFF22C55E)),
-                  label: const Text('+ İDMANA EKLE', style: TextStyle(color: Color(0xFF22C55E), fontSize: 9, fontWeight: FontWeight.bold)),
+                  label: Text(TranslationManager.isTurkish ? '+ İDMANA EKLE' : '+ ADD TO RAID', style: const TextStyle(color: Color(0xFF22C55E), fontSize: 9, fontWeight: FontWeight.bold)),
                   style: OutlinedButton.styleFrom(
                     side: BorderSide(color: const Color(0xFF22C55E).withValues(alpha: 0.6)),
                     padding: const EdgeInsets.symmetric(vertical: 8),
@@ -401,7 +401,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                 child: OutlinedButton.icon(
                   onPressed: () => _sablonUygula(kod, ekleModu: false),
                   icon: const Icon(Icons.sync, size: 12, color: sysRed),
-                  label: const Text('🔄 SIFIRLA VE YÜKLE', style: TextStyle(color: sysRed, fontSize: 9, fontWeight: FontWeight.bold)),
+                  label: Text(TranslationManager.isTurkish ? '🔄 SIFIRLA VE YÜKLE' : '🔄 RESET & LOAD', style: const TextStyle(color: sysRed, fontSize: 9, fontWeight: FontWeight.bold)),
                   style: OutlinedButton.styleFrom(
                     side: BorderSide(color: sysRed.withValues(alpha: 0.6)),
                     padding: const EdgeInsets.symmetric(vertical: 8),
@@ -428,7 +428,11 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
       AudioSystem.playTransition();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('SİSTEM: "$silinen" zindan görevlerinden kaldırıldı.'),
+          content: Text(
+            TranslationManager.isTurkish
+                ? 'SİSTEM: "$silinen" zindan görevlerinden kaldırıldı.'
+                : 'SYSTEM: "$silinen" removed from dungeon quests.',
+          ),
           backgroundColor: sysRed,
           duration: const Duration(seconds: 2),
         ),
@@ -439,8 +443,8 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
   void _ekHareketEkleDialog() {
     AdvancedExerciseSelectorModal.show(
       context,
-      baslik: 'ZİNDANA EK HAREKET ENJEKTE ET',
-      onayButonMetni: 'ZİNDANA EKLE',
+      baslik: TranslationManager.isTurkish ? 'ZİNDANA EK HAREKET ENJEKTE ET' : 'INJECT EXTRA EXERCISE INTO RAID',
+      onayButonMetni: TranslationManager.isTurkish ? 'ZİNDANA EKLE' : 'ADD TO RAID',
       onEklendi: (yeniGorev) {
         setState(() {
           SystemMemory.haftalikPlan[bugunIndex]!.add(yeniGorev);
@@ -448,7 +452,11 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
         SystemMemory.kaydet();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('SİSTEM: "${yeniGorev.ad}" zindana başarıyla eklendi!'),
+            content: Text(
+              TranslationManager.isTurkish
+                  ? 'SİSTEM: "${yeniGorev.ad}" zindana başarıyla eklendi!'
+                  : 'SYSTEM: "${yeniGorev.ad}" successfully added to dungeon!',
+            ),
             backgroundColor: const Color(0xFF22C55E),
             duration: const Duration(seconds: 2),
           ),
@@ -505,14 +513,14 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
 
                   Column(
                     children: [
-                      Text('ACTIVE RAID', style: GoogleFonts.orbitron(color: sysRed, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 4)),
+                      Text(TranslationManager.get('workout_active_raid'), style: GoogleFonts.orbitron(color: sysRed, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 4)),
                       const SizedBox(height: 10),
                       Text(
                         _sureFormatla(gecenSaniye),
                         style: GoogleFonts.orbitron(color: Colors.white, fontSize: 60, fontWeight: FontWeight.bold, shadows: [Shadow(color: sysRed.withValues(alpha: 0.8), blurRadius: 20)]),
                       ),
                       const SizedBox(height: 5),
-                      const Text('Dungeon Timer Running...', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
+                      Text(TranslationManager.get('workout_timer_running'), style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
                     ],
                   ),
                 ],
@@ -526,55 +534,65 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('ACTIVE QUESTS', style: GoogleFonts.orbitron(color: sysBlue, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          ElevatedButton.icon(
-                            onPressed: () => RestTimerDialog.show(context),
-                            icon: const Icon(Icons.timer_outlined, color: sysBlue, size: 14),
-                            label: const Text('REST', style: TextStyle(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 11)),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: sysBlue.withValues(alpha: 0.1),
-                              side: const BorderSide(color: sysBlue, width: 1),
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                      Expanded(
+                        child: Text(
+                          TranslationManager.get('workout_active_quests'),
+                          style: GoogleFonts.orbitron(color: sysBlue, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 1.5),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ElevatedButton.icon(
+                              onPressed: () => RestTimerDialog.show(context),
+                              icon: const Icon(Icons.timer_outlined, color: sysBlue, size: 14),
+                              label: Text(TranslationManager.get('workout_rest'), style: const TextStyle(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 11)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: sysBlue.withValues(alpha: 0.1),
+                                side: const BorderSide(color: sysBlue, width: 1),
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 6),
-                          ElevatedButton.icon(
-                            onPressed: _ekHareketEkleDialog,
-                            icon: const Icon(Icons.add, color: Color(0xFF22C55E), size: 14),
-                            label: const Text('+ EKLE', style: TextStyle(color: Color(0xFF22C55E), fontWeight: FontWeight.bold, fontSize: 11)),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF22C55E).withValues(alpha: 0.1),
-                              side: const BorderSide(color: Color(0xFF22C55E), width: 1),
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                            const SizedBox(width: 6),
+                            ElevatedButton.icon(
+                              onPressed: _ekHareketEkleDialog,
+                              icon: const Icon(Icons.add, color: Color(0xFF22C55E), size: 14),
+                              label: Text(TranslationManager.isTurkish ? '+ EKLE' : '+ ADD', style: const TextStyle(color: Color(0xFF22C55E), fontWeight: FontWeight.bold, fontSize: 11)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF22C55E).withValues(alpha: 0.1),
+                                side: const BorderSide(color: Color(0xFF22C55E), width: 1),
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 6),
-                          ElevatedButton.icon(
-                            onPressed: _sablonSecimDialog, 
-                            icon: const Icon(Icons.auto_awesome, color: physicalGold, size: 14),
-                            label: const Text('TEMPLATES', style: TextStyle(color: physicalGold, fontWeight: FontWeight.bold, fontSize: 11)),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: physicalGold.withValues(alpha: 0.1),
-                              side: const BorderSide(color: physicalGold, width: 1),
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                            const SizedBox(width: 6),
+                            ElevatedButton.icon(
+                              onPressed: _sablonSecimDialog, 
+                              icon: const Icon(Icons.auto_awesome, color: physicalGold, size: 14),
+                              label: Text(TranslationManager.get('workout_templates'), style: const TextStyle(color: physicalGold, fontWeight: FontWeight.bold, fontSize: 11)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: physicalGold.withValues(alpha: 0.1),
+                                side: const BorderSide(color: physicalGold, width: 1),
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 15),
                   
                   if (bugununProgrami.isEmpty)
-                    const Center(child: Padding(
-                      padding: EdgeInsets.only(top: 20.0),
-                      child: Text("No quests assigned. Load a template or return to planner.", style: TextStyle(color: Color(0xFF94A3B8))),
+                    Center(child: Padding(
+                      padding: const EdgeInsets.only(top: 20.0),
+                      child: Text(TranslationManager.get('workout_no_quests'), style: const TextStyle(color: Color(0xFF94A3B8))),
                     )),
                   
                   ...bugununProgrami.asMap().entries.map((entry) {
@@ -587,7 +605,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                       onPressed: _ekHareketEkleDialog,
                       icon: const Icon(Icons.add_circle_outline, color: Color(0xFF22C55E), size: 16),
                       label: Text(
-                        '+ EK HAREKET ENJEKTE ET',
+                        TranslationManager.get('workout_add_exercise'),
                         style: GoogleFonts.orbitron(
                           color: const Color(0xFF22C55E),
                           fontWeight: FontWeight.bold,
@@ -614,7 +632,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                 child: ElevatedButton.icon(
                   onPressed: _zindandanCik,
                   icon: const Icon(Icons.exit_to_app, color: sysRed),
-                  label: const Text('EXIT DUNGEON', style: TextStyle(color: sysRed, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                  label: Text(TranslationManager.get('active_exit_dungeon'), style: const TextStyle(color: sysRed, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: sysRed.withValues(alpha: 0.1), padding: const EdgeInsets.symmetric(vertical: 20),
                     side: const BorderSide(color: sysRed, width: 2), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),

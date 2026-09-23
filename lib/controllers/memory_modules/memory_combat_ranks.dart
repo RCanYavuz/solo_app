@@ -4,6 +4,7 @@ import '../system_memory.dart';
 import '../../models/task_model.dart';
 import '../../models/inventory_item_model.dart';
 import '../../core/audio_system.dart';
+import '../../core/translation_manager.dart';
 
 class MemoryCombatRanks {
   static void bossGuncelle({int? gunIndex}) {
@@ -41,7 +42,10 @@ class MemoryCombatRanks {
     int eskiKademe = SystemMemory.basarimKademeleri[basarimAnahtari] ?? 0;
     if (yeniKademe > eskiKademe) {
       SystemMemory.basarimKademeleri[basarimAnahtari] = yeniKademe;
-      SystemMemory.yeniBasarimBildirimi.value = "[ACHIEVEMENT ASCENDED]\n$basarimAdi (Tier $yeniKademe)\nTarget Unlocked: $hedefMetin";
+      final tr = TranslationManager.isTurkish;
+      SystemMemory.yeniBasarimBildirimi.value = tr
+          ? "[BAŞARIM YÜKSELDİ]\n$basarimAdi (Kademe $yeniKademe)\nAçılan Hedef: $hedefMetin"
+          : "[ACHIEVEMENT ASCENDED]\n$basarimAdi (Tier $yeniKademe)\nTarget Unlocked: $hedefMetin";
       AudioSystem.playSuccess();
       SystemMemory.kaydet();
       return true;
@@ -183,6 +187,7 @@ class MemoryCombatRanks {
   static String expKazan(int miktar) {
     SystemMemory.exp.value += miktar;
     String levelUpMesaji = "";
+    final tr = TranslationManager.isTurkish;
     while (SystemMemory.exp.value >= SystemMemory.maxExp.value) {
       SystemMemory.exp.value -= SystemMemory.maxExp.value;
       SystemMemory.level.value++;
@@ -191,7 +196,9 @@ class MemoryCombatRanks {
       SystemMemory.hp.value = SystemMemory.maxHp;
       SystemMemory.mp.value = SystemMemory.maxMp;
       SystemMemory.fatigue.value = 0;
-      levelUpMesaji += "\n🌟 LEVEL UP! You reached Level ${SystemMemory.level.value}! (+3 AP)\n[INFO] Status Recovery applied.";
+      levelUpMesaji += tr
+          ? "\n🌟 SEVİYE ATLADIN! Seviye ${SystemMemory.level.value} oldun! (+3 AP)\n[BİLGİ] Durum İyileştirmesi uygulandı."
+          : "\n🌟 LEVEL UP! You reached Level ${SystemMemory.level.value}! (+3 AP)\n[INFO] Status Recovery applied.";
       AudioSystem.playLevelUp();
     }
     SystemMemory.kaydet();

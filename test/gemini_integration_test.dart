@@ -10,6 +10,7 @@ void main() {
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    SystemMemory.appLanguage.value = "en";
     SystemMemory.oyuncuIsmi = "Sung Jin-Woo";
     SystemMemory.geminiApiKey = "";
     SystemMemory.geminiActiveModel = "gemini-1.5-flash";

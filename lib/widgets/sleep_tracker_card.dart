@@ -1,7 +1,7 @@
-// lib/widgets/sleep_tracker_card.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controllers/system_memory.dart';
+import '../core/translation_manager.dart';
 import 'hologram_card.dart';
 
 class SleepTrackerCard extends StatefulWidget {
@@ -34,11 +34,11 @@ class _SleepTrackerCardState extends State<SleepTrackerCard> {
   }
 
   String _durumMetni(int saat) {
-    if (saat == 0) return "Henüz uyku verisi girilmedi.";
-    if (saat < 6) return "⚠️ YETERSİZ: Yorgunluk artışı & MP kaybı!";
-    if (saat < 7) return "⚖️ MİNİMAL: Bazal toparlanma sağlandı.";
-    if (saat <= 9) return "✨ OPTİMAL: +2 MP & Tam Yorgunluk Arınması.";
-    return "🛡️ DERİN HİBERNASYON: Maksimum hücre onarımı.";
+    if (saat == 0) return TranslationManager.get('sleep_no_data');
+    if (saat < 6) return TranslationManager.get('sleep_insufficient');
+    if (saat < 7) return TranslationManager.get('sleep_minimal');
+    if (saat <= 9) return TranslationManager.get('sleep_optimal');
+    return TranslationManager.get('sleep_deep');
   }
 
   Color _durumRengi(int saat) {
@@ -77,7 +77,7 @@ class _SleepTrackerCardState extends State<SleepTrackerCard> {
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    "RECOVERY CHAMBER",
+                    TranslationManager.get('sleep_chamber_title'),
                     style: GoogleFonts.orbitron(
                       color: neonPurple,
                       fontSize: 13,
@@ -95,7 +95,7 @@ class _SleepTrackerCardState extends State<SleepTrackerCard> {
                   border: Border.all(color: durumColor.withValues(alpha: 0.5)),
                 ),
                 child: Text(
-                  saat >= 7 ? "STABLE" : (saat == 0 ? "IDLE" : "VULNERABLE"),
+                  saat >= 7 ? TranslationManager.get('sleep_badge_stable') : (saat == 0 ? TranslationManager.get('sleep_badge_idle') : TranslationManager.get('sleep_badge_vulnerable')),
                   style: TextStyle(
                     color: durumColor,
                     fontSize: 9,
@@ -130,7 +130,7 @@ class _SleepTrackerCardState extends State<SleepTrackerCard> {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          'HRS SLEPT',
+                          TranslationManager.get('sleep_hrs_slept'),
                           style: GoogleFonts.rajdhani(
                             color: neonPurple,
                             fontSize: 13,
@@ -164,13 +164,13 @@ class _SleepTrackerCardState extends State<SleepTrackerCard> {
                   children: [
                     IconButton(
                       icon: const Icon(Icons.remove, color: Colors.white70, size: 18),
-                      tooltip: 'Azalt',
+                      tooltip: TranslationManager.isTurkish ? 'Azalt' : 'Decrease',
                       onPressed: saat > 0 ? () => _uykuGuncelle(saat - 1) : null,
                     ),
                     Container(width: 1, height: 20, color: Colors.white12),
                     IconButton(
                       icon: const Icon(Icons.add, color: neonPurple, size: 18),
-                      tooltip: 'Artır',
+                      tooltip: TranslationManager.isTurkish ? 'Artır' : 'Increase',
                       onPressed: saat < 16 ? () => _uykuGuncelle(saat + 1) : null,
                     ),
                   ],
@@ -187,9 +187,9 @@ class _SleepTrackerCardState extends State<SleepTrackerCard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                "Hızlı Seçim:",
-                style: TextStyle(color: mutedText, fontSize: 11),
+              Text(
+                TranslationManager.get('sleep_quick_select'),
+                style: const TextStyle(color: mutedText, fontSize: 11),
               ),
               Row(
                 children: [6, 7, 8, 9].map((val) {

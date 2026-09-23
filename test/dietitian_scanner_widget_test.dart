@@ -14,6 +14,7 @@ import 'package:solo_leveling_app/core/document_parser.dart';
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    SystemMemory.appLanguage.value = 'tr';
     SystemMemory.boy = 180;
     SystemMemory.kilo = 80;
     SystemMemory.belCm = 84;
@@ -69,7 +70,7 @@ void main() {
     final archive = Archive();
     final xmlBytes = utf8.encode(mockXml);
     archive.addFile(ArchiveFile('word/document.xml', xmlBytes.length, xmlBytes));
-    final docxBytes = Uint8List.fromList(ZipEncoder().encode(archive)!);
+    final docxBytes = Uint8List.fromList(ZipEncoder().encode(archive));
 
     final extracted = DocumentParser.extractTextFromDocx(docxBytes);
 

@@ -10,6 +10,7 @@ void main() {
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
+    SystemMemory.appLanguage.value = "tr";
     await SystemMemory.baslat();
     SystemMemory.kilo = 70.0;
     SystemMemory.baslangicKilosu = 70.0;

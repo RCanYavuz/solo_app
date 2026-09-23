@@ -4,6 +4,7 @@ import '../../models/task_model.dart';
 import '../../core/progressive_overload_engine.dart';
 import '../../core/services/gemini_service.dart';
 import '../../core/audio_system.dart';
+import '../../core/translation_manager.dart';
 
 class MemoryWorkout {
   static void overloadKaydiEkle(OverloadKaydi kayit) {
@@ -58,7 +59,10 @@ class MemoryWorkout {
     SystemMemory.kaydet();
     AudioSystem.playSuccess();
     
-    return "[RAID COMPLETED]\nTime in Dungeon: $dakika Min\nQuests Completed: $bitenGorevSayisiSimdi\nTime Reward: +$kazanilanAltin Gold | +$kazanilanExp EXP$lvlUp";
+    final tr = TranslationManager.isTurkish;
+    return tr
+        ? "[AKIN TAMAMLANDI]\nZindanda Geçen Süre: $dakika Dk\nTamamlanan Görevler: $bitenGorevSayisiSimdi\nSüre Ödülü: +$kazanilanAltin Altın | +$kazanilanExp EXP$lvlUp"
+        : "[RAID COMPLETED]\nTime in Dungeon: $dakika Min\nQuests Completed: $bitenGorevSayisiSimdi\nTime Reward: +$kazanilanAltin Gold | +$kazanilanExp EXP$lvlUp";
   }
 
   /// Dövüş sporuna özel 5 raundluk uzatılmış gölge boksu ve kombinasyon protokolü üretir

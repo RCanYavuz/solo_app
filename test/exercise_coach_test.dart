@@ -5,6 +5,7 @@ import 'package:solo_leveling_app/core/exercise_coach.dart';
 import 'package:solo_leveling_app/models/task_model.dart';
 import 'package:solo_leveling_app/widgets/rest_timer_dialog.dart';
 import 'package:solo_leveling_app/widgets/exercise_detail_modal.dart';
+import 'package:solo_leveling_app/core/translation_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -99,11 +100,11 @@ void main() {
         ),
       );
 
-      expect(find.text('MP RECOVERY (REST TIMER)'), findsOneWidget);
+      expect(find.text(TranslationManager.get('rest_mp_recovery_title')), findsOneWidget);
       expect(find.text('Patlayıcı Şınav'), findsOneWidget);
       expect(find.text('01:00'), findsOneWidget);
       expect(find.text('30s'), findsOneWidget);
-      expect(find.text('+15 SN'), findsOneWidget);
+      expect(find.text(TranslationManager.get('rest_plus_15s')), findsOneWidget);
 
       await tester.tap(find.text('30s'));
       await tester.pump();

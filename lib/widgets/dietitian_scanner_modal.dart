@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../controllers/system_memory.dart';
 import '../core/services/gemini_service.dart';
 import '../core/document_parser.dart';
+import '../core/translation_manager.dart';
 
 class DietitianScannerModal extends StatefulWidget {
   const DietitianScannerModal({super.key});
@@ -69,7 +70,7 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
         });
       }
     } catch (e) {
-      setState(() => _hata = "Görsel seçilemedi: $e");
+      setState(() => _hata = TranslationManager.isTurkish ? "Görsel seçilemedi: $e" : "Could not select image: $e");
     }
   }
 
@@ -85,20 +86,22 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
             if (_metinCtrl.text.trim().isEmpty) {
               _metinCtrl.text = doc.extractedText!;
             } else {
-              _metinCtrl.text = '${_metinCtrl.text}\n\n[BELGEDEN OKUNAN METİN]:\n${doc.extractedText!}';
+              _metinCtrl.text = '${_metinCtrl.text}\n\n${TranslationManager.isTurkish ? '[BELGEDEN OKUNAN METİN]:' : '[EXTRACTED TEXT]:'}\n${doc.extractedText!}';
             }
           }
         });
       }
     } catch (e) {
-      setState(() => _hata = "Belge seçilemedi: $e");
+      setState(() => _hata = TranslationManager.isTurkish ? "Belge seçilemedi: $e" : "Could not select document: $e");
     }
   }
 
   Future<void> _taramayiBaslat() async {
     final metin = _metinCtrl.text.trim();
     if (metin.isEmpty && _secilenFoto == null && _secilenDokuman == null) {
-      setState(() => _hata = "Lütfen diyet listenizin metnini yazın veya PDF / Word / Fotoğraf belgesi yükleyin.");
+      setState(() => _hata = TranslationManager.isTurkish
+          ? "Lütfen diyet listenizin metnini yazın veya PDF / Word / Fotoğraf belgesi yükleyin."
+          : "Please enter your diet list text or upload a PDF / Word / Image file.");
       return;
     }
 
@@ -121,7 +124,9 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
     if (res == null) {
       setState(() {
         _tariyor = false;
-        _hata = "Diyet listesi çözümlenemedi. İnternet bağlantınızı veya Gemini API anahtarınızı kontrol edin.";
+        _hata = TranslationManager.isTurkish
+            ? "Diyet listesi çözümlenemedi. İnternet bağlantınızı veya Gemini API anahtarınızı kontrol edin."
+            : "Could not decode diet list. Check your internet connection or Gemini API key.";
       });
       return;
     }
@@ -148,7 +153,7 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
     final yag = int.tryParse(_yagCtrl.text.trim()) ?? 0;
 
     if (kalori <= 0) {
-      setState(() => _hata = "Lütfen geçerli bir toplam kalori değeri girin.");
+      setState(() => _hata = TranslationManager.isTurkish ? "Lütfen geçerli bir toplam kalori değeri girin." : "Please enter a valid total calorie value.");
       return;
     }
 
@@ -164,7 +169,9 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          "📋 DİYETİSYEN PROGRAMI AKTİF EDİLDİ: $kalori kcal (P: ${protein}g, C: ${karb}g, F: ${yag}g)",
+          TranslationManager.isTurkish
+              ? "📋 DİYETİSYEN PROGRAMI AKTİF EDİLDİ: $kalori kcal (P: ${protein}g, C: ${karb}g, F: ${yag}g)"
+              : "📋 DIETITIAN PROGRAM ACTIVATED: $kalori kcal (P: ${protein}g, C: ${karb}g, F: ${yag}g)",
           style: GoogleFonts.orbitron(fontSize: 12, fontWeight: FontWeight.bold),
         ),
         backgroundColor: sysGreen,
@@ -178,7 +185,9 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          "⚡ SİSTEM YAPAY ZEKA METABOLİK REÇETESİNE DÖNÜLDÜ",
+          TranslationManager.isTurkish
+              ? "⚡ SİSTEM YAPAY ZEKA METABOLİK REÇETESİNE DÖNÜLDÜ"
+              : "⚡ REVERTED TO SYSTEM AI METABOLIC PROTOCOL",
           style: GoogleFonts.orbitron(fontSize: 12, fontWeight: FontWeight.bold),
         ),
         backgroundColor: sysBlue,
@@ -210,7 +219,7 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
                       const Icon(Icons.assignment_turned_in, color: sysGold, size: 22),
                       const SizedBox(width: 8),
                       Text(
-                        'DİYETİSYEN MENÜ ENTEGRASYONU',
+                        TranslationManager.get('diet_scan_title'),
                         style: GoogleFonts.orbitron(
                           color: sysGold,
                           fontSize: 14,
@@ -228,7 +237,7 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Kendi diyetisyeninizin verdiği beslenme listesini fotoğraf veya metin olarak tarayın. Sistem diyetisyen hedeflerinizi temel alır, ağır idman günlerinde kas kaybını önlemek için dinamik telafi ekler.',
+                TranslationManager.get('diet_scan_desc'),
                 style: const TextStyle(color: sysTextMuted, fontSize: 12, height: 1.4),
               ),
               const SizedBox(height: 16),
@@ -253,8 +262,8 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
                       children: [
                         Text(
                           SystemMemory.diyetisyenListesiAktif
-                              ? 'DİYETİSYEN PLANI: [AKTİF]'
-                              : 'DİYETİSYEN PLANI: [DEVRE DIŞI]',
+                              ? TranslationManager.get('diet_scan_plan_active')
+                              : TranslationManager.get('diet_scan_plan_disabled'),
                           style: GoogleFonts.orbitron(
                             color: SystemMemory.diyetisyenListesiAktif ? sysGold : sysTextMuted,
                             fontSize: 12,
@@ -265,7 +274,7 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
                         Text(
                           SystemMemory.diyetisyenListesiAktif
                               ? '${SystemMemory.diyetisyenBazKalori} kcal | P: ${SystemMemory.diyetisyenBazProtein}g | C: ${SystemMemory.diyetisyenBazKarb}g'
-                              : 'Şu an Sistem Yapay Zeka reçetesi devrede.',
+                              : TranslationManager.get('diet_scan_system_active'),
                           style: const TextStyle(color: Colors.white70, fontSize: 11),
                         ),
                       ],
@@ -274,7 +283,7 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
                       TextButton.icon(
                         onPressed: _diyetisyeniDevreDisiBirak,
                         icon: const Icon(Icons.refresh, color: sysRed, size: 16),
-                        label: const Text('İPTAL ET', style: TextStyle(color: sysRed, fontSize: 11, fontWeight: FontWeight.bold)),
+                        label: Text(TranslationManager.get('diet_scan_cancel_btn'), style: const TextStyle(color: sysRed, fontSize: 11, fontWeight: FontWeight.bold)),
                       ),
                   ],
                 ),
@@ -283,7 +292,7 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
 
               // Tarama & Yükleme Bölümü
               Text(
-                'LİSTE YÜKLEME VE SİSTEM ÇÖZÜMLEME',
+                TranslationManager.get('diet_scan_upload_sec'),
                 style: GoogleFonts.orbitron(color: sysBlue, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1),
               ),
               const SizedBox(height: 8),
@@ -294,9 +303,9 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
                 child: ElevatedButton.icon(
                   onPressed: _tariyor ? null : _dokumanSec,
                   icon: const Icon(Icons.description, color: sysDarkBg, size: 18),
-                  label: const Text(
-                    '📄 PDF / WORD BELGESİ SEÇ (.pdf, .docx, .doc)',
-                    style: TextStyle(color: sysDarkBg, fontSize: 12, fontWeight: FontWeight.bold),
+                  label: Text(
+                    TranslationManager.get('diet_scan_select_doc'),
+                    style: const TextStyle(color: sysDarkBg, fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: sysBlue,
@@ -313,7 +322,7 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
                     child: OutlinedButton.icon(
                       onPressed: _tariyor ? null : () => _fotoSec(ImageSource.camera),
                       icon: const Icon(Icons.camera_alt, color: sysTextMuted, size: 15),
-                      label: const Text('KAMERA', style: TextStyle(color: sysTextMuted, fontSize: 11, fontWeight: FontWeight.bold)),
+                      label: Text(TranslationManager.get('diet_scan_camera'), style: const TextStyle(color: sysTextMuted, fontSize: 11, fontWeight: FontWeight.bold)),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Colors.white24),
                         padding: const EdgeInsets.symmetric(vertical: 8),
@@ -325,7 +334,7 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
                     child: OutlinedButton.icon(
                       onPressed: _tariyor ? null : () => _fotoSec(ImageSource.gallery),
                       icon: const Icon(Icons.photo_library, color: sysTextMuted, size: 15),
-                      label: const Text('GALERİ / FOTO', style: TextStyle(color: sysTextMuted, fontSize: 11, fontWeight: FontWeight.bold)),
+                      label: Text(TranslationManager.get('diet_scan_gallery_photo'), style: const TextStyle(color: sysTextMuted, fontSize: 11, fontWeight: FontWeight.bold)),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Colors.white24),
                         padding: const EdgeInsets.symmetric(vertical: 8),
@@ -364,7 +373,7 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
                               overflow: TextOverflow.ellipsis,
                             ),
                             Text(
-                              '${(_secilenDokuman!.bytes.length / 1024).toStringAsFixed(1)} KB • ${_secilenDokuman!.extension.toUpperCase()} Belgesi',
+                              '${(_secilenDokuman!.bytes.length / 1024).toStringAsFixed(1)} KB • ${_secilenDokuman!.extension.toUpperCase()} ${TranslationManager.get('diet_scan_doc_label')}',
                               style: TextStyle(color: sysBlue.withValues(alpha: 0.8), fontSize: 10),
                             ),
                           ],
@@ -392,10 +401,10 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
                     children: [
                       const Icon(Icons.check_circle_outline, color: sysGreen, size: 16),
                       const SizedBox(width: 8),
-                      const Expanded(
+                      Expanded(
                         child: Text(
-                          'Diyetisyen belgesi / fotoğrafı eklendi.',
-                          style: TextStyle(color: sysGreen, fontSize: 11, fontWeight: FontWeight.bold),
+                          TranslationManager.get('diet_scan_doc_added'),
+                          style: const TextStyle(color: sysGreen, fontSize: 11, fontWeight: FontWeight.bold),
                         ),
                       ),
                       IconButton(
@@ -414,7 +423,7 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
                 maxLines: 3,
                 style: const TextStyle(color: Colors.white, fontSize: 13),
                 decoration: InputDecoration(
-                  hintText: 'Diyetisyenin verdiği öğünleri yapıştırın veya not ekleyin (Örn: 2000 kcal, 140g protein, sabah yulaf+yumurta...)',
+                  hintText: TranslationManager.get('diet_scan_hint'),
                   hintStyle: const TextStyle(color: Colors.white24, fontSize: 12),
                   contentPadding: const EdgeInsets.all(12),
                   enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.2))),
@@ -434,7 +443,7 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
                       ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: sysDarkBg))
                       : const Icon(Icons.auto_awesome, color: sysDarkBg, size: 18),
                   label: Text(
-                    _tariyor ? 'SİSTEM ÇÖZÜMLÜYOR...' : 'SİSTEM METABOLİK TARAYICIYI BAŞLAT',
+                    _tariyor ? TranslationManager.get('diet_scan_decoding_btn') : TranslationManager.get('diet_scan_start_btn'),
                     style: GoogleFonts.orbitron(color: sysDarkBg, fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                   style: ElevatedButton.styleFrom(
@@ -485,7 +494,7 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
 
               // Reçete Değerlerini Düzenleme & Onaylama
               Text(
-                'DİYETİSYEN HEDEFLERİNİ ONAYLA',
+                TranslationManager.get('diet_scan_confirm_title'),
                 style: GoogleFonts.orbitron(color: sysGold, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1),
               ),
               const SizedBox(height: 10),
@@ -493,19 +502,19 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
               Row(
                 children: [
                   Expanded(
-                    child: _makroGirdi('KALORİ (kcal)', _kaloriCtrl, sysGold),
+                    child: _makroGirdi(TranslationManager.get('diet_scan_cal'), _kaloriCtrl, sysGold),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: _makroGirdi('PROTEİN (g)', _proteinCtrl, sysBlue),
+                    child: _makroGirdi(TranslationManager.get('diet_scan_pro'), _proteinCtrl, sysBlue),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: _makroGirdi('KARB (g)', _karbCtrl, Colors.orangeAccent),
+                    child: _makroGirdi(TranslationManager.get('diet_scan_carb'), _karbCtrl, Colors.orangeAccent),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: _makroGirdi('YAĞ (g)', _yagCtrl, Colors.purpleAccent),
+                    child: _makroGirdi(TranslationManager.get('diet_scan_fat'), _yagCtrl, Colors.purpleAccent),
                   ),
                 ],
               ),
@@ -514,7 +523,7 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
               if (_tarananOgunler.isNotEmpty) ...[
                 const SizedBox(height: 16),
                 Text(
-                  'TARANAN ÖĞÜN DÖKÜMÜ (${_tarananOgunler.length} ÖĞÜN)',
+                  TranslationManager.get('diet_scan_breakdown').replaceAll('{0}', _tarananOgunler.length.toString()),
                   style: GoogleFonts.orbitron(color: sysTextMuted, fontSize: 11, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 6),
@@ -534,7 +543,7 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(og['ad'] ?? 'Öğün', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                              Text(og['ad'] ?? TranslationManager.get('diet_scan_meal_default'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
                               if (og['detay'] != null)
                                 Text(og['detay'], style: const TextStyle(color: sysTextMuted, fontSize: 11)),
                             ],
@@ -557,7 +566,7 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
                   onPressed: _kaydetVeUygula,
                   icon: const Icon(Icons.check, color: sysDarkBg, size: 20),
                   label: Text(
-                    'DİYETİSYEN LİSTESİNİ SİSTEME REÇETE ET',
+                    TranslationManager.get('diet_scan_apply_btn'),
                     style: GoogleFonts.orbitron(color: sysDarkBg, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1),
                   ),
                   style: ElevatedButton.styleFrom(
@@ -573,6 +582,7 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
         ),
       ),
     );
+
   }
 
   Widget _makroGirdi(String baslik, TextEditingController ctrl, Color renk) {

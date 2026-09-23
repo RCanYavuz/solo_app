@@ -13,6 +13,7 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     await SystemMemory.baslat();
+    SystemMemory.appLanguage.value = 'tr';
     SystemMemory.gunlukZihinselGorevler.value = [];
   });
 

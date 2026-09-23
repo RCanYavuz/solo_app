@@ -11,6 +11,7 @@ import 'package:solo_leveling_app/core/translation_manager.dart';
 void main() {
   setUp(() {
     TestWidgetsFlutterBinding.ensureInitialized();
+    SystemMemory.appLanguage.value = "en";
     SystemMemory.hunterRank = "Unranked";
     SystemMemory.kilo = 75.0;
     SystemMemory.boy = 178.0;

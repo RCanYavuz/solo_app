@@ -6,6 +6,7 @@ import 'package:solo_leveling_app/models/task_model.dart';
 import 'package:solo_leveling_app/screens/active_workout_screen.dart';
 import 'package:solo_leveling_app/screens/dashboard_screen.dart';
 import 'package:solo_leveling_app/screens/workout_planner_screen.dart';
+import 'package:solo_leveling_app/core/translation_manager.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -13,6 +14,7 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     await SystemMemory.baslat();
+    SystemMemory.appLanguage.value = 'tr';
     final bugun = DateTime.now().weekday;
     SystemMemory.haftalikPlan[bugun] = [
       Gorev('[COMBAT] Bench Press (4x10)', false, 'Fiziksel'),
@@ -66,20 +68,20 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('ACTIVE QUESTS'), findsOneWidget);
-      expect(find.text('REST'), findsOneWidget);
+      expect(find.text(TranslationManager.get('workout_active_quests')), findsOneWidget);
+      expect(find.text(TranslationManager.get('workout_rest')), findsOneWidget);
 
       // REST butonuna basınca RestTimerDialog açılır
-      await tester.tap(find.text('REST'));
+      await tester.tap(find.text(TranslationManager.get('workout_rest')));
       await tester.pumpAndSettle();
 
-      expect(find.text('MP RECOVERY (REST TIMER)'), findsOneWidget);
-      expect(find.text('HAZIRIM'), findsOneWidget);
+      expect(find.text(TranslationManager.get('rest_mp_recovery_title')), findsOneWidget);
+      expect(find.text(TranslationManager.get('rest_ready_btn')), findsOneWidget);
 
       // Sayacı kapat
-      await tester.tap(find.text('HAZIRIM'));
+      await tester.tap(find.text(TranslationManager.get('rest_ready_btn')));
       await tester.pumpAndSettle();
-      expect(find.text('MP RECOVERY (REST TIMER)'), findsNothing);
+      expect(find.text(TranslationManager.get('rest_mp_recovery_title')), findsNothing);
 
       // Set açma/kapama ikonuna bas
       final expandIconFinder = find.byIcon(Icons.playlist_add_check).first;
@@ -100,7 +102,7 @@ void main() {
       await tester.tap(checkSetFinder);
       await tester.pumpAndSettle();
 
-      expect(find.text('MP RECOVERY (REST TIMER)'), findsOneWidget);
+      expect(find.text(TranslationManager.get('rest_mp_recovery_title')), findsOneWidget);
     });
 
     testWidgets('ActiveWorkoutScreen içinde zindana ek hareket enjekte etme ve silme çalışır', (tester) async {

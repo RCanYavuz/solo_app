@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solo_leveling_app/controllers/system_memory.dart';
 import 'package:solo_leveling_app/screens/dashboard_screen.dart';
 import 'package:solo_leveling_app/widgets/sleep_tracker_card.dart';
+import 'package:solo_leveling_app/core/translation_manager.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -31,13 +32,13 @@ void main() {
       await tester.pumpAndSettle();
 
       // Başlık ve metinler görünür olmalı
-      expect(find.text('RECOVERY CHAMBER'), findsOneWidget);
+      expect(find.text(TranslationManager.get('sleep_chamber_title')), findsOneWidget);
       expect(find.text('0'), findsOneWidget);
-      expect(find.text('HRS SLEPT'), findsOneWidget);
-      expect(find.text('Henüz uyku verisi girilmedi.'), findsOneWidget);
+      expect(find.text(TranslationManager.get('sleep_hrs_slept')), findsOneWidget);
+      expect(find.text(TranslationManager.get('sleep_no_data')), findsOneWidget);
 
       // Artı butonuna bas
-      final addBtn = find.byTooltip('Artır');
+      final addBtn = find.byTooltip(TranslationManager.isTurkish ? 'Artır' : 'Increase');
       expect(addBtn, findsOneWidget);
       await tester.tap(addBtn);
       await tester.pumpAndSettle();
@@ -54,16 +55,18 @@ void main() {
 
       expect(SystemMemory.uyunanSaat, 8);
       expect(find.text('8'), findsOneWidget);
-      expect(find.text('✨ OPTİMAL: +2 MP & Tam Yorgunluk Arınması.'), findsOneWidget);
+      expect(find.text(TranslationManager.get('sleep_optimal')), findsOneWidget);
       expect(callbackCount, 2);
 
       // Eksi butonuna bas
-      final removeBtn = find.byTooltip('Azalt');
-      await tester.tap(removeBtn);
+      final minusBtn = find.byTooltip(TranslationManager.isTurkish ? 'Azalt' : 'Decrease');
+      expect(minusBtn, findsOneWidget);
+      await tester.tap(minusBtn);
       await tester.pumpAndSettle();
 
       expect(SystemMemory.uyunanSaat, 7);
       expect(find.text('7'), findsOneWidget);
+      expect(callbackCount, 3);
     });
 
     testWidgets('DashboardScreen üzerinde SleepTrackerCard düzgün render edilir',
@@ -79,8 +82,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byType(SleepTrackerCard), findsOneWidget);
-      expect(find.text('RECOVERY CHAMBER'), findsOneWidget);
+      expect(find.text(TranslationManager.get('sleep_chamber_title')), findsOneWidget);
+      expect(find.text(TranslationManager.get('sleep_hrs_slept')), findsOneWidget);
     });
   });
 }

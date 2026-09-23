@@ -580,7 +580,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
               color: SystemMemory.diyetisyenListesiAktif ? sysGold : sysBlue,
               size: 26,
             ),
-            tooltip: 'Diyetisyen Menüsü / Taraması',
+            tooltip: TranslationManager.get('diet_dietitian_tooltip'),
             onPressed: _diyetisyenModaliAc,
           ),
           IconButton(
@@ -642,7 +642,9 @@ class _YemekEkraniState extends State<YemekEkrani> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        SystemMemory.diyetisyenListesiAktif ? 'Diyetisyen Taban Limiti' : TranslationManager.get('diet_daily_limit'),
+                        SystemMemory.diyetisyenListesiAktif
+                            ? (TranslationManager.isTurkish ? 'Diyetisyen Taban Limiti' : 'Dietitian Base Limit')
+                            : TranslationManager.get('diet_daily_limit'),
                         style: const TextStyle(color: sysTextMuted, fontSize: 14),
                       ),
                       Text("${SystemMemory.gunlukHedefKalori} Kcal", style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold))
@@ -674,7 +676,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                '🎯 HEDEF KİLO: ${SystemMemory.hedefKilo.toStringAsFixed(1)} KG',
+                                '${TranslationManager.isTurkish ? '🎯 HEDEF KİLO' : '🎯 TARGET WEIGHT'}: ${SystemMemory.hedefKilo.toStringAsFixed(1)} KG',
                                 style: GoogleFonts.orbitron(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
                               ),
                               Text(
@@ -690,7 +692,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
                           if (SystemMemory.avciDiyetNotu.isNotEmpty) ...[
                             const SizedBox(height: 3),
                             Text(
-                              'Vizyon: "${SystemMemory.avciDiyetNotu}"',
+                              '${TranslationManager.isTurkish ? 'Vizyon' : 'Vision'}: "${SystemMemory.avciDiyetNotu}"',
                               style: const TextStyle(color: sysTextMuted, fontSize: 10, fontStyle: FontStyle.italic),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -729,7 +731,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
                         const Icon(Icons.shield_outlined, color: sysRed, size: 18),
                         const SizedBox(width: 8),
                         Text(
-                          '⚖️ SİSTEM İDMAN VE KAS KORUMA',
+                          TranslationManager.isTurkish ? '⚖️ SİSTEM İDMAN VE KAS KORUMA' : '⚖️ WORKOUT & MUSCLE DEFENSE',
                           style: GoogleFonts.orbitron(
                             color: sysRed,
                             fontSize: 11,
@@ -745,7 +747,7 @@ class _YemekEkraniState extends State<YemekEkrani> {
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
-                            'KATABOLİZMA: ${SystemMemory.sonIdmanYipranmaRaporu?['katabolizmaRiski'] ?? 'YÜKSEK'}',
+                            '${TranslationManager.isTurkish ? 'KATABOLİZMA' : 'CATABOLISM'}: ${SystemMemory.sonIdmanYipranmaRaporu?['katabolizmaRiski'] ?? (TranslationManager.isTurkish ? 'YÜKSEK' : 'HIGH')}',
                             style: const TextStyle(color: sysRed, fontSize: 9, fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -753,7 +755,9 @@ class _YemekEkraniState extends State<YemekEkrani> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Bugünkü ağır idman harcamanız: ~${SystemMemory.bugunYakilanIdmanKalorisi} kcal.\nKas yıkımını önlemek ve glikojeni yenilemek için sisteme eklenen dinamik takviye:',
+                      TranslationManager.isTurkish
+                          ? 'Bugünkü ağır idman harcamanız: ~${SystemMemory.bugunYakilanIdmanKalorisi} kcal.\nKas yıkımını önlemek ve glikojeni yenilemek için sisteme eklenen dinamik takviye:'
+                          : 'Today\'s workout expenditure: ~${SystemMemory.bugunYakilanIdmanKalorisi} kcal.\nDynamic supplements added to protect muscle and restore glycogen:',
                       style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 11, height: 1.4),
                     ),
                     const SizedBox(height: 8),
@@ -761,14 +765,16 @@ class _YemekEkraniState extends State<YemekEkrani> {
                       children: [
                         _telafiBadge('+${SystemMemory.bugunTelafiProteini}g Protein', sysBlue),
                         const SizedBox(width: 8),
-                        _telafiBadge('+${SystemMemory.bugunTelafiKarbonhidrati}g Karbonhidrat', Colors.orangeAccent),
+                        _telafiBadge('+${SystemMemory.bugunTelafiKarbonhidrati}g ${TranslationManager.isTurkish ? 'Karbonhidrat' : 'Carbs'}', Colors.orangeAccent),
                       ],
                     ),
                     if (SystemMemory.diyetisyenListesiAktif) ...[
                       const SizedBox(height: 6),
-                      const Text(
-                        '📋 Diyetisyen taban reçetesi korunmaktadır; idman eforu dinamik olarak telafi edilmiştir.',
-                        style: TextStyle(color: sysGold, fontSize: 10, fontStyle: FontStyle.italic),
+                      Text(
+                        TranslationManager.isTurkish
+                            ? '📋 Diyetisyen taban reçetesi korunmaktadır; idman eforu dinamik olarak telafi edilmiştir.'
+                            : '📋 Dietitian base protocol preserved; workout expenditure compensated dynamically.',
+                        style: const TextStyle(color: sysGold, fontSize: 10, fontStyle: FontStyle.italic),
                       ),
                     ],
                   ],
@@ -808,7 +814,9 @@ class _YemekEkraniState extends State<YemekEkrani> {
                       size: 16,
                     ),
                     label: Text(
-                      SystemMemory.diyetisyenListesiAktif ? 'DİYETİSYEN [ON]' : 'DİYETİSYEN',
+                      SystemMemory.diyetisyenListesiAktif
+                          ? (TranslationManager.isTurkish ? 'DİYETİSYEN [AÇIK]' : 'DIETITIAN [ON]')
+                          : (TranslationManager.isTurkish ? 'DİYETİSYEN' : 'DIETITIAN'),
                       style: TextStyle(
                         color: SystemMemory.diyetisyenListesiAktif ? sysGold : sysBlue,
                         fontWeight: FontWeight.bold,

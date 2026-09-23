@@ -140,15 +140,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Süre / Duration:', style: TextStyle(color: sysTextMuted, fontSize: 12)),
-                      Text('$dakika DK', style: GoogleFonts.orbitron(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                       Text(TranslationManager.get('cal_duration'), style: const TextStyle(color: sysTextMuted, fontSize: 12)),
+                       Text('$dakika ${TranslationManager.get('cal_min')}', style: GoogleFonts.orbitron(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
                     ],
                   ),
                   const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Tamamlanan Görev:', style: TextStyle(color: sysTextMuted, fontSize: 12)),
+                      Text(TranslationManager.get('cal_quests_cleared'), style: const TextStyle(color: sysTextMuted, fontSize: 12)),
                       Text('$gorevSayisi', style: GoogleFonts.orbitron(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 13)),
                     ],
                   ),
@@ -156,7 +156,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Kazanılan EXP:', style: TextStyle(color: sysTextMuted, fontSize: 12)),
+                      Text(TranslationManager.get('cal_earned_exp'), style: const TextStyle(color: sysTextMuted, fontSize: 12)),
                       Text('+$exp EXP', style: GoogleFonts.orbitron(color: const Color(0xFF10B981), fontWeight: FontWeight.bold, fontSize: 13)),
                     ],
                   ),
@@ -164,7 +164,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Tahmini Kalori:', style: TextStyle(color: sysTextMuted, fontSize: 12)),
+                      Text(TranslationManager.get('cal_est_cal'), style: const TextStyle(color: sysTextMuted, fontSize: 12)),
                       Text('~$kalori KCAL', style: GoogleFonts.orbitron(color: const Color(0xFFEF4444), fontWeight: FontWeight.bold, fontSize: 13)),
                     ],
                   ),
@@ -173,7 +173,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              'Sistem: "Avcının zindan disiplini ve akını başarıyla arşivlendi."',
+              TranslationManager.get('cal_system_archived'),
               style: GoogleFonts.rajdhani(color: sysBlue, fontStyle: FontStyle.italic, fontSize: 12),
             ),
           ],
@@ -181,7 +181,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('KAPAT', style: TextStyle(color: Color(0xFFEAB308), fontWeight: FontWeight.bold)),
+            child: Text(TranslationManager.get('close'), style: const TextStyle(color: Color(0xFFEAB308), fontWeight: FontWeight.bold)),
           ),
         ],
       ),

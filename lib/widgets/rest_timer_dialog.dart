@@ -11,6 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../core/audio_system.dart';
 import '../core/voice_coach_system.dart';
 import '../controllers/system_memory.dart';
+import '../core/translation_manager.dart';
 
 class RestTimerDialog extends StatefulWidget {
   final int initialSeconds;
@@ -147,7 +148,7 @@ class _RestTimerDialogState extends State<RestTimerDialog> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                _bitti ? 'MP RECOVERY COMPLETE!' : 'MP RECOVERY (REST TIMER)',
+                _bitti ? TranslationManager.get('rest_complete_title') : TranslationManager.get('rest_mp_recovery_title'),
                 style: GoogleFonts.orbitron(
                   color: _bitti ? _sysGold : _sysBlue,
                   fontSize: 14,
@@ -164,7 +165,9 @@ class _RestTimerDialogState extends State<RestTimerDialog> {
                     color: aktif ? _sysBlue : _sysTextMuted,
                     size: 18,
                   ),
-                  tooltip: aktif ? 'Sesli Koç Aktif' : 'Sesli Koç Sessiz',
+                  tooltip: aktif
+                      ? (TranslationManager.isTurkish ? 'Sesli Koç Aktif' : 'Voice Coach Active')
+                      : (TranslationManager.isTurkish ? 'Sesli Koç Sessiz' : 'Voice Coach Muted'),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                   onPressed: () {
@@ -213,7 +216,7 @@ class _RestTimerDialogState extends State<RestTimerDialog> {
                     ),
                   ),
                   Text(
-                    _bitti ? 'READY!' : 'RECOVERY',
+                    _bitti ? TranslationManager.get('rest_ready_badge') : TranslationManager.get('rest_recovery_badge'),
                     style: TextStyle(
                       color: _bitti ? _sysGold : _sysBlue.withValues(alpha: 0.7),
                       fontSize: 10,
@@ -254,7 +257,7 @@ class _RestTimerDialogState extends State<RestTimerDialog> {
                   ),
                   onPressed: () => _sureEkle(15),
                   icon: const Icon(Icons.add, color: _sysBlue, size: 16),
-                  label: const Text('+15 SN', style: TextStyle(color: _sysBlue, fontWeight: FontWeight.bold, fontSize: 12)),
+                  label: Text(TranslationManager.get('rest_plus_15s'), style: const TextStyle(color: _sysBlue, fontWeight: FontWeight.bold, fontSize: 12)),
                 ),
               ),
               const SizedBox(width: 12),
@@ -272,7 +275,7 @@ class _RestTimerDialogState extends State<RestTimerDialog> {
                   },
                   icon: Icon(_bitti ? Icons.flash_on : Icons.check, color: _bitti ? _sysGold : _sysBlue, size: 18),
                   label: Text(
-                    _bitti ? 'SIRADAKİ SET' : 'HAZIRIM',
+                    _bitti ? TranslationManager.get('rest_next_set') : TranslationManager.get('rest_ready_btn'),
                     style: TextStyle(
                       color: _bitti ? _sysGold : _sysBlue,
                       fontWeight: FontWeight.bold,

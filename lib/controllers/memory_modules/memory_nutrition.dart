@@ -5,6 +5,7 @@ import '../../models/food_model.dart';
 import '../../core/advanced_metabolic_engine.dart';
 import '../../core/supplement_engine.dart';
 import '../../core/audio_system.dart';
+import '../../core/translation_manager.dart';
 
 class MemoryNutrition {
   static void suEkle(int miktarMl) {
@@ -190,29 +191,38 @@ class MemoryNutrition {
       'kalori': SystemMemory.bugunAlinanKalori,
     });
     
-    if (fark == 0) return "[SYSTEM] No change in body mass detected.";
+    final tr = TranslationManager.isTurkish;
+    if (fark == 0) {
+      return tr ? "[SİSTEM] Vücut kütlesinde değişim algılanmadı." : "[SYSTEM] No change in body mass detected.";
+    }
 
     String rapor = "";
-    if (SystemMemory.aktifHedef == 'Kilo Ver (Yağ Yak)') {
+    if (SystemMemory.aktifHedef == 'Kilo Ver (Yağ Yak)' || SystemMemory.aktifHedef.contains('Ver') || SystemMemory.aktifHedef.contains('Lose')) {
       if (fark > 0) { 
         int kazanilanAltin = (fark * 500).toInt();
         int kazanilanAP = fark.toInt();
         if (kazanilanAP < 1) kazanilanAP = 1; 
         SystemMemory.altin.value += kazanilanAltin;
         SystemMemory.ap.value += kazanilanAP;
-        rapor = "[ACHIEVEMENT UNLOCKED] $fark kg mass shed!\nREWARD: +$kazanilanAltin Gold | +$kazanilanAP AP";
+        rapor = tr 
+            ? "[BAŞARIM AÇILDI] $fark kg kütle verildi!\nÖDÜL: +$kazanilanAltin Altın | +$kazanilanAP AP"
+            : "[ACHIEVEMENT UNLOCKED] $fark kg mass shed!\nREWARD: +$kazanilanAltin Gold | +$kazanilanAP AP";
         AudioSystem.playSuccess();
       } else { 
         if (!SystemMemory.golgeModuAktif) {
           SystemMemory.hp.value -= 20;
           if (SystemMemory.hp.value < 0) SystemMemory.hp.value = 0;
-          rapor = "[SYSTEM WARNING] ${fark.abs()} kg mass regained. Discipline violated!\nPENALTY: -20 HP";
+          rapor = tr
+              ? "[SİSTEM UYARISI] ${fark.abs()} kg kütle alındı. Disiplin ihlali!\nCEZA: -20 HP"
+              : "[SYSTEM WARNING] ${fark.abs()} kg mass regained. Discipline violated!\nPENALTY: -20 HP";
         } else {
-          rapor = "[STEALTH MODE] Mass regained, but penalty bypassed.";
+          rapor = tr
+              ? "[GÖLGE MODU] Kütle alındı fakat ceza engellendi."
+              : "[STEALTH MODE] Mass regained, but penalty bypassed.";
         }
       }
     } 
-    else if (SystemMemory.aktifHedef == 'Kilo Al (Kas İnşa Et)') {
+    else if (SystemMemory.aktifHedef == 'Kilo Al (Kas İnşa Et)' || SystemMemory.aktifHedef.contains('Al') || SystemMemory.aktifHedef.contains('Gain')) {
       if (fark < 0) { 
         double alinan = fark.abs();
         int kazanilanAltin = (alinan * 500).toInt();
@@ -220,15 +230,21 @@ class MemoryNutrition {
         if (kazanilanAP < 1) kazanilanAP = 1;
         SystemMemory.altin.value += kazanilanAltin;
         SystemMemory.ap.value += kazanilanAP;
-        rapor = "[ACHIEVEMENT UNLOCKED] $alinan kg muscle built!\nREWARD: +$kazanilanAltin Gold | +$kazanilanAP AP";
+        rapor = tr
+            ? "[BAŞARIM AÇILDI] $alinan kg kas inşa edildi!\nÖDÜL: +$kazanilanAltin Altın | +$kazanilanAP AP"
+            : "[ACHIEVEMENT UNLOCKED] $alinan kg muscle built!\nREWARD: +$kazanilanAltin Gold | +$kazanilanAP AP";
         AudioSystem.playSuccess();
       } else {
         if (!SystemMemory.golgeModuAktif) {
           SystemMemory.hp.value -= 20;
           if (SystemMemory.hp.value < 0) SystemMemory.hp.value = 0;
-          rapor = "[SYSTEM WARNING] $fark kg mass lost. Caloric surplus required!\nPENALTY: -20 HP";
+          rapor = tr
+              ? "[SİSTEM UYARISI] $fark kg kütle kaybedildi. Kalori fazlası şart!\nCEZA: -20 HP"
+              : "[SYSTEM WARNING] $fark kg mass lost. Caloric surplus required!\nPENALTY: -20 HP";
         } else {
-          rapor = "[STEALTH MODE] Mass lost, but penalty bypassed.";
+          rapor = tr
+              ? "[GÖLGE MODU] Kütle kaybedildi fakat ceza engellendi."
+              : "[STEALTH MODE] Mass lost, but penalty bypassed.";
         }
       }
     }
@@ -263,7 +279,10 @@ class MemoryNutrition {
         int kacirilanEkGun = gunFarki - 1;
         int ekCeza = kacirilanEkGun * 15;
         SystemMemory.hp.value = (SystemMemory.hp.value - ekCeza).clamp(0, SystemMemory.maxHp);
-        SystemMemory.geceRaporu = "${SystemMemory.geceRaporu}\n[SYSTEM PENALTY] Missed $kacirilanEkGun additional day(s) without stealth!\nPENALTY: -$ekCeza HP";
+        final tr = TranslationManager.isTurkish;
+        SystemMemory.geceRaporu = tr
+            ? "${SystemMemory.geceRaporu}\n[SİSTEM CEZASI] Gölge modu olmadan $kacirilanEkGun ek gün kaçırıldı!\nCEZA: -$ekCeza HP"
+            : "${SystemMemory.geceRaporu}\n[SYSTEM PENALTY] Missed $kacirilanEkGun additional day(s) without stealth!\nPENALTY: -$ekCeza HP";
       }
 
       SystemMemory.sonGirisTarihi = bugunStr;
@@ -272,6 +291,7 @@ class MemoryNutrition {
   }
 
   static String gunSonuHesaplasmasi(int degerlendirilenGun) {
+    final tr = TranslationManager.isTurkish;
     int hpFarki = 0;
     int mpFarki = 0;
     int kazanilanExp = 0;
@@ -282,51 +302,73 @@ class MemoryNutrition {
     int kazanilanINT = 0;
     int kazanilanPER = 0;
 
-    String rapor = "[DAILY SETTLEMENT REPORT - DAY $degerlendirilenGun]\n";
+    String rapor = tr
+        ? "[GÜNLÜK HESAPLAŞMA RAPORU - GÜN $degerlendirilenGun]\n"
+        : "[DAILY SETTLEMENT REPORT - DAY $degerlendirilenGun]\n";
 
     if (SystemMemory.bugunCheatMealAktif) {
-      rapor += "[ 🍔 CHEAT PASS ACTIVE ] Calorie excess penalty waived for today!\n";
+      rapor += tr
+          ? "[ 🍔 KAÇAMAK HAKKI AKTİF ] Bugünlük kalori aşım cezası affedildi!\n"
+          : "[ 🍔 CHEAT PASS ACTIVE ] Calorie excess penalty waived for today!\n";
     } else if (SystemMemory.bugunAlinanKalori > SystemMemory.gunlukHedefKalori) { 
       if (SystemMemory.redGateAktif) {
         hpFarki -= 60;
-        rapor += "[FATAL PENALTY] Calorie Limit Exceeded in Hell: -60 HP\n";
+        rapor += tr
+            ? "[ÖLÜMCÜL CEZA] Cehennemde Kalori Sınırı Aşıldı: -60 HP\n"
+            : "[FATAL PENALTY] Calorie Limit Exceeded in Hell: -60 HP\n";
       } else if (!SystemMemory.golgeModuAktif) {
         hpFarki -= 20;
-        rapor += "[PENALTY] Calorie Limit Exceeded: -20 HP\n";
+        rapor += tr
+            ? "[CEZA] Kalori Sınırı Aşıldı: -20 HP\n"
+            : "[PENALTY] Calorie Limit Exceeded: -20 HP\n";
       } else {
-        rapor += "[STEALTH] Calorie Excess Ignored.\n";
+        rapor += tr
+            ? "[GÖLGE MODU] Kalori Fazlası Görmezden Gelindi.\n"
+            : "[STEALTH] Calorie Excess Ignored.\n";
       }
     } else {
       hpFarki += 10;
       kazanilanExp += 20;
       kazanilanVIT += 1;
       kazanilanAltin += 20;
-      rapor += "[REWARD] Ideal Diet: +10 HP, +20 EXP, +1 VIT, +20 G\n";
+      rapor += tr
+          ? "[ÖDÜL] İdeal Beslenme: +10 HP, +20 EXP, +1 VIT, +20 Altın\n"
+          : "[REWARD] Ideal Diet: +10 HP, +20 EXP, +1 VIT, +20 G\n";
     }
 
     if (SystemMemory.uyunanSaat < 7) { 
       if (SystemMemory.redGateAktif) {
         mpFarki -= 15;
-        rapor += "[FATAL PENALTY] Insufficient Rest in Hell: -15 MP\n";
+        rapor += tr
+            ? "[ÖLÜMCÜL CEZA] Cehennemde Yetersiz Dinlenme: -15 MP\n"
+            : "[FATAL PENALTY] Insufficient Rest in Hell: -15 MP\n";
       } else if (!SystemMemory.golgeModuAktif) {
         mpFarki -= 4;
-        rapor += "[PENALTY] Insufficient Sleep: -4 MP\n";
+        rapor += tr
+            ? "[CEZA] Yetersiz Uyku: -4 MP\n"
+            : "[PENALTY] Insufficient Sleep: -4 MP\n";
       } else {
-        rapor += "[STEALTH] Sleep Deficit Ignored.\n";
+        rapor += tr
+            ? "[GÖLGE MODU] Uyku Açığı Görmezden Gelindi.\n"
+            : "[STEALTH] Sleep Deficit Ignored.\n";
       }
     } else {
       mpFarki += 2;
       kazanilanExp += 10;
       kazanilanVIT += 1;
       kazanilanAltin += 10;
-      rapor += "[REWARD] Solid Rest: +2 MP, +10 EXP, +1 VIT, +10 G\n";
+      rapor += tr
+          ? "[ÖDÜL] Kaliteli Dinlenme: +2 MP, +10 EXP, +1 VIT, +10 Altın\n"
+          : "[REWARD] Solid Rest: +2 MP, +10 EXP, +1 VIT, +10 G\n";
     }
 
     // SU HEDEFİ KONTROLÜ
     if (SystemMemory.bugunIcilenSuMl.value >= SystemMemory.suHedefiMl && SystemMemory.suHedefiMl > 0) {
       hpFarki += 5;
       kazanilanExp += 10;
-      rapor += "[REWARD] Hydration Goal Achieved (${SystemMemory.bugunIcilenSuMl.value}ml): +5 HP, +10 EXP\n";
+      rapor += tr
+          ? "[ÖDÜL] Hidrasyon Hedefine Ulaşıldı (${SystemMemory.bugunIcilenSuMl.value}ml): +5 HP, +10 EXP\n"
+          : "[REWARD] Hydration Goal Achieved (${SystemMemory.bugunIcilenSuMl.value}ml): +5 HP, +10 EXP\n";
     }
 
     List<Gorev> oGununProgrami = SystemMemory.haftalikPlan[degerlendirilenGun] ?? [];
@@ -369,21 +411,31 @@ class MemoryNutrition {
     SystemMemory.bitenGorevSayisi += toplamBiten; 
 
     if (SystemMemory.bugunGamingPassAktif) {
-      rapor += "[ 🎮 GAMING PASS ACTIVE ] 2-hour entertainment privilege granted. No penalty.\n";
+      rapor += tr
+          ? "[ 🎮 OYUN İZNİ AKTİF ] 2 saatlik eğlence ayrıcalığı tanındı. Ceza yok.\n"
+          : "[ 🎮 GAMING PASS ACTIVE ] 2-hour entertainment privilege granted. No penalty.\n";
     }
 
     if (SystemMemory.bugunSlothDayAktif) {
-      rapor += "[ 🦥 SLOTH PASS ACTIVE ] Quests excused today. Streak preserved without penalty!\n";
+      rapor += tr
+          ? "[ 🦥 TEMBELLİK GÜNÜ AKTİF ] Görevler bugün mazur görüldü. Seri korundu!\n"
+          : "[ 🦥 SLOTH PASS ACTIVE ] Quests excused today. Streak preserved without penalty!\n";
     } else if (toplamGorev > 0) {
       if (toplamBiten == toplamGorev) {
         SystemMemory.streakGunSayisi++;
-        rapor += "[STREAK] Flawless Day Streak: ${SystemMemory.streakGunSayisi} Days!\n";
+        rapor += tr
+            ? "[SERİ] Kusursuz Gün Serisi: ${SystemMemory.streakGunSayisi} Gün!\n"
+            : "[STREAK] Flawless Day Streak: ${SystemMemory.streakGunSayisi} Days!\n";
       } else {
         if (!SystemMemory.golgeModuAktif || SystemMemory.redGateAktif) {
           SystemMemory.streakGunSayisi = 0;
-          rapor += "[STREAK BROKEN] Discipline lost, Streak reset.\n";
+          rapor += tr
+              ? "[SERİ BOZULDU] Disiplin kaybedildi, Seri sıfırlandı.\n"
+              : "[STREAK BROKEN] Discipline lost, Streak reset.\n";
         } else {
-          rapor += "[STEALTH] Streak Frozen. No penalty applied.\n";
+          rapor += tr
+              ? "[GÖLGE MODU] Seri Donduruldu. Ceza uygulanmadı.\n"
+              : "[STEALTH] Streak Frozen. No penalty applied.\n";
         }
       }
     }
@@ -394,19 +446,27 @@ class MemoryNutrition {
         kazanilanAltin += 1000;
         SystemMemory.ap.value += 2;
         kazanilanExp += 500;
-        rapor += "\n[BOSS DEFEATED] ${SystemMemory.bossIsim} was annihilated!\nREWARD: +1000 G | +2 AP | +500 EXP\n";
+        rapor += tr
+            ? "\n[BOSS YENİLDİ] ${SystemMemory.bossIsim} yok edildi!\nÖDÜL: +1000 Altın | +2 AP | +500 EXP\n"
+            : "\n[BOSS DEFEATED] ${SystemMemory.bossIsim} was annihilated!\nREWARD: +1000 G | +2 AP | +500 EXP\n";
         AudioSystem.playSuccess();
       } else if (SystemMemory.bossMaxHP > 0) {
         if (!SystemMemory.golgeModuAktif) {
           int cezaHp = SystemMemory.level.value * 10;
           if (SystemMemory.redGateAktif) {
-            rapor += "\n[RED GATE] The Weekly Boss dares not enter this Hell.\n";
+            rapor += tr
+                ? "\n[KIRMIZI GEÇİT] Haftalık Boss bu Cehenneme adım atamaz.\n"
+                : "\n[RED GATE] The Weekly Boss dares not enter this Hell.\n";
           } else {
             hpFarki -= cezaHp;
-            rapor += "\n[DUNGEON DEFEAT] ${SystemMemory.bossIsim} heavily wounded you!\nPENALTY: -$cezaHp HP\n";
+            rapor += tr
+                ? "\n[ZİNDAN YENİLGİSİ] ${SystemMemory.bossIsim} seni ağır yaraladı!\nCEZA: -$cezaHp HP\n"
+                : "\n[DUNGEON DEFEAT] ${SystemMemory.bossIsim} heavily wounded you!\nPENALTY: -$cezaHp HP\n";
           }
         } else {
-          rapor += "\n[STEALTH] Weekly Boss ignored your dormant presence.\n";
+          rapor += tr
+              ? "\n[GÖLGE MODU] Haftalık Boss uykudaki varlığını fark etmedi.\n"
+              : "\n[STEALTH] Weekly Boss ignored your dormant presence.\n";
         }
       }
     }
@@ -441,7 +501,9 @@ class MemoryNutrition {
     if (SystemMemory.redGateAktif) {
       SystemMemory.redGateKalanGun--;
       if (SystemMemory.redGateKalanGun < 0) SystemMemory.redGateKalanGun = 0;
-      rapor += "\n[RED GATE SURVIVAL] Days Remaining: ${SystemMemory.redGateKalanGun} / ${SystemMemory.redGateToplamGun}\n";
+      rapor += tr
+          ? "\n[KIRMIZI GEÇİTTE HAYATTA KALMA] Kalan Gün: ${SystemMemory.redGateKalanGun} / ${SystemMemory.redGateToplamGun}\n"
+          : "\n[RED GATE SURVIVAL] Days Remaining: ${SystemMemory.redGateKalanGun} / ${SystemMemory.redGateToplamGun}\n";
     }
 
     SystemMemory.hp.value += hpFarki;
@@ -468,10 +530,12 @@ class MemoryNutrition {
       int odulAltin = SystemMemory.redGateToplamGun * 1500;
       int odulEXP = SystemMemory.redGateToplamGun * 300;
 
-      rapor += "\n[ 👑 RED GATE CLEARED 👑 ]\nYou survived ${SystemMemory.redGateToplamGun} Days of absolute Hell.\nULTIMATE REWARD: +$odulAP AP, +$odulAltin G, +$odulEXP EXP, FULL RECOVERY!\n";
+      rapor += tr
+          ? "\n[ 👑 KIRMIZI GEÇİT TEMİZLENDİ 👑 ]\nTam ${SystemMemory.redGateToplamGun} Günlük mutlak Cehennemden sağ çıktın.\nNİHAİ ÖDÜL: +$odulAP AP, +$odulAltin Altın, +$odulEXP EXP, TAM İYİLEŞME!\n"
+          : "\n[ 👑 RED GATE CLEARED 👑 ]\nYou survived ${SystemMemory.redGateToplamGun} Days of absolute Hell.\nULTIMATE REWARD: +$odulAP AP, +$odulAltin G, +$odulEXP EXP, FULL RECOVERY!\n";
       SystemMemory.ap.value += odulAP; 
       SystemMemory.altin.value += odulAltin; 
-      SystemMemory.hp.value = SystemMemory.maxHp; 
+      SystemMemory.hp.value = SystemMemory.maxHp;  
       SystemMemory.mp.value = SystemMemory.maxMp; 
       
       SystemMemory.kirmiziGecittenCik();
