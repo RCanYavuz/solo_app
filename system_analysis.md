@@ -71,6 +71,9 @@
 | ~~13~~ | Haftalık Canlı Boss Sistemi & Dinamik Hasar | ✅ **FAZ 2: TEST EDİLDİ, YAPILDI, PUSHLANDI** | `bossSpawnVeyaGuncelle`, dinamik `bossGuncelle` ve `bossHasarVer` ile haftalık kümülatif canlı HP barı, zindan akını tamamlama bonusu ve Dashboard üzerinde Pazar 23:59 geri sayımı ve zafer durumu eklendi. (Commit: `7974cd0`) |
 | ~~14~~ | Çoklu Gün İnaktivite / Gece Kontrolü Atlaması | ✅ **FAZ 2: TEST EDİLDİ, YAPILDI, PUSHLANDI** | `geceKontrolu` içinde çoklu gün atlamalarında (`gunFarki > 1`) her kaçırılan gün için ardışık simülasyon, Pazar günleri boss yenilgi/hasar kontrolü ve Red Gate sayaç azaltımı eklendi. (Commit: `7974cd0`) |
 | ~~15~~ | Varsayılan Zihinsel Görev Protokolleri | ✅ **FAZ 2: TEST EDİLDİ, YAPILDI, PUSHLANDI** | `baslangicPrograminiAta` ile idman günlerine `[MIND]` protokolleri otomatik eklendi. Günlük zihinsel görev listesi boşsa varsayılan odaklanma ve analiz protokolleri atandı. (Commit: `7974cd0`) |
+| ~~16~~ | Gelişim & İstatistik Paneli (Progress Analytics) | ✅ **FAZ 3: TEST EDİLDİ, YAPILDI, PUSHLANDI** | Kilo trendi, idman hacmi, kalori alımı ve 1RM güç visualizer'ı içeren 4 sekmeli modern `AnalyticsScreen` geliştirildi (`CustomPainter` çizgi & bar grafikleri). (Commit: `7f429e6`) |
+| ~~17~~ | Takvimde İdman & Diyet Geçmiş Rozetleri | ✅ **FAZ 3: TEST EDİLDİ, YAPILDI, PUSHLANDI** | `CalendarScreen` şerit ve aylık takvimine idman (🔥), diyet (🥗) ve çift başarı (⭐) rozetleri ile gün detaylarında beslenme arşivi dökümü eklendi. (Commit: `7f429e6`) |
+| ~~18~~ | Akıllı Streak Koruma Bildirimi | ✅ **FAZ 3: TEST EDİLDİ, YAPILDI, PUSHLANDI** | `NotificationService` içine `akilliStreakBildirimiGuncelle` entegre edildi. Streak > 0 ve tamamlanmamış görev varken saat 21:00'e yüksek öncelikli uyarı planlandı. (Commit: `7f429e6`) |
 
 ---
 
@@ -144,25 +147,16 @@
 ### ⭐⭐⭐ Yüksek Değer — Oyun Deneyimini Doğrudan İyileştirir
 
 #### 1. 📊 Geçmiş & İstatistik Paneli (Progress Dashboard)
-- **Durum:** Veriler zaten toplanıyor (`kiloGecmisi`, `idmanGecmisi`, `yemekGecmisi`, `toplamIdmanDakikasi`) ama **hiçbir yerde grafiksel olarak görselleştirilmiyorlar**.
-- **Ne yapmalı:** Grafik destekli bir geçmiş ekranı:
-  - 📈 Kilo trendi grafiği (zaman vs. kilo)
-  - 💪 Haftalık idman süresi/sıklığı çubuk grafiği
-  - 🍽️ Kalori trendi ve ortalaması
-  - 🏆 Streak geçmişi çizgi grafiği
-  - 🏅 1RM ilerleme grafiği (Bench/Squat/Deadlift)
-- **Tavsiye Paket:** `fl_chart` veya `syncfusion_flutter_charts`
-- **Etki:** Kullanıcı ilerlemesini göremedikçe motivasyonu düşer. Veri zaten mevcut, sadece görselleştirme eksik.
+- **Durum:** ✅ **ÇÖZÜLDÜ (FAZ 3 - TEST EDİLDİ, YAPILDI, GİT'E PUSHLANDI)**
+- **Detay:** [analytics_screen.dart](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/screens/analytics_screen.dart) geliştirildi. 4 ana sekme: Kilo trendi (CustomPaint spline ve hedef kılavuzu), İdman hacmi ve süresi bar grafiği, Kalori ve makro uyumu bar grafiği, 1RM büyük üçlü güç çubukları ve Avcı Güç Kademesi (S/A/B/C/D) sınıflandırması. Dashboard, Takvim ve Profil ekranlarından doğrudan erişim sağlandı. (Commit: `7f429e6`)
 
 #### 2. 🔔 Akıllı Bildirim Protokolü — Streak Kırılma Uyarısı
-- **Durum:** Bildirim altyapısı tam çalışıyor (`NotificationService`), ama **streak kırılma uyarısı** yok. Kullanıcı akşam uygulamayı açmadıysa, yatmadan önce bir hatırlatma gönderilebilir.
-- **Ne yapmalı:** "Avcı! Bugünün görevleri bitmedi. Streak: 14 gün tehlikede!" tarzı bildirim.
-- **Etki:** Streak koruması kullanıcı bağlılığının en güçlü kaldıracıdır.
+- **Durum:** ✅ **ÇÖZÜLDÜ (FAZ 3 - TEST EDİLDİ, YAPILDI, GİT'E PUSHLANDI)**
+- **Detay:** [notification_service.dart](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/core/services/notification_service.dart) içine `akilliStreakBildirimiGuncelle` ve `streakBildirimiIptal` eklendi. Kullanıcının aktif serisi varsa ve gün tamamlanmamışsa akşam 21:00'e yüksek öncelikli kriz bildirimi planlanır, görevler bitince otomatik iptal edilir. (Commit: `7f429e6`)
 
 #### 3. 📅 Takvimde İdman & Diyet Geçmişi Gösterimi
-- **Durum:** `CalendarScreen` var, `idmanGecmisi` ve `yemekGecmisi` verisi var, ama takvimde geçmiş günler **işaretlenmiyor**.
-- **Ne yapmalı:** Takvimde idman yapılan günleri yeşil nokta, yapılmayan günleri kırmızı, kalori hedefini tutturan günleri altın yıldız ile işaretle.
-- **Etki:** Görsel geri bildirim ile motivasyon artışı.
+- **Durum:** ✅ **ÇÖZÜLDÜ (FAZ 3 - TEST EDİLDİ, YAPILDI, GİT'E PUSHLANDI)**
+- **Detay:** [calendar_screen.dart](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/screens/calendar_screen.dart) üzerinde hem yatay şerit hem aylık görünümde idman yapılan günlere altın alev (🔥), beslenme hedefleri kaydedilen günlere yeşil çatal-bıçak (🥗), ikisi birden biten günlere altın zırh çerçevesi eklendi. Seçili gün tıklandığında alt panelde zindan kayıtlarının yanı sıra tam beslenme makro dökümü gösterildi. (Commit: `7f429e6`)
 
 ---
 
