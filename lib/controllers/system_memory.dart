@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -16,6 +15,7 @@ import 'memory_modules/memory_workout.dart';
 import 'memory_modules/memory_nutrition.dart';
 import 'memory_modules/memory_combat_ranks.dart';
 import '../core/services/notification_service.dart';
+import '../core/services/photo_storage_service.dart';
 
 class SystemMemory {
   // ==========================================
@@ -106,6 +106,18 @@ class SystemMemory {
   static Uint8List? profilFotoByte;
   static Uint8List? avatarFotoByte;
 
+  static Future<void> profilFotoGuncelle(Uint8List bytes) async {
+    profilFotoByte = bytes;
+    await PhotoStorageService.instance.saveProfilePhoto(bytes);
+    await kaydet();
+  }
+
+  static Future<void> avatarFotoGuncelle(Uint8List bytes) async {
+    avatarFotoByte = bytes;
+    await PhotoStorageService.instance.saveAvatarPhoto(bytes);
+    await kaydet();
+  }
+
   // Günlük Geçici Değerler
   static int bugunAlinanKalori = 0;    
   static List<TuketilenYemek> bugununYemekleri = [];
@@ -189,11 +201,13 @@ class SystemMemory {
     String? not,
     DateTime? tarih,
   }) async {
+    final id = DateTime.now().millisecondsSinceEpoch.toString();
+    final filePath = await PhotoStorageService.instance.saveProgressPhoto(fotoBytes, id);
     final entry = {
-      'id': DateTime.now().millisecondsSinceEpoch.toString(),
+      'id': id,
       'tarih': (tarih ?? DateTime.now()).toIso8601String(),
       'kilo': kilo,
-      'fotoBase64': base64Encode(fotoBytes),
+      'fotoPath': filePath,
       'not': not ?? '',
     };
     ilerlemeFotolari.add(entry);
@@ -202,7 +216,11 @@ class SystemMemory {
 
   static Future<void> ilerlemeFotoSil(int index) async {
     if (index >= 0 && index < ilerlemeFotolari.length) {
-      ilerlemeFotolari.removeAt(index);
+      final removed = ilerlemeFotolari.removeAt(index);
+      final filePath = removed['fotoPath'] as String?;
+      if (filePath != null && filePath.isNotEmpty) {
+        await PhotoStorageService.instance.deletePhoto(filePath);
+      }
       await kaydet();
     }
   }

@@ -55,7 +55,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() { 
         SystemMemory.profilFotoByte = fotoBytes; 
       });
-      SystemMemory.kaydet(); 
+      await SystemMemory.profilFotoGuncelle(fotoBytes); 
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -145,7 +145,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         setState(() {
           SystemMemory.avatarFotoByte = avatarResult;
         });
-        SystemMemory.kaydet();
+        await SystemMemory.avatarFotoGuncelle(avatarResult);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(

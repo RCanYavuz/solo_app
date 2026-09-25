@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../system_memory.dart';
 import '../../models/task_model.dart';
 import '../../models/inventory_item_model.dart';
+import '../../models/mental_task_model.dart';
 import '../../core/audio_system.dart';
 import '../../core/translation_manager.dart';
 
@@ -667,6 +668,16 @@ class MemoryCombatRanks {
       'diyetisyenOgunleri': SystemMemory.diyetisyenOgunleri,
       'diyetisyenBaslangicTarihi': SystemMemory.diyetisyenBaslangicTarihi,
       'diyetisyenGunlukPlanlar': SystemMemory.diyetisyenGunlukPlanlar,
+      'toplamOkunanSayfaSayisi': SystemMemory.toplamOkunanSayfaSayisi,
+      'toplamOdaklanmaDakikasi': SystemMemory.toplamOdaklanmaDakikasi,
+      'aktifUzmanlikAlani': SystemMemory.aktifUzmanlikAlani,
+      'tamamlananKitaplar': SystemMemory.tamamlananKitaplar,
+      'gunlukZihinselGorevler': SystemMemory.gunlukZihinselGorevler.value.map((e) => e.toJson()).toList(),
+      'ilerlemeFotolari': SystemMemory.ilerlemeFotolari.map((item) {
+        final copy = Map<String, dynamic>.from(item);
+        copy.remove('fotoBase64');
+        return copy;
+      }).toList(),
       'backupTimestamp': DateTime.now().toIso8601String(),
     };
     return jsonEncode(data);
@@ -838,6 +849,27 @@ class MemoryCombatRanks {
         }
         if (data['diyetisyenGunlukPlanlar'] != null && data['diyetisyenGunlukPlanlar'] is Map) {
           SystemMemory.diyetisyenGunlukPlanlar = Map<String, dynamic>.from(data['diyetisyenGunlukPlanlar'] as Map);
+        }
+        if (data['toplamOkunanSayfaSayisi'] != null) {
+          SystemMemory.toplamOkunanSayfaSayisi = (data['toplamOkunanSayfaSayisi'] as num).toInt();
+        }
+        if (data['toplamOdaklanmaDakikasi'] != null) {
+          SystemMemory.toplamOdaklanmaDakikasi = (data['toplamOdaklanmaDakikasi'] as num).toInt();
+        }
+        if (data['aktifUzmanlikAlani'] != null) {
+          SystemMemory.aktifUzmanlikAlani = data['aktifUzmanlikAlani'].toString();
+        }
+        if (data['tamamlananKitaplar'] != null && data['tamamlananKitaplar'] is List) {
+          SystemMemory.tamamlananKitaplar = List<String>.from((data['tamamlananKitaplar'] as List).map((e) => e.toString()));
+        }
+        if (data['gunlukZihinselGorevler'] != null && data['gunlukZihinselGorevler'] is List) {
+          final List<dynamic> zList = data['gunlukZihinselGorevler'];
+          SystemMemory.gunlukZihinselGorevler.value = zList.map((e) => MentalTask.fromJson(e as Map<String, dynamic>)).toList();
+        }
+        if (data['ilerlemeFotolari'] != null && data['ilerlemeFotolari'] is List) {
+          SystemMemory.ilerlemeFotolari = List<Map<String, dynamic>>.from(
+            (data['ilerlemeFotolari'] as List).map((x) => Map<String, dynamic>.from(x as Map)),
+          );
         }
         SystemMemory.kaydet();
         return true;

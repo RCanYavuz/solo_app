@@ -7,6 +7,7 @@ import '../../models/food_model.dart';
 import '../../models/inventory_item_model.dart';
 import '../../models/mental_task_model.dart';
 import '../../core/progressive_overload_engine.dart';
+import '../../core/services/photo_storage_service.dart';
 
 class MemoryStorage {
   static const int maxGecmisKayitSayisi = 200;
@@ -135,11 +136,41 @@ class MemoryStorage {
       String dtStr = prefs.getString('dogumTarihi') ?? '';
       if (dtStr.isNotEmpty) SystemMemory.dogumTarihi = DateTime.parse(dtStr);
 
-      String fotoB64 = prefs.getString('profilFoto') ?? '';
-      if (fotoB64.isNotEmpty) SystemMemory.profilFotoByte = base64Decode(fotoB64);
+      // Profil Fotoğrafı (Dosya sistemi & Legacy Base64 Migration)
+      String profilPath = prefs.getString('profilFotoPath') ?? '';
+      if (profilPath.isNotEmpty) {
+        final pBytes = await PhotoStorageService.instance.loadPhotoBytes(profilPath);
+        if (pBytes != null) SystemMemory.profilFotoByte = pBytes;
+      }
+      if (SystemMemory.profilFotoByte == null) {
+        String fotoB64 = prefs.getString('profilFoto') ?? '';
+        if (fotoB64.isNotEmpty) {
+          try {
+            SystemMemory.profilFotoByte = base64Decode(fotoB64);
+            final savedPath = await PhotoStorageService.instance.saveProfilePhoto(SystemMemory.profilFotoByte!);
+            await prefs.setString('profilFotoPath', savedPath);
+            await prefs.remove('profilFoto');
+          } catch (_) {}
+        }
+      }
       
-      String avatarB64 = prefs.getString('avatarFoto') ?? '';
-      if (avatarB64.isNotEmpty) SystemMemory.avatarFotoByte = base64Decode(avatarB64);
+      // Avatar Fotoğrafı (Dosya sistemi & Legacy Base64 Migration)
+      String avatarPath = prefs.getString('avatarFotoPath') ?? '';
+      if (avatarPath.isNotEmpty) {
+        final aBytes = await PhotoStorageService.instance.loadPhotoBytes(avatarPath);
+        if (aBytes != null) SystemMemory.avatarFotoByte = aBytes;
+      }
+      if (SystemMemory.avatarFotoByte == null) {
+        String avatarB64 = prefs.getString('avatarFoto') ?? '';
+        if (avatarB64.isNotEmpty) {
+          try {
+            SystemMemory.avatarFotoByte = base64Decode(avatarB64);
+            final savedPath = await PhotoStorageService.instance.saveAvatarPhoto(SystemMemory.avatarFotoByte!);
+            await prefs.setString('avatarFotoPath', savedPath);
+            await prefs.remove('avatarFoto');
+          } catch (_) {}
+        }
+      }
 
       SystemMemory.bugunAlinanKalori = prefs.getInt('bugunAlinanKalori') ?? 0;
       SystemMemory.uyunanSaat = prefs.getInt('uyunanSaat') ?? 0;
@@ -209,11 +240,35 @@ class MemoryStorage {
       SystemMemory.idmanBildirimDakikasi = prefs.getInt('idmanBildirimDakikasi') ?? 0;
       SystemMemory.geceBildirimiAktif = prefs.getBool('geceBildirimiAktif') ?? true;
 
-      // İlerleme Fotoğrafları Arşivi
+      // İlerleme Fotoğrafları Arşivi (Dosya sistemi & Legacy Base64 Migration)
       String fotolarJson = prefs.getString('ilerlemeFotolari') ?? '[]';
       try {
         List<dynamic> fList = jsonDecode(fotolarJson);
-        SystemMemory.ilerlemeFotolari = fList.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+        final list = fList.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+        bool needsSave = false;
+        for (var item in list) {
+          final p = item['fotoPath']?.toString();
+          final b64 = item['fotoBase64']?.toString();
+          if ((p == null || p.isEmpty) && b64 != null && b64.isNotEmpty) {
+            try {
+              final id = item['id']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString();
+              final bytes = base64Decode(b64);
+              final savedPath = await PhotoStorageService.instance.saveProgressPhoto(bytes, id);
+              item['fotoPath'] = savedPath;
+              item.remove('fotoBase64');
+              needsSave = true;
+            } catch (_) {}
+          }
+        }
+        SystemMemory.ilerlemeFotolari = list;
+        if (needsSave) {
+          final clean = list.map((e) {
+            final copy = Map<String, dynamic>.from(e);
+            copy.remove('fotoBase64');
+            return copy;
+          }).toList();
+          await prefs.setString('ilerlemeFotolari', jsonEncode(clean));
+        }
       } catch (_) {}
 
       // Zihinsel Görevler & Odaklanma Arşivi
@@ -333,10 +388,22 @@ class MemoryStorage {
         await prefs.setString('dogumTarihi', SystemMemory.dogumTarihi!.toIso8601String());
       }
       if (SystemMemory.profilFotoByte != null) {
-        await prefs.setString('profilFoto', base64Encode(SystemMemory.profilFotoByte!));
+        String? pPath = prefs.getString('profilFotoPath');
+        if (pPath == null || pPath.isEmpty) {
+          pPath = await PhotoStorageService.instance.saveProfilePhoto(SystemMemory.profilFotoByte!);
+          await prefs.setString('profilFotoPath', pPath);
+        }
+      } else {
+        await prefs.remove('profilFotoPath');
       }
       if (SystemMemory.avatarFotoByte != null) {
-        await prefs.setString('avatarFoto', base64Encode(SystemMemory.avatarFotoByte!));
+        String? aPath = prefs.getString('avatarFotoPath');
+        if (aPath == null || aPath.isEmpty) {
+          aPath = await PhotoStorageService.instance.saveAvatarPhoto(SystemMemory.avatarFotoByte!);
+          await prefs.setString('avatarFotoPath', aPath);
+        }
+      } else {
+        await prefs.remove('avatarFotoPath');
       }
       await prefs.setInt('bugunAlinanKalori', SystemMemory.bugunAlinanKalori);
       await prefs.setInt('uyunanSaat', SystemMemory.uyunanSaat);
@@ -375,8 +442,13 @@ class MemoryStorage {
       await prefs.setInt('idmanBildirimDakikasi', SystemMemory.idmanBildirimDakikasi);
       await prefs.setBool('geceBildirimiAktif', SystemMemory.geceBildirimiAktif);
 
-      // İlerleme Fotoğrafları Arşivi
-      await prefs.setString('ilerlemeFotolari', jsonEncode(SystemMemory.ilerlemeFotolari));
+      // İlerleme Fotoğrafları Arşivi (Dosya yolu ve meta veriler, Base64 içermez)
+      final cleanFotolar = SystemMemory.ilerlemeFotolari.map((item) {
+        final copy = Map<String, dynamic>.from(item);
+        copy.remove('fotoBase64');
+        return copy;
+      }).toList();
+      await prefs.setString('ilerlemeFotolari', jsonEncode(cleanFotolar));
 
       // Zihinsel Görevler & Odaklanma Arşivi
       await prefs.setInt('toplamOkunanSayfaSayisi', SystemMemory.toplamOkunanSayfaSayisi);

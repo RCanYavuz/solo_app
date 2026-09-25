@@ -1,5 +1,6 @@
 // lib/widgets/progress_gallery_modal.dart
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -42,6 +43,28 @@ class _ProgressGalleryModalState extends State<ProgressGalleryModal>
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  Widget _buildPhotoThumbnail(Map<String, dynamic> item, {double? width, double? height, BoxFit fit = BoxFit.cover}) {
+    final path = item['fotoPath'] as String?;
+    if (path != null && path.isNotEmpty) {
+      final file = File(path);
+      if (file.existsSync()) {
+        return Image.file(file, width: width, height: height, fit: fit);
+      }
+    }
+    final b64 = item['fotoBase64'] as String?;
+    if (b64 != null && b64.isNotEmpty) {
+      try {
+        return Image.memory(base64Decode(b64), width: width, height: height, fit: fit);
+      } catch (_) {}
+    }
+    return Container(
+      width: width,
+      height: height,
+      color: Colors.white10,
+      child: const Icon(Icons.photo, color: Colors.white38),
+    );
   }
 
   Future<void> _yeniFotoEkle() async {
@@ -238,7 +261,6 @@ class _ProgressGalleryModalState extends State<ProgressGalleryModal>
                           final date = DateTime.tryParse(item['tarih'] ?? '') ?? DateTime.now();
                           final kilo = item['kilo'] ?? 0.0;
                           final notMetin = item['not'] ?? '';
-                          final bytes = base64Decode(item['fotoBase64'] ?? '');
 
                           return Container(
                             margin: const EdgeInsets.only(bottom: 14),
@@ -252,8 +274,8 @@ class _ProgressGalleryModalState extends State<ProgressGalleryModal>
                               children: [
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(6),
-                                  child: Image.memory(
-                                    bytes,
+                                  child: _buildPhotoThumbnail(
+                                    item,
                                     width: 75,
                                     height: 75,
                                     fit: BoxFit.cover,
@@ -365,9 +387,6 @@ class _ProgressGalleryModalState extends State<ProgressGalleryModal>
     final diffKilo = lastKilo - firstKilo;
     final days = lastDate.difference(firstDate).inDays;
 
-    final firstBytes = base64Decode(first['fotoBase64'] ?? '');
-    final lastBytes = base64Decode(last['fotoBase64'] ?? '');
-
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -448,11 +467,15 @@ class _ProgressGalleryModalState extends State<ProgressGalleryModal>
                     const SizedBox(height: 8),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: Image.memory(
-                        firstBytes,
+                      child: SizedBox(
                         height: 250,
                         width: double.infinity,
-                        fit: BoxFit.cover,
+                        child: _buildPhotoThumbnail(
+                          first,
+                          height: 250,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                   ],
@@ -476,11 +499,15 @@ class _ProgressGalleryModalState extends State<ProgressGalleryModal>
                     const SizedBox(height: 8),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: Image.memory(
-                        lastBytes,
+                      child: SizedBox(
                         height: 250,
                         width: double.infinity,
-                        fit: BoxFit.cover,
+                        child: _buildPhotoThumbnail(
+                          last,
+                          height: 250,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                   ],
