@@ -4,6 +4,11 @@ import 'package:archive/archive.dart';
 import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
 
+/// Diyetisyen Doküman & Liste Ayrıştırıcı (Dietitian Document Parser)
+/// [DietitianScannerModal] tarafından kullanılarak PDF, Word (.docx, .doc),
+/// görsel ve metin formatındaki profesyonel diyetisyen listelerinin
+/// Gemini AI metabolik taramasına aktarılmasını sağlar.
+
 class ParsedDocument {
   final String fileName;
   final String extension;

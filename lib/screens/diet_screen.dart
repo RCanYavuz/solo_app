@@ -308,7 +308,45 @@ class _YemekEkraniState extends State<YemekEkrani> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    // ==========================================
+                    // SIK TÜKETİLENLER / HIZLI SEÇİM ÇİPLERİ
+                    // ==========================================
+                    Text(
+                      TranslationManager.isTurkish ? '⚡ HIZLI SEÇİM / SIK TÜKETİLENLER' : '⚡ QUICK SELECTION / POPULAR',
+                      style: GoogleFonts.orbitron(color: sysBlue, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
+                    ),
+                    const SizedBox(height: 6),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          {'ad': 'Tavuklu Pilav', 'kalori': 520, 'p': 45, 'c': 60, 'f': 8},
+                          {'ad': 'Yumurta & Yulaf', 'kalori': 380, 'p': 24, 'c': 42, 'f': 12},
+                          {'ad': 'Protein Shake', 'kalori': 140, 'p': 25, 'c': 3, 'f': 2},
+                          {'ad': 'Kırmızı Et & Patates', 'kalori': 640, 'p': 48, 'c': 55, 'f': 22},
+                          {'ad': 'Ton Balıklı Salata', 'kalori': 310, 'p': 34, 'c': 10, 'f': 12},
+                        ].map((m) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 6),
+                            child: ActionChip(
+                              backgroundColor: const Color(0xFF0F172A),
+                              side: BorderSide(color: sysBlue.withValues(alpha: 0.4)),
+                              label: Text('${m['ad']} (${m['kalori']} kcal)', style: const TextStyle(color: Colors.white70, fontSize: 10)),
+                              onPressed: () {
+                                setDialogState(() {
+                                  _yemekAdiCtrl.text = m['ad'] as String;
+                                  _kaloriCtrl.text = m['kalori'].toString();
+                                  proteinCtrl.text = m['p'].toString();
+                                  karbCtrl.text = m['c'].toString();
+                                  yagCtrl.text = m['f'].toString();
+                                });
+                              },
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
 
                     // ==========================================
                     // MANUEL ONAY / DÜZENLEME ALANLARI

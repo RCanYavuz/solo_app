@@ -16,6 +16,7 @@ import '../widgets/hunter_radar_chart.dart';
 import '../widgets/supplement_loadout_modal.dart';
 import '../core/services/notification_service.dart';
 import '../widgets/progress_gallery_modal.dart';
+import '../widgets/hunter_profile_settings_modal.dart';
 import 'analytics_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -1433,10 +1434,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Text(TranslationManager.get('profile_physical_specs'), style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2))
                         ]
                       ), 
-                      IconButton(
-                        icon: const Icon(Icons.history, color: sysBlue, size: 20), 
-                        onPressed: _kiloGecmisiGoster, 
-                        tooltip: TranslationManager.get('profile_weight_log_tooltip')
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.tune, color: sysBlue, size: 20),
+                            onPressed: () => HunterProfileSettingsModal.show(context, onSaved: () => setState(() {})),
+                            tooltip: TranslationManager.isTurkish ? 'Protokol Ayarlarını Düzenle' : 'Edit Protocol Settings',
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.history, color: sysBlue, size: 20), 
+                            onPressed: _kiloGecmisiGoster, 
+                            tooltip: TranslationManager.get('profile_weight_log_tooltip')
+                          ),
+                        ],
                       )
                     ]
                   ), 
@@ -1832,6 +1842,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             const SizedBox(height: 20),
 
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => HunterProfileSettingsModal.show(context, onSaved: () => setState(() {})),
+                icon: const Icon(Icons.tune, color: sysBlue, size: 18),
+                label: Text(
+                  TranslationManager.isTurkish ? 'AVCI PROTOKOLÜ & AYARLARI DÜZENLE' : 'EDIT HUNTER PROTOCOL & SETTINGS',
+                  style: const TextStyle(color: sysBlue, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: sysBlue.withValues(alpha: 0.12),
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  side: const BorderSide(color: sysBlue, width: 1.2),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(

@@ -26,6 +26,8 @@ dependencies:
   file_picker: ^11.0.3
   archive: ^4.3.0
   path_provider: ^2.1.2
+# dependency_overrides: file_picker ve path_provider Android/iOS platform plugin
+# arayüz sürümleri arasındaki transitif sürüm kilitlenmesini engellemek için korunmaktadır.
 dependency_overrides:
   path_provider_foundation: 2.4.0
   path_provider_android: 2.2.23
