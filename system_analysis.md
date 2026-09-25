@@ -66,6 +66,8 @@
 | ~~8~~ | İlerleme fotoğrafları eksik | ✅ **ÇÖZÜLDÜ** | `ProgressGalleryModal` tam fonksiyonel |
 | ~~9~~ | Dinlenme günü mekanizması yok | ✅ **ÇÖZÜLDÜ** | Dashboard'da dinlenme günü kartı mevcut |
 | ~~10~~ | Dinamik zorluk ayarlama yok | ✅ **ÇÖZÜLDÜ** | `DynamicDifficultyEngine` tam çalışan |
+| ~~11~~ | Base64 Fotoğraf Depolama (SP şişmesi) | ✅ **FAZ 1: TEST EDİLDİ, YAPILDI, PUSHLANDI** | `PhotoStorageService` ile profil, avatar ve ilerleme galerisi yerel dosya sistemine (`getApplicationDocumentsDirectory()/solo_photos`) taşındı. (Commit: `1aa8349`) |
+| ~~12~~ | Backup / Restore Eksik Alanları | ✅ **FAZ 1: TEST EDİLDİ, YAPILDI, PUSHLANDI** | `exportBackupJson` ve `importBackupJson` zihinsel görevler, odaklanma/kitap istatistikleri ve ilerleme fotoğrafları ile tamamlandı. (Commit: `1aa8349`) |
 
 ---
 
@@ -84,9 +86,9 @@
 - **Öneri:** Aradaki her gün için loop ile ayrı hesaplaşma yapılabilir, veya en azından mevcut ek ceza mekanizması yeterli kabul edilebilir (tasarım kararı).
 
 #### 3. `profilFotoByte` ve `avatarFotoByte` Base64 Olarak SharedPreferences'te
-- **Dosya:** [system_memory.dart#L106-L107](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/controllers/system_memory.dart#L106)
-- **Sorun:** Profil ve avatar fotoğrafları base64 encode edilerek SharedPreferences'te string olarak saklanıyor. Her `kaydet()` çağrısında tüm SP yazılıyor. 500px+ çözünürlükte 100-300KB olabilir. Ayrıca `ilerlemeFotolari` da base64 olarak SP'de → galeri büyüdükçe performans ciddi düşer.
-- **Öneri:** Fotoğrafları dosya sistemine kaydet (`path_provider`), sadece dosya yolunu SP'de tut.
+- **Dosya:** [system_memory.dart](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/controllers/system_memory.dart) + [photo_storage_service.dart](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/core/services/photo_storage_service.dart)
+- **Durum:** ✅ **ÇÖZÜLDÜ (FAZ 1 - TEST EDİLDİ, YAPILDI, GİT'E PUSHLANDI)**
+- **Detay:** `PhotoStorageService` servisi yazılarak profil, avatar ve ilerleme galerisi fotoğrafları yerel dosya sistemine (`getApplicationDocumentsDirectory()/solo_photos`) taşındı. `SharedPreferences` üzerinden Base64 yükü temizlendi, geriye dönük uyumluluk ve otomatik migrasyon sağlandı. Ayrıca Backup/Restore JSON aktarımı eksiksiz hale getirildi. (Commit: `1aa8349`)
 
 ---
 
@@ -211,25 +213,18 @@
 
 ---
 
-## 📋 Bölüm 5: Özet & Öncelik Sıralaması
+## 📋 Bölüm 5: Yol Haritası & İlerleme Durumu
 
-### Düzeltilmesi Gerekenler (Bug/Sorun):
-1. 🔴 Boss hasar mekanizmasının hafta boyuna yayılması (canlı boss barı)
-2. 🔴 Base64 fotoğraf depolama → dosya sistemi geçişi (performans)
-3. 🟡 Çoklu gün atlamasında gün-gün hesaplaşma (isteğe bağlı)
-4. 🟡 Zihinsel görevlerin programa otomatik eklenmesi
-5. 🟡 Backup/Restore'a eksik alanların eklenmesi (ilerleme fotoğrafları, zihinsel görevler vb.)
-6. 🔵 `document_parser.dart` rolünün netleştirilmesi
-7. 🔵 Dependency override'ların periyodik kontrolü
+### 🚀 Faz İlerleme Tablosu
 
-### Eklenmesi Gereken Özellikler (Öneri):
-1. ⭐⭐⭐ Geçmiş & İstatistik Paneli (grafik) — veri zaten var
-2. ⭐⭐⭐ Streak kırılma uyarısı bildirimi — altyapı var
-3. ⭐⭐⭐ Takvimde idman/diyet geçmişi gösterimi — veri zaten var
-4. ⭐⭐ Profil düzenleme ekranı
-5. ⭐⭐ Sık yemek hafızası (otomatik tamamlama)
-6. ⭐ Ana ekran widget'ı
-7. ⭐ Sosyal/rekabet sistemi
+| Faz | Kapsam | Durum | Detay / Commit |
+|:---:|:-------|:-----:|:--------------|
+| **FAZ 1** | **Performans & Veri Güvenliği (Base64 Dosya Sistemine Taşıma & Backup Genişletme)** | ✅ **TEST EDİLDİ - YAPILDI - PUSHLANDI** | Profil/avatar/galeri fotoğrafları disk storage'a taşındı, SharedPreferences hafifletildi, Backup/Restore tüm alanları kapsayacak şekilde genişletildi. 18/18 birim test başarıyla geçti. (Commit: `1aa8349`) |
+| **FAZ 2** | **Canlı Boss & Oyun Mekaniği İyileştirmeleri** | ⏳ *Şu Anda Bu Şekilde Bırakıldı / Beklemede* | Hafta içi canlı boss barı (dinamik hasar), çoklu gün telafisi (multi-day inactivity catch-up), varsayılan plana zihinsel görevler. |
+| **FAZ 3** | **Veri Görselleştirme & İstatistik Paneli** | ⏳ *Şu Anda Bu Şekilde Bırakıldı / Beklemede* | Kilo, hacim, 1RM grafikleri, takvim geçmiş rozetleri, akıllı streak bildirimi. |
+| **FAZ 4** | **UX & Kod Hijyeni (Polish)** | ⏳ *Şu Anda Bu Şekilde Bırakıldı / Beklemede* | Profil/ayar düzenleme ekranı, sık yemek hafızası, doküman ayrıştırıcı temizliği. |
+
+---
 
 > [!IMPORTANT]
-> Sistem **çok olgun ve sağlam** durumda. 36 farklı özellik tam çalışıyor, modüler mimari temiz, test kapsamı mükemmel. Önceki raporda tespit edilen 10 sorunun 10'u da çözülmüş. Mevcut bulgular genelde **"mevcut veriyi görselleştirme eksikliği"** ve **"performans optimizasyonu fırsatları"** türünde — hiçbiri uygulamayı kıran kritik hatalar değil.
+> Sistem **çok olgun ve sağlam** durumda. 36 farklı özellik tam çalışıyor, modüler mimari temiz, test kapsamı mükemmel. Faz 1 başarıyla uygulanmış, test edilmiş ve GitHub `origin/main` dalına pushlanmıştır. Diğer fazlar talimat gereği mevcut planlama durumunda bırakılmıştır.
