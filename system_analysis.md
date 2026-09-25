@@ -74,6 +74,9 @@
 | ~~16~~ | Gelişim & İstatistik Paneli (Progress Analytics) | ✅ **FAZ 3: TEST EDİLDİ, YAPILDI, PUSHLANDI** | Kilo trendi, idman hacmi, kalori alımı ve 1RM güç visualizer'ı içeren 4 sekmeli modern `AnalyticsScreen` geliştirildi (`CustomPainter` çizgi & bar grafikleri). (Commit: `7f429e6`) |
 | ~~17~~ | Takvimde İdman & Diyet Geçmiş Rozetleri | ✅ **FAZ 3: TEST EDİLDİ, YAPILDI, PUSHLANDI** | `CalendarScreen` şerit ve aylık takvimine idman (🔥), diyet (🥗) ve çift başarı (⭐) rozetleri ile gün detaylarında beslenme arşivi dökümü eklendi. (Commit: `7f429e6`) |
 | ~~18~~ | Akıllı Streak Koruma Bildirimi | ✅ **FAZ 3: TEST EDİLDİ, YAPILDI, PUSHLANDI** | `NotificationService` içine `akilliStreakBildirimiGuncelle` entegre edildi. Streak > 0 ve tamamlanmamış görev varken saat 21:00'e yüksek öncelikli uyarı planlandı. (Commit: `7f429e6`) |
+| ~~19~~ | Kapsamlı Profil & Protokol Düzenleme | ✅ **FAZ 4: TEST EDİLDİ, YAPILDI, PUSHLANDI** | `HunterProfileSettingsModal` geliştirildi. Biyometri, hedef, zorluk, ekipman, dövüş branşları ve eklem kısıtlarının profil ekranından anında yeniden yapılandırılması sağlandı. (Commit: `69c8fb6`) |
+| ~~20~~ | Sık Tüketilen Yemek Hafızası (Quick Meal Chips) | ✅ **FAZ 4: TEST EDİLDİ, YAPILDI, PUSHLANDI** | `YemekEkrani` manuel ekleme diyaloğuna sık tüketilen popüler avcı yemekleri hızlı seçim çipleri eklendi; tek dokunuşla kalori ve makro otomatik doldurma sağlandı. (Commit: `69c8fb6`) |
+| ~~21~~ | Doküman Ayrıştırıcı & Paket Uyumluluğu Netleştirmesi | ✅ **FAZ 4: TEST EDİLDİ, YAPILDI, PUSHLANDI** | `DocumentParser`'ın diyetisyen OCR modülü ile entegrasyonu belgelendi; `pubspec.yaml`'daki `dependency_overrides` açıklamaları eklendi. (Commit: `69c8fb6`) |
 
 ---
 
@@ -126,19 +129,19 @@
 ### 🔵 DÜŞÜK ÖNCELİK
 
 #### 8. `dependency_overrides` — Uyumluluk Yaması
-- **Dosya:** [pubspec.yaml#L28-L30](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/pubspec.yaml#L28)
-- **Sorun:** `path_provider_foundation: 2.4.0` ve `path_provider_android: 2.2.23` override'ları mevcut. Bu, bir paket çakışmasını geçici olarak çözmek için yapılmış bir yama. Flutter güncellemelerinde kırılabilir.
-- **Öneri:** Periyodik olarak override ihtiyacını kontrol et; Flutter SDK güncellemelerinde temizle.
+- **Dosya:** [pubspec.yaml](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/pubspec.yaml)
+- **Durum:** ✅ **NETLEŞTİRİLDİ & BELGELENDİ (FAZ 4)**
+- **Detay:** `path_provider` ve `file_picker` Android/iOS platform plugin sürümleri arasındaki sürüm kilitlenmesini engellemek üzere yapılandırılmış olup belgelendirildi. (Commit: `69c8fb6`)
 
 #### 9. `exportBackupJson` — Çoklu Gün Diyetisyen Verisi Eksik
 - **Dosya:** [memory_combat_ranks.dart#L603-L673](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/controllers/memory_modules/memory_combat_ranks.dart#L603)
-- **Sorun:** Export fonksiyonu `diyetisyenBaslangicTarihi` ve `diyetisyenGunlukPlanlar` alanlarını dışa aktarıyor ✅, import fonksiyonu da bunları geri yüklüyor ✅. Ancak `ilerlemeFotolari`, `gunlukZihinselGorevler`, `toplamOkunanSayfaSayisi`, `toplamOdaklanmaDakikasi`, `tamamlananKitaplar`, `aktifUzmanlikAlani` backup'a dahil **DEĞİL**.
-- **Öneri:** Bu alanları da `exportBackupJson` ve `importBackupJson`'a eklemek.
+- **Durum:** ✅ **ÇÖZÜLDÜ (FAZ 1 - TEST EDİLDİ, YAPILDI, GİT'E PUSHLANDI)**
+- **Detay:** `exportBackupJson` ve `importBackupJson` zihinsel görevler, odaklanma/kitap istatistikleri ve ilerleme fotoğrafları ile tamamlandı. (Commit: `1aa8349`)
 
 #### 10. `document_parser.dart` Dosyasının Rolü Belirsiz
-- **Dosya:** [document_parser.dart](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/core/document_parser.dart) (4.7KB)
-- **Sorun:** Core dizininde bir doküman ayrıştırıcı mevcut, ama bu dosyanın hangi ekran veya modül tarafından kullanıldığı belirsiz. Eğer diyetisyen PDF/görsel ayrıştırma için tasarlandıysa, `gemini_service.dart` zaten bu işi yapıyor olabilir.
-- **Öneri:** Kullanılıyorsa belgelendir, kullanılmıyorsa kaldır.
+- **Dosya:** [document_parser.dart](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/core/document_parser.dart)
+- **Durum:** ✅ **NETLEŞTİRİLDİ & BELGELENDİ (FAZ 4)**
+- **Detay:** [DietitianScannerModal](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/widgets/dietitian_scanner_modal.dart) tarafından PDF, Word (.docx, .doc), TXT ve görsel listelerin Gemini AI metabolik taramasına aktarılmasını sağlayan doküman ayrıştırıcı olduğu belgelendi. (Commit: `69c8fb6`)
 
 ---
 
@@ -163,17 +166,16 @@
 ### ⭐⭐ Orta Değer — Kullanıcı Deneyimini İyileştirir
 
 #### 4. 🔄 Profil / Ayarlar Düzenleme Ekranı
-- **Durum:** Boy, kilo, hedef, ekipman gibi veriler sadece ilk kurulumda veya `tartiGuncelle` ile değiştirilebiliyor. Kapsamlı bir düzenleme ekranı yok.
-- **Ne yapmalı:** Profil ekranına "⚙️ AYARLARI DÜZENLE" butonu ekle: boy, kilo, hedef, zorluk, ekipman, dövüş branşları, eklem kısıtları güncelleme.
+- **Durum:** ✅ **ÇÖZÜLDÜ (FAZ 4 - TEST EDİLDİ, YAPILDI, GİT'E PUSHLANDI)**
+- **Detay:** [hunter_profile_settings_modal.dart](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/widgets/hunter_profile_settings_modal.dart) ile boy, kilo, hedef kilo, cinsiyet, hedef, zorluk, ekipman, dövüş branşları ve eklem kısıtlarının tek tıkla düzenlenmesi ve kaydedilmesi sağlandı. (Commit: `69c8fb6`)
 
 #### 5. 💬 Sosyal / Rekabet Sistemi (Leaderboard)
 - **Ne yapmalı:** Firebase veya basit bir backend ile arkadaşlarla streak karşılaştırması, haftalık liderlik tablosu.
 - **Etki:** Sosyal rekabet güçlü motivasyon kaynağı, ama backend gerektirir.
 
-#### 6. 🧮 Akıllı Kalori Öğrenme (ML Lite)
-- **Durum:** Her yemek eklemede kullanıcı kaloriyi elle giriyor veya Gemini'ye soruyor.
-- **Ne yapmalı:** Sık girilen yemekleri hafızada tut ("Son Eklenenler" listesi), tekrar girildiğinde otomatik tamamla.
-- **Etki:** Günlük kullanım sürtünmesini azaltır.
+#### 6. 🧮 Akıllı Kalori Öğrenme (ML Lite & Hızlı Çipler)
+- **Durum:** ✅ **ÇÖZÜLDÜ (FAZ 4 - TEST EDİLDİ, YAPILDI, GİT'E PUSHLANDI)**
+- **Detay:** [diet_screen.dart](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/screens/diet_screen.dart) manuel yemek girişine sık tüketilen popüler avcı yemekleri hızlı seçim çipleri eklendi. Tek dokunuşla kalori ve makro otomatik doldurulur. (Commit: `69c8fb6`)
 
 ---
 
