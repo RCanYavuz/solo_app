@@ -6,6 +6,7 @@ import '../controllers/system_memory.dart';
 import '../models/task_model.dart';
 import '../core/translation_manager.dart';
 import '../core/youtube_helper.dart';
+import 'analytics_screen.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
@@ -90,6 +91,22 @@ class _CalendarScreenState extends State<CalendarScreen> {
         return false;
       }
     }).toList();
+  }
+
+  bool _gunDiyetiBul(DateTime date) {
+    String dateStr = "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+    for (var kayit in SystemMemory.yemekGecmisi) {
+      if (kayit['tarih'] == dateStr) return true;
+    }
+    return false;
+  }
+
+  Map<String, dynamic>? _gunDiyetKaydiBul(DateTime date) {
+    String dateStr = "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+    for (var kayit in SystemMemory.yemekGecmisi) {
+      if (kayit['tarih'] == dateStr) return kayit;
+    }
+    return null;
   }
 
   void _idmanDetayModal(Map<String, dynamic> idman) {
@@ -205,6 +222,23 @@ class _CalendarScreenState extends State<CalendarScreen> {
           List<Gorev> p = SystemMemory.haftalikPlan[islenenTarih.weekday]!;
           bool gorevVar = p.isNotEmpty;
           bool idmanYapildi = _gunIdmanlariniBul(islenenTarih).isNotEmpty;
+          bool diyetYapildi = _gunDiyetiBul(islenenTarih);
+          bool tamGunBasarisi = idmanYapildi && diyetYapildi;
+
+          Color borderColor;
+          if (seciliMi) {
+            borderColor = sysBlue;
+          } else if (tamGunBasarisi) {
+            borderColor = const Color(0xFFF59E0B);
+          } else if (idmanYapildi) {
+            borderColor = const Color(0xFFEAB308);
+          } else if (diyetYapildi) {
+            borderColor = const Color(0xFF10B981);
+          } else if (bugunMu) {
+            borderColor = Colors.white54;
+          } else {
+            borderColor = Colors.white10;
+          }
 
           return GestureDetector(
             onTap: () => setState(() => seciliTarih = islenenTarih),
@@ -214,18 +248,23 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 color: seciliMi ? sysBlue.withValues(alpha: 0.15) : const Color(0xFF070B14), 
                 borderRadius: BorderRadius.circular(4), 
                 border: Border.all(
-                  color: seciliMi 
-                      ? sysBlue 
-                      : (idmanYapildi ? const Color(0xFFEAB308) : (bugunMu ? Colors.white54 : Colors.transparent)), 
-                  width: idmanYapildi || seciliMi ? 1.5 : 1,
+                  color: borderColor,
+                  width: (idmanYapildi || diyetYapildi || seciliMi) ? 1.5 : 1,
                 ),
+                boxShadow: tamGunBasarisi ? [
+                  BoxShadow(color: const Color(0xFFF59E0B).withValues(alpha: 0.25), blurRadius: 6, spreadRadius: 1)
+                ] : null,
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(aylar[islenenTarih.month].toUpperCase(), style: TextStyle(color: seciliMi ? sysBlue : sysTextMuted, fontSize: 10, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 2),
-                  Text('${islenenTarih.day}', style: GoogleFonts.orbitron(color: idmanYapildi ? const Color(0xFFEAB308) : Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text('${islenenTarih.day}', style: GoogleFonts.orbitron(
+                    color: tamGunBasarisi ? const Color(0xFFF59E0B) : (idmanYapildi ? const Color(0xFFEAB308) : Colors.white), 
+                    fontSize: 18, 
+                    fontWeight: FontWeight.bold
+                  )),
                   Text(gunAdlari[islenenTarih.weekday].toUpperCase(), style: TextStyle(color: seciliMi ? sysBlue : sysTextMuted, fontSize: 10)),
                   const SizedBox(height: 4),
                   Row(
@@ -235,6 +274,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       if (idmanYapildi) ...[
                         const SizedBox(width: 3),
                         const Icon(Icons.local_fire_department, color: Color(0xFFEAB308), size: 10),
+                      ],
+                      if (diyetYapildi) ...[
+                        const SizedBox(width: 3),
+                        const Icon(Icons.restaurant, color: Color(0xFF10B981), size: 10),
                       ],
                     ],
                   ),
@@ -280,6 +323,23 @@ class _CalendarScreenState extends State<CalendarScreen> {
               List<Gorev> p = SystemMemory.haftalikPlan[islenen.weekday]!;
               bool gorevVar = p.isNotEmpty;
               bool idmanYapildi = _gunIdmanlariniBul(islenen).isNotEmpty;
+              bool diyetYapildi = _gunDiyetiBul(islenen);
+              bool tamGunBasarisi = idmanYapildi && diyetYapildi;
+
+              Color cellBorderColor;
+              if (seciliMi) {
+                cellBorderColor = sysBlue;
+              } else if (tamGunBasarisi) {
+                cellBorderColor = const Color(0xFFF59E0B);
+              } else if (idmanYapildi) {
+                cellBorderColor = const Color(0xFFEAB308);
+              } else if (diyetYapildi) {
+                cellBorderColor = const Color(0xFF10B981);
+              } else if (bugunMu) {
+                cellBorderColor = Colors.white54;
+              } else {
+                cellBorderColor = Colors.white12;
+              }
 
               return GestureDetector(
                 onTap: () => setState(() => seciliTarih = islenen),
@@ -289,10 +349,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     color: seciliMi ? sysBlue.withValues(alpha: 0.1) : const Color(0xFF070B14), 
                     borderRadius: BorderRadius.circular(4), 
                     border: Border.all(
-                      color: seciliMi 
-                          ? sysBlue 
-                          : (idmanYapildi ? const Color(0xFFEAB308) : (bugunMu ? Colors.white54 : Colors.white12)), 
-                      width: idmanYapildi ? 1.5 : 1,
+                      color: cellBorderColor, 
+                      width: (idmanYapildi || diyetYapildi) ? 1.5 : 1,
                     ),
                   ),
                   child: Column(
@@ -301,8 +359,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       Text(
                         '${islenen.day}', 
                         style: TextStyle(
-                          color: idmanYapildi ? const Color(0xFFEAB308) : Colors.white, 
-                          fontWeight: idmanYapildi || seciliMi || bugunMu ? FontWeight.bold : FontWeight.normal, 
+                          color: tamGunBasarisi ? const Color(0xFFF59E0B) : (idmanYapildi ? const Color(0xFFEAB308) : Colors.white), 
+                          fontWeight: idmanYapildi || diyetYapildi || seciliMi || bugunMu ? FontWeight.bold : FontWeight.normal, 
                           fontSize: 14,
                         ),
                       ),
@@ -314,6 +372,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           if (idmanYapildi) ...[
                             const SizedBox(width: 2),
                             Container(width: 4, height: 4, decoration: const BoxDecoration(color: Color(0xFFEAB308), shape: BoxShape.circle)),
+                          ],
+                          if (diyetYapildi) ...[
+                            const SizedBox(width: 2),
+                            Container(width: 4, height: 4, decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle)),
                           ],
                         ],
                       ),
@@ -403,6 +465,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
             backgroundColor: Colors.transparent,
             elevation: 0,
             centerTitle: true,
+            actions: [
+              IconButton(
+                tooltip: TranslationManager.get('analytics_open_btn'),
+                icon: const Icon(Icons.insights, color: sysBlue, size: 24),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AnalyticsScreen()),
+                ),
+              ),
+            ],
           ),
           body: Column(
             children: [
@@ -496,6 +568,90 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             ),
                           );
                         }),
+
+                      // YENİ: SEÇİLİ GÜNÜN DİYET VE BESLENME KAYDI
+                      const SizedBox(height: 20),
+                      Text(
+                        TranslationManager.isTurkish ? 'BESLENME VE ENERJİ ARŞİVİ' : 'NUTRITION & ENERGY LOG',
+                        style: GoogleFonts.orbitron(color: const Color(0xFF10B981), fontSize: 10, letterSpacing: 2),
+                      ),
+                      const SizedBox(height: 10),
+                      if (!gecmisKayitBulundu && !isToday)
+                        Text(
+                          TranslationManager.isTurkish ? 'Bu tarihe ait kayıtlı öğün bulunmuyor.' : 'No meal logs archived for this date.',
+                          style: const TextStyle(color: sysTextMuted, fontSize: 12),
+                        )
+                      else ...[
+                        Builder(
+                          builder: (context) {
+                            final dietKayit = _gunDiyetKaydiBul(seciliTarih);
+                            final int cal = isToday ? SystemMemory.bugunAlinanKalori : (dietKayit?['toplamKalori'] ?? gecmisKalori);
+                            final int target = SystemMemory.gunlukHedefKalori;
+                            int todayPro = 0;
+                            int todayCarb = 0;
+                            int todayFat = 0;
+                            if (isToday) {
+                              for (var y in SystemMemory.bugununYemekleri) {
+                                todayPro += y.protein;
+                                todayCarb += y.karbonhidrat;
+                                todayFat += y.yag;
+                              }
+                            }
+                            final int pro = isToday ? todayPro : (dietKayit?['protein'] ?? 0);
+                            final int carb = isToday ? todayCarb : (dietKayit?['karb'] ?? 0);
+                            final int fat = isToday ? todayFat : (dietKayit?['yag'] ?? 0);
+
+                            return Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF070B14),
+                                border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Icon(Icons.restaurant, color: Color(0xFF10B981), size: 16),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            TranslationManager.isTurkish ? 'Toplam Alınan Enerji' : 'Total Energy Intake',
+                                            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                                          ),
+                                        ],
+                                      ),
+                                      Text(
+                                        '$cal / $target KCAL',
+                                        style: GoogleFonts.orbitron(
+                                          color: cal <= target ? const Color(0xFF10B981) : sysRed,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  if (pro > 0 || carb > 0 || fat > 0) ...[
+                                    const SizedBox(height: 8),
+                                    const Divider(color: Colors.white12, height: 1),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                      children: [
+                                        Text('P: ${pro}g', style: const TextStyle(color: sysBlue, fontSize: 11, fontWeight: FontWeight.bold)),
+                                        Text('K: ${carb}g', style: const TextStyle(color: Color(0xFFEAB308), fontSize: 11, fontWeight: FontWeight.bold)),
+                                        Text('Y: ${fat}g', style: const TextStyle(color: sysRed, fontSize: 11, fontWeight: FontWeight.bold)),
+                                      ],
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ],
                     ],
                   ),
                 ),

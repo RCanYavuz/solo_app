@@ -191,6 +191,23 @@ class SystemMemory {
     if (geceBildirimiAktif) {
       await notif.geceHesaplasmaHatirlaticisiPlanla();
     }
+
+    await streakBildiriminiGuncelle();
+  }
+
+  /// Akıllı streak tehlike bildirimini günceller
+  static Future<void> streakBildiriminiGuncelle() async {
+    final notif = NotificationService.instance;
+    final bugun = DateTime.now().weekday;
+    final plan = SystemMemory.haftalikPlan[bugun] ?? [];
+    final kalanFiziksel = plan.where((g) => !g.yapildiMi).length;
+    final kalanZihinsel = SystemMemory.gunlukZihinselGorevler.value.where((g) => !g.isCompleted).length;
+    final toplamKalan = kalanFiziksel + kalanZihinsel;
+
+    await notif.akilliStreakBildirimiGuncelle(
+      streak: SystemMemory.streakGunSayisi,
+      kalanGorevSayisi: toplamKalan,
+    );
   }
 
   // ==========================================

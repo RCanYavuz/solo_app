@@ -24,6 +24,7 @@ class NotificationService {
   static const int idTestBildirimi = 1004;
   static const int idDeepWorkTimer = 1005;
   static const int idRestTimer = 1006;
+  static const int idStreakTehlikeHatirlatici = 1007;
 
   // Notification Channels
   static const String channelWaterId = 'solo_water_channel';
@@ -330,6 +331,79 @@ class NotificationService {
       await _notificationsPlugin.cancel(id: idIdmanHatirlatici);
     } catch (e) {
       debugPrint('[NotificationService] İdman iptal hatası: $e');
+    }
+  }
+
+  /// Akıllı Streak Koruma Bildirimi (Saat 21:00)
+  /// Eğer kullanıcının streak'i varsa (>0) ve bugünkü görevleri henüz tamamlanmamışsa uyarır.
+  /// Görevler tamamlandığında otomatik iptal edilir.
+  Future<void> akilliStreakBildirimiGuncelle({
+    required int streak,
+    required int kalanGorevSayisi,
+  }) async {
+    if (isTest) {
+      debugPrint('[NotificationService TEST] Streak bildirimi güncellendi: Streak=$streak, Kalan=$kalanGorevSayisi');
+      return;
+    }
+
+    if (streak <= 0 || kalanGorevSayisi <= 0) {
+      await streakBildirimiIptal();
+      return;
+    }
+
+    try {
+      await streakBildirimiIptal();
+
+      final AndroidNotificationDetails androidDetails =
+          AndroidNotificationDetails(
+        channelSystemId,
+        'Solo Streak Koruma',
+        channelDescription: 'Günlük seri ve streak tehlike uyarıları',
+        importance: Importance.max,
+        priority: Priority.high,
+        color: const Color(0xFFEF4444),
+      );
+
+      final NotificationDetails notificationDetails = NotificationDetails(
+        android: androidDetails,
+        iOS: const DarwinNotificationDetails(),
+      );
+
+      final now = tz.TZDateTime.now(tz.local);
+      var scheduledDate = tz.TZDateTime(
+        tz.local,
+        now.year,
+        now.month,
+        now.day,
+        21,
+        0,
+      );
+
+      if (scheduledDate.isBefore(now)) {
+        scheduledDate = scheduledDate.add(const Duration(days: 1));
+      }
+
+      await _notificationsPlugin.zonedSchedule(
+        id: idStreakTehlikeHatirlatici,
+        title: '🔥 [KRİTİK UYARI: STREAK TEHLİKEDE!]',
+        body: 'Avcı! $streak günlük serin bozulmak üzere! $kalanGorevSayisi tamamlanmamış görevin var. Gece yarısından önce zindanı temizle!',
+        scheduledDate: scheduledDate,
+        notificationDetails: notificationDetails,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        matchDateTimeComponents: DateTimeComponents.time,
+      );
+    } catch (e) {
+      debugPrint('[NotificationService] Streak bildirim hatası: $e');
+    }
+  }
+
+  /// Streak koruma bildirimini iptal eder
+  Future<void> streakBildirimiIptal() async {
+    if (isTest) return;
+    try {
+      await _notificationsPlugin.cancel(id: idStreakTehlikeHatirlatici);
+    } catch (e) {
+      debugPrint('[NotificationService] Streak iptal hatası: $e');
     }
   }
 

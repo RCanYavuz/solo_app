@@ -14,6 +14,7 @@ import '../widgets/achievement_dialog.dart';
 import '../core/dynamic_difficulty_engine.dart';
 import 'shop_screen.dart'; 
 import 'deep_work_timer_screen.dart';
+import 'analytics_screen.dart';
 import '../widgets/study_planner_modal.dart';
 import '../models/mental_task_model.dart';
 import '../core/audio_system.dart';
@@ -196,6 +197,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ),
                           ],
                         ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.insights, color: sysBlue, size: 28),
+                        tooltip: TranslationManager.get('analytics_open_btn'),
+                        onPressed: () => Navigator.push(context, SistemGecisi(sayfa: const AnalyticsScreen())),
                       ),
                       IconButton(
                         icon: const Icon(Icons.storefront, color: sysBlue, size: 30),

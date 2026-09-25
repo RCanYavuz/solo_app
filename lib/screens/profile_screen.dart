@@ -16,6 +16,7 @@ import '../widgets/hunter_radar_chart.dart';
 import '../widgets/supplement_loadout_modal.dart';
 import '../core/services/notification_service.dart';
 import '../widgets/progress_gallery_modal.dart';
+import 'analytics_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -1925,6 +1926,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(color: sysBlue.withValues(alpha: 0.6)),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const AnalyticsScreen()),
+                      ),
+                      icon: const Icon(Icons.insights, size: 16, color: Color(0xFFF59E0B)),
+                      label: Text(
+                        TranslationManager.get('analytics_open_btn'),
+                        style: const TextStyle(color: Color(0xFFF59E0B), fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: const Color(0xFFF59E0B).withValues(alpha: 0.6)),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                     ),
