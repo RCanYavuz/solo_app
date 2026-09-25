@@ -263,19 +263,52 @@ EĞER FOTOĞRAFTA YEMEK YOKSA ŞU ŞEKİLDE DÖNDÜR:
       final prompt = '''
 Sen klinik beslenme uzmanı ve diyetisyen verilerini inceleyen "Sistem" metabolik analiz ünitesisin.
 Avcı sana diyetisyeninin hazırladığı beslenme listesini/menüsünü gönderdi.
-\${metin.isNotEmpty ? 'DİYETİSYEN METNİ / NOTLARI / BELGEDEN OKUNAN METİN:\n"""\n$metin\n"""' : ''}
-\${bytesToSend != null ? 'Ek olarak diyetisyen belgesi (\${isPdf ? "PDF Dokümanı" : (isWord ? "Word Dosyası" : "Görsel")}) iliştirildi. Belgedeki tüm öğünleri, porsiyonları, gramajları, besinleri ve varsa belirtilen kalori/makro değerlerini dikkatle tara ve oku.' : ''}
+${metin.isNotEmpty ? 'DİYETİSYEN METNİ / NOTLARI / BELGEDEN OKUNAN METİN:\n"""\n$metin\n"""' : ''}
+${bytesToSend != null ? 'Ek olarak diyetisyen belgesi (${isPdf ? "PDF Dokümanı" : (isWord ? "Word Dosyası" : "Görsel")}) iliştirildi. Belgedeki tüm günleri, öğünleri, porsiyonları, gramajları, besinleri ve varsa belirtilen kalori/makro değerlerini dikkatle tara ve oku.' : ''}
 
-GÖREVİN:
-1. Bu diyetisyen programının günlük TOPLAM KALORİ, PROTEİN (g), KARBONHİDRAT (g) ve YAĞ (g) hedeflerini kesin/tahmini olarak hesapla.
-2. Öğünleri (Sabah, Ara Öğün, Öğle, Akşam vb.) listele.
-3. Çıktıyı SADECE geçerli bir JSON objesi olarak döndür:
+ÖNEMLİ KURAL:
+Diyetisyen belgelerinde sıklıkla "1. Gün", "2. Gün", "3. Gün", "4. Gün" veya "Pazartesi", "Salı" vb. gibi günlük programlar yer alır.
+1. Belgede birden fazla gün belirtilmişse (örn: 1. Gün, 2. Gün, 3. Gün...), her günü ayrı ayrı "gunler" listesi içinde çıkar.
+2. Belgede tek bir genel liste varsa, onu "gunler" içine tek bir gün olarak (1. Gün) koy.
+3. Her gün için ve genel program için günlük TOPLAM KALORİ, PROTEİN (g), KARBONHİDRAT (g) ve YAĞ (g) hedeflerini kesin/tahmini olarak hesapla.
+4. Her öğün için isim (Kahvaltı, Öğle vb.), besin detayları ve yaklaşık kalori/protein/karb/yağ çıkar.
+
+Çıktıyı SADECE geçerli bir JSON objesi olarak döndür:
 {
   "toplamKalori": 2100,
   "toplamProtein": 150,
   "toplamKarb": 220,
   "toplamYag": 65,
   "notlar": "Diyetisyen yüksek proteinli, dengeli toparlanma planı hazırlamış.",
+  "gunler": [
+    {
+      "gunNo": 1,
+      "baslik": "1. Gün",
+      "kalori": 2100,
+      "protein": 150,
+      "karb": 220,
+      "yag": 65,
+      "ogunler": [
+        {"ad": "Kahvaltı", "detay": "3 yumurta, 50g lor, 2 dilim tam buğday ekmeği, yeşillik", "kalori": 450, "protein": 28, "karb": 35, "yag": 14},
+        {"ad": "Öğle Yemeği", "detay": "150g ızgara tavuk göğsü, 150g basmati pirinç, yeşil salata", "kalori": 550, "protein": 45, "karb": 60, "yag": 10},
+        {"ad": "Ara Öğün", "detay": "1 porsiyon meyve, 10 adet çiğ badem", "kalori": 200, "protein": 5, "karb": 25, "yag": 10},
+        {"ad": "Akşam Yemeği", "detay": "160g fırın somon, haşlanmış brokoli, 1 dilim siyez ekmeği", "kalori": 600, "protein": 42, "karb": 35, "yag": 22}
+      ]
+    },
+    {
+      "gunNo": 2,
+      "baslik": "2. Gün",
+      "kalori": 2050,
+      "protein": 145,
+      "karb": 210,
+      "yag": 60,
+      "ogunler": [
+        {"ad": "Kahvaltı", "detay": "Yulaf lapası, 1 ölçek protein tozu, 1 muz", "kalori": 450, "protein": 32, "karb": 60, "yag": 8},
+        {"ad": "Öğle Yemeği", "detay": "160g hindi göğüs, haşlanmış karabuğday, yoğurt", "kalori": 520, "protein": 44, "karb": 50, "yag": 9},
+        {"ad": "Akşam Yemeği", "detay": "Köfte 180g, piyaz salata", "kalori": 580, "protein": 40, "karb": 30, "yag": 25}
+      ]
+    }
+  ],
   "ogunler": [
     {"ad": "Kahvaltı", "detay": "3 yumurta, 50g lor, 2 dilim tam buğday ekmeği, yeşillik", "kalori": 450},
     {"ad": "Öğle Yemeği", "detay": "150g ızgara tavuk göğsü, 150g basmati pirinç, yeşil salata", "kalori": 550},
@@ -297,7 +330,89 @@ GÖREVİN:
       final cleanJson = res.replaceAll(RegExp(r'```json\s*|```'), '').trim();
       final decoded = jsonDecode(cleanJson);
       if (decoded is Map<String, dynamic>) {
-        return decoded;
+        final result = Map<String, dynamic>.from(decoded);
+        final rawGunler = result['gunler'];
+        List<Map<String, dynamic>> processedGunler = [];
+
+        if (rawGunler is List && rawGunler.isNotEmpty) {
+          for (int gIdx = 0; gIdx < rawGunler.length; gIdx++) {
+            final g = Map<String, dynamic>.from(rawGunler[gIdx] as Map);
+            final gunNo = (g['gunNo'] as num?)?.toInt() ?? (gIdx + 1);
+            final baslik = g['baslik']?.toString() ?? '$gunNo. Gün';
+            final gCal = (g['kalori'] as num?)?.toInt() ?? (result['toplamKalori'] as num?)?.toInt() ?? 2000;
+            final gPro = (g['protein'] as num?)?.toInt() ?? (result['toplamProtein'] as num?)?.toInt() ?? 140;
+            final gKarb = (g['karb'] as num?)?.toInt() ?? (result['toplamKarb'] as num?)?.toInt() ?? 200;
+            final gYag = (g['yag'] as num?)?.toInt() ?? (result['toplamYag'] as num?)?.toInt() ?? 60;
+
+            final rawOgunler = g['ogunler'] as List? ?? [];
+            List<Map<String, dynamic>> pOgunler = [];
+            for (int oIdx = 0; oIdx < rawOgunler.length; oIdx++) {
+              final og = Map<String, dynamic>.from(rawOgunler[oIdx] as Map);
+              pOgunler.add({
+                'id': 'g${gunNo}_og${oIdx + 1}',
+                'ad': og['ad']?.toString() ?? 'Öğün ${oIdx + 1}',
+                'baslik': og['ad']?.toString() ?? 'Öğün ${oIdx + 1}',
+                'detay': og['detay']?.toString() ?? '',
+                'besinler': og['detay']?.toString() ?? '',
+                'kalori': (og['kalori'] as num?)?.toInt() ?? 0,
+                'protein': (og['protein'] as num?)?.toInt() ?? 0,
+                'karb': (og['karb'] as num?)?.toInt() ?? 0,
+                'yag': (og['yag'] as num?)?.toInt() ?? 0,
+                'tamamlandi': false,
+              });
+            }
+
+            processedGunler.add({
+              'gunNo': gunNo,
+              'baslik': baslik,
+              'kalori': gCal,
+              'protein': gPro,
+              'karb': gKarb,
+              'yag': gYag,
+              'ogunler': pOgunler,
+            });
+          }
+        }
+
+        // Eğer gunler boş veya bulunamamışsa, ana ogunler listesinden 1. Gün'ü oluştur
+        if (processedGunler.isEmpty) {
+          final topCal = (result['toplamKalori'] as num?)?.toInt() ?? 2000;
+          final topPro = (result['toplamProtein'] as num?)?.toInt() ?? 140;
+          final topKarb = (result['toplamKarb'] as num?)?.toInt() ?? 200;
+          final topYag = (result['toplamYag'] as num?)?.toInt() ?? 60;
+          final rawOgunler = result['ogunler'] as List? ?? [];
+          List<Map<String, dynamic>> pOgunler = [];
+          for (int oIdx = 0; oIdx < rawOgunler.length; oIdx++) {
+            final og = Map<String, dynamic>.from(rawOgunler[oIdx] as Map);
+            pOgunler.add({
+              'id': 'g1_og${oIdx + 1}',
+              'ad': og['ad']?.toString() ?? 'Öğün ${oIdx + 1}',
+              'baslik': og['ad']?.toString() ?? 'Öğün ${oIdx + 1}',
+              'detay': og['detay']?.toString() ?? '',
+              'besinler': og['detay']?.toString() ?? '',
+              'kalori': (og['kalori'] as num?)?.toInt() ?? 0,
+              'protein': (og['protein'] as num?)?.toInt() ?? 0,
+              'karb': (og['karb'] as num?)?.toInt() ?? 0,
+              'yag': (og['yag'] as num?)?.toInt() ?? 0,
+              'tamamlandi': false,
+            });
+          }
+
+          processedGunler.add({
+            'gunNo': 1,
+            'baslik': '1. Gün',
+            'kalori': topCal,
+            'protein': topPro,
+            'karb': topKarb,
+            'yag': topYag,
+            'ogunler': pOgunler,
+          });
+        }
+
+        result['gunler'] = processedGunler;
+        // Day 1 öğünlerini varsayılan 'ogunler' olarak da ata
+        result['ogunler'] = processedGunler.first['ogunler'];
+        return result;
       }
       return null;
     } catch (e) {

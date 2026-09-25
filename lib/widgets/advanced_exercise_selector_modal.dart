@@ -560,7 +560,7 @@ class _AdvancedExerciseSelectorModalState
                   children: [
                     Expanded(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                         decoration: BoxDecoration(
                           color: sysCardBg,
                           border: Border.all(color: Colors.white12),
@@ -569,9 +569,13 @@ class _AdvancedExerciseSelectorModalState
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              '${TranslationManager.isTurkish ? 'Set/Raund' : 'Set/Round'}: $_secilenSet',
-                              style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                            Flexible(
+                              child: Text(
+                                '${TranslationManager.isTurkish ? 'Set' : 'Set'}: $_secilenSet',
+                                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                             Row(
                               children: [
@@ -583,7 +587,7 @@ class _AdvancedExerciseSelectorModalState
                                     if (_secilenSet > 1) setState(() => _secilenSet--);
                                   },
                                 ),
-                                const SizedBox(width: 6),
+                                const SizedBox(width: 4),
                                 IconButton(
                                   icon: const Icon(Icons.add, size: 14, color: sysGreen),
                                   padding: EdgeInsets.zero,
@@ -601,7 +605,7 @@ class _AdvancedExerciseSelectorModalState
                     const SizedBox(width: 8),
                     Expanded(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                         decoration: BoxDecoration(
                           color: sysCardBg,
                           border: Border.all(color: Colors.white12),
@@ -610,7 +614,14 @@ class _AdvancedExerciseSelectorModalState
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(TranslationManager.isTurkish ? 'Tekrar: $_secilenTekrar' : 'Reps: $_secilenTekrar', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                            Flexible(
+                              child: Text(
+                                '${TranslationManager.isTurkish ? 'Tekrar' : 'Reps'}: $_secilenTekrar',
+                                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
                             Row(
                               children: [
                                 IconButton(
@@ -621,7 +632,7 @@ class _AdvancedExerciseSelectorModalState
                                     if (_secilenTekrar > 2) setState(() => _secilenTekrar -= 2);
                                   },
                                 ),
-                                const SizedBox(width: 6),
+                                const SizedBox(width: 4),
                                 IconButton(
                                   icon: const Icon(Icons.add, size: 14, color: sysGreen),
                                   padding: EdgeInsets.zero,

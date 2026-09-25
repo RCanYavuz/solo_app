@@ -22,6 +22,8 @@ class NotificationService {
   static const int idIdmanHatirlatici = 1002;
   static const int idGeceRaporuHatirlatici = 1003;
   static const int idTestBildirimi = 1004;
+  static const int idDeepWorkTimer = 1005;
+  static const int idRestTimer = 1006;
 
   // Notification Channels
   static const String channelWaterId = 'solo_water_channel';
@@ -328,6 +330,63 @@ class NotificationService {
       await _notificationsPlugin.cancel(id: idIdmanHatirlatici);
     } catch (e) {
       debugPrint('[NotificationService] İdman iptal hatası: $e');
+    }
+  }
+
+  /// Belirli bir hedef zamanda çalışacak yüksek öncelikli bildirim planlar (Kilit ekranı ve arka plan uyarıları için)
+  Future<void> zamanliBildirimPlanla({
+    required int id,
+    required String title,
+    required String body,
+    required DateTime hedefZaman,
+    String channelId = channelSystemId,
+    String channelName = 'Solo Sistem Zamanlayıcı',
+  }) async {
+    if (isTest) {
+      debugPrint('[NotificationService TEST] Zamanlı bildirim planlandı: $title - $body ($hedefZaman)');
+      return;
+    }
+
+    try {
+      final AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+        channelId,
+        channelName,
+        channelDescription: 'Zamanlayıcı ve geri sayım uyarıları',
+        importance: Importance.max,
+        priority: Priority.high,
+        playSound: true,
+        enableVibration: true,
+        color: const Color(0xFF38BDF8),
+      );
+
+      final NotificationDetails notificationDetails = NotificationDetails(
+        android: androidDetails,
+        iOS: const DarwinNotificationDetails(presentAlert: true, presentSound: true, presentBadge: true),
+      );
+
+      final tzTime = tz.TZDateTime.from(hedefZaman, tz.local);
+      if (tzTime.isAfter(tz.TZDateTime.now(tz.local))) {
+        await _notificationsPlugin.zonedSchedule(
+          id: id,
+          title: title,
+          body: body,
+          scheduledDate: tzTime,
+          notificationDetails: notificationDetails,
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        );
+      }
+    } catch (e) {
+      debugPrint('[NotificationService] Zamanlı bildirim planlama hatası: $e');
+    }
+  }
+
+  /// Belirli bir ID'ye sahip bildirimi iptal eder
+  Future<void> bildirimIptal(int id) async {
+    if (isTest) return;
+    try {
+      await _notificationsPlugin.cancel(id: id);
+    } catch (e) {
+      debugPrint('[NotificationService] Bildirim iptal hatası: $e');
     }
   }
 

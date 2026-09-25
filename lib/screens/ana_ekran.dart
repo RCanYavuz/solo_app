@@ -10,6 +10,7 @@ import 'status_screen.dart';
 import 'calendar_screen.dart'; 
 import 'diet_screen.dart';
 import 'profile_screen.dart';
+import '../widgets/global_timer_hud.dart';
 
 class AnaEkran extends StatefulWidget {
   final bool playStartupSound;
@@ -140,12 +141,16 @@ class _AnaEkranState extends State<AnaEkran> with WidgetsBindingObserver {
             ),
           ),
           
-          bottomNavigationBar: Container(
-            decoration: BoxDecoration(
-              border: const Border(top: BorderSide(color: Color(0xFF38BDF8), width: 0.5)),
-              boxShadow: [BoxShadow(color: const Color(0xFF38BDF8).withValues(alpha: 0.1), blurRadius: 10)],
-            ),
-            child: BottomNavigationBar(
+          bottomNavigationBar: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const GlobalTimerHUD(),
+              Container(
+                decoration: BoxDecoration(
+                  border: const Border(top: BorderSide(color: Color(0xFF38BDF8), width: 0.5)),
+                  boxShadow: [BoxShadow(color: const Color(0xFF38BDF8).withValues(alpha: 0.1), blurRadius: 10)],
+                ),
+                child: BottomNavigationBar(
               backgroundColor: const Color(0xFF030712),
               type: BottomNavigationBarType.fixed, 
               selectedItemColor: const Color(0xFF38BDF8),
@@ -183,7 +188,9 @@ class _AnaEkranState extends State<AnaEkran> with WidgetsBindingObserver {
               ],
             ),
           ),
-        );
+        ],
+      ),
+    );
       },
     );
   }

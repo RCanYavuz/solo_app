@@ -73,6 +73,7 @@ void main() {
       expect(SystemMemory.gunlukZihinselGorevler.value.first.isCompleted, true);
       expect(SystemMemory.intStat.value, initialInt + 3);
       expect(SystemMemory.per.value, initialPer + 2);
+      expect(SystemMemory.exp.value, greaterThanOrEqualTo(initialExp));
       expect(SystemMemory.level.value, greaterThanOrEqualTo(1));
       expect(SystemMemory.toplamOdaklanmaDakikasi, 40);
     });

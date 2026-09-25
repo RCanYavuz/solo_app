@@ -1,17 +1,10 @@
 // lib/widgets/rest_timer_dialog.dart
-// ============================================================
-// SOLO LEVELING SET ARASI DİNLENME SAYACI (MP RECOVERY TIMER)
-// Set aralarında dinlenme süresini takip eder, süre dolduğunda
-// sesli ve görsel bildirimle avcıyı sıradaki sete çağırır.
-// ============================================================
-
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/audio_system.dart';
-import '../core/voice_coach_system.dart';
-import '../controllers/system_memory.dart';
 import '../core/translation_manager.dart';
+import '../controllers/system_memory.dart';
+import '../core/system_session_manager.dart';
 
 class RestTimerDialog extends StatefulWidget {
   final int initialSeconds;
@@ -31,6 +24,12 @@ class RestTimerDialog extends StatefulWidget {
     String? exerciseName,
     VoidCallback? onComplete,
   }) {
+    SystemSessionManager.instance.startRestTimer(
+      seconds: initialSeconds,
+      exerciseName: exerciseName,
+      onComplete: onComplete,
+    );
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -40,7 +39,13 @@ class RestTimerDialog extends StatefulWidget {
         exerciseName: exerciseName,
         onComplete: onComplete,
       ),
-    );
+    ).whenComplete(() {
+      // Modal kapatıldığında sayacı durdurma, HUD moduna alarak akmaya devam etsin
+      final manager = SystemSessionManager.instance;
+      if (manager.restTimer.isRunning && manager.restTimer.remainingSeconds > 0) {
+        manager.minimizeRestTimer();
+      }
+    });
   }
 
   @override
@@ -53,62 +58,36 @@ class _RestTimerDialogState extends State<RestTimerDialog> {
   static const Color _sysDarkBg = Color(0xFF070B14);
   static const Color _sysTextMuted = Color(0xFF94A3B8);
 
-  late int _kalanSaniye;
-  late int _toplamSaniye;
-  Timer? _timer;
-  bool _bitti = false;
-
   @override
   void initState() {
     super.initState();
-    _kalanSaniye = widget.initialSeconds;
-    _toplamSaniye = widget.initialSeconds;
-    VoiceCoachSystem.dinlenmeBasladi(_kalanSaniye, egzersizAdi: widget.exerciseName);
-    _startTimer();
+    SystemSessionManager.instance.addListener(_onSessionTick);
   }
 
-  void _startTimer() {
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_kalanSaniye > 1) {
-        setState(() => _kalanSaniye--);
-        if (_kalanSaniye <= 3) {
-          VoiceCoachSystem.dinlenmeGeriSayim(_kalanSaniye);
-        }
-      } else {
-        _timer?.cancel();
-        setState(() {
-          _kalanSaniye = 0;
-          _bitti = true;
-        });
-        VoiceCoachSystem.dinlenmeBitti(egzersizAdi: widget.exerciseName);
-        widget.onComplete?.call();
-      }
-    });
-  }
-
-  void _sureAyarla(int saniye) {
-    setState(() {
-      _kalanSaniye = saniye;
-      _toplamSaniye = saniye;
-      _bitti = false;
-    });
-    _startTimer();
-  }
-
-  void _sureEkle(int saniye) {
-    setState(() {
-      _kalanSaniye += saniye;
-      _toplamSaniye += saniye;
-      _bitti = false;
-    });
-    _startTimer();
+  void _onSessionTick() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
+    SystemSessionManager.instance.removeListener(_onSessionTick);
     super.dispose();
+  }
+
+  int get _kalanSaniye => SystemSessionManager.instance.restTimer.remainingSeconds;
+  int get _toplamSaniye => SystemSessionManager.instance.restTimer.totalSeconds;
+  bool get _bitti => !SystemSessionManager.instance.restTimer.isRunning || _kalanSaniye <= 0;
+
+  void _sureAyarla(int saniye) {
+    SystemSessionManager.instance.startRestTimer(
+      seconds: saniye,
+      exerciseName: widget.exerciseName,
+      onComplete: widget.onComplete,
+    );
+  }
+
+  void _sureEkle(int saniye) {
+    SystemSessionManager.instance.addRestSeconds(saniye);
   }
 
   @override
@@ -131,53 +110,59 @@ class _RestTimerDialogState extends State<RestTimerDialog> {
           )
         ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Tutamaç
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2)),
-          ),
-          const SizedBox(height: 15),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Tutamaç
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2)),
+            ),
+            const SizedBox(height: 15),
 
-          // Başlık ve Sesli Koç Anahtarı
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                _bitti ? TranslationManager.get('rest_complete_title') : TranslationManager.get('rest_mp_recovery_title'),
-                style: GoogleFonts.orbitron(
-                  color: _bitti ? _sysGold : _sysBlue,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 2,
-                ),
-              ),
-              const SizedBox(width: 8),
-              ValueListenableBuilder<bool>(
-                valueListenable: SystemMemory.sesliKocAktif,
-                builder: (ctx, aktif, _) => IconButton(
-                  icon: Icon(
-                    aktif ? Icons.record_voice_over : Icons.voice_over_off,
-                    color: aktif ? _sysBlue : _sysTextMuted,
-                    size: 18,
+            // Başlık ve Sesli Koç Anahtarı
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: Text(
+                    _bitti ? TranslationManager.get('rest_complete_title') : TranslationManager.get('rest_mp_recovery_title'),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.orbitron(
+                      color: _bitti ? _sysGold : _sysBlue,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.5,
+                    ),
                   ),
-                  tooltip: aktif
-                      ? (TranslationManager.isTurkish ? 'Sesli Koç Aktif' : 'Voice Coach Active')
-                      : (TranslationManager.isTurkish ? 'Sesli Koç Sessiz' : 'Voice Coach Muted'),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  onPressed: () {
-                    SystemMemory.sesliKocAktif.value = !aktif;
-                    SystemMemory.kaydet();
-                  },
                 ),
-              ),
-            ],
-          ),
+                const SizedBox(width: 8),
+                ValueListenableBuilder<bool>(
+                  valueListenable: SystemMemory.sesliKocAktif,
+                  builder: (ctx, aktif, _) => IconButton(
+                    icon: Icon(
+                      aktif ? Icons.record_voice_over : Icons.voice_over_off,
+                      color: aktif ? _sysBlue : _sysTextMuted,
+                      size: 18,
+                    ),
+                    tooltip: aktif
+                        ? (TranslationManager.isTurkish ? 'Sesli Koç Aktif' : 'Voice Coach Active')
+                        : (TranslationManager.isTurkish ? 'Sesli Koç Sessiz' : 'Voice Coach Muted'),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onPressed: () {
+                      SystemMemory.sesliKocAktif.value = !aktif;
+                      SystemMemory.kaydet();
+                    },
+                  ),
+                ),
+              ],
+            ),
           if (widget.exerciseName != null) ...[
             const SizedBox(height: 4),
             Text(
@@ -271,6 +256,7 @@ class _RestTimerDialogState extends State<RestTimerDialog> {
                   ),
                   onPressed: () {
                     AudioSystem.playTransition();
+                    SystemSessionManager.instance.stopRestTimer();
                     Navigator.pop(context);
                   },
                   icon: Icon(_bitti ? Icons.flash_on : Icons.check, color: _bitti ? _sysGold : _sysBlue, size: 18),
@@ -287,9 +273,23 @@ class _RestTimerDialogState extends State<RestTimerDialog> {
               ),
             ],
           ),
+          const SizedBox(height: 8),
+
+          // Arka Plana Al / Minimize Et Butonu
+          TextButton.icon(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white54, size: 18),
+            label: Text(
+              TranslationManager.isTurkish ? 'ARKA PLANA AL (MİNİMİZE ET)' : 'MINIMIZE TIMER',
+              style: GoogleFonts.orbitron(fontSize: 10, color: Colors.white54, letterSpacing: 1),
+            ),
+          ),
         ],
       ),
-    );
+    ),
+  );
   }
 
   Widget _sureChip(String label, int seconds) {

@@ -104,7 +104,60 @@ class MemoryCombatRanks {
     return "E-Rank (Rookie)";
   }
 
-  static void dovusTestiKaydet({
+  static int rankKademesi(String rank) {
+    final r = rank.toUpperCase();
+    if (r.startsWith('S')) return 6;
+    if (r.startsWith('A')) return 5;
+    if (r.startsWith('B')) return 4;
+    if (r.startsWith('C')) return 3;
+    if (r.startsWith('D')) return 2;
+    if (r.startsWith('E')) return 1;
+    return 0; // Unranked
+  }
+
+  static Map<String, int> rankKademeOdulu(int kademe) {
+    switch (kademe) {
+      case 1: // E-Rank
+        return {'ap': 5, 'exp': 200, 'altin': 500};
+      case 2: // D-Rank
+        return {'ap': 8, 'exp': 400, 'altin': 1000};
+      case 3: // C-Rank
+        return {'ap': 12, 'exp': 800, 'altin': 2000};
+      case 4: // B-Rank
+        return {'ap': 18, 'exp': 1500, 'altin': 4000};
+      case 5: // A-Rank
+        return {'ap': 25, 'exp': 3000, 'altin': 8000};
+      case 6: // S-Rank
+        return {'ap': 40, 'exp': 6000, 'altin': 15000};
+      default:
+        return {'ap': 0, 'exp': 0, 'altin': 0};
+    }
+  }
+
+  static Map<String, int> rankYukselisOduluHesapla(String eskiRank, String yeniRank) {
+    int eskiTier = rankKademesi(eskiRank);
+    int yeniTier = rankKademesi(yeniRank);
+    if (yeniTier <= eskiTier) {
+      return {'ap': 0, 'exp': 0, 'altin': 0, 'tierFarki': 0};
+    }
+    int totalAp = 0;
+    int totalExp = 0;
+    int totalAltin = 0;
+    for (int tier = eskiTier + 1; tier <= yeniTier; tier++) {
+      final odul = rankKademeOdulu(tier);
+      totalAp += odul['ap']!;
+      totalExp += odul['exp']!;
+      totalAltin += odul['altin']!;
+    }
+    return {
+      'ap': totalAp,
+      'exp': totalExp,
+      'altin': totalAltin,
+      'tierFarki': yeniTier - eskiTier,
+    };
+  }
+
+  static Map<String, dynamic> dovusTestiKaydet({
     required int patlayiciSinav,
     required int burpeeKondisyon,
     required int plankSaniye,
@@ -117,7 +170,11 @@ class MemoryCombatRanks {
     double? squat,
     double? deadlift,
   }) {
-    final bool isFirstAwakening = SystemMemory.hunterRank == "Unranked";
+    final String eskiRank = SystemMemory.hunterRank;
+    final int eskiTier = rankKademesi(eskiRank);
+    final int yeniTier = rankKademesi(rank);
+    final bool rankYukseldi = yeniTier > eskiTier;
+
     SystemMemory.dovusSporuYapiyorMu = true;
     if (branslar != null && branslar.isNotEmpty) {
       SystemMemory.dovusBranslari = List<String>.from(branslar);
@@ -137,9 +194,26 @@ class MemoryCombatRanks {
     SystemMemory.sonTestTarihi = DateTime.now().toIso8601String();
     SystemMemory.sonTesttenBeriIdmanSayisi = 0;
 
-    if (isFirstAwakening) {
-      SystemMemory.exp.value += 100;
-      SystemMemory.ap.value += 3;
+    int kazanilanAp = 0;
+    int kazanilanExp = 0;
+    int kazanilanAltin = 0;
+    Map<String, int> dagitilanStatlar = {};
+
+    if (rankYukseldi) {
+      final odul = rankYukselisOduluHesapla(eskiRank, rank);
+      kazanilanAp = odul['ap']!;
+      kazanilanExp = odul['exp']!;
+      kazanilanAltin = odul['altin']!;
+
+      SystemMemory.ap.value += kazanilanAp;
+      SystemMemory.altin.value += kazanilanAltin;
+      if (kazanilanExp > 0) {
+        SystemMemory.expKazan(kazanilanExp);
+      }
+
+      if (SystemMemory.otomatikStatDagitimiAktif.value && kazanilanAp > 0) {
+        dagitilanStatlar = otomatikStatDagit(miktar: kazanilanAp);
+      }
     }
 
     SystemMemory.baslangicPrograminiAta(
@@ -151,16 +225,31 @@ class MemoryCombatRanks {
     );
 
     SystemMemory.kaydet();
+
+    return {
+      'rankYukseldi': rankYukseldi,
+      'eskiRank': eskiRank,
+      'yeniRank': rank,
+      'kazanilanAp': kazanilanAp,
+      'kazanilanExp': kazanilanExp,
+      'kazanilanAltin': kazanilanAltin,
+      'otomatikDagitildi': SystemMemory.otomatikStatDagitimiAktif.value && kazanilanAp > 0,
+      'dagitilanStatlar': dagitilanStatlar,
+    };
   }
 
-  static void awakeningTestKaydet({
+  static Map<String, dynamic> awakeningTestKaydet({
     required double bench,
     required double squat,
     required double deadlift,
     required String rank,
     int? idmanGunu,
   }) {
-    final bool isFirstAwakening = SystemMemory.hunterRank == "Unranked";
+    final String eskiRank = SystemMemory.hunterRank;
+    final int eskiTier = rankKademesi(eskiRank);
+    final int yeniTier = rankKademesi(rank);
+    final bool rankYukseldi = yeniTier > eskiTier;
+
     SystemMemory.maxBench = bench;
     SystemMemory.maxSquat = squat;
     SystemMemory.maxDeadlift = deadlift;
@@ -168,9 +257,26 @@ class MemoryCombatRanks {
     SystemMemory.sonTestTarihi = DateTime.now().toIso8601String();
     SystemMemory.sonTesttenBeriIdmanSayisi = 0;
 
-    if (isFirstAwakening) {
-      SystemMemory.exp.value += 100;
-      SystemMemory.ap.value += 3;
+    int kazanilanAp = 0;
+    int kazanilanExp = 0;
+    int kazanilanAltin = 0;
+    Map<String, int> dagitilanStatlar = {};
+
+    if (rankYukseldi) {
+      final odul = rankYukselisOduluHesapla(eskiRank, rank);
+      kazanilanAp = odul['ap']!;
+      kazanilanExp = odul['exp']!;
+      kazanilanAltin = odul['altin']!;
+
+      SystemMemory.ap.value += kazanilanAp;
+      SystemMemory.altin.value += kazanilanAltin;
+      if (kazanilanExp > 0) {
+        SystemMemory.expKazan(kazanilanExp);
+      }
+
+      if (SystemMemory.otomatikStatDagitimiAktif.value && kazanilanAp > 0) {
+        dagitilanStatlar = otomatikStatDagit(miktar: kazanilanAp);
+      }
     }
 
     SystemMemory.baslangicPrograminiAta(
@@ -182,6 +288,17 @@ class MemoryCombatRanks {
     );
 
     SystemMemory.kaydet();
+
+    return {
+      'rankYukseldi': rankYukseldi,
+      'eskiRank': eskiRank,
+      'yeniRank': rank,
+      'kazanilanAp': kazanilanAp,
+      'kazanilanExp': kazanilanExp,
+      'kazanilanAltin': kazanilanAltin,
+      'otomatikDagitildi': SystemMemory.otomatikStatDagitimiAktif.value && kazanilanAp > 0,
+      'dagitilanStatlar': dagitilanStatlar,
+    };
   }
 
   static String expKazan(int miktar) {
@@ -196,6 +313,9 @@ class MemoryCombatRanks {
       SystemMemory.hp.value = SystemMemory.maxHp;
       SystemMemory.mp.value = SystemMemory.maxMp;
       SystemMemory.fatigue.value = 0;
+      if (SystemMemory.otomatikStatDagitimiAktif.value) {
+        otomatikStatDagit(miktar: 3);
+      }
       levelUpMesaji += tr
           ? "\n🌟 SEVİYE ATLADIN! Seviye ${SystemMemory.level.value} oldun! (+3 AP)\n[BİLGİ] Durum İyileştirmesi uygulandı."
           : "\n🌟 LEVEL UP! You reached Level ${SystemMemory.level.value}! (+3 AP)\n[INFO] Status Recovery applied.";
@@ -539,6 +659,14 @@ class MemoryCombatRanks {
       'geminiApiKey': SystemMemory.geminiApiKey,
       'geminiActiveModel': SystemMemory.geminiActiveModel,
       'canta': SystemMemory.canta.map((e) => e.toJson()).toList(),
+      'diyetisyenListesiAktif': SystemMemory.diyetisyenListesiAktif,
+      'diyetisyenBazKalori': SystemMemory.diyetisyenBazKalori,
+      'diyetisyenBazProtein': SystemMemory.diyetisyenBazProtein,
+      'diyetisyenBazKarb': SystemMemory.diyetisyenBazKarb,
+      'diyetisyenBazYag': SystemMemory.diyetisyenBazYag,
+      'diyetisyenOgunleri': SystemMemory.diyetisyenOgunleri,
+      'diyetisyenBaslangicTarihi': SystemMemory.diyetisyenBaslangicTarihi,
+      'diyetisyenGunlukPlanlar': SystemMemory.diyetisyenGunlukPlanlar,
       'backupTimestamp': DateTime.now().toIso8601String(),
     };
     return jsonEncode(data);
@@ -684,6 +812,32 @@ class MemoryCombatRanks {
         if (data['canta'] != null) {
           final List<dynamic> cList = data['canta'];
           SystemMemory.canta = cList.map((e) => InventoryItem.fromJson(e)).toList();
+        }
+        if (data['diyetisyenListesiAktif'] != null) {
+          SystemMemory.diyetisyenListesiAktif = data['diyetisyenListesiAktif'] == true;
+        }
+        if (data['diyetisyenBazKalori'] != null) {
+          SystemMemory.diyetisyenBazKalori = (data['diyetisyenBazKalori'] as num).toInt();
+        }
+        if (data['diyetisyenBazProtein'] != null) {
+          SystemMemory.diyetisyenBazProtein = (data['diyetisyenBazProtein'] as num).toInt();
+        }
+        if (data['diyetisyenBazKarb'] != null) {
+          SystemMemory.diyetisyenBazKarb = (data['diyetisyenBazKarb'] as num).toInt();
+        }
+        if (data['diyetisyenBazYag'] != null) {
+          SystemMemory.diyetisyenBazYag = (data['diyetisyenBazYag'] as num).toInt();
+        }
+        if (data['diyetisyenOgunleri'] != null && data['diyetisyenOgunleri'] is List) {
+          SystemMemory.diyetisyenOgunleri = List<Map<String, dynamic>>.from(
+            (data['diyetisyenOgunleri'] as List).map((x) => Map<String, dynamic>.from(x as Map)),
+          );
+        }
+        if (data['diyetisyenBaslangicTarihi'] != null) {
+          SystemMemory.diyetisyenBaslangicTarihi = data['diyetisyenBaslangicTarihi'].toString();
+        }
+        if (data['diyetisyenGunlukPlanlar'] != null && data['diyetisyenGunlukPlanlar'] is Map) {
+          SystemMemory.diyetisyenGunlukPlanlar = Map<String, dynamic>.from(data['diyetisyenGunlukPlanlar'] as Map);
         }
         SystemMemory.kaydet();
         return true;

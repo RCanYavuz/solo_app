@@ -286,6 +286,7 @@ class MemoryNutrition {
       }
 
       SystemMemory.sonGirisTarihi = bugunStr;
+      gunlukDiyetisyenMenusuSenkronizeEt(bugunStr);
       SystemMemory.kaydet();
     }
   }
@@ -621,12 +622,35 @@ class MemoryNutrition {
     return sonuc;
   }
 
+  static void gunlukDiyetisyenMenusuSenkronizeEt([String? targetDateStr]) {
+    if (!SystemMemory.diyetisyenListesiAktif) return;
+    final bugun = DateTime.now();
+    final bugunStr = targetDateStr ?? "${bugun.year}-${bugun.month.toString().padLeft(2, '0')}-${bugun.day.toString().padLeft(2, '0')}";
+
+    if (SystemMemory.diyetisyenGunlukPlanlar.containsKey(bugunStr)) {
+      final plan = Map<String, dynamic>.from(SystemMemory.diyetisyenGunlukPlanlar[bugunStr] as Map);
+      final ogunlerRaw = plan['ogunler'] as List?;
+      if (ogunlerRaw != null) {
+        SystemMemory.diyetisyenOgunleri = ogunlerRaw.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+      }
+      if (plan['kalori'] != null && (plan['kalori'] as num).toInt() > 0) {
+        SystemMemory.diyetisyenBazKalori = (plan['kalori'] as num).toInt();
+        SystemMemory.gunlukHedefKalori = SystemMemory.diyetisyenBazKalori;
+      }
+      if (plan['protein'] != null) SystemMemory.diyetisyenBazProtein = (plan['protein'] as num).toInt();
+      if (plan['karb'] != null) SystemMemory.diyetisyenBazKarb = (plan['karb'] as num).toInt();
+      if (plan['yag'] != null) SystemMemory.diyetisyenBazYag = (plan['yag'] as num).toInt();
+    }
+  }
+
   static void diyetisyenListesiniKaydet({
     required int kalori,
     required int protein,
     required int karb,
     required int yag,
     List<Map<String, dynamic>> ogunler = const [],
+    String baslangicTarihi = '',
+    Map<String, dynamic> gunlukPlanlar = const {},
   }) {
     SystemMemory.diyetisyenListesiAktif = true;
     SystemMemory.diyetisyenBazKalori = kalori;
@@ -634,7 +658,13 @@ class MemoryNutrition {
     SystemMemory.diyetisyenBazKarb = karb;
     SystemMemory.diyetisyenBazYag = yag;
     SystemMemory.diyetisyenOgunleri = List<Map<String, dynamic>>.from(ogunler);
+    SystemMemory.diyetisyenBaslangicTarihi = baslangicTarihi;
+    SystemMemory.diyetisyenGunlukPlanlar = Map<String, dynamic>.from(gunlukPlanlar);
     SystemMemory.gunlukHedefKalori = kalori;
+
+    // Eğer bugüne ait kayıt varsa hemen senkronize et
+    gunlukDiyetisyenMenusuSenkronizeEt();
+
     SystemMemory.kaydet();
   }
 
@@ -645,6 +675,8 @@ class MemoryNutrition {
     SystemMemory.diyetisyenBazKarb = 0;
     SystemMemory.diyetisyenBazYag = 0;
     SystemMemory.diyetisyenOgunleri = [];
+    SystemMemory.diyetisyenBaslangicTarihi = "";
+    SystemMemory.diyetisyenGunlukPlanlar = {};
     protokolGuncelle(SystemMemory.aktifHedef, SystemMemory.aktifZorluk);
     SystemMemory.kaydet();
   }
@@ -718,15 +750,18 @@ class MemoryNutrition {
   }
 
   static void diyetisyenOgunDurumuGuncelle(String ogunId, bool tamamlandi) {
+    final bugun = DateTime.now();
+    final bugunStr = "${bugun.year}-${bugun.month.toString().padLeft(2, '0')}-${bugun.day.toString().padLeft(2, '0')}";
+
     for (var ogun in SystemMemory.diyetisyenOgunleri) {
-      if (ogun['id'] == ogunId) {
+      if (ogun['id'] == ogunId || ogun['ad'] == ogunId || ogun['baslik'] == ogunId) {
         ogun['tamamlandi'] = tamamlandi;
         if (tamamlandi) {
           int k = (ogun['kalori'] as num?)?.toInt() ?? 0;
           int p = (ogun['protein'] as num?)?.toInt() ?? 0;
           int carb = (ogun['karb'] as num?)?.toInt() ?? 0;
           int y = (ogun['yag'] as num?)?.toInt() ?? 0;
-          String b = ogun['baslik']?.toString() ?? 'Öğün';
+          String b = (ogun['baslik'] ?? ogun['ad'])?.toString() ?? 'Öğün';
 
           SystemMemory.bugunAlinanKalori += k;
           SystemMemory.bugununYemekleri.add(
@@ -737,6 +772,13 @@ class MemoryNutrition {
         break;
       }
     }
+
+    if (SystemMemory.diyetisyenGunlukPlanlar.containsKey(bugunStr)) {
+      final p = Map<String, dynamic>.from(SystemMemory.diyetisyenGunlukPlanlar[bugunStr] as Map);
+      p['ogunler'] = List<Map<String, dynamic>>.from(SystemMemory.diyetisyenOgunleri);
+      SystemMemory.diyetisyenGunlukPlanlar[bugunStr] = p;
+    }
+
     SystemMemory.kaydet();
   }
 

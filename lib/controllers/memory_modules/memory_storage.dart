@@ -118,6 +118,7 @@ class MemoryStorage {
       SystemMemory.odakBolgeleri = prefs.getStringList('odakBolgeleri') ?? [];
       SystemMemory.sonTestTarihi = prefs.getString('sonTestTarihi') ?? "";
       SystemMemory.sonTesttenBeriIdmanSayisi = prefs.getInt('sonTesttenBeriIdmanSayisi') ?? 0;
+      SystemMemory.otomatikStatDagitimiAktif.value = prefs.getBool('otomatikStatDagitimiAktif') ?? false;
 
       SystemMemory.dovusSporuYapiyorMu = prefs.getBool('dovusSporuYapiyorMu') ?? false;
       SystemMemory.dovusBransi = prefs.getString('dovusBransi') ?? "Boks";
@@ -178,6 +179,11 @@ class MemoryStorage {
       try {
         List<dynamic> doList = jsonDecode(dOgunlerJson);
         SystemMemory.diyetisyenOgunleri = doList.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+      } catch (_) {}
+      SystemMemory.diyetisyenBaslangicTarihi = prefs.getString('diyetisyenBaslangicTarihi') ?? "";
+      String dPlanlarJson = prefs.getString('diyetisyenGunlukPlanlar') ?? '{}';
+      try {
+        SystemMemory.diyetisyenGunlukPlanlar = Map<String, dynamic>.from(jsonDecode(dPlanlarJson) as Map);
       } catch (_) {}
 
       String overloadJson = prefs.getString('overloadGecmisi') ?? '{}';
@@ -270,6 +276,8 @@ class MemoryStorage {
       await prefs.setInt('diyetisyenBazKarb', SystemMemory.diyetisyenBazKarb);
       await prefs.setInt('diyetisyenBazYag', SystemMemory.diyetisyenBazYag);
       await prefs.setString('diyetisyenOgunleri', jsonEncode(SystemMemory.diyetisyenOgunleri));
+      await prefs.setString('diyetisyenBaslangicTarihi', SystemMemory.diyetisyenBaslangicTarihi);
+      await prefs.setString('diyetisyenGunlukPlanlar', jsonEncode(SystemMemory.diyetisyenGunlukPlanlar));
 
       await prefs.setDouble('baslangicKilosu', SystemMemory.baslangicKilosu);
       await prefs.setInt('streakGunSayisi', SystemMemory.streakGunSayisi);
@@ -296,6 +304,7 @@ class MemoryStorage {
       await prefs.setStringList('odakBolgeleri', SystemMemory.odakBolgeleri);
       await prefs.setString('sonTestTarihi', SystemMemory.sonTestTarihi);
       await prefs.setInt('sonTesttenBeriIdmanSayisi', SystemMemory.sonTesttenBeriIdmanSayisi);
+      await prefs.setBool('otomatikStatDagitimiAktif', SystemMemory.otomatikStatDagitimiAktif.value);
 
       await prefs.setBool('dovusSporuYapiyorMu', SystemMemory.dovusSporuYapiyorMu);
       await prefs.setString('dovusBransi', SystemMemory.dovusBransi);

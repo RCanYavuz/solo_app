@@ -87,6 +87,7 @@ class SystemMemory {
   static List<String> odakBolgeleri = [];
   static String sonTestTarihi = "";
   static int sonTesttenBeriIdmanSayisi = 0;
+  static ValueNotifier<bool> otomatikStatDagitimiAktif = ValueNotifier<bool>(false);
 
   // Dövüş Sanatları Statüleri
   static bool dovusSporuYapiyorMu = false;
@@ -130,6 +131,8 @@ class SystemMemory {
   static int diyetisyenBazKarb = 0;
   static int diyetisyenBazYag = 0;
   static List<Map<String, dynamic>> diyetisyenOgunleri = [];
+  static String diyetisyenBaslangicTarihi = "";
+  static Map<String, dynamic> diyetisyenGunlukPlanlar = {};
 
   // Dinamik Katabolizma & Telafi Takibi
   static int bugunYakilanIdmanKalorisi = 0;
@@ -453,7 +456,17 @@ class SystemMemory {
     required int karb,
     required int yag,
     List<Map<String, dynamic>> ogunler = const [],
-  }) => MemoryNutrition.diyetisyenListesiniKaydet(kalori: kalori, protein: protein, karb: karb, yag: yag, ogunler: ogunler);
+    String baslangicTarihi = '',
+    Map<String, dynamic> gunlukPlanlar = const {},
+  }) => MemoryNutrition.diyetisyenListesiniKaydet(
+        kalori: kalori,
+        protein: protein,
+        karb: karb,
+        yag: yag,
+        ogunler: ogunler,
+        baslangicTarihi: baslangicTarihi,
+        gunlukPlanlar: gunlukPlanlar,
+      );
   static void diyetisyenListesiniSifirla() => MemoryNutrition.diyetisyenListesiniSifirla();
   static void hedefleriSistemeEntegreEt({
     required double yeniHedefKilo,
@@ -498,7 +511,10 @@ class SystemMemory {
     patlayiciSinav: patlayiciSinav, burpeeKondisyon: burpeeKondisyon, plankSaniye: plankSaniye,
     barfiks: barfiks, bench: bench, squat: squat, deadlift: deadlift, kilo: kilo,
   );
-  static void dovusTestiKaydet({
+  static int rankKademesi(String rank) => MemoryCombatRanks.rankKademesi(rank);
+  static Map<String, int> rankYukselisOduluHesapla(String eskiRank, String yeniRank) =>
+      MemoryCombatRanks.rankYukselisOduluHesapla(eskiRank, yeniRank);
+  static Map<String, dynamic> dovusTestiKaydet({
     required int patlayiciSinav,
     required int burpeeKondisyon,
     required int plankSaniye,
@@ -515,7 +531,7 @@ class SystemMemory {
     barfiks: barfiks, rank: rank, brans: brans, branslar: branslar, idmanGunu: idmanGunu,
     bench: bench, squat: squat, deadlift: deadlift,
   );
-  static void awakeningTestKaydet({
+  static Map<String, dynamic> awakeningTestKaydet({
     required double bench,
     required double squat,
     required double deadlift,

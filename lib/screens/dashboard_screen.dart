@@ -165,26 +165,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 const SizedBox(width: 8),
                                 Padding(padding: const EdgeInsets.only(bottom: 6), child: Text(TranslationManager.get('dash_level'), style: const TextStyle(color: sysBlue, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2))),
                                 const Spacer(),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFEAB308).withValues(alpha: 0.15),
-                                    border: Border.all(color: const Color(0xFFEAB308).withValues(alpha: 0.6)),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Text(
-                                    SystemMemory.hunterRank,
-                                    style: GoogleFonts.orbitron(
-                                      color: const Color(0xFFEAB308),
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
+                                Flexible(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFEAB308).withValues(alpha: 0.15),
+                                      border: Border.all(color: const Color(0xFFEAB308).withValues(alpha: 0.6)),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      SystemMemory.hunterRank,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: GoogleFonts.orbitron(
+                                        color: const Color(0xFFEAB308),
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 5),
-                            Text('${TranslationManager.get('dash_title')}: ${_unvanBelirle(SystemMemory.level.value)}', style: GoogleFonts.rajdhani(color: sysTextMuted, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                            Text(
+                              '${TranslationManager.get('dash_title')}: ${_unvanBelirle(SystemMemory.level.value)}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.rajdhani(color: sysTextMuted, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1),
+                            ),
                           ],
                         ),
                       ),
@@ -516,18 +525,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             // --- 5. GÜNLÜK GÖREVLER (ÇOK YÖNLÜ AVCI SİSTEMİ) ---
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  TranslationManager.get('dash_daily_quests'),
-                  style: GoogleFonts.orbitron(color: sysBlue, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 2),
+                Expanded(
+                  child: Text(
+                    TranslationManager.get('dash_daily_quests'),
+                    style: GoogleFonts.orbitron(color: sysBlue, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 1.5),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
+                const SizedBox(width: 6),
                 Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     InkWell(
                       onTap: () => StudyPlannerModal.show(context).then((_) => setState(() {})),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
                         decoration: BoxDecoration(
                           color: sysBlue.withValues(alpha: 0.15),
                           border: Border.all(color: sysBlue.withValues(alpha: 0.6)),
@@ -535,9 +549,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.auto_awesome, color: sysBlue, size: 12),
-                            const SizedBox(width: 4),
-                            Text(TranslationManager.get('dash_ai_study'), style: GoogleFonts.orbitron(color: sysBlue, fontSize: 10, fontWeight: FontWeight.bold)),
+                            const Icon(Icons.auto_awesome, color: sysBlue, size: 11),
+                            const SizedBox(width: 3),
+                            Text(TranslationManager.get('dash_ai_study'), style: GoogleFonts.orbitron(color: sysBlue, fontSize: 9.5, fontWeight: FontWeight.bold)),
                           ],
                         ),
                       ),
@@ -546,7 +560,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     InkWell(
                       onTap: () => Navigator.push(context, SistemGecisi(sayfa: const DeepWorkTimerScreen())).then((_) => setState(() {})),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
                         decoration: BoxDecoration(
                           color: Colors.purpleAccent.withValues(alpha: 0.15),
                           border: Border.all(color: Colors.purpleAccent.withValues(alpha: 0.6)),
@@ -554,9 +568,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.timer, color: Colors.purpleAccent, size: 12),
-                            const SizedBox(width: 4),
-                            Text('DEEP WORK', style: GoogleFonts.orbitron(color: Colors.purpleAccent, fontSize: 10, fontWeight: FontWeight.bold)),
+                            const Icon(Icons.timer, color: Colors.purpleAccent, size: 11),
+                            const SizedBox(width: 3),
+                            Text('DEEP WORK', style: GoogleFonts.orbitron(color: Colors.purpleAccent, fontSize: 9.5, fontWeight: FontWeight.bold)),
                           ],
                         ),
                       ),
@@ -684,6 +698,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ),
                                 child: Text(
                                   g.ad,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                     color: g.yapildiMi ? sysTextMuted : Colors.white,
                                     fontSize: 14,
@@ -807,33 +823,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       decoration: task.isCompleted ? TextDecoration.lineThrough : null,
                                     ),
                                   ),
-                                  subtitle: Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: Colors.purpleAccent.withValues(alpha: 0.15),
-                                          borderRadius: BorderRadius.circular(3),
-                                          border: Border.all(color: Colors.purpleAccent.withValues(alpha: 0.4), width: 0.8),
+                                   subtitle: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    physics: const BouncingScrollPhysics(),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: Colors.purpleAccent.withValues(alpha: 0.15),
+                                            borderRadius: BorderRadius.circular(3),
+                                            border: Border.all(color: Colors.purpleAccent.withValues(alpha: 0.4), width: 0.8),
+                                          ),
+                                          child: Text(
+                                            task.category.toUpperCase(),
+                                            style: GoogleFonts.orbitron(color: Colors.purpleAccent, fontSize: 9, fontWeight: FontWeight.bold),
+                                          ),
                                         ),
-                                        child: Text(
-                                          task.category.toUpperCase(),
-                                          style: GoogleFonts.orbitron(color: Colors.purpleAccent, fontSize: 9, fontWeight: FontWeight.bold),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        '${task.targetMinutes} ${TranslationManager.get('dash_min')} | +${task.rewardExp} EXP',
-                                        style: GoogleFonts.rajdhani(color: Colors.white60, fontSize: 12),
-                                      ),
-                                      if (task.targetPages != null) ...[
-                                        const SizedBox(width: 6),
+                                        const SizedBox(width: 8),
                                         Text(
-                                          '| ${task.completedPages}/${task.targetPages} ${TranslationManager.isTurkish ? "sayfa" : "pages"}',
-                                          style: GoogleFonts.rajdhani(color: sysBlue, fontSize: 12, fontWeight: FontWeight.bold),
+                                          '${task.targetMinutes} ${TranslationManager.get('dash_min')} | +${task.rewardExp} EXP',
+                                          style: GoogleFonts.rajdhani(color: Colors.white60, fontSize: 12),
                                         ),
+                                        if (task.targetPages != null) ...[
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            '| ${task.completedPages}/${task.targetPages} ${TranslationManager.isTurkish ? "sayfa" : "pages"}',
+                                            style: GoogleFonts.rajdhani(color: sysBlue, fontSize: 12, fontWeight: FontWeight.bold),
+                                          ),
+                                        ],
                                       ],
-                                    ],
+                                    ),
                                   ),
                                   trailing: IconButton(
                                     icon: const Icon(Icons.timer_outlined, color: Colors.purpleAccent, size: 20),
@@ -895,14 +915,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () => Navigator.push(context, SistemGecisi(sayfa: const ActiveWorkoutScreen())).then((_) => setState((){})),
-                    icon: const Icon(Icons.flash_on, color: sysRed, size: 20),
-                    label: Text(
-                      TranslationManager.get('dash_physical_dungeon'),
-                      style: GoogleFonts.orbitron(color: sysRed, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.1),
+                    icon: const Icon(Icons.flash_on, color: sysRed, size: 18),
+                    label: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        TranslationManager.get('dash_physical_dungeon'),
+                        style: GoogleFonts.orbitron(color: sysRed, fontSize: 11.5, fontWeight: FontWeight.bold, letterSpacing: 1.0),
+                      ),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: sysRed.withValues(alpha: 0.1),
-                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
                       side: const BorderSide(color: sysRed, width: 1.5),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
                       shadowColor: sysRed.withValues(alpha: 0.5),
@@ -914,14 +937,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () => Navigator.push(context, SistemGecisi(sayfa: const DeepWorkTimerScreen())).then((_) => setState((){})),
-                    icon: const Icon(Icons.psychology, color: Colors.purpleAccent, size: 20),
-                    label: Text(
-                      TranslationManager.get('dash_cognitive_dungeon'),
-                      style: GoogleFonts.orbitron(color: Colors.purpleAccent, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.1),
+                    icon: const Icon(Icons.psychology, color: Colors.purpleAccent, size: 18),
+                    label: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        TranslationManager.get('dash_cognitive_dungeon'),
+                        style: GoogleFonts.orbitron(color: Colors.purpleAccent, fontSize: 11.5, fontWeight: FontWeight.bold, letterSpacing: 1.0),
+                      ),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.purpleAccent.withValues(alpha: 0.1),
-                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
                       side: const BorderSide(color: Colors.purpleAccent, width: 1.5),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
                       shadowColor: Colors.purpleAccent.withValues(alpha: 0.5),

@@ -72,8 +72,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Check registration reward modal appeared
-      expect(find.text('[ AWAKENING REGISTERED ]'), findsOneWidget);
-      expect(find.text('+100 EXP  |  +3 AP (Awakening Reward)'), findsOneWidget);
+      expect(find.text('[ ⚔️ RANK ASCENSION ]'), findsOneWidget);
+      expect(find.text('+68 AP (Stat Puanı)'), findsOneWidget);
 
       // Verify SystemMemory state updated
       expect(SystemMemory.hunterRank, 'A-Rank (National)');
@@ -83,9 +83,9 @@ void main() {
       expect(SystemMemory.sonTesttenBeriIdmanSayisi, 0);
 
       // Close modal
-      await tester.tap(find.text('SYSTEM ACKNOWLEDGE'));
+      await tester.tap(find.text('💎 I WILL ALLOCATE MANUALLY'));
       await tester.pumpAndSettle();
-      expect(find.text('[ AWAKENING REGISTERED ]'), findsNothing);
+      expect(find.text('[ ⚔️ RANK ASCENSION ]'), findsNothing);
     });
 
     testWidgets('AwakeningTestDialog switches to Calisthenics Reps mode properly', (WidgetTester tester) async {
@@ -235,6 +235,7 @@ void main() {
     testWidgets('DashboardScreen displays Promotion Trial Banner when quota reached', (WidgetTester tester) async {
       SystemMemory.hunterRank = "E-Rank (Rookie)";
       SystemMemory.sonTesttenBeriIdmanSayisi = 8; // 8 / 8 -> quota fulfilled!
+      SystemMemory.yeniBasarimBildirimi.value = null;
 
       expect(SystemMemory.retestGerekiyorMu, isTrue);
 
@@ -245,12 +246,25 @@ void main() {
       );
       await tester.pumpAndSettle();
 
+      if (find.text('ACCEPT REWARD').evaluate().isNotEmpty) {
+        await tester.tap(find.text('ACCEPT REWARD'));
+        await tester.pumpAndSettle();
+      } else if (find.text('ÖDÜLÜ KABUL ET').evaluate().isNotEmpty) {
+        await tester.tap(find.text('ÖDÜLÜ KABUL ET'));
+        await tester.pumpAndSettle();
+      } else if (find.byType(AlertDialog).evaluate().isNotEmpty) {
+        await tester.tap(find.byType(ElevatedButton).last);
+        await tester.pumpAndSettle();
+      }
+
       // Verify the glowing banner appears on dashboard
       expect(find.text('[ ⚔️ RANK PROMOTION TRIAL READY ]'), findsOneWidget);
-      expect(find.text('ENTER PROMOTION TRIAL NOW'), findsOneWidget);
+      final trialBtn = find.text('ENTER PROMOTION TRIAL NOW');
+      expect(trialBtn, findsOneWidget);
 
-      // Tap trial button
-      await tester.tap(find.text('ENTER PROMOTION TRIAL NOW'));
+      await tester.ensureVisible(trialBtn);
+      await tester.pumpAndSettle();
+      await tester.tap(trialBtn);
       await tester.pumpAndSettle();
 
       // Verify it opens Awakening dialog

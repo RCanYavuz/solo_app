@@ -395,51 +395,65 @@ class _StatusWindowState extends State<StatusWindow> {
                   child: Column(
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _statRow(
-                            Icons.fitness_center,
-                            'STR',
-                            SystemMemory.str.value,
-                            sysBlue,
+                          Expanded(
+                            child: _statRow(
+                              Icons.fitness_center,
+                              'STR',
+                              SystemMemory.str.value,
+                              sysBlue,
+                            ),
                           ),
-                          _statRow(
-                            Icons.favorite,
-                            'VIT',
-                            SystemMemory.vit.value,
-                            sysBlue,
+                          const SizedBox(width: 20),
+                          Expanded(
+                            child: _statRow(
+                              Icons.favorite,
+                              'VIT',
+                              SystemMemory.vit.value,
+                              sysBlue,
+                            ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 20),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _statRow(
-                            Icons.directions_run,
-                            'AGI',
-                            SystemMemory.agi.value,
-                            sysBlue,
+                          Expanded(
+                            child: _statRow(
+                              Icons.directions_run,
+                              'AGI',
+                              SystemMemory.agi.value,
+                              sysBlue,
+                            ),
                           ),
-                          _statRow(
-                            Icons.psychology,
-                            'INT',
-                            SystemMemory.intStat.value,
-                            sysBlue,
+                          const SizedBox(width: 20),
+                          Expanded(
+                            child: _statRow(
+                              Icons.psychology,
+                              'INT',
+                              SystemMemory.intStat.value,
+                              sysBlue,
+                            ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 20),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _statRow(
-                            Icons.visibility,
-                            'PER',
-                            SystemMemory.per.value,
-                            sysBlue,
+                          Expanded(
+                            flex: 5,
+                            child: _statRow(
+                              Icons.visibility,
+                              'PER',
+                              SystemMemory.per.value,
+                              sysBlue,
+                            ),
                           ),
-                          Column(
+                          const SizedBox(width: 12),
+                          Expanded(
+                            flex: 6,
+                            child: Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
@@ -514,10 +528,79 @@ class _StatusWindowState extends State<StatusWindow> {
                                   ),
                                 ),
                               ],
+                              ValueListenableBuilder<bool>(
+                                valueListenable: SystemMemory.otomatikStatDagitimiAktif,
+                                builder: (context, autoActive, _) {
+                                  return InkWell(
+                                    onTap: () {
+                                      SystemMemory.otomatikStatDagitimiAktif.value = !autoActive;
+                                      SystemMemory.kaydet();
+                                      setState(() {});
+                                      final isTr = TranslationManager.isTurkish;
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          backgroundColor: const Color(0xFF0F172A),
+                                          duration: const Duration(seconds: 2),
+                                          content: Text(
+                                            SystemMemory.otomatikStatDagitimiAktif.value
+                                                ? (isTr
+                                                    ? '⚡ Otomatik Stat Dağıtımı AÇIK: Kazanılan AP anında statlara eklenecek.'
+                                                    : '⚡ Auto-Allocate ON: Earned AP will be automatically allocated to stats.')
+                                                : (isTr
+                                                    ? '💎 Manuel Stat Dağıtımı: AP puanları biriktirilip elle dağıtılacak.'
+                                                    : '💎 Manual Stat Allocation: AP will be held for manual distribution.'),
+                                            style: TextStyle(
+                                              color: SystemMemory.otomatikStatDagitimiAktif.value ? sysBlue : sysTextMuted,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      margin: const EdgeInsets.only(top: 8),
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                                      decoration: BoxDecoration(
+                                        color: autoActive ? sysBlue.withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.04),
+                                        border: Border.all(
+                                          color: autoActive ? sysBlue : Colors.white24,
+                                          width: 1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            autoActive ? Icons.check_circle : Icons.radio_button_unchecked,
+                                            color: autoActive ? sysBlue : sysTextMuted,
+                                            size: 11,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Flexible(
+                                            child: Text(
+                                              TranslationManager.get('status_auto_allocate_toggle'),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                color: autoActive ? sysBlue : sysTextMuted,
+                                                fontSize: 9,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
                             ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
+                    ),
                     ],
                   ),
                 ),
@@ -684,55 +767,52 @@ class _StatusWindowState extends State<StatusWindow> {
 
   Widget _statRow(IconData icon, String label, int value, Color sysBlue) {
     bool canUpgrade = SystemMemory.ap.value > 0;
-    return SizedBox(
-      width: 130,
-      child: Row(
-        children: [
-          Icon(icon, color: sysBlue, size: 16),
-          const SizedBox(width: 8),
-          Text(
-            '$label:',
-            style: GoogleFonts.rajdhani(
-              color: const Color(0xFF94A3B8),
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+    return Row(
+      children: [
+        Icon(icon, color: sysBlue, size: 16),
+        const SizedBox(width: 6),
+        Text(
+          '$label:',
+          style: GoogleFonts.rajdhani(
+            color: const Color(0xFF94A3B8),
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
           ),
-          const Spacer(),
-          Text(
-            '$value',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+        ),
+        const Spacer(),
+        Text(
+          '$value',
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
           ),
-          if (canUpgrade) ...[
-            const SizedBox(width: 5),
-            GestureDetector(
-              onTap: () {
+        ),
+        if (canUpgrade) ...[
+          const SizedBox(width: 5),
+          GestureDetector(
+            onTap: () {
+              SystemMemory.statuYukselt(label);
+              setState(() {});
+            },
+            onLongPress: () {
+              for (int i = 0; i < 5 && SystemMemory.ap.value > 0; i++) {
                 SystemMemory.statuYukselt(label);
-                setState(() {});
-              },
-              onLongPress: () {
-                for (int i = 0; i < 5 && SystemMemory.ap.value > 0; i++) {
-                  SystemMemory.statuYukselt(label);
-                }
-                AudioSystem.playSuccess();
-                setState(() {});
-              },
-              child: Container(
-                padding: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  color: sysBlue.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-                child: Icon(Icons.add, color: sysBlue, size: 14),
+              }
+              AudioSystem.playSuccess();
+              setState(() {});
+            },
+            child: Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: sysBlue.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(2),
               ),
+              child: Icon(Icons.add, color: sysBlue, size: 14),
             ),
-          ],
+          ),
         ],
-      ),
+      ],
     );
   }
 }

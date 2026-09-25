@@ -17,7 +17,7 @@ class HologramCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: padding ?? const EdgeInsets.all(20),
+      padding: padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
         // YENİ: Animedeki gibi koyu lacivert/siyah şeffaf cam arka plan
         color: const Color(0xFF070B14).withValues(alpha: 0.85), 

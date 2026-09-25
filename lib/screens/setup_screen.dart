@@ -503,11 +503,12 @@ class _SetupScreenState extends State<SetupScreen> {
             ],
           ),
           contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (basarili && model != null) ...[
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (basarili && model != null) ...[
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
@@ -571,6 +572,7 @@ class _SetupScreenState extends State<SetupScreen> {
               ],
             ],
           ),
+        ),
           actionsPadding: const EdgeInsets.all(16),
           actions: [
             ElevatedButton(

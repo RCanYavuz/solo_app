@@ -15,6 +15,8 @@ import '../widgets/advanced_exercise_selector_modal.dart';
 import '../widgets/rir_feedback_modal.dart';
 import '../core/progressive_overload_engine.dart';
 import '../core/translation_manager.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
+import '../widgets/global_timer_hud.dart';
 
 class ActiveWorkoutScreen extends StatefulWidget {
   final DateTime Function()? nowProvider;
@@ -45,12 +47,14 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
     WidgetsBinding.instance.addObserver(this); 
     _dungeonBaslangicZamani = _now;
     _kronometreyiBaslat();
+    WakelockPlus.enable().catchError((_) {});
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this); 
     _kronometre?.cancel();
+    WakelockPlus.disable().catchError((_) {});
     super.dispose();
   }
 
@@ -471,7 +475,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
 
     return ValueListenableBuilder<String>(
       valueListenable: SystemMemory.appLanguage,
-      builder: (context, _, __) {
+      builder: (context, _, child) {
         return Scaffold(
           backgroundColor: sysDarkBg,
       body: SafeArea(
@@ -646,6 +650,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
           ],
         ),
       ),
+      bottomNavigationBar: const GlobalTimerHUD(),
     );
       },
     );
@@ -747,9 +752,13 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
                         ),
                       ),
                       const SizedBox(width: 5),
-                      Text(
-                        TranslationManager.get('workout_tactics_substitute'),
-                        style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 10),
+                      Flexible(
+                        child: Text(
+                          TranslationManager.get('workout_tactics_substitute'),
+                          style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 10),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                   ),
@@ -1007,31 +1016,33 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> with WidgetsB
           'SET ${s.setNo} DÜZENLE',
           style: GoogleFonts.orbitron(color: sysBlue, fontSize: 13, fontWeight: FontWeight.bold),
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: kiloCtrl,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                labelText: TranslationManager.isTurkish
-                    ? 'Ağırlık (kg - Vücut ağırlığı için boş bırakın)'
-                    : 'Weight (kg - Leave empty for Bodyweight)',
-                labelStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: kiloCtrl,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: TranslationManager.isTurkish
+                      ? 'Ağırlık (kg - Vücut ağırlığı için boş bırakın)'
+                      : 'Weight (kg - Leave empty for Bodyweight)',
+                  labelStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+                ),
               ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: repCtrl,
-              keyboardType: TextInputType.number,
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                labelText: TranslationManager.isTurkish ? 'Tekrar Sayısı (Reps)' : 'Reps (Target count)',
-                labelStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+              const SizedBox(height: 10),
+              TextField(
+                controller: repCtrl,
+                keyboardType: TextInputType.number,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: TranslationManager.isTurkish ? 'Tekrar Sayısı (Reps)' : 'Reps (Target count)',
+                  labelStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         actions: [
           TextButton(

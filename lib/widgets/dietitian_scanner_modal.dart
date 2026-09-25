@@ -35,6 +35,29 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
   String? _hata;
   String? _aiNot;
   List<Map<String, dynamic>> _tarananOgunler = [];
+  List<Map<String, dynamic>> _tarananGunler = [];
+  int _seciliGunIndex = 0;
+  bool _yarinBaslat = true; // Varsayılan: Yüklendikten sonraki gün (Yarın)
+
+  String _formatTarihKisa(DateTime dt) {
+    const aylarTr = ["", "Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
+    const aylarEn = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    final aylar = TranslationManager.isTurkish ? aylarTr : aylarEn;
+    return "${dt.day} ${aylar[dt.month]}";
+  }
+
+  void _gunSec(int index) {
+    if (index < 0 || index >= _tarananGunler.length) return;
+    setState(() {
+      _seciliGunIndex = index;
+      final g = _tarananGunler[index];
+      _kaloriCtrl.text = (g['kalori'] ?? 2000).toString();
+      _proteinCtrl.text = (g['protein'] ?? 140).toString();
+      _karbCtrl.text = (g['karb'] ?? 220).toString();
+      _yagCtrl.text = (g['yag'] ?? 60).toString();
+      _tarananOgunler = List<Map<String, dynamic>>.from(g['ogunler'] ?? []);
+    });
+  }
 
   @override
   void initState() {
@@ -45,6 +68,13 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
       _karbCtrl.text = SystemMemory.diyetisyenBazKarb.toString();
       _yagCtrl.text = SystemMemory.diyetisyenBazYag.toString();
       _tarananOgunler = List<Map<String, dynamic>>.from(SystemMemory.diyetisyenOgunleri);
+
+      if (SystemMemory.diyetisyenGunlukPlanlar.isNotEmpty) {
+        _tarananGunler = SystemMemory.diyetisyenGunlukPlanlar.values
+            .map((e) => Map<String, dynamic>.from(e as Map))
+            .toList();
+        _tarananGunler.sort((a, b) => ((a['gunNo'] as num?)?.toInt() ?? 0).compareTo((b['gunNo'] as num?)?.toInt() ?? 0));
+      }
     }
   }
 
@@ -139,9 +169,33 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
       _yagCtrl.text = (res['toplamYag'] ?? 60).toString();
       _aiNot = res['notlar']?.toString();
 
-      final ogunlerRaw = res['ogunler'] as List?;
-      if (ogunlerRaw != null) {
-        _tarananOgunler = ogunlerRaw.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+      final gunlerRaw = res['gunler'] as List?;
+      if (gunlerRaw != null && gunlerRaw.isNotEmpty) {
+        _tarananGunler = gunlerRaw.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+        _seciliGunIndex = 0;
+        final g = _tarananGunler[0];
+        _kaloriCtrl.text = (g['kalori'] ?? _kaloriCtrl.text).toString();
+        _proteinCtrl.text = (g['protein'] ?? _proteinCtrl.text).toString();
+        _karbCtrl.text = (g['karb'] ?? _karbCtrl.text).toString();
+        _yagCtrl.text = (g['yag'] ?? _yagCtrl.text).toString();
+        _tarananOgunler = List<Map<String, dynamic>>.from(g['ogunler'] ?? []);
+      } else {
+        final ogunlerRaw = res['ogunler'] as List?;
+        if (ogunlerRaw != null) {
+          _tarananOgunler = ogunlerRaw.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+        }
+        _tarananGunler = [
+          {
+            'gunNo': 1,
+            'baslik': '1. Gün',
+            'kalori': int.tryParse(_kaloriCtrl.text) ?? 2000,
+            'protein': int.tryParse(_proteinCtrl.text) ?? 140,
+            'karb': int.tryParse(_karbCtrl.text) ?? 220,
+            'yag': int.tryParse(_yagCtrl.text) ?? 60,
+            'ogunler': _tarananOgunler,
+          }
+        ];
+        _seciliGunIndex = 0;
       }
     });
   }
@@ -157,21 +211,69 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
       return;
     }
 
+    // Seçili günün değerlerini güncelle
+    if (_tarananGunler.isNotEmpty && _seciliGunIndex < _tarananGunler.length) {
+      _tarananGunler[_seciliGunIndex]['kalori'] = kalori;
+      _tarananGunler[_seciliGunIndex]['protein'] = protein;
+      _tarananGunler[_seciliGunIndex]['karb'] = karb;
+      _tarananGunler[_seciliGunIndex]['yag'] = yag;
+      _tarananGunler[_seciliGunIndex]['ogunler'] = _tarananOgunler;
+    }
+
+    if (_tarananGunler.isEmpty) {
+      _tarananGunler = [
+        {
+          'gunNo': 1,
+          'baslik': '1. Gün',
+          'kalori': kalori,
+          'protein': protein,
+          'karb': karb,
+          'yag': yag,
+          'ogunler': _tarananOgunler,
+        }
+      ];
+    }
+
+    final now = DateTime.now();
+    final startDate = _yarinBaslat ? now.add(const Duration(days: 1)) : now;
+    final startDateStr = "${startDate.year}-${startDate.month.toString().padLeft(2, '0')}-${startDate.day.toString().padLeft(2, '0')}";
+
+    Map<String, dynamic> gunlukPlanlar = {};
+    for (int i = 0; i < _tarananGunler.length; i++) {
+      final g = _tarananGunler[i];
+      DateTime targetDate = startDate.add(Duration(days: i));
+      String dateKey = "${targetDate.year}-${targetDate.month.toString().padLeft(2, '0')}-${targetDate.day.toString().padLeft(2, '0')}";
+      gunlukPlanlar[dateKey] = {
+        'gunNo': g['gunNo'] ?? (i + 1),
+        'baslik': g['baslik'] ?? '${i + 1}. Gün',
+        'tarih': dateKey,
+        'kalori': (g['kalori'] as num?)?.toInt() ?? kalori,
+        'protein': (g['protein'] as num?)?.toInt() ?? protein,
+        'karb': (g['karb'] as num?)?.toInt() ?? karb,
+        'yag': (g['yag'] as num?)?.toInt() ?? yag,
+        'ogunler': g['ogunler'] ?? _tarananOgunler,
+      };
+    }
+
     SystemMemory.diyetisyenListesiniKaydet(
       kalori: kalori,
       protein: protein,
       karb: karb,
       yag: yag,
       ogunler: _tarananOgunler,
+      baslangicTarihi: startDateStr,
+      gunlukPlanlar: gunlukPlanlar,
     );
 
     Navigator.pop(context, true);
+    final tr = TranslationManager.isTurkish;
+    final dateDisplay = "${startDate.day}/${startDate.month}";
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          TranslationManager.isTurkish
-              ? "📋 DİYETİSYEN PROGRAMI AKTİF EDİLDİ: $kalori kcal (P: ${protein}g, C: ${karb}g, F: ${yag}g)"
-              : "📋 DIETITIAN PROGRAM ACTIVATED: $kalori kcal (P: ${protein}g, C: ${karb}g, F: ${yag}g)",
+          tr
+              ? "📋 DİYETİSYEN PROGRAMI AKTİF: ${_tarananGunler.length} Günlük Menü (${_yarinBaslat ? '1. Gün Yarın $dateDisplay Başlıyor' : 'Bugün Başladı'})"
+              : "📋 DIETITIAN PROGRAM ACTIVATED: ${_tarananGunler.length} Days Plan (Starts ${_yarinBaslat ? 'Tomorrow' : 'Today'})",
           style: GoogleFonts.orbitron(fontSize: 12, fontWeight: FontWeight.bold),
         ),
         backgroundColor: sysGreen,
@@ -491,6 +593,189 @@ class _DietitianScannerModalState extends State<DietitianScannerModal> {
               const SizedBox(height: 20),
               const Divider(color: Colors.white12),
               const SizedBox(height: 10),
+
+              // ==========================================
+              // PROGRAM BAŞLANGIÇ TARİHİ SEÇİMİ (YARIN / BUGÜN)
+              // ==========================================
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0F172A),
+                  border: Border.all(color: sysGold.withValues(alpha: 0.4)),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.calendar_month, color: sysGold, size: 16),
+                        const SizedBox(width: 8),
+                        Text(
+                          TranslationManager.isTurkish ? "1. GÜN BAŞLANGIÇ TARİHİ" : "DAY 1 START SCHEDULE",
+                          style: GoogleFonts.orbitron(color: sysGold, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      TranslationManager.isTurkish
+                          ? "Diyetisyen listesindeki '1. Gün', '2. Gün' vb. menüler takvime hangi günden itibaren işlensin?"
+                          : "From which date should Day 1, Day 2 etc. meals be mapped?",
+                      style: const TextStyle(color: sysTextMuted, fontSize: 11),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: InkWell(
+                            onTap: () => setState(() => _yarinBaslat = true),
+                            borderRadius: BorderRadius.circular(4),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                              decoration: BoxDecoration(
+                                color: _yarinBaslat ? sysGold.withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.03),
+                                border: Border.all(color: _yarinBaslat ? sysGold : Colors.white12, width: _yarinBaslat ? 1.5 : 1),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(_yarinBaslat ? Icons.radio_button_checked : Icons.radio_button_off, size: 14, color: _yarinBaslat ? sysGold : sysTextMuted),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        TranslationManager.isTurkish ? "YARIN BAŞLASIN" : "START TOMORROW",
+                                        style: TextStyle(color: _yarinBaslat ? sysGold : Colors.white70, fontSize: 11, fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    "1. Gün: ${_formatTarihKisa(DateTime.now().add(const Duration(days: 1)))}",
+                                    style: TextStyle(color: _yarinBaslat ? sysGold : sysTextMuted, fontSize: 10),
+                                  ),
+                                  Text(
+                                    TranslationManager.isTurkish ? "(Yüklendikten Sonraki Gün)" : "(Day After Upload)",
+                                    style: const TextStyle(color: sysGreen, fontSize: 9, fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: InkWell(
+                            onTap: () => setState(() => _yarinBaslat = false),
+                            borderRadius: BorderRadius.circular(4),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                              decoration: BoxDecoration(
+                                color: !_yarinBaslat ? sysBlue.withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.03),
+                                border: Border.all(color: !_yarinBaslat ? sysBlue : Colors.white12, width: !_yarinBaslat ? 1.5 : 1),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(!_yarinBaslat ? Icons.radio_button_checked : Icons.radio_button_off, size: 14, color: !_yarinBaslat ? sysBlue : sysTextMuted),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        TranslationManager.isTurkish ? "BUGÜN BAŞLASIN" : "START TODAY",
+                                        style: TextStyle(color: !_yarinBaslat ? sysBlue : Colors.white70, fontSize: 11, fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    "1. Gün: ${_formatTarihKisa(DateTime.now())}",
+                                    style: TextStyle(color: !_yarinBaslat ? sysBlue : sysTextMuted, fontSize: 10),
+                                  ),
+                                  Text(
+                                    TranslationManager.isTurkish ? "(Hemen Devreye Al)" : "(Immediately)",
+                                    style: const TextStyle(color: sysBlue, fontSize: 9, fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // ==========================================
+              // ÇOKLU GÜN SEKMELERİ (1. Gün, 2. Gün...)
+              // ==========================================
+              if (_tarananGunler.length > 1) ...[
+                Text(
+                  TranslationManager.isTurkish
+                      ? "TARANAN GÜNLER (${_tarananGunler.length} GÜN BULUNDU):"
+                      : "SCANNED DAYS (${_tarananGunler.length} DAYS FOUND):",
+                  style: GoogleFonts.orbitron(color: sysBlue, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1),
+                ),
+                const SizedBox(height: 8),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: List.generate(_tarananGunler.length, (idx) {
+                      final isSelected = idx == _seciliGunIndex;
+                      final g = _tarananGunler[idx];
+                      final startDate = _yarinBaslat ? DateTime.now().add(const Duration(days: 1)) : DateTime.now();
+                      final dayDate = startDate.add(Duration(days: idx));
+
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: InkWell(
+                          onTap: () => _gunSec(idx),
+                          borderRadius: BorderRadius.circular(4),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: isSelected ? sysGold.withValues(alpha: 0.18) : const Color(0xFF0F172A),
+                              border: Border.all(
+                                color: isSelected ? sysGold : Colors.white24,
+                                width: isSelected ? 1.5 : 1,
+                              ),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Column(
+                              children: [
+                                Text(
+                                  g['baslik']?.toString() ?? '${idx + 1}. Gün',
+                                  style: GoogleFonts.orbitron(
+                                    color: isSelected ? sysGold : Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  _formatTarihKisa(dayDate),
+                                  style: TextStyle(
+                                    color: isSelected ? Colors.white : sysTextMuted,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+                const SizedBox(height: 14),
+              ],
 
               // Reçete Değerlerini Düzenleme & Onaylama
               Text(

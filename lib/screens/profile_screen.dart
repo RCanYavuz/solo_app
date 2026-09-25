@@ -1,8 +1,9 @@
-// lib/screens/profile_screen.dart
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart'; 
+import 'package:file_picker/file_picker.dart'; 
 
 import '../controllers/system_memory.dart';
 import '../widgets/hologram_card.dart';
@@ -251,80 +252,82 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 TranslationManager.get('profile_override_protocol_title'), 
                 style: GoogleFonts.orbitron(color: sysBlue, fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: 1)
               ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    TranslationManager.get('profile_override_objective_sub'), 
-                    style: const TextStyle(color: sysTextMuted, fontSize: 12)
-                  ),
-                  const SizedBox(height: 10),
-                  DropdownButtonFormField<String>(
-                    initialValue: geciciHedef == "Bilinmiyor" ? null : geciciHedef,
-                    dropdownColor: const Color(0xFF0F172A),
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                    decoration: InputDecoration(
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: sysBlue.withValues(alpha: 0.5))
-                      ),
-                      focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: sysBlue)
-                      ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      TranslationManager.get('profile_override_objective_sub'), 
+                      style: const TextStyle(color: sysTextMuted, fontSize: 12)
                     ),
-                    items: ['Kilo Ver (Yağ Yak)', 'Kilo Al (Kas İnşa Et)'].map((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value, 
-                        child: Text(_hedefIngilizce(value))
-                      );
-                    }).toList(),
-                    onChanged: (yeniDeger) {
-                      setDialogState(() {
-                        geciciHedef = yeniDeger!;
-                        geciciZorluk = "Normal"; 
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    TranslationManager.get('profile_override_diff_sub'), 
-                    style: const TextStyle(color: sysTextMuted, fontSize: 12)
-                  ),
-                  const SizedBox(height: 10),
-                  DropdownButtonFormField<String>(
-                    initialValue: geciciZorluk == "Bilinmiyor" ? null : geciciZorluk,
-                    dropdownColor: const Color(0xFF0F172A),
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                    decoration: InputDecoration(
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: sysBlue.withValues(alpha: 0.5))
+                    const SizedBox(height: 10),
+                    DropdownButtonFormField<String>(
+                      initialValue: geciciHedef == "Bilinmiyor" ? null : geciciHedef,
+                      dropdownColor: const Color(0xFF0F172A),
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      decoration: InputDecoration(
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: sysBlue.withValues(alpha: 0.5))
+                        ),
+                        focusedBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: sysBlue)
+                        ),
                       ),
-                      focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: sysBlue)
-                      ),
+                      items: ['Kilo Ver (Yağ Yak)', 'Kilo Al (Kas İnşa Et)'].map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value, 
+                          child: Text(_hedefIngilizce(value))
+                        );
+                      }).toList(),
+                      onChanged: (yeniDeger) {
+                        setDialogState(() {
+                          geciciHedef = yeniDeger!;
+                          geciciZorluk = "Normal"; 
+                        });
+                      },
                     ),
-                    items: (geciciHedef == 'Kilo Ver (Yağ Yak)' 
-                            ? ['Normal', 'Yüksek', 'Cehennem'] 
-                            : ['Normal', 'Yüksek', 'Canavar']).map((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value, 
-                        child: Text(
-                          _zorlukIngilizce(value), 
-                          style: TextStyle(
-                            color: value == 'Cehennem' || value == 'Canavar' 
-                                ? const Color(0xFFEF4444) 
-                                : Colors.white
+                    const SizedBox(height: 20),
+                    Text(
+                      TranslationManager.get('profile_override_diff_sub'), 
+                      style: const TextStyle(color: sysTextMuted, fontSize: 12)
+                    ),
+                    const SizedBox(height: 10),
+                    DropdownButtonFormField<String>(
+                      initialValue: geciciZorluk == "Bilinmiyor" ? null : geciciZorluk,
+                      dropdownColor: const Color(0xFF0F172A),
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      decoration: InputDecoration(
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: sysBlue.withValues(alpha: 0.5))
+                        ),
+                        focusedBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: sysBlue)
+                        ),
+                      ),
+                      items: (geciciHedef == 'Kilo Ver (Yağ Yak)' 
+                              ? ['Normal', 'Yüksek', 'Cehennem'] 
+                              : ['Normal', 'Yüksek', 'Canavar']).map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value, 
+                          child: Text(
+                            _zorlukIngilizce(value), 
+                            style: TextStyle(
+                              color: value == 'Cehennem' || value == 'Canavar' 
+                                  ? const Color(0xFFEF4444) 
+                                  : Colors.white
+                            )
                           )
-                        )
-                      );
-                    }).toList(),
-                    onChanged: (yeniDeger) {
-                      setDialogState(() { 
-                        geciciZorluk = yeniDeger!; 
-                      });
-                    },
-                  ),
-                ],
+                        );
+                      }).toList(),
+                      onChanged: (yeniDeger) {
+                        setDialogState(() { 
+                          geciciZorluk = yeniDeger!; 
+                        });
+                      },
+                    ),
+                  ],
+                ),
               ),
               actions: [
                 TextButton(
@@ -1132,6 +1135,65 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Text(
                 TranslationManager.get('profile_archive_restore_desc'),
                 style: const TextStyle(color: sysTextMuted, fontSize: 12),
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        final cdata = await Clipboard.getData(Clipboard.kTextPlain);
+                        if (cdata != null && cdata.text != null && cdata.text!.isNotEmpty) {
+                          jsonCtrl.text = cdata.text!;
+                          AudioSystem.playSuccess();
+                        }
+                      },
+                      icon: const Icon(Icons.paste, size: 14, color: physicalGold),
+                      label: Text(
+                        TranslationManager.isTurkish ? "Panodan Yapıştır" : "From Clipboard",
+                        style: const TextStyle(color: physicalGold, fontSize: 11, fontWeight: FontWeight.bold),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: physicalGold.withValues(alpha: 0.5)),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        try {
+                          final res = await FilePicker.pickFiles(
+                            type: FileType.any,
+                            withData: true,
+                          );
+                          if (res != null && res.files.isNotEmpty) {
+                            final file = res.files.first;
+                            String content = "";
+                            if (file.bytes != null) {
+                              content = utf8.decode(file.bytes!);
+                            }
+                            if (content.isNotEmpty) {
+                              jsonCtrl.text = content;
+                              AudioSystem.playSuccess();
+                            }
+                          }
+                        } catch (e) {
+                          debugPrint("Dosya okuma hatası: $e");
+                        }
+                      },
+                      icon: const Icon(Icons.file_open, size: 14, color: sysBlue),
+                      label: Text(
+                        TranslationManager.isTurkish ? "Dosya Seç (.json)" : "Select File",
+                        style: const TextStyle(color: sysBlue, fontSize: 11, fontWeight: FontWeight.bold),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: sysBlue.withValues(alpha: 0.5)),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 12),
               TextField(

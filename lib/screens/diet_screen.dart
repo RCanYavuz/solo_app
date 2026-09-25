@@ -463,6 +463,428 @@ class _YemekEkraniState extends State<YemekEkrani> {
     ).then((_) => setState(() {}));
   }
 
+  String _formatTarihKisa(DateTime? dt) {
+    if (dt == null) return "";
+    const aylarTr = ["", "Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
+    const aylarEn = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    final aylar = TranslationManager.isTurkish ? aylarTr : aylarEn;
+    return "${dt.day} ${aylar[dt.month]}";
+  }
+
+  void _tumDiyetisyenGunleriniGoster() {
+    final tr = TranslationManager.isTurkish;
+    final planlar = SystemMemory.diyetisyenGunlukPlanlar;
+    final sortedKeys = planlar.keys.toList()..sort();
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF070B14),
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
+      builder: (ctx) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.75,
+          minChildSize: 0.4,
+          maxChildSize: 0.95,
+          expand: false,
+          builder: (context, scrollCtrl) {
+            return Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2)),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.calendar_today, color: sysGold, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            tr ? "TÜM DİYETİSYEN GÜNLERİ" : "ALL DIETITIAN DAYS",
+                            style: GoogleFonts.orbitron(color: sysGold, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 1.5),
+                          ),
+                        ],
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: sysTextMuted),
+                        onPressed: () => Navigator.pop(ctx),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    tr
+                        ? "Diyetisyen belgenizden takvime işlenen günlük beslenme programı:"
+                        : "Multi-day diet protocol decoded from your dietitian document:",
+                    style: const TextStyle(color: sysTextMuted, fontSize: 11),
+                  ),
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: sortedKeys.isEmpty
+                        ? Center(
+                            child: Text(
+                              tr ? "Henüz çoklu gün planı bulunmuyor." : "No multi-day plan found.",
+                              style: const TextStyle(color: sysTextMuted),
+                            ),
+                          )
+                        : ListView.builder(
+                            controller: scrollCtrl,
+                            itemCount: sortedKeys.length,
+                            itemBuilder: (context, idx) {
+                              final key = sortedKeys[idx];
+                              final p = Map<String, dynamic>.from(planlar[key] as Map);
+                              final dt = DateTime.tryParse(key);
+                              final baslik = p['baslik']?.toString() ?? '${idx + 1}. Gün';
+                              final cal = p['kalori'] ?? SystemMemory.diyetisyenBazKalori;
+                              final pro = p['protein'] ?? SystemMemory.diyetisyenBazProtein;
+                              final carb = p['karb'] ?? SystemMemory.diyetisyenBazKarb;
+                              final fat = p['yag'] ?? SystemMemory.diyetisyenBazYag;
+                              final ogunler = (p['ogunler'] as List?)?.map((e) => Map<String, dynamic>.from(e as Map)).toList() ?? [];
+
+                              final now = DateTime.now();
+                              final isToday = dt != null && dt.year == now.year && dt.month == now.month && dt.day == now.day;
+
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: isToday ? sysGold.withValues(alpha: 0.12) : const Color(0xFF0F172A),
+                                  border: Border.all(
+                                    color: isToday ? sysGold : Colors.white12,
+                                    width: isToday ? 1.5 : 1,
+                                  ),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text(
+                                              baslik,
+                                              style: GoogleFonts.orbitron(
+                                                color: isToday ? sysGold : Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                            if (dt != null) ...[
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                "(${_formatTarihKisa(dt)})",
+                                                style: TextStyle(color: isToday ? sysGold : sysBlue, fontSize: 11),
+                                              ),
+                                            ],
+                                          ],
+                                        ),
+                                        if (isToday)
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                            decoration: BoxDecoration(color: sysGold, borderRadius: BorderRadius.circular(3)),
+                                            child: Text(
+                                              tr ? "BUGÜN" : "TODAY",
+                                              style: const TextStyle(color: sysDarkBg, fontSize: 9, fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      "$cal kcal | P: ${pro}g | C: ${carb}g | F: ${fat}g",
+                                      style: TextStyle(color: sysGold.withValues(alpha: 0.9), fontSize: 11, fontWeight: FontWeight.bold),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    ...ogunler.map((og) {
+                                      final bool done = og['tamamlandi'] == true;
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 3),
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Icon(
+                                              done ? Icons.check_circle : Icons.circle_outlined,
+                                              size: 14,
+                                              color: done ? sysGreen : sysTextMuted,
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Expanded(
+                                              child: Text(
+                                                "${og['ad'] ?? og['baslik']}: ${og['detay'] ?? og['besinler'] ?? ''}",
+                                                style: TextStyle(
+                                                  color: done ? Colors.white54 : Colors.white,
+                                                  fontSize: 11,
+                                                  decoration: done ? TextDecoration.lineThrough : null,
+                                                ),
+                                              ),
+                                            ),
+                                            if (og['kalori'] != null)
+                                              Text(
+                                                "${og['kalori']} kcal",
+                                                style: const TextStyle(color: sysTextMuted, fontSize: 10),
+                                              ),
+                                          ],
+                                        ),
+                                      );
+                                    }),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildDiyetisyenGununMenusuCard() {
+    final tr = TranslationManager.isTurkish;
+    final now = DateTime.now();
+    final bugunStr = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+    final baslangicStr = SystemMemory.diyetisyenBaslangicTarihi;
+    final baslangicDt = baslangicStr.isNotEmpty ? DateTime.tryParse(baslangicStr) : null;
+    final bool yarinBasliyor = baslangicDt != null && DateTime(now.year, now.month, now.day).isBefore(DateTime(baslangicDt.year, baslangicDt.month, baslangicDt.day));
+
+    if (yarinBasliyor) {
+      return HologramCard(
+        neonRenk: sysGold,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.schedule, color: sysGold, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    tr ? "⏳ DİYETİSYEN MENÜSÜ: 1. GÜN YARIN BAŞLIYOR" : "⏳ DIETITIAN MENU: DAY 1 STARTS TOMORROW",
+                    style: GoogleFonts.orbitron(color: sysGold, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              tr
+                  ? "Diyetisyen belgenizdeki '1. Gün' menüsü ${_formatTarihKisa(baslangicDt)} tarihinden itibaren devreye girecektir. Bugün mevcut beslenmenize devam edebilirsiniz."
+                  : "Day 1 from your dietitian document will activate on ${_formatTarihKisa(baslangicDt)}. You may proceed with today's regular plan.",
+              style: const TextStyle(color: sysTextMuted, fontSize: 11, height: 1.4),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _tumDiyetisyenGunleriniGoster,
+                    icon: const Icon(Icons.visibility, size: 14, color: sysGold),
+                    label: Text(
+                      tr ? "YARININ MENÜSÜNÜ ÖNİZLE" : "PREVIEW TOMORROW'S MENU",
+                      style: const TextStyle(color: sysGold, fontSize: 11, fontWeight: FontWeight.bold),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: sysGold.withValues(alpha: 0.5)),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+
+    Map<String, dynamic>? gunPlani;
+    if (SystemMemory.diyetisyenGunlukPlanlar.containsKey(bugunStr)) {
+      gunPlani = Map<String, dynamic>.from(SystemMemory.diyetisyenGunlukPlanlar[bugunStr] as Map);
+    }
+    final planBaslik = gunPlani?['baslik']?.toString() ?? (tr ? 'Günün Menüsü' : "Today's Menu");
+    final ogunler = (gunPlani?['ogunler'] as List?)?.map((e) => Map<String, dynamic>.from(e as Map)).toList() ?? SystemMemory.diyetisyenOgunleri;
+
+    return HologramCard(
+      neonRenk: sysGold,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.restaurant_menu, color: sysGold, size: 18),
+                  const SizedBox(width: 8),
+                  Text(
+                    "📋 $planBaslik",
+                    style: GoogleFonts.orbitron(color: sysGold, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 1),
+                  ),
+                ],
+              ),
+              if (SystemMemory.diyetisyenGunlukPlanlar.isNotEmpty)
+                InkWell(
+                  onTap: _tumDiyetisyenGunleriniGoster,
+                  borderRadius: BorderRadius.circular(4),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: sysGold.withValues(alpha: 0.15),
+                      border: Border.all(color: sysGold.withValues(alpha: 0.4)),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          tr ? "TÜM GÜNLER" : "ALL DAYS",
+                          style: const TextStyle(color: sysGold, fontSize: 10, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.arrow_forward_ios, color: sysGold, size: 10),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            "${SystemMemory.diyetisyenBazKalori} kcal | P: ${SystemMemory.diyetisyenBazProtein}g | C: ${SystemMemory.diyetisyenBazKarb}g | F: ${SystemMemory.diyetisyenBazYag}g",
+            style: TextStyle(color: sysGold.withValues(alpha: 0.9), fontSize: 11, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+
+          if (ogunler.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Text(
+                tr ? "Bugün için kayıtlı öğün bulunmuyor." : "No meals logged for today.",
+                style: const TextStyle(color: sysTextMuted, fontSize: 11),
+              ),
+            )
+          else
+            ...ogunler.map((og) {
+              final String id = og['id']?.toString() ?? og['ad']?.toString() ?? '';
+              final String ad = og['ad']?.toString() ?? og['baslik']?.toString() ?? (tr ? 'Öğün' : 'Meal');
+              final String detay = og['detay']?.toString() ?? og['besinler']?.toString() ?? '';
+              final int cal = (og['kalori'] as num?)?.toInt() ?? 0;
+              final int pro = (og['protein'] as num?)?.toInt() ?? 0;
+              final int carb = (og['karb'] as num?)?.toInt() ?? 0;
+              final int fat = (og['yag'] as num?)?.toInt() ?? 0;
+              final bool done = og['tamamlandi'] == true;
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                decoration: BoxDecoration(
+                  color: done ? sysGreen.withValues(alpha: 0.08) : const Color(0xFF0F172A),
+                  border: Border.all(color: done ? sysGreen.withValues(alpha: 0.4) : Colors.white12),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                ad,
+                                style: TextStyle(
+                                  color: done ? sysGreen : Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  decoration: done ? TextDecoration.lineThrough : null,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                "$cal kcal",
+                                style: const TextStyle(color: sysGold, fontSize: 10, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                          if (detay.isNotEmpty) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              detay,
+                              style: TextStyle(
+                                color: done ? Colors.white38 : sysTextMuted,
+                                fontSize: 11,
+                                height: 1.3,
+                                decoration: done ? TextDecoration.lineThrough : null,
+                              ),
+                            ),
+                          ],
+                          if (pro > 0 || carb > 0 || fat > 0) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              "P: ${pro}g • C: ${carb}g • F: ${fat}g",
+                              style: const TextStyle(color: sysBlue, fontSize: 9),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    InkWell(
+                      onTap: () {
+                        SystemMemory.diyetisyenOgunDurumuGuncelle(id, !done);
+                        setState(() {});
+                      },
+                      borderRadius: BorderRadius.circular(4),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: done ? sysGreen : sysBlue.withValues(alpha: 0.15),
+                          border: Border.all(color: done ? sysGreen : sysBlue.withValues(alpha: 0.5)),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              done ? Icons.check : Icons.add_circle_outline,
+                              color: done ? sysDarkBg : sysBlue,
+                              size: 14,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              done ? (tr ? "TÜKETİLDİ" : "EATEN") : (tr ? "TÜKET" : "EAT"),
+                              style: TextStyle(
+                                color: done ? sysDarkBg : sysBlue,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+        ],
+      ),
+    );
+  }
+
   Widget _telafiBadge(String metin, Color renk) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -673,12 +1095,16 @@ class _YemekEkraniState extends State<YemekEkrani> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                '${TranslationManager.isTurkish ? '🎯 HEDEF KİLO' : '🎯 TARGET WEIGHT'}: ${SystemMemory.hedefKilo.toStringAsFixed(1)} KG',
-                                style: GoogleFonts.orbitron(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                              Expanded(
+                                child: Text(
+                                  '${TranslationManager.isTurkish ? '🎯 HEDEF KİLO' : '🎯 TARGET WEIGHT'}: ${SystemMemory.hedefKilo.toStringAsFixed(1)} KG',
+                                  style: GoogleFonts.orbitron(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
+                              const SizedBox(width: 8),
                               Text(
                                 '${(SystemMemory.hedefKilo - SystemMemory.kilo) >= 0 ? "+" : ""}${(SystemMemory.hedefKilo - SystemMemory.kilo).toStringAsFixed(1)} KG',
                                 style: GoogleFonts.rajdhani(
@@ -836,6 +1262,11 @@ class _YemekEkraniState extends State<YemekEkrani> {
             ),
             const SizedBox(height: 25),
 
+            if (SystemMemory.diyetisyenListesiAktif) ...[
+              _buildDiyetisyenGununMenusuCard(),
+              const SizedBox(height: 25),
+            ],
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -895,28 +1326,34 @@ class _YemekEkraniState extends State<YemekEkrani> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.water_drop, color: waterColor, size: 20),
-                              const SizedBox(width: 8),
-                              Text(
-                                TranslationManager.get('diet_hydration_title'),
-                                style: GoogleFonts.orbitron(
-                                  color: hedefUlasildi ? Colors.greenAccent : waterColor,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1.5,
+                          Expanded(
+                            child: Row(
+                              children: [
+                                const Icon(Icons.water_drop, color: waterColor, size: 20),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    TranslationManager.get('diet_hydration_title'),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: GoogleFonts.orbitron(
+                                      color: hedefUlasildi ? Colors.greenAccent : waterColor,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1.2,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
+                          const SizedBox(width: 8),
                           Text(
                             '$icilenSu / $hedef ml',
                             style: GoogleFonts.orbitron(
                               color: Colors.white,
-                              fontSize: 13,
+                              fontSize: 12,
                               fontWeight: FontWeight.bold,
                             ),
                           ),

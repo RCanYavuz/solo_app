@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../core/audio_system.dart'; 
 import '../controllers/system_memory.dart'; 
 import '../core/translation_manager.dart'; 
+import 'package:wakelock_plus/wakelock_plus.dart'; 
 
 class EgitimFazi {
   final String isim;
@@ -86,6 +87,7 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
     WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel(); 
     _zindanCanliTimer?.cancel();
+    WakelockPlus.disable().catchError((_) {});
     super.dispose(); 
   }
 
@@ -243,9 +245,11 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
   void _baslatDuraklat() {
     if (calisiyor) {
       _timer?.cancel();
+      WakelockPlus.disable().catchError((_) {});
       setState(() => calisiyor = false);
     } else {
       if (parkur.isEmpty) return;
+      WakelockPlus.enable().catchError((_) {});
       setState(() => calisiyor = true);
       _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
         if (kalanSaniye > 0) { 
@@ -258,9 +262,16 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
     }
   }
 
-  void antrenmaniBitir() => _antrenmanBittiDialog();
+  void antrenmaniBitir() {
+    WakelockPlus.disable().catchError((_) {});
+    _antrenmanBittiDialog();
+  }
 
-  void _sifirla() { _timer?.cancel(); setState(() { calisiyor = false; _parkuruOlustur(); }); }
+  void _sifirla() {
+    _timer?.cancel();
+    WakelockPlus.disable().catchError((_) {});
+    setState(() { calisiyor = false; _parkuruOlustur(); });
+  }
 
   void _antrenmanBittiDialog() {
     int toplamSaniye = parkur.fold<int>(0, (sum, f) => sum + f.sureSaniye);
@@ -287,32 +298,34 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
             TranslationManager.isTurkish ? '[ SAVAŞ PROTOKOLÜ TAMAMLANDI ]' : '[ COMBAT PROTOCOL COMPLETE ]',
             style: GoogleFonts.orbitron(color: systemRed, fontWeight: FontWeight.bold, fontSize: 16),
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                TranslationManager.isTurkish
-                    ? "Dövüş simülasyonu başarıyla tamamlandı.\nSavaş performansı ve metabolik yıpranma kaydedildi."
-                    : "Combat simulation completed successfully.\nCombat performance and metabolic wear have been recorded.",
-                style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: systemRed.withValues(alpha: 0.1),
-                  border: Border.all(color: systemRed.withValues(alpha: 0.4)),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
                   TranslationManager.isTurkish
-                      ? "+$kazanilanExp EXP KAZANILDI\n+1 GÜÇ (STR) | +1 ÇEVİKLİK (AGI)\nYAKILAN: ~${yipranma.yakilanKalori} kcal | TELAFİ: +${yipranma.telafiProteini}g Protein\nAKTİF ZİNDAN SAYACI DEVAM EDİYOR"
-                      : "+$kazanilanExp EXP EARNED\n+1 STRENGTH | +1 AGILITY\nBURNED: ~${yipranma.yakilanKalori} kcal | RECOVERY: +${yipranma.telafiProteini}g Protein\nACTIVE RAID TIMER CONTINUES",
-                  style: GoogleFonts.orbitron(color: systemRed, fontSize: 11, height: 1.5, fontWeight: FontWeight.bold),
+                      ? "Dövüş simülasyonu başarıyla tamamlandı.\nSavaş performansı ve metabolik yıpranma kaydedildi."
+                      : "Combat simulation completed successfully.\nCombat performance and metabolic wear have been recorded.",
+                  style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
                 ),
-              ),
-            ],
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: systemRed.withValues(alpha: 0.1),
+                    border: Border.all(color: systemRed.withValues(alpha: 0.4)),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    TranslationManager.isTurkish
+                        ? "+$kazanilanExp EXP KAZANILDI\n+1 GÜÇ (STR) | +1 ÇEVİKLİK (AGI)\nYAKILAN: ~${yipranma.yakilanKalori} kcal | TELAFİ: +${yipranma.telafiProteini}g Protein\nAKTİF ZİNDAN SAYACI DEVAM EDİYOR"
+                        : "+$kazanilanExp EXP EARNED\n+1 STRENGTH | +1 AGILITY\nBURNED: ~${yipranma.yakilanKalori} kcal | RECOVERY: +${yipranma.telafiProteini}g Protein\nACTIVE RAID TIMER CONTINUES",
+                    style: GoogleFonts.orbitron(color: systemRed, fontSize: 11, height: 1.5, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
           ),
           actions: [
             ElevatedButton(
@@ -343,30 +356,32 @@ class _BoxingTimerScreenState extends State<BoxingTimerScreen> with WidgetsBindi
           TranslationManager.isTurkish ? '[ ZİNDAN TEMİZLENDİ ]' : '[ DUNGEON CLEARED ]',
           style: GoogleFonts.orbitron(color: physicalGold, fontWeight: FontWeight.bold),
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              TranslationManager.isTurkish
-                  ? "Sınavdan sağ çıktınız.\nSistem disiplininizi ödüllendiriyor."
-                  : "You have survived the trial.\nThe System rewards your discipline.",
-              style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: physicalGold.withValues(alpha: 0.1),
-                border: Border.all(color: physicalGold.withValues(alpha: 0.4)),
-                borderRadius: BorderRadius.circular(4),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                TranslationManager.isTurkish
+                    ? "Sınavdan sağ çıktınız.\nSistem disiplininizi ödüllendiriyor."
+                    : "You have survived the trial.\nThe System rewards your discipline.",
+                style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
               ),
-              child: Text(
-                odulRaporu,
-                style: GoogleFonts.orbitron(color: physicalGold, fontSize: 12, height: 1.4),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: physicalGold.withValues(alpha: 0.1),
+                  border: Border.all(color: physicalGold.withValues(alpha: 0.4)),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  odulRaporu,
+                  style: GoogleFonts.orbitron(color: physicalGold, fontSize: 12, height: 1.4),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         actions: [
           ElevatedButton(
