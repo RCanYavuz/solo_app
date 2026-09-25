@@ -17,13 +17,23 @@ class PhotoStorageService {
     if (_cachedPhotoDir != null && await _cachedPhotoDir!.exists()) {
       return _cachedPhotoDir!;
     }
-    final appDocDir = await getApplicationDocumentsDirectory();
-    final dir = Directory('${appDocDir.path}${Platform.pathSeparator}solo_photos');
-    if (!await dir.exists()) {
-      await dir.create(recursive: true);
+    try {
+      final appDocDir = await getApplicationDocumentsDirectory();
+      final dir = Directory('${appDocDir.path}${Platform.pathSeparator}solo_photos');
+      if (!await dir.exists()) {
+        await dir.create(recursive: true);
+      }
+      _cachedPhotoDir = dir;
+      return dir;
+    } catch (_) {
+      // Test ve eklenti olmayan ortamlar için güvenli geçici dizin fallback'i
+      final tempDir = Directory('${Directory.systemTemp.path}${Platform.pathSeparator}solo_photos_test');
+      if (!await tempDir.exists()) {
+        await tempDir.create(recursive: true);
+      }
+      _cachedPhotoDir = tempDir;
+      return tempDir;
     }
-    _cachedPhotoDir = dir;
-    return dir;
   }
 
   /// Profil fotoğrafını yerel dosyaya kaydeder

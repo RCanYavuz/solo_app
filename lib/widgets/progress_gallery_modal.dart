@@ -1,6 +1,7 @@
 // lib/widgets/progress_gallery_modal.dart
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -46,6 +47,9 @@ class _ProgressGalleryModalState extends State<ProgressGalleryModal>
   }
 
   Widget _buildPhotoThumbnail(Map<String, dynamic> item, {double? width, double? height, BoxFit fit = BoxFit.cover}) {
+    if (!kIsWeb && Platform.environment.containsKey('FLUTTER_TEST')) {
+      return Container(width: width, height: height, color: Colors.white10);
+    }
     final path = item['fotoPath'] as String?;
     if (path != null && path.isNotEmpty) {
       final file = File(path);

@@ -3,12 +3,14 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:solo_leveling_app/controllers/system_memory.dart';
 import 'package:solo_leveling_app/core/translation_manager.dart';
 import 'package:solo_leveling_app/widgets/progress_gallery_modal.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  GoogleFonts.config.allowRuntimeFetching = false;
 
   // 1x1 Transparent PNG
   final Uint8List dummyImageBytes = base64Decode(
@@ -16,6 +18,7 @@ void main() {
   );
 
   setUp(() async {
+    GoogleFonts.config.allowRuntimeFetching = false;
     SharedPreferences.setMockInitialValues({});
     await SystemMemory.baslat();
     SystemMemory.ilerlemeFotolari = [];
@@ -60,22 +63,27 @@ void main() {
         (WidgetTester tester) async {
       tester.view.physicalSize = const Size(1080, 2400);
       tester.view.devicePixelRatio = 1.0;
-      addTearDown(() => tester.view.resetPhysicalSize());
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
 
       // 2 adet giriş ekle
-      await SystemMemory.ilerlemeFotoEkle(
-        fotoBytes: dummyImageBytes,
-        kilo: 70.0,
-        not: 'Başlangıç formu',
-        tarih: DateTime(2026, 1, 1),
-      );
+      await tester.runAsync(() async {
+        await SystemMemory.ilerlemeFotoEkle(
+          fotoBytes: dummyImageBytes,
+          kilo: 70.0,
+          not: 'Başlangıç formu',
+          tarih: DateTime(2026, 1, 1),
+        );
 
-      await SystemMemory.ilerlemeFotoEkle(
-        fotoBytes: dummyImageBytes,
-        kilo: 74.0,
-        not: 'Hacimlenme dönemi',
-        tarih: DateTime(2026, 3, 1),
-      );
+        await SystemMemory.ilerlemeFotoEkle(
+          fotoBytes: dummyImageBytes,
+          kilo: 74.0,
+          not: 'Hacimlenme dönemi',
+          tarih: DateTime(2026, 3, 1),
+        );
+      });
 
       await tester.pumpWidget(
         const MaterialApp(
@@ -84,7 +92,8 @@ void main() {
           ),
         ),
       );
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
 
       // Başlık görünmeli
       expect(find.text('TRANSFORMATION VAULT'), findsOneWidget);
@@ -98,7 +107,8 @@ void main() {
       final beforeAfterTab = find.text('BEFORE & AFTER');
       expect(beforeAfterTab, findsOneWidget);
       await tester.tap(beforeAfterTab);
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
 
       // Karşılaştırma çubuğu değerleri
       final initialLabel = TranslationManager.isTurkish ? 'BAŞLANGIÇ' : 'INITIAL';

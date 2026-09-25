@@ -8,35 +8,100 @@ import '../../core/audio_system.dart';
 import '../../core/translation_manager.dart';
 
 class MemoryCombatRanks {
-  static void bossGuncelle({int? gunIndex}) {
-    int bugun = gunIndex ?? DateTime.now().weekday;
-    if (bugun == 7) { 
-      if (SystemMemory.bossMaxHP == 0 || SystemMemory.bossMaxHP < SystemMemory.level.value * 100) {
-        SystemMemory.bossMaxHP = SystemMemory.level.value * 100;
-        SystemMemory.bossTuru = SystemMemory.level.value % 2 == 0 ? "Zihinsel" : "Fiziksel";
-        SystemMemory.bossIsim = SystemMemory.bossTuru == "Fiziksel" ? "Steel-Fanged Wolf (Beast)" : "Ancient Lich (Undead)";
-      }
+  static String getHaftaId([DateTime? date]) {
+    final d = date ?? DateTime.now();
+    final beginningOfYear = DateTime(d.year, 1, 1);
+    final days = d.difference(beginningOfYear).inDays;
+    final week = ((days - d.weekday + 10) / 7).floor();
+    return "${d.year}-W${week.toString().padLeft(2, '0')}";
+  }
 
-      int hasar = 0;
-      for (int gun = 1; gun <= 7; gun++) {
-        if (SystemMemory.haftalikPlan.containsKey(gun)) {
-          for (var g in SystemMemory.haftalikPlan[gun]!) {
-            if (g.yapildiMi) {
-              hasar += (g.tip == SystemMemory.bossTuru) ? (SystemMemory.level.value * 15) : (SystemMemory.level.value * 5);
-            }
+  static void bossSpawnVeyaGuncelle() {
+    final guncelHafta = getHaftaId();
+    final lvl = SystemMemory.level.value > 0 ? SystemMemory.level.value : 1;
+    final beklenenMaxHP = (lvl * 100).clamp(100, 50000);
+
+    if (SystemMemory.bossHaftaId != guncelHafta || SystemMemory.bossMaxHP <= 0 || SystemMemory.bossMaxHP < beklenenMaxHP) {
+      if (SystemMemory.bossHaftaId != guncelHafta || SystemMemory.bossMaxHP <= 0) {
+        SystemMemory.bossAlinanHaftalikHasar = 0;
+        SystemMemory.bossYenildiMi = false;
+      }
+      SystemMemory.bossHaftaId = guncelHafta;
+      SystemMemory.bossMaxHP = beklenenMaxHP;
+      SystemMemory.bossTuru = lvl % 2 == 0 ? "Zihinsel" : "Fiziksel";
+      if (SystemMemory.bossTuru == "Fiziksel") {
+        final physicalBosses = [
+          "Steel-Fanged Wolf (Beast)",
+          "Bloodthirsty Lycan (Beast)",
+          "Iron Golem (Construct)",
+          "Crimson Knight Commander (Humanoid)",
+          "Mountain Titan (Giant)"
+        ];
+        SystemMemory.bossIsim = physicalBosses[(lvl ~/ 2) % physicalBosses.length];
+      } else {
+        final mentalBosses = [
+          "Ancient Lich (Undead)",
+          "Shadow Phantom (Specter)",
+          "Abyssal Mindflayer (Aberration)",
+          "Astral Arch-Mage (Sorcerer)",
+          "Void Dominator (Cosmic)"
+        ];
+        SystemMemory.bossIsim = mentalBosses[(lvl ~/ 2) % mentalBosses.length];
+      }
+      int kalan = SystemMemory.bossMaxHP - SystemMemory.bossAlinanHaftalikHasar;
+      SystemMemory.bossHP.value = kalan < 0 ? 0 : kalan;
+    }
+  }
+
+  static void bossGuncelle({int? gunIndex}) {
+    bossSpawnVeyaGuncelle();
+
+    if (SystemMemory.bossYenildiMi) {
+      SystemMemory.bossHP.value = 0;
+      return;
+    }
+
+    final lvl = SystemMemory.level.value > 0 ? SystemMemory.level.value : 1;
+    int bugunkuHasar = 0;
+
+    for (int gun = 1; gun <= 7; gun++) {
+      if (SystemMemory.haftalikPlan.containsKey(gun)) {
+        for (var g in SystemMemory.haftalikPlan[gun]!) {
+          if (g.yapildiMi) {
+            bugunkuHasar += (g.tip == SystemMemory.bossTuru) ? (lvl * 20) : (lvl * 10);
           }
         }
       }
-      if (SystemMemory.bugunAlinanKalori > 0 && SystemMemory.bugunAlinanKalori <= SystemMemory.gunlukHedefKalori) {
-        hasar += (SystemMemory.level.value * 30);
-      }
-      
-      int kalan = SystemMemory.bossMaxHP - hasar;
-      SystemMemory.bossHP.value = kalan < 0 ? 0 : kalan;
-    } else {
-      SystemMemory.bossMaxHP = 0;
-      SystemMemory.bossHP.value = 0;
     }
+
+    for (var m in SystemMemory.gunlukZihinselGorevler.value) {
+      if (m.isCompleted) {
+        bugunkuHasar += (SystemMemory.bossTuru == "Zihinsel") ? (lvl * 25) : (lvl * 15);
+      }
+    }
+
+    if (SystemMemory.bugunAlinanKalori > 0 && SystemMemory.bugunAlinanKalori <= SystemMemory.gunlukHedefKalori) {
+      bugunkuHasar += (lvl * 25);
+    }
+
+    if (SystemMemory.bugunIcilenSuMl.value >= SystemMemory.suHedefiMl && SystemMemory.suHedefiMl > 0) {
+      bugunkuHasar += (lvl * 15);
+    }
+
+    int toplamVerilenHasar = SystemMemory.bossAlinanHaftalikHasar + bugunkuHasar;
+    int kalan = SystemMemory.bossMaxHP - toplamVerilenHasar;
+    if (kalan <= 0) {
+      SystemMemory.bossHP.value = 0;
+      SystemMemory.bossYenildiMi = true;
+    } else {
+      SystemMemory.bossHP.value = kalan;
+    }
+  }
+
+  static void bossHasarVer(int damage) {
+    bossSpawnVeyaGuncelle();
+    SystemMemory.bossAlinanHaftalikHasar += damage;
+    bossGuncelle();
   }
 
   static bool basarimKademeGuncelle(String basarimAnahtari, int yeniKademe, String basarimAdi, String hedefMetin) {

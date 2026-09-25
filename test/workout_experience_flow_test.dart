@@ -7,6 +7,7 @@ import 'package:solo_leveling_app/screens/active_workout_screen.dart';
 import 'package:solo_leveling_app/screens/dashboard_screen.dart';
 import 'package:solo_leveling_app/screens/workout_planner_screen.dart';
 import 'package:solo_leveling_app/core/translation_manager.dart';
+import 'package:solo_leveling_app/core/system_session_manager.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -20,6 +21,10 @@ void main() {
       Gorev('[COMBAT] Bench Press (4x10)', false, 'Fiziksel'),
       Gorev('[PHY] Squat (4x12)', false, 'Fiziksel'),
     ];
+  });
+
+  tearDown(() {
+    SystemSessionManager.instance.cancelAllTimers();
   });
 
   group('Uçtan Uca Antrenman Deneyimi Akış Testleri', () {
@@ -103,6 +108,15 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text(TranslationManager.get('rest_mp_recovery_title')), findsOneWidget);
+
+      // Sayacı kapat (pending timer kalmaması için)
+      if (find.text(TranslationManager.get('rest_ready_btn')).evaluate().isNotEmpty) {
+        await tester.tap(find.text(TranslationManager.get('rest_ready_btn')));
+        await tester.pumpAndSettle();
+      }
+      SystemSessionManager.instance.stopRestTimer();
+      await tester.pumpWidget(const SizedBox());
+      await tester.pumpAndSettle();
     });
 
     testWidgets('ActiveWorkoutScreen içinde zindana ek hareket enjekte etme ve silme çalışır', (tester) async {
@@ -265,7 +279,7 @@ void main() {
       expect(find.text('⚔️ Uzatılmış (6 Set/Raund)'), findsOneWidget);
       expect(find.text('👑 Şampiyon (8 Set/Raund)'), findsOneWidget);
       expect(find.text('🔥 Ekstrem (10 Set/Raund)'), findsOneWidget);
-      expect(find.textContaining('Set/Raund:'), findsOneWidget);
+      expect(find.textContaining('Set:'), findsOneWidget);
 
       // Kardiyo kategorisinin varlığını doğrula
       expect(find.text('Kardiyo'), findsOneWidget);

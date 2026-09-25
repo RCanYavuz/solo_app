@@ -491,5 +491,48 @@ void main() {
       expect(SystemMemory.vit.value > 10, isTrue);
     });
   });
+
+  group('Faz 2: Canlı Boss & Oyun Mekaniği Tests', () {
+    test('Boss is active across all days with proper HP and name', () {
+      SystemMemory.level.value = 5;
+      SystemMemory.bossGuncelle(gunIndex: 2); // Salı günü
+      expect(SystemMemory.bossMaxHP > 0, isTrue);
+      expect(SystemMemory.bossHP.value > 0, isTrue);
+      expect(SystemMemory.bossIsim.isNotEmpty, isTrue);
+      expect(SystemMemory.bossTuru.isNotEmpty, isTrue);
+    });
+
+    test('Completing tasks and bossHasarVer reduces Boss HP in real time', () {
+      SystemMemory.level.value = 5;
+      SystemMemory.bossGuncelle(gunIndex: 1);
+      final initialHP = SystemMemory.bossHP.value;
+
+      SystemMemory.bossHasarVer(100);
+      expect(SystemMemory.bossHP.value, initialHP - 100);
+    });
+
+    test('zindanAkiniBitir deals bonus Boss damage', () {
+      SystemMemory.level.value = 4;
+      SystemMemory.bossGuncelle();
+      final beforeHP = SystemMemory.bossHP.value;
+
+      final report = SystemMemory.zindanAkiniBitir(600); // 10 minutes
+      expect(report.contains('Boss'), isTrue);
+      expect(SystemMemory.bossHP.value < beforeHP, isTrue);
+    });
+
+    test('baslangicPrograminiAta assigns mental task to workout days and initializes gunlukZihinselGorevler', () {
+      SystemMemory.gunlukZihinselGorevler.value.clear();
+      SystemMemory.baslangicPrograminiAta(
+        ekipman: 'Ev-Dambil',
+        rank: 'C',
+        idmanGunu: 3,
+        hedef: 'Genel',
+      );
+
+      expect(SystemMemory.haftalikPlan[1]!.any((g) => g.tip == 'Zihinsel'), isTrue);
+      expect(SystemMemory.gunlukZihinselGorevler.value.isNotEmpty, isTrue);
+    });
+  });
 }
 

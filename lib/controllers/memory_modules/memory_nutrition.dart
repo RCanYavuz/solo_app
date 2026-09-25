@@ -270,10 +270,13 @@ class MemoryNutrition {
 
     if (SystemMemory.sonGirisTarihi != bugunStr) {
       DateTime sonGiris = DateTime.parse(SystemMemory.sonGirisTarihi);
-      
+      DateTime dSon = DateTime(sonGiris.year, sonGiris.month, sonGiris.day);
+      DateTime dBugun = DateTime(bugun.year, bugun.month, bugun.day);
+      int gunFarki = dBugun.difference(dSon).inDays;
+      if (gunFarki < 1) gunFarki = bugun.difference(sonGiris).inDays;
+
       SystemMemory.geceRaporu = gunSonuHesaplasmasi(sonGiris.weekday);
 
-      int gunFarki = bugun.difference(sonGiris).inDays;
       if (gunFarki > 1 && !SystemMemory.golgeModuAktif && !SystemMemory.redGateAktif) {
         SystemMemory.streakGunSayisi = 0; 
         int kacirilanEkGun = gunFarki - 1;
@@ -283,10 +286,26 @@ class MemoryNutrition {
         SystemMemory.geceRaporu = tr
             ? "${SystemMemory.geceRaporu}\n[SİSTEM CEZASI] Gölge modu olmadan $kacirilanEkGun ek gün kaçırıldı!\nCEZA: -$ekCeza HP"
             : "${SystemMemory.geceRaporu}\n[SYSTEM PENALTY] Missed $kacirilanEkGun additional day(s) without stealth!\nPENALTY: -$ekCeza HP";
+
+        // Ara günlerde Pazar günü veya Kırmızı Geçit geçtiyse adil telafi
+        for (int d = 1; d <= kacirilanEkGun; d++) {
+          final araTarih = dSon.add(Duration(days: d));
+          if (SystemMemory.redGateAktif) {
+            SystemMemory.redGateKalanGun = (SystemMemory.redGateKalanGun - 1).clamp(0, SystemMemory.redGateToplamGun);
+          }
+          if (araTarih.weekday == 7 && SystemMemory.bossHP.value > 0 && !SystemMemory.bossYenildiMi) {
+            int cezaHp = SystemMemory.level.value * 10;
+            SystemMemory.hp.value = (SystemMemory.hp.value - cezaHp).clamp(0, SystemMemory.maxHp);
+            SystemMemory.geceRaporu = tr
+                ? "${SystemMemory.geceRaporu}\n[ZİNDAN YENİLGİSİ] Kaçırılan Pazar gününde ${SystemMemory.bossIsim} kaçtı! CEZA: -$cezaHp HP"
+                : "${SystemMemory.geceRaporu}\n[DUNGEON DEFEAT] ${SystemMemory.bossIsim} escaped on missed Sunday! PENALTY: -$cezaHp HP";
+          }
+        }
       }
 
       SystemMemory.sonGirisTarihi = bugunStr;
       gunlukDiyetisyenMenusuSenkronizeEt(bugunStr);
+      SystemMemory.bossGuncelle();
       SystemMemory.kaydet();
     }
   }
@@ -441,12 +460,34 @@ class MemoryNutrition {
       }
     }
 
+    // Günlük Boss Hasarını Haftalık Havuzuna Ekle
+    final lvl = SystemMemory.level.value > 0 ? SystemMemory.level.value : 1;
+    int bugunkuBossHasari = 0;
+    for (var g in oGununProgrami) {
+      if (g.yapildiMi) {
+        bugunkuBossHasari += (g.tip == SystemMemory.bossTuru) ? (lvl * 20) : (lvl * 10);
+      }
+    }
+    for (var m in SystemMemory.gunlukZihinselGorevler.value) {
+      if (m.isCompleted) {
+        bugunkuBossHasari += (SystemMemory.bossTuru == "Zihinsel") ? (lvl * 25) : (lvl * 15);
+      }
+    }
+    if (SystemMemory.bugunAlinanKalori > 0 && SystemMemory.bugunAlinanKalori <= SystemMemory.gunlukHedefKalori) {
+      bugunkuBossHasari += (lvl * 25);
+    }
+    if (SystemMemory.bugunIcilenSuMl.value >= SystemMemory.suHedefiMl && SystemMemory.suHedefiMl > 0) {
+      bugunkuBossHasari += (lvl * 15);
+    }
+    SystemMemory.bossAlinanHaftalikHasar += bugunkuBossHasari;
+    SystemMemory.bossGuncelle(gunIndex: degerlendirilenGun);
+
     if (degerlendirilenGun == 7) {
-      SystemMemory.bossGuncelle(gunIndex: 7); 
-      if (SystemMemory.bossHP.value <= 0 && SystemMemory.bossMaxHP > 0) {
+      if ((SystemMemory.bossHP.value <= 0 || SystemMemory.bossYenildiMi) && SystemMemory.bossMaxHP > 0) {
         kazanilanAltin += 1000;
         SystemMemory.ap.value += 2;
         kazanilanExp += 500;
+        SystemMemory.bossYenildiMi = true;
         rapor += tr
             ? "\n[BOSS YENİLDİ] ${SystemMemory.bossIsim} yok edildi!\nÖDÜL: +1000 Altın | +2 AP | +500 EXP\n"
             : "\n[BOSS DEFEATED] ${SystemMemory.bossIsim} was annihilated!\nREWARD: +1000 G | +2 AP | +500 EXP\n";

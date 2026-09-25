@@ -1,5 +1,6 @@
 // lib/core/system_session_manager.dart
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -34,8 +35,9 @@ class DeepWorkSessionState {
     if (!isRunning) return initialSecondsForPhase;
     if (isPaused) return pausedRemainingSeconds;
     if (targetEndTime == null) return 0;
-    final diff = targetEndTime!.difference(DateTime.now()).inSeconds;
-    return diff > 0 ? diff : 0;
+    final diffMs = targetEndTime!.difference(DateTime.now()).inMilliseconds;
+    if (diffMs <= 0) return 0;
+    return (diffMs / 1000).ceil();
   }
 
   double get progress {
@@ -60,8 +62,9 @@ class RestTimerSessionState {
     if (!isRunning) return 0;
     if (isPaused) return pausedRemainingSeconds;
     if (targetEndTime == null) return 0;
-    final diff = targetEndTime!.difference(DateTime.now()).inSeconds;
-    return diff > 0 ? diff : 0;
+    final diffMs = targetEndTime!.difference(DateTime.now()).inMilliseconds;
+    if (diffMs <= 0) return 0;
+    return (diffMs / 1000).ceil();
   }
 
   double get progress {
@@ -79,7 +82,9 @@ class SystemSessionManager with ChangeNotifier, WidgetsBindingObserver {
 
   SystemSessionManager._internal() {
     WidgetsBinding.instance.addObserver(this);
-    _startGlobalTicker();
+    if (!kIsWeb && !Platform.environment.containsKey('FLUTTER_TEST')) {
+      _startGlobalTicker();
+    }
   }
 
   final DeepWorkSessionState deepWork = DeepWorkSessionState();
@@ -427,6 +432,14 @@ class SystemSessionManager with ChangeNotifier, WidgetsBindingObserver {
     stopRestTimer();
     callback?.call();
     notifyListeners();
+  }
+
+  void cancelAllTimers() {
+    _ticker?.cancel();
+    _ticker = null;
+    stopRestTimer();
+    deepWork.isRunning = false;
+    deepWork.targetEndTime = null;
   }
 
   @override

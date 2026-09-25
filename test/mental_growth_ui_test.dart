@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solo_leveling_app/controllers/system_memory.dart';
+import 'package:solo_leveling_app/core/system_session_manager.dart';
 import 'package:solo_leveling_app/models/mental_task_model.dart';
 import 'package:solo_leveling_app/screens/deep_work_timer_screen.dart';
 import 'package:solo_leveling_app/widgets/study_planner_modal.dart';
@@ -13,12 +14,18 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     await SystemMemory.baslat();
+    SystemSessionManager.instance.cancelAllTimers();
     SystemMemory.appLanguage.value = 'tr';
     SystemMemory.gunlukZihinselGorevler.value = [];
   });
 
   group('Faz 2: UI & Widget Testleri (StudyPlannerModal, DeepWorkTimer, Dashboard)', () {
     testWidgets('DeepWorkTimerScreen doğru render edilir ve kontroller çalışır', (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
       await tester.pumpWidget(
         const MaterialApp(
           home: DeepWorkTimerScreen(
@@ -44,7 +51,7 @@ void main() {
       // Duraklat
       await tester.tap(find.text('DURAKLAT'));
       await tester.pump();
-      expect(find.text('BAŞLAT'), findsOneWidget);
+      expect(find.text('DEVAM ET'), findsOneWidget);
     });
 
     testWidgets('StudyPlannerModal ekranda açılır, alan ve süre seçimi yapılabilir', (tester) async {

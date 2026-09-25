@@ -283,6 +283,15 @@ class MemoryStorage {
         SystemMemory.gunlukZihinselGorevler.value = mList.map((e) => MentalTask.fromJson(e as Map<String, dynamic>)).toList();
       } catch (_) {}
 
+      // Boss Durumu
+      SystemMemory.bossHaftaId = prefs.getString('bossHaftaId') ?? "";
+      SystemMemory.bossMaxHP = prefs.getInt('bossMaxHP') ?? 0;
+      SystemMemory.bossHP.value = prefs.getInt('bossHP') ?? 0;
+      SystemMemory.bossIsim = prefs.getString('bossIsim') ?? "Unknown";
+      SystemMemory.bossTuru = prefs.getString('bossTuru') ?? "Fiziksel";
+      SystemMemory.bossAlinanHaftalikHasar = prefs.getInt('bossAlinanHaftalikHasar') ?? 0;
+      SystemMemory.bossYenildiMi = prefs.getBool('bossYenildiMi') ?? false;
+
       SystemMemory.suHedefiGuncelle();
 
       SystemMemory.bossGuncelle();
@@ -456,6 +465,15 @@ class MemoryStorage {
       await prefs.setString('aktifUzmanlikAlani', SystemMemory.aktifUzmanlikAlani);
       await prefs.setStringList('tamamlananKitaplar', SystemMemory.tamamlananKitaplar);
       await prefs.setString('gunlukZihinselGorevler', jsonEncode(SystemMemory.gunlukZihinselGorevler.value.map((e) => e.toJson()).toList()));
+
+      // Boss Durumu
+      await prefs.setString('bossHaftaId', SystemMemory.bossHaftaId);
+      await prefs.setInt('bossMaxHP', SystemMemory.bossMaxHP);
+      await prefs.setInt('bossHP', SystemMemory.bossHP.value);
+      await prefs.setString('bossIsim', SystemMemory.bossIsim);
+      await prefs.setString('bossTuru', SystemMemory.bossTuru);
+      await prefs.setInt('bossAlinanHaftalikHasar', SystemMemory.bossAlinanHaftalikHasar);
+      await prefs.setBool('bossYenildiMi', SystemMemory.bossYenildiMi);
 
       SystemMemory.bossGuncelle();
   }

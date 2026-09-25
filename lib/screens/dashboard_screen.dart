@@ -463,47 +463,74 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   bool bossOldu = guncelHP <= 0;
                   Color bossRenk = bossOldu ? sysBlue : sysRed; 
                   
-                  return HologramCard(
-                    neonRenk: bossRenk,
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(bossOldu ? Icons.check_circle : Icons.warning_amber_rounded, color: bossRenk, size: 28),
-                            const SizedBox(width: 10),
-                            Text(bossOldu ? TranslationManager.get('dash_boss_defeated') : TranslationManager.get('dash_boss_active'), style: GoogleFonts.orbitron(color: bossRenk, fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 1)),
-                          ],
-                        ),
-                        const SizedBox(height: 15),
-                        Icon(SystemMemory.bossTuru == 'Fiziksel' ? Icons.pets : Icons.ac_unit, color: bossRenk.withValues(alpha: 0.5), size: 60),
-                        const SizedBox(height: 10),
-                        Text(SystemMemory.bossIsim.toUpperCase(), style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 2)),
-                        Text(SystemMemory.bossTuru == "Fiziksel" ? TranslationManager.get("dash_weakness_phy") : TranslationManager.get("dash_weakness_men"), style: const TextStyle(color: sysTextMuted, fontSize: 12)),
-                        const SizedBox(height: 15),
-                        
-                        Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Container(height: 20, width: double.infinity, decoration: BoxDecoration(color: const Color(0xFF0F172A), borderRadius: BorderRadius.circular(4), border: Border.all(color: bossRenk.withValues(alpha: 0.5)))),
-                            FractionallySizedBox(
-                              alignment: Alignment.centerLeft,
-                              widthFactor: (guncelHP / SystemMemory.bossMaxHP).clamp(0.0, 1.0),
-                              child: Container(
-                                height: 20, 
-                                decoration: BoxDecoration(
-                                  color: bossRenk.withValues(alpha: 0.8), 
-                                  borderRadius: BorderRadius.circular(4), 
-                                  boxShadow: bossOldu ? [] : [BoxShadow(color: bossRenk.withValues(alpha: 0.5), blurRadius: 10)]
-                                )
+                        int kalanGun = 7 - DateTime.now().weekday;
+                        String kalanMetin = kalanGun == 0
+                            ? (TranslationManager.isTurkish ? "BUGÜN SON GÜN! (23:59'a kadar yok et)" : "LAST DAY! (Defeat before 23:59)")
+                            : (TranslationManager.isTurkish ? "$kalanGun Gün Kaldı (Pazar 23:59)" : "$kalanGun Days Left (Sunday 23:59)");
+
+                        return HologramCard(
+                          neonRenk: bossRenk,
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(bossOldu ? Icons.check_circle : Icons.warning_amber_rounded, color: bossRenk, size: 28),
+                                  const SizedBox(width: 10),
+                                  Text(bossOldu ? TranslationManager.get('dash_boss_defeated') : TranslationManager.get('dash_boss_active'), style: GoogleFonts.orbitron(color: bossRenk, fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                                ],
                               ),
-                            ),
-                            Text('$guncelHP / ${SystemMemory.bossMaxHP} HP', style: GoogleFonts.orbitron(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold, shadows: [const Shadow(color: Colors.black, blurRadius: 2)])),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
+                              const SizedBox(height: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: bossRenk.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: bossRenk.withValues(alpha: 0.4)),
+                                ),
+                                child: Text(
+                                  bossOldu
+                                      ? (TranslationManager.isTurkish ? "🏆 ZAFER KAZANILDI - ÖDÜLLER HAZIR" : "🏆 VICTORY - REWARDS READY")
+                                      : "⏳ $kalanMetin",
+                                  style: GoogleFonts.rajdhani(color: bossOldu ? sysBlue : Colors.amberAccent, fontSize: 12, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Icon(SystemMemory.bossTuru == 'Fiziksel' ? Icons.pets : Icons.ac_unit, color: bossRenk.withValues(alpha: 0.6), size: 54),
+                              const SizedBox(height: 8),
+                              Text(SystemMemory.bossIsim.toUpperCase(), style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                              Text(SystemMemory.bossTuru == "Fiziksel" ? TranslationManager.get("dash_weakness_phy") : TranslationManager.get("dash_weakness_men"), style: const TextStyle(color: sysTextMuted, fontSize: 12)),
+                              const SizedBox(height: 12),
+                              
+                              Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Container(height: 22, width: double.infinity, decoration: BoxDecoration(color: const Color(0xFF0F172A), borderRadius: BorderRadius.circular(4), border: Border.all(color: bossRenk.withValues(alpha: 0.5)))),
+                                  FractionallySizedBox(
+                                    alignment: Alignment.centerLeft,
+                                    widthFactor: (guncelHP / (SystemMemory.bossMaxHP > 0 ? SystemMemory.bossMaxHP : 1)).clamp(0.0, 1.0),
+                                    child: Container(
+                                      height: 22, 
+                                      decoration: BoxDecoration(
+                                        color: bossRenk.withValues(alpha: 0.8), 
+                                        borderRadius: BorderRadius.circular(4), 
+                                        boxShadow: bossOldu ? [] : [BoxShadow(color: bossRenk.withValues(alpha: 0.5), blurRadius: 10)]
+                                      )
+                                    ),
+                                  ),
+                                  Text('$guncelHP / ${SystemMemory.bossMaxHP} HP', style: GoogleFonts.orbitron(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold, shadows: [const Shadow(color: Colors.black, blurRadius: 2)])),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                TranslationManager.isTurkish
+                                    ? "Toplam Hasar: ${SystemMemory.bossMaxHP - guncelHP} DMG"
+                                    : "Total Damage: ${SystemMemory.bossMaxHP - guncelHP} DMG",
+                                style: const TextStyle(color: sysTextMuted, fontSize: 11),
+                              ),
+                            ],
+                          ),
+                        );
                 },
               )
             else

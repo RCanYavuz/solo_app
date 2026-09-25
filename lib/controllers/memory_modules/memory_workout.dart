@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../system_memory.dart';
 import '../../models/task_model.dart';
+import '../../models/mental_task_model.dart';
 import '../../core/progressive_overload_engine.dart';
 import '../../core/services/gemini_service.dart';
 import '../../core/audio_system.dart';
@@ -55,14 +56,17 @@ class MemoryWorkout {
     
     int kazanilanExp = dakika * 5;
     String lvlUp = SystemMemory.expKazan(kazanilanExp);
+
+    int bossHasari = dakika * 5 * (SystemMemory.level.value > 0 ? SystemMemory.level.value : 1);
+    SystemMemory.bossHasarVer(bossHasari);
     
     SystemMemory.kaydet();
     AudioSystem.playSuccess();
     
     final tr = TranslationManager.isTurkish;
     return tr
-        ? "[AKIN TAMAMLANDI]\nZindanda Geçen Süre: $dakika Dk\nTamamlanan Görevler: $bitenGorevSayisiSimdi\nSüre Ödülü: +$kazanilanAltin Altın | +$kazanilanExp EXP$lvlUp"
-        : "[RAID COMPLETED]\nTime in Dungeon: $dakika Min\nQuests Completed: $bitenGorevSayisiSimdi\nTime Reward: +$kazanilanAltin Gold | +$kazanilanExp EXP$lvlUp";
+        ? "[AKIN TAMAMLANDI]\nZindanda Geçen Süre: $dakika Dk\nTamamlanan Görevler: $bitenGorevSayisiSimdi\nSüre Ödülü: +$kazanilanAltin Altın | +$kazanilanExp EXP\n⚔️ Boss Hasarı: -$bossHasari HP$lvlUp"
+        : "[RAID COMPLETED]\nTime in Dungeon: $dakika Min\nQuests Completed: $bitenGorevSayisiSimdi\nTime Reward: +$kazanilanAltin Gold | +$kazanilanExp EXP\n⚔️ Boss Damage: -$bossHasari HP$lvlUp";
   }
 
   /// Dövüş sporuna özel 5 raundluk uzatılmış gölge boksu ve kombinasyon protokolü üretir
@@ -420,7 +424,30 @@ class MemoryWorkout {
           Gorev("[PERCEPTION] 10 Dk Derin Meditasyon & Nefes Protokolü (Box Breathing)", false, "Zihinsel"),
           Gorev("[REST] Kas Toparlanması & Mobilite / Esneme Seansı", false, "Fiziksel"),
         ]);
+      } else if (!SystemMemory.haftalikPlan[gun]!.any((g) => g.tip == 'Zihinsel')) {
+        SystemMemory.haftalikPlan[gun]!.add(
+          Gorev("[MIND] 20 Dk Taktiksel Kitap / Makale Okuma & Zihinsel Odaklanma", false, "Zihinsel"),
+        );
       }
+    }
+
+    // Varsayılan Zihinsel Görevler (INT/PER motoru boşsa otomatik ata)
+    if (SystemMemory.gunlukZihinselGorevler.value.isEmpty) {
+      SystemMemory.gunlukZihinselGorevler.value = [
+        MentalTask(
+          id: 'def_reading_1',
+          title: 'Taktiksel Kitap Okuma (Zihinsel Genişleme)',
+          category: 'Book',
+          bookTitle: 'Taktik Kitabı',
+          targetPages: 10,
+        ),
+        MentalTask(
+          id: 'def_pomodoro_1',
+          title: 'Derin Odaklanma (Deep Work & Analiz)',
+          category: 'Coding',
+          targetMinutes: 25,
+        ),
+      ];
     }
 
     SystemMemory.normalHaftalikPlan.clear();

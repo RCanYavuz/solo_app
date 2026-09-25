@@ -61,6 +61,13 @@ class _RestTimerDialogState extends State<RestTimerDialog> {
   @override
   void initState() {
     super.initState();
+    if (!SystemSessionManager.instance.restTimer.isRunning) {
+      SystemSessionManager.instance.startRestTimer(
+        seconds: widget.initialSeconds,
+        exerciseName: widget.exerciseName,
+        onComplete: widget.onComplete,
+      );
+    }
     SystemSessionManager.instance.addListener(_onSessionTick);
   }
 

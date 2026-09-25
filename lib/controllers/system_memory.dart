@@ -157,6 +157,9 @@ class SystemMemory {
   static int bossMaxHP = 0;
   static String bossTuru = "Fiziksel";
   static String bossIsim = "Unknown";
+  static String bossHaftaId = "";
+  static int bossAlinanHaftalikHasar = 0;
+  static bool bossYenildiMi = false;
 
   // Başarımlar Takip Motoru
   static Map<String, int> basarimKademeleri = {};
@@ -506,10 +509,8 @@ class SystemMemory {
       MemoryNutrition.diyetisyenYeniOgunEkle(yeniOgun);
   static void diyetisyenOgunSil(String ogunId) => MemoryNutrition.diyetisyenOgunSil(ogunId);
 
-  // ==========================================
-  // DELEGE EDİLEN METOTLAR: COMBAT & RANKS
-  // ==========================================
   static void bossGuncelle({int? gunIndex}) => MemoryCombatRanks.bossGuncelle(gunIndex: gunIndex);
+  static void bossHasarVer(int damage) => MemoryCombatRanks.bossHasarVer(damage);
   static bool basarimKademeGuncelle(String basarimAnahtari, int yeniKademe, String basarimAdi, String hedefMetin) =>
       MemoryCombatRanks.basarimKademeGuncelle(basarimAnahtari, yeniKademe, basarimAdi, hedefMetin);
   static String hunterRankHesapla({required double bench, required double squat, required double deadlift, double? kilo}) =>
