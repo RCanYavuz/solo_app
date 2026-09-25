@@ -68,6 +68,9 @@
 | ~~10~~ | Dinamik zorluk ayarlama yok | ✅ **ÇÖZÜLDÜ** | `DynamicDifficultyEngine` tam çalışan |
 | ~~11~~ | Base64 Fotoğraf Depolama (SP şişmesi) | ✅ **FAZ 1: TEST EDİLDİ, YAPILDI, PUSHLANDI** | `PhotoStorageService` ile profil, avatar ve ilerleme galerisi yerel dosya sistemine (`getApplicationDocumentsDirectory()/solo_photos`) taşındı. (Commit: `1aa8349`) |
 | ~~12~~ | Backup / Restore Eksik Alanları | ✅ **FAZ 1: TEST EDİLDİ, YAPILDI, PUSHLANDI** | `exportBackupJson` ve `importBackupJson` zihinsel görevler, odaklanma/kitap istatistikleri ve ilerleme fotoğrafları ile tamamlandı. (Commit: `1aa8349`) |
+| ~~13~~ | Haftalık Canlı Boss Sistemi & Dinamik Hasar | ✅ **FAZ 2: TEST EDİLDİ, YAPILDI, PUSHLANDI** | `bossSpawnVeyaGuncelle`, dinamik `bossGuncelle` ve `bossHasarVer` ile haftalık kümülatif canlı HP barı, zindan akını tamamlama bonusu ve Dashboard üzerinde Pazar 23:59 geri sayımı ve zafer durumu eklendi. (Commit: `7974cd0`) |
+| ~~14~~ | Çoklu Gün İnaktivite / Gece Kontrolü Atlaması | ✅ **FAZ 2: TEST EDİLDİ, YAPILDI, PUSHLANDI** | `geceKontrolu` içinde çoklu gün atlamalarında (`gunFarki > 1`) her kaçırılan gün için ardışık simülasyon, Pazar günleri boss yenilgi/hasar kontrolü ve Red Gate sayaç azaltımı eklendi. (Commit: `7974cd0`) |
+| ~~15~~ | Varsayılan Zihinsel Görev Protokolleri | ✅ **FAZ 2: TEST EDİLDİ, YAPILDI, PUSHLANDI** | `baslangicPrograminiAta` ile idman günlerine `[MIND]` protokolleri otomatik eklendi. Günlük zihinsel görev listesi boşsa varsayılan odaklanma ve analiz protokolleri atandı. (Commit: `7974cd0`) |
 
 ---
 
@@ -76,14 +79,14 @@
 ### 🔴 YÜKSEK ÖNCELİK
 
 #### 1. Boss Hasar Hesabı Sadece Pazar Günü Hesaplanıyor
-- **Dosya:** [memory_combat_ranks.dart#L10-L39](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/controllers/memory_modules/memory_combat_ranks.dart#L10)
-- **Sorun:** `bossGuncelle` fonksiyonu `if (bugun == 7)` koşulunda çalışıyor, yani hasar hesabı **sadece `bossGuncelle(gunIndex: 7)` çağrıldığında** yapılıyor. Hafta boyunca yapılan görevlerin hasar verileri geriye dönük bir for döngüsüyle (L20-L28) hesaplanıyor, ama bu hesap **sadece Pazar günü tetikleniyor**. README'de "Görevler ve diyet başarısıyla boss'a hasar verilir" yazıyor, ancak **kullanıcı Dashboard'da hafta boyunca canlı bir boss HP barı göremez** — boss barı hafta boyunca 0 kalır ve sadece Pazar günü güncellenir.
-- **Öneri:** `bossGuncelle`'yi her görev tamamlandığında (veya en azından Dashboard açıldığında her gün) çağırarak hafta boyunca kümülatif boss HP barı göstermek.
+- **Dosya:** [memory_combat_ranks.dart](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/controllers/memory_modules/memory_combat_ranks.dart) + [dashboard_screen.dart](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/screens/dashboard_screen.dart)
+- **Durum:** ✅ **ÇÖZÜLDÜ (FAZ 2 - TEST EDİLDİ, YAPILDI, GİT'E PUSHLANDI)**
+- **Detay:** Haftalık canlı Boss HP barı, dinamik hasar hesaplama (`bossSpawnVeyaGuncelle`, `bossGuncelle`, `bossHasarVer`), zindan akını tamamlama bonusu ve Dashboard üzerinde Pazar 23:59 geri sayımı ve zafer durumu eklendi. (Commit: `7974cd0`)
 
 #### 2. Streak Hesabında Çoklu Gün Atlaması — Ara Günler İçin Ayrı Hesaplaşma Yapılmıyor
-- **Dosya:** [memory_nutrition.dart#L277-L286](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/controllers/memory_modules/memory_nutrition.dart#L277)
-- **Sorun:** `gunFarki > 1` durumunda streak sıfırlanıyor ve ek HP cezası veriliyor, ama aradaki günlerin görevleri için **tek tek `gunSonuHesaplasmasi`** çağrılmıyor. Sadece son giriş gününün hesaplaşması yapılıyor (L274). Örneğin 3 gün açılmadığında: 1. ve 2. günlerin görevleri hiç değerlendirilmeden doğrudan sıfırlanıyor.
-- **Öneri:** Aradaki her gün için loop ile ayrı hesaplaşma yapılabilir, veya en azından mevcut ek ceza mekanizması yeterli kabul edilebilir (tasarım kararı).
+- **Dosya:** [memory_nutrition.dart](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/controllers/memory_modules/memory_nutrition.dart)
+- **Durum:** ✅ **ÇÖZÜLDÜ (FAZ 2 - TEST EDİLDİ, YAPILDI, GİT'E PUSHLANDI)**
+- **Detay:** `gunFarki > 1` olduğunda kaçırılan her ara gün için simülasyon döngüsü çalıştırılarak gece hesaplaşmaları, Pazar günü boss kontrolleri ve Kırmızı Geçit sayaç düşüşleri eksiksiz işletildi. (Commit: `7974cd0`)
 
 #### 3. `profilFotoByte` ve `avatarFotoByte` Base64 Olarak SharedPreferences'te
 - **Dosya:** [system_memory.dart](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/controllers/system_memory.dart) + [photo_storage_service.dart](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/core/services/photo_storage_service.dart)
@@ -112,8 +115,8 @@
 
 #### 7. Zihinsel Görevlerin Otomatik Haftalık Plana Atanmaması
 - **Dosya:** [memory_workout.dart](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/controllers/memory_modules/memory_workout.dart) → `baslangicPrograminiAta`
-- **Sorun:** `baslangicPrograminiAta` sadece fiziksel görevleri atıyor. Zihinsel görevler (`MentalTask`) yalnızca kullanıcı elle eklediğinde veya AI planladığında ortaya çıkıyor. INT ve PER statlarının otomatik büyümesi için günlük plana varsayılan zihinsel görev eklenmesi gerekebilir.
-- **Öneri:** Her idman gününe 1-2 zihinsel görev ekle (ör: "15 dk Okuma", "5 dk Meditasyon") veya kullanıcıya tercih sorulabilir.
+- **Durum:** ✅ **ÇÖZÜLDÜ (FAZ 2 - TEST EDİLDİ, YAPILDI, GİT'E PUSHLANDI)**
+- **Detay:** `baslangicPrograminiAta` içine idman günleri için otomatik `[MIND]` protokolleri eklendi, `gunlukZihinselGorevler` boşsa varsayılan zihinsel görevlerle beslendi. (Commit: `7974cd0`)
 
 ---
 
