@@ -195,35 +195,91 @@
 
 ---
 
+## 🚨 Bölüm 2.5: UI/UX Tasarım, Girdi (Input) Bozuklukları ve Kilo-AI Eksiklikleri Analizi (26 Eylül 2026)
+
+### 1. Girdilerdeki Bozukluklar ve Çökme (Crash) Riskleri
+| # | Hata / Bozukluk | Etkilenen Dosya & Satır | Hata Türü / Etkisi | Çözüm |
+|---|----------------|-------------------------|--------------------|-------|
+| 1 | `double.parse` ile doğrudan dönüşüm ve unhandled `FormatException` | [profile_screen.dart#L425](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/screens/profile_screen.dart#L425) | 🔴 **Kritik Çökme:** Tartı güncellemede virgüllü giriş (`75,5`) veya boşluk uygulamayı çökerterek kapatır. | `double.tryParse(kiloCtrl.text.replaceAll(',', '.'))` + geçerlilik kontrolü eklenmeli. |
+| 2 | Virgüllü kilo ve hedef kilo girişlerinin algılanamaması (Sessiz Veri Kaybı) | [hunter_profile_settings_modal.dart#L117-L119](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/widgets/hunter_profile_settings_modal.dart#L117-L119) | 🔴 **Veri Kaybı:** Boy, kilo, hedef kilo virgülle girildiğinde `null` döner, kullanıcı fark etmeden eski değere geri düşer. | Tüm biyometri controller okumalarında `.replaceAll(',', '.')` yapılmalı. |
+| 3 | Set ağırlık düzenlemesinde virgül girilince ağırlığın 0.0 kg kaydedilmesi | [active_workout_screen.dart#L1059](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/screens/active_workout_screen.dart#L1059) | 🔴 **Hatalı İdman Kaydı:** `22,5` kg yazan avcının seti `0.0 kg` olarak kaydedilir. | `double.tryParse(kiloCtrl.text.replaceAll(',', '.'))` uygulanmalı. |
+| 4 | Güç Testi (1RM) değerlerinin virgüllü girilince sıfırlanması | [awakening_test_dialog.dart#L73-L75](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/widgets/awakening_test_dialog.dart#L73-L75) & [setup_screen.dart#L190-L192](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/screens/setup_screen.dart#L190-L192) | 🔴 **Rütbe (Rank) Bozulması:** Bench/Squat/Deadlift virgüllü girildiğinde 0 kg sayılır ve avcı E-Rank atanır. | Tüm güç test girdileri sanitizasyondan geçirilmeli. |
+| 5 | Eksik Klavye Tipleri (`TextInputType.number` vs `numberWithOptions(decimal: true)`) | [setup_screen.dart#L877-L898](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/screens/setup_screen.dart#L877-L898), [profile_screen.dart#L479](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/screens/profile_screen.dart#L479) | 🟡 **UX Engeli:** iOS ve bazı Android klavyelerinde nokta/virgül tuşu çıkmaz, küsuratlı kilo girilemez. | `keyboardType: const TextInputType.numberWithOptions(decimal: true)` yapılmalı. |
+| 6 | Bellek Sızıntısı (Undisposed Controller) | [setup_screen.dart#L36](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/screens/setup_screen.dart#L36) | 🟡 **Memory Leak:** `hedefKiloCtrl` oluşturulmuş ancak `dispose()` edilmemektedir. | `hedefKiloCtrl.dispose()` eklenmeli. |
+| 7 | Yemek Ekleme Sonrası Makro Alanlarının Sıfırlanmaması | [diet_screen.dart#L465-L467](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/screens/diet_screen.dart#L465-L467) | 🟡 **Form Kirliliği:** Yeni yemek eklerken önceki yemeğin P/C/F değerleri kutularda asılı kalır. | `proteinCtrl.clear()`, `karbCtrl.clear()`, `yagCtrl.clear()` çağrılmalı. |
+| 8 | Mantıksız Biyometri Doğrulaması Eksikliği | [hunter_profile_settings_modal.dart](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/widgets/hunter_profile_settings_modal.dart) & [setup_screen.dart](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/screens/setup_screen.dart) | 🟡 **Veri Tutarsızlığı:** 0 kg veya 400 kg girilse dahi sistem sessizce kabul eder. | 30 kg - 250 kg ve 100 cm - 250 cm aralık kontrolü ve SnackBar uyarısı eklenmeli. |
+
+### 2. UI Layout, Taşma (Overflow) ve RenderFlex Hataları
+| # | Hata / Taşma Riski | Etkilenen Dosya & Satır | Hata Detayı | Çözüm |
+|---|-------------------|-------------------------|-------------|-------|
+| 1 | `_kiloGecmisiGoster` Unbounded Layout Çökmesi | [profile_screen.dart#L491-L525](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/screens/profile_screen.dart#L491-L525) | 🔴 `showModalBottomSheet` içinde kısıtsız `Column(mainAxisSize: Min)` içinde `Expanded(child: ListView)` kullanımı `RenderFlex has children with non-zero flex but incoming height constraints are unbounded` hatası fırlatır. | `isScrollControlled: true` ve `BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.7)` eklenmeli. |
+| 2 | Klavye Açıldığında Ekran Taşması (Bottom Overflow) | [profile_screen.dart#L385-L405](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/screens/profile_screen.dart#L385-L405) & [diet_screen.dart#L350-L435](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/screens/diet_screen.dart#L350-L435) | 🟡 Küçük ekranlı telefonlarda sayısal klavye açılınca diyalog altındaki butonlar sarı-siyah taşma çizgisi üretir. | Dialog içeriği esnek `SingleChildScrollView` ve `MainAxisSize.min` ile sarılmalı. |
+| 3 | Üst Başlık Satırı Yatay Taşması (Header Overflow) | [dashboard_screen.dart#L170-L212](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/screens/dashboard_screen.dart#L170-L212) | 🟡 Uzun avcı ismi + Rank rozeti + Analiz ikonu + Market ikonu dar ekranlarda sağdan taşma riski taşır. | Başlık alanı `Flexible` / `Expanded` ile sınırlandırılmalı ve metin `TextOverflow.ellipsis` almalı. |
+
+### 3. Tasarım Bütünlüğü ve Dil Tutarsızlıkları
+* **Hardcoded İngilizce Metinler:** [profile_screen.dart#L195, L214, L230](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel%20olan%20işler/solo_app/lib/screens/profile_screen.dart#L195) dosyalarındaki "RENAME HUNTER", "CANCEL", "CONFIRM" gibi diyalog metinleri `TranslationManager`'a bağlanmalı.
+* **Solo Leveling Renk Bütünlüğü:** Bazı modallarda kullanılan mat gri (`Colors.black45`) ve rastgele arka planlar yerine neon sistem mavisi (`#38BDF8`), derin koyu arka plan (`#030712`) ve zindan altını (`#EAB308`) standartlaştırılmalı.
+
+### 4. Antrenman Yapay Zekası ve Kullanıcı Kilosuna Göre "Net Yapılacaklar" Eksikliği
+* **AI Ek İdman Booster'da Kilo Bilgisinin Olmaması:**
+  * [memory_workout.dart#L527-L533](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel olan işler/solo_app/lib/controllers/memory_modules/memory_workout.dart#L527-L533) ve [gemini_service.dart#L676-L682](file:///c:/Users/Rıza%20Can%20Yavuz/Desktop/İşler%20Projeler/Özel olan işler/solo_app/lib/core/services/gemini_service.dart#L676-L682): `aiEkIdmanUret` fonksiyonuna avcının `kilo`, `boy` ve `hedefKilo` parametreleri aktarılmamaktadır. Yapay zeka kullanıcının vücut kütlesini ve yağ oranını bilmeden egzersiz türetmektedir.
+* **Kullanıcı Kilosuna Göre Dinamik Egzersiz Ölçeklemesi:**
+  * Ağır siklet / kilo verme hedefindeki kullanıcılar için eklemlere binen darbeyi azaltan düşük etkili (low-impact) kardiyo ve destekli vücut ağırlığı varyasyonları;
+  * Kas kütlesi inşa etmeye çalışan kullanıcılar için kilonun belirli bir katı hedefleyen bileşik kuvvet görevleri;
+  * Günlük "Net Yapılacaklar" (Daily Quests) paneline avcının mevcut kilosuna ve yakması gereken kaloriye endeksli dinamik mikro görevler entegre edilmelidir.
+
+---
+
 ## 🧪 Bölüm 4: Kod Kalitesi & Teknik Durum
 
 | Konu | Durum | Detay |
 |------|-------|-------|
-| **Test Kapsamı** | ✅ Mükemmel | 28 paket, tüm testler başarılı |
-| **Mimari** | ✅ Modüler | `SystemMemory` → 4 hafıza modülü delege sistemi (eski 2253 satırlık monolith parçalandı) |
-| **system_memory.dart Boyutu** | ✅ İyi | 577 satır (önceki 2253 → %74 küçülme) |
-| **Statik Analiz** | ✅ Temiz | `dart analyze` → 0 issue |
-| **SharedPreferences Kullanımı** | ⚠️ Dikkat | Fotoğraflar (profil + galeri) base64 olarak SP'de → büyük veride yavaşlama riski |
-| **Güvenlik** | ✅ İyi | API Key → `flutter_secure_storage` + SharedPreferences fallback |
-| **Hata Yönetimi** | ✅ İyi | Gemini AI fail-safe, try-catch blokları, null koruma |
-| **Dependency Overrides** | ⚠️ Yama | `path_provider_foundation`, `path_provider_android` override'ları mevcut |
-| **Bağımlılık Hijyeni** | ✅ Temiz | Kullanılmayan `google_generative_ai` kaldırılmış, `file_picker` + `archive` eklenmiş |
-| **Ses Sistemi** | ✅ İyi | `mixWithOthers` ile arka plan müziğiyle uyumlu çalışıyor |
+| **Test Kapsamı** | ✅ Mükemmel | 28 paket, 148 / 148 test eksiksiz geçiyor (%100 yeşil) |
+| **Mimari** | ✅ Modüler | `SystemMemory` → 4 hafıza modülü delege sistemi (577 satır core) |
+| **Fotoğraf Depolama** | ✅ Optimize | Profil, avatar ve galeri görselleri `solo_photos` yerel diskine taşındı (Faz 1) |
+| **Canlı Boss & Çoklu Gün** | ✅ Tam Fonksiyonel | Hafta içi dinamik hasar + kaçırılan günlerin ardışık simülasyonu (Faz 2) |
+| **İstatistik & Takvim** | ✅ Tam Entegre | 4 sekmeli `AnalyticsScreen` + Takvim geçmiş rozetleri (Faz 3) |
+| **Profil & Hızlı Yemek** | ✅ Tam Entegre | `HunterProfileSettingsModal` + Hızlı kalori çipleri (Faz 4) |
+| **Statik Analiz** | ✅ Temiz | `flutter analyze` → 0 issue |
+| **Girdi & Format Hijyeni** | ⚠️ İyileştirilmeli | Virgül/nokta ayrımı, klavye tipleri ve bellek sızıntıları (Faz 5'te çözülecek) |
+| **UI Taşma Güvenliği** | ⚠️ İyileştirilmeli | Modal yükseklikleri ve klavye çakışmaları (Faz 6'da çözülecek) |
+| **Kilo-Odaklı AI Antrenman** | ⚠️ Genişletilmeli | Kullanıcı kilosuna göre idman ve görev üretimi (Faz 7'de eklenecek) |
 
 ---
 
-## 📋 Bölüm 5: Yol Haritası & İlerleme Durumu
+## 📋 Bölüm 5: MVP Yol Haritası & Tamamlanma Faz Planı
 
-### 🚀 Faz İlerleme Tablosu
+Sistemin tam bir **üretim kalitesinde MVP (Minimum Viable Product)** haline gelmesi için planlanan ve uygulanan fazların net takvimi:
 
-| Faz | Kapsam | Durum | Detay / Commit |
-|:---:|:-------|:-----:|:--------------|
-| **FAZ 1** | **Performans & Veri Güvenliği (Base64 Dosya Sistemine Taşıma & Backup Genişletme)** | ✅ **TEST EDİLDİ - YAPILDI - PUSHLANDI** | Profil/avatar/galeri fotoğrafları disk storage'a taşındı, SharedPreferences hafifletildi, Backup/Restore tüm alanları kapsayacak şekilde genişletildi. 18/18 birim test başarıyla geçti. (Commit: `1aa8349`) |
-| **FAZ 2** | **Canlı Boss & Oyun Mekaniği İyileştirmeleri** | ⏳ *Şu Anda Bu Şekilde Bırakıldı / Beklemede* | Hafta içi canlı boss barı (dinamik hasar), çoklu gün telafisi (multi-day inactivity catch-up), varsayılan plana zihinsel görevler. |
-| **FAZ 3** | **Veri Görselleştirme & İstatistik Paneli** | ⏳ *Şu Anda Bu Şekilde Bırakıldı / Beklemede* | Kilo, hacim, 1RM grafikleri, takvim geçmiş rozetleri, akıllı streak bildirimi. |
-| **FAZ 4** | **UX & Kod Hijyeni (Polish)** | ⏳ *Şu Anda Bu Şekilde Bırakıldı / Beklemede* | Profil/ayar düzenleme ekranı, sık yemek hafızası, doküman ayrıştırıcı temizliği. |
+### 🚀 Tamamlanan Fazlar (Faz 1 – 4)
+* [x] **FAZ 1: Performans & Veri Güvenliği (Fotoğraf Migrasyonu & Backup Genişletme)**
+  * Base64 SharedPreferences yükü temizlendi, fotoğraflar diske taşındı (`PhotoStorageService`).
+  * JSON Backup/Restore zihinsel görevler ve fotoğrafları kapsayacak şekilde tamamlandı. (Commit: `1aa8349`, `77dac68`)
+* [x] **FAZ 2: Canlı Boss Mekaniği & Çoklu Gün Simülasyonu**
+  * Hafta içi kümülatif canlı Boss HP barı ve geri sayım eklendi.
+  * Kaçırılan günlerde inaktivite hesaplaşması ve ardışık telafi motoru kuruldu.
+  * Varsayılan plana `[MIND]` zihinsel protokolleri atandı. (Commit: `7974cd0`)
+* [x] **FAZ 3: Veri Görselleştirme, Takvim Arşivi & Akıllı Streak**
+  * 4 sekmeli CustomPaint grafikli `AnalyticsScreen` inşa edildi (Kilo, İdman, Kalori, 1RM).
+  * `CalendarScreen` üzerinde idman/diyet rozetleri ve geçmiş dökümü bağlandı.
+  * Saat 21:00 akıllı streak koruma bildirimi entegre edildi. (Commit: `7f429e6`)
+* [x] **FAZ 4: Profil/Ayarlar Düzenleme & Sık Yemek Çipleri**
+  * `HunterProfileSettingsModal` ile biyometri ve dövüş kısıtları profil üzerinden tek tıkla düzenlenebilir yapıldı.
+  * `DietScreen`'e sık tüketilen popüler avcı yemekleri hızlı seçim çipleri eklendi. (Commit: `69c8fb6`)
 
 ---
 
-> [!IMPORTANT]
-> Sistem **çok olgun ve sağlam** durumda. 36 farklı özellik tam çalışıyor, modüler mimari temiz, test kapsamı mükemmel. Faz 1 başarıyla uygulanmış, test edilmiş ve GitHub `origin/main` dalına pushlanmıştır. Diğer fazlar talimat gereği mevcut planlama durumunda bırakılmıştır.
+### 🔨 Aktif MVP Fazları (Faz 5 – 8)
+
+| Faz | Kapsam | Öncelik | Hedef Çıktı & Doğrulama |
+|:---:|:-------|:-------:|:------------------------|
+| **FAZ 5** | **Girdi Güvenliği, Klavye ve Format Hijyeni** | 🔴 KRİTİK | `double.parse` çökmesi kaldırılacak; tüm sayısal alanlarda virgül (`75,5`) desteği sağlanacak; `TextInputType.numberWithOptions(decimal: true)` kuralı uygulanacak; `hedefKiloCtrl` bellek sızıntısı giderilecek; yemek ekleme formu temizlenecek; biyometri aralık doğrulaması eklenecek. |
+| **FAZ 6** | **UI & Responsive Düzenleme, Taşma Koruması ve Tema Bütünlüğü** | 🔴 YÜKSEK | `_kiloGecmisiGoster` modalı `isScrollControlled` ve `BoxConstraints` ile güvene alınacak; tüm diyaloglara klavye taşma koruması (`SingleChildScrollView`) verilecek; üst başlık dar ekran koruması yapılacak; hardcoded İngilizce kelimeler `TranslationManager`'a bağlanacak; Solo Leveling neon renk paleti eşitlenecek. |
+| **FAZ 7** | **Kilo-Odaklı AI Antrenman & Günlük "Net Yapılacaklar" Motoru** | 🟡 YÜKSEK | Avcının mevcut kilosu (`kilo`), boyu ve hedef kilosu hem `aiEkIdmanUret` promptuna hem de yerel `baslangicPrograminiAta` motoruna bağlanacak; kullanıcının kilosuna özel vücut ağırlığı direnç ölçeklemesi ve kardiyo yakım hedefleri entegre edilecek; Dashboard'daki "Net Yapılacaklar" paneline kiloya özel günlük görevler eklenecek. |
+| **FAZ 8** | **MVP Final Polish, Uçtan Uca Test Paketi & Release Derlemesi** | 🟢 SON AŞAMA | Tüm yeni fonksiyonlar için widget ve birim testleri (150+ test) yazılacak; statik analiz sıfır hata ile doğrulanacak; projedeki tüm fazlar tamamlanarak kararlı MVP release APK'sı derlenecek. |
+
+---
+
+> [!TIP]
+> Faz 5–8 tamamlandığında Solo Leveling App; sıfır çökme riski, kusursuz sayısal giriş ve klavye deneyimi, taşmasız responsive arayüz, kullanıcının vücut kilosuna tam adapte olan yapay zeka antrenman motoru ve eksiksiz Solo Leveling görsel kimliğiyle **tam teşekküllü MVP** olarak yayına hazır olacaktır.
+
